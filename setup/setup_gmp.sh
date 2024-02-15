@@ -3,7 +3,7 @@ export CC=gcc-12
 export CXX=g++-12
 
 WRKDIR=/home/docker/mpf_class_mkII/setup/work_gmp
-ARCHIVEDIR=/home/docker/mpfrcxx/mpf_class_mkII/
+ARCHIVEDIR=/home/docker/mpf_class_mkII/archives
 
 rm -rf $WRKDIR
 mkdir -p $WRKDIR
