@@ -62,7 +62,7 @@ RUN echo "\n\
 " > /home/$DOCKER_USER/.gitconfig
 SHELL ["/bin/bash", "-c"]
 
-RUN cd ${WORK} && git clone https://github.com/nakatamaho/mpf_class.git
-RUN cd ${WORK}/mpf_class && git remote set-url origin git@github.com:nakatamaho/mpf_class.git
-RUN cd ${WORK}/mpf_class/setup && bash -x setup_gmp.sh
-RUN cd ${WORK}/mpf_class/ && make
+RUN cd ${WORK} && git clone https://github.com/nakatamaho/mpf_class_mkII.git
+RUN cd ${WORK}/mpf_class_mkII && git remote set-url origin git@github.com:nakatamaho/mpf_class_mkII.git
+RUN cd ${WORK}/mpf_class_mkII/setup && bash -x setup_gmp.sh
+RUN cd ${WORK}/mpf_class_mkII && make
