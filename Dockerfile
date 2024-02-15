@@ -1,10 +1,10 @@
 # * How to build
-#  docker build -f Dockerfile --build-arg SSH_KEY="$(cat ~/.ssh/id_ed25519)" -t mpfrcxx .
+#  docker build -f Dockerfile --build-arg SSH_KEY="$(cat ~/.ssh/id_ed25519)" -t mpf_class .
 # * How to run
 #  sudo sh -c 'echo -1 >/proc/sys/kernel/perf_event_paranoid' # to run perf
 #  or
 #  sudo sysctl -w kernel.perf_event_paranoid=-1 # to run perf
-#  docker run -it mpfrcxx /bin/bash
+#  docker run -it mpf_class /bin/bash
 #
 FROM ubuntu:22.04
 
