@@ -1,7 +1,7 @@
-Yet another MPFR C++ wrapper for High-Precision Calculations
+Yet another GMP C++ wrapper for High-Precision Calculations
 # Overview
 
-The mpfrcxx is a C++ class designed to facilitate high-precision arithmetic operations using the MPFR library licensed under 2-clause BSD license. 
+The mpf_class_mkII is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library licensed under 2-clause BSD license. 
 MPFR is a C library for multiple-precision floating-point computations with correct rounding. This class provides a convenient C++ wrapper around the MPFR library's functionalities.
 Features
     
