@@ -43,6 +43,9 @@ class defaults {
 
 class mpf_class {
   public:
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // 7.1 Initialization Functions
+    ////////////////////////////////////////////////////////////////////////////////////////
     mpf_class() { mpf_init(value); }
     ~mpf_class() { mpf_clear(value); }
     void set_prec(mpf_prec_t prec) { mpfr_set_prec(value, prec); }
@@ -152,7 +155,6 @@ class mpf_class {
 } // namespace mpf_class
 
 mpf_prec_t mpf_class::defaults::prec;
-int mpf_class::defaults::base;
 
 class Initializer {
   public:

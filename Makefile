@@ -1,7 +1,7 @@
 CXX = g++-12
 CXXFLAGS = -Wall -Wextra
-LDFLAGS = -L/home/docker/mpfrcxx/i/GMP-6.3.0/lib -lgmp
-INCLUDES = -I/home/docker/mpfrcxx/i/GMP-6.3.0/include
+LDFLAGS = -L/home/docker/mpf_class_mkII/i/GMP-6.3.0/lib -lgmp
+INCLUDES = -I/home/docker/mpf_class_mkII/i/GMP-6.3.0/include
 
 TARGET = test_mpf_class
 
