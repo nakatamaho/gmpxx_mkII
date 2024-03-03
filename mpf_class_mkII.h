@@ -167,7 +167,7 @@ class mpf_class_initializer {
   public:
     mpf_class_initializer() {
         gmp::defaults::set_default_prec(512);
-        gmp::defaults::base(10);
+        gmp::defaults::base = 10;
     }
 };
 

@@ -33,27 +33,27 @@
 
 #include "mpf_class_mkII.h"
 
-using namespace mpf_class;
+using namespace gmp;
 
 // Asserts that the mpf_class object equals the expected string representation
-bool IsGMPEquals(mpf_class::mpf_class &mpfrObj, const char *expected, int base = defaults::base, int precision = 10) {
+bool IsGMPEquals(mpf_class &gmpobj, const char *expected, int base = defaults::base, int precision = 10) {
     char formatString[64];
     char buffer[64];
 
     // Adjust the comparison based on the base
     switch (base) {
     case 2:
-        std::sprintf(formatString, "%%.%dRb", precision);         // Generates format string like "%.10Rf"
-        mpfr_sprintf(buffer, formatString, mpfrObj.get_mpfr_t()); // Uses generated format string
+        std::sprintf(formatString, "%%.%dRb", precision);      // Generates format string like "%.10Rf"
+        gmp_sprintf(buffer, formatString, gmpobj.get_mpf_t()); // Uses generated format string
         break;
     case 10:
-        std::sprintf(formatString, "%%.%dRf", precision);         // Generates format string like "%.10Rf"
-        mpfr_sprintf(buffer, formatString, mpfrObj.get_mpfr_t()); // Uses generated format string
+        std::sprintf(formatString, "%%.%dRf", precision);      // Generates format string like "%.10Rf"
+        gmp_sprintf(buffer, formatString, gmpobj.get_mpf_t()); // Uses generated format string
         break;
 
     case 16:
-        std::sprintf(formatString, "%%.%dRa", precision);         // Generates format string like "%.10Rf"
-        mpfr_sprintf(buffer, formatString, mpfrObj.get_mpfr_t()); // Uses generated format string
+        std::sprintf(formatString, "%%.%dRa", precision);      // Generates format string like "%.10Rf"
+        gmp_sprintf(buffer, formatString, gmpobj.get_mpf_t()); // Uses generated format string
         break;
 
     default:
@@ -82,7 +82,7 @@ void testDefaultPrecision() {
 void testDefaultConstructor() {
     mpf_class a;
     char buffer[100];
-    mpfr_snprintf(buffer, sizeof(buffer), "%.0Rf", a.get_mpfr_t());
+    mpfr_snprintf(buffer, sizeof(buffer), "%.0Rf", a.get_mpf_t());
     assert(std::string(buffer) == "nan");
     std::cout << "Default constructor test passed." << std::endl;
 }
