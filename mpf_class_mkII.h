@@ -34,11 +34,16 @@
 #include <iostream>
 #include <utility>
 
+#define ___MPF_CLASS_EXPLICIT___ explicit
+
 namespace gmp {
 
 class defaults {
   public:
-    static mpf_prec_t prec;
+    static mp_bitcnt_t prec;
+    static int base;
+    static inline void set_default_prec(const mp_bitcnt_t prec) { mpf_set_default_prec(prec); }
+    static inline mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
 };
 
 class mpf_class {
@@ -48,29 +53,33 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     mpf_class() { mpf_init(value); }
     ~mpf_class() { mpf_clear(value); }
-    void set_prec(mpf_prec_t prec) { mpfr_set_prec(value, prec); }
-    mpfr_prec_t get_prec() const { return mpfr_get_prec(value); }
+    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
+    mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
 
     mpf_class(const mpf_class &other) {
         mpf_init2(value, mpf_get_prec(other.value));
-        mpf_set(value, other.value, defaults::rnd);
+        mpf_set(value, other.value);
     }
 
     mpf_class(mpf_class &&other) noexcept { mpf_swap(value, other.value); }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(uintmax_t uj) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned long int ui) noexcept {
         mpf_init(value);
-        mpf_set_uj(value, uj, defaults::rnd);
+        mpf_set_ui(value, ui);
+    }
+    ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int si) noexcept {
+        mpf_init(value);
+        mpf_set_si(value, si);
     }
     mpf_class(const char *str, int base = defaults::base) {
         mpf_init(value);
-        if (mpf_set_str(value, str, base, rnd) != 0) {
+        if (mpf_set_str(value, str, base) != 0) {
             std::cerr << "Error initializing mpf_t from const char*: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
     mpf_class(const std::string &str, int base = defaults::base) {
         mpf_init(value);
-        if (mpf_set_str(value, str.c_str(), base, rnd) != 0) {
+        if (mpf_set_str(value, str.c_str(), base) != 0) {
             std::cerr << "Error initializing mpf_t from std::string: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
@@ -82,18 +91,18 @@ class mpf_class {
         return *this;
     }
     mpf_class &operator=(double d) noexcept {
-        mpf_set_d(value, d, defaults::rnd);
+        mpf_set_d(value, d);
         return *this;
     }
     mpf_class &operator=(const char *str) {
-        if (mpf_set_str(value, str, defaults::base, defaults::rnd) != 0) {
+        if (mpf_set_str(value, str, defaults::base) != 0) {
             std::cerr << "Error assigning mpf_t from char:" << std::endl;
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
         return *this;
     }
     mpf_class &operator=(const std::string &str) {
-        if (mpf_set_str(value, str.c_str(), defaults::base, defaults::rnd) != 0) {
+        if (mpf_set_str(value, str.c_str(), defaults::base) != 0) {
             std::cerr << "Error assigning mpf_t from string: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
@@ -102,48 +111,45 @@ class mpf_class {
 
     mpf_class operator+(const mpf_class &rhs) const {
         mpf_class result;
-        mpf_add(result.value, value, rhs.value, defaults::rnd);
+        mpf_add(result.value, value, rhs.value);
         return result;
     }
     mpf_class &operator+=(const mpf_class &rhs) {
-        mpf_add(value, value, rhs.value, defaults::rnd);
+        mpf_add(value, value, rhs.value);
         return *this;
     }
     mpf_class operator*(const mpf_class &rhs) const {
         mpf_class result;
-        mpf_mul(result.value, this->value, rhs.value, defaults::rnd);
+        mpf_mul(result.value, this->value, rhs.value);
         return result;
     }
     mpf_class &operator*=(const mpf_class &rhs) {
-        mpf_mul(value, value, rhs.value, defaults::rnd);
+        mpf_mul(value, value, rhs.value);
         return *this;
     }
     mpf_class operator-(const mpf_class &rhs) const {
         mpf_class result;
-        mpf_sub(result.value, this->value, rhs.value, defaults::rnd);
+        mpf_sub(result.value, this->value, rhs.value);
         return result;
     }
     mpf_class &operator-=(const mpf_class &rhs) {
-        mpf_sub(value, value, rhs.value, defaults::rnd);
+        mpf_sub(value, value, rhs.value);
         return *this;
     }
     mpf_class operator/(const mpf_class &rhs) const {
         mpf_class result;
-        mpf_div(result.value, this->value, rhs.value, defaults::rnd);
+        mpf_div(result.value, this->value, rhs.value);
         return result;
     }
     mpf_class &operator/=(const mpf_class &rhs) {
-        mpf_div(value, value, rhs.value, defaults::rnd);
+        mpf_div(value, value, rhs.value);
         return *this;
     }
     static mpf_class sqrt(const mpf_class &a) {
         mpf_class result;
-        mpf_sqrt(result.value, a.value, defaults::rnd);
+        mpf_sqrt(result.value, a.value);
         return result;
     }
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // 5.6 Comparison Functions
-    ////////////////////////////////////////////////////////////////////////////////////////
     friend inline bool operator==(const mpf_class &lhs, const mpf_class &rhs) { return mpf_cmp(lhs.value, rhs.value) == 0; }
     friend inline bool operator!=(const mpf_class &lhs, const mpf_class &rhs) { return mpf_cmp(lhs.value, rhs.value) != 0; }
     mpf_t *get_mpf_t() { return &value; }
@@ -152,15 +158,17 @@ class mpf_class {
     mpf_t value;
 };
 
-} // namespace mpf_class
+} // namespace gmp
 
-mpf_prec_t mpf_class::defaults::prec;
+mp_bitcnt_t gmp::defaults::prec;
+int gmp::defaults::base;
 
-class Initializer {
+class mpf_class_initializer {
   public:
-    Initializer() {
-        mpf_class::defaults::set_default_prec(512);
+    mpf_class_initializer() {
+        gmp::defaults::set_default_prec(512);
+        gmp::defaults::base(10);
     }
 };
 
-Initializer globalInitializer;
+mpf_class_initializer global_mpf_class_initializer;
