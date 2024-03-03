@@ -5,7 +5,7 @@ INCLUDES = -I/home/docker/mpfrcxx/i/GMP-6.3.0/include
 
 TARGET = test_mpf_class
 
-SOURCES = test_mpf_class.cpp
+SOURCES = test_mpf_class_mkII.cpp
 HEADERS = mpf_class_mkII.h
 OBJECTS = $(SOURCES:.cpp=.o)
 
