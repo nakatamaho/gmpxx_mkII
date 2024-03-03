@@ -67,7 +67,7 @@ bool IsGMPEquals(mpf_class &gmpobj, const char *expected, int base = defaults::b
 }
 
 void testDefaultPrecision() {
-    mpfr_prec_t defaultPrec = defaults::get_default_prec();
+    mp_bitcnt_t defaultPrec = defaults::get_default_prec();
     assert(defaultPrec == 512);
     std::cout << "Default precision test passed." << std::endl;
 
@@ -82,7 +82,7 @@ void testDefaultPrecision() {
 void testDefaultConstructor() {
     mpf_class a;
     char buffer[100];
-    mpfr_snprintf(buffer, sizeof(buffer), "%.0Rf", a.get_mpf_t());
+    gmp_snprintf(buffer, sizeof(buffer), "%.0Rf", a.get_mpf_t());
     assert(std::string(buffer) == "nan");
     std::cout << "Default constructor test passed." << std::endl;
 }
@@ -106,11 +106,11 @@ void testInitializationAndAssignmentDouble() {
     double testValue = 3.1415926535;
     const char *expectedValue = "3.1415926535";
 
-    mpf_class::mpf_class a = (mpf_class)testValue;
+    gmp::mpf_class a = (mpf_class)testValue;
     assert(IsGMPEquals(a, expectedValue));
     std::cout << "Substitution from double using constructor test passed." << std::endl;
 
-    mpf_class::mpf_class b;
+    gmp::mpf_class b;
     b = testValue;
     assert(IsGMPEquals(b, expectedValue));
     std::cout << "Substitution from double using assignment test passed." << std::endl;
