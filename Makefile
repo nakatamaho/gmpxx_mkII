@@ -1,12 +1,12 @@
 CXX = g++-12
 CXXFLAGS = -Wall -Wextra
-LDFLAGS = -L/home/docker/mpf_class_mkII/i/GMP-6.3.0/lib -lgmp
-INCLUDES = -I/home/docker/mpf_class_mkII/i/GMP-6.3.0/include
+LDFLAGS = -L/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib -lgmp
+INCLUDES = -I/home/docker/gmpxx_mkII/i/GMP-6.3.0/include
 
-TARGET = test_mpf_class
+TARGET = test_gmpxx_mkII
 
-SOURCES = test_mpf_class_mkII.cpp
-HEADERS = mpf_class_mkII.h
+SOURCES = test_gmpxx_mkII.cpp
+HEADERS = gmpxx_mkII.h
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: $(TARGET)
