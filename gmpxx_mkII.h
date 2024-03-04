@@ -90,7 +90,7 @@ class mpf_class {
     // mpf_class::mpf_class (type op)
     // mpf_class::mpf_class (type op, mp_bitcnt_t prec)
     mpf_class(const mpf_class &op) {
-        mpf_init2(value, mpf_get_prec(op));
+        mpf_init2(value, mpf_get_prec(op.value));
         mpf_set(value, op.value);
     }
     mpf_class(mpf_class &&op) noexcept { mpf_swap(value, op.value); }
@@ -107,7 +107,7 @@ class mpf_class {
         mpf_set_si(value, op);
     }
     ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = defaults::prec) noexcept {
-        mpf_init(value, prec);
+        mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
 
