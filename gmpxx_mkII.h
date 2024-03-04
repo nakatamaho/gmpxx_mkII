@@ -49,27 +49,71 @@ class defaults {
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
-    // 7.1 Initialization Functions
+    // 12.4 C++ Interface Floats
     ////////////////////////////////////////////////////////////////////////////////////////
+    // explicit mpf_class::mpf_class (const mpf_t f)
+    // mpf_class::mpf_class (const mpf_t f, mp_bitcnt_t prec)
+    // explicit mpf_class::mpf_class (const char *s)
+    // mpf_class::mpf_class (const char *s, mp_bitcnt_t prec, int base = 0)
+    // explicit mpf_class::mpf_class (const string& s)
+    // mpf_class::mpf_class (const string& s, mp_bitcnt_t prec, int base = 0)
+    // mpf_class operator"" _mpf (const char *str)
+    // mpf_class& mpf_class::operator= (type op)
+    // mpf_class abs (mpf_class op)
+    // mpf_class ceil (mpf_class op)
+    // int cmp (mpf_class op1, type op2)
+    // int cmp (type op1, mpf_class op2)
+    // bool mpf_class::fits_sint_p (void)
+    // bool mpf_class::fits_slong_p (void)
+    // bool mpf_class::fits_sshort_p (void)
+    // bool mpf_class::fits_uint_p (void)
+    // bool mpf_class::fits_ulong_p (void)
+    // bool mpf_class::fits_ushort_p (void)
+    // mpf_class floor (mpf_class op)
+    // mpf_class hypot (mpf_class op1, mpf_class op2)
+    // double mpf_class::get_d (void)
+    // long mpf_class::get_si (void)
+    // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
+    // unsigned long mpf_class::get_ui (void)
+    // int mpf_class::set_str (const char *str, int base)
+    // int mpf_class::set_str (const string& str, int base)
+    // int sgn (mpf_class op)
+    // mpf_class sqrt (mpf_class op)
+    // void mpf_class::swap (mpf_class& op)
+    // void swap (mpf_class& op1, mpf_class& op2)
+    // mpf_class trunc (mpf_class op)
+    // mp_bitcnt_t mpf_class::get_prec ()
+    // void mpf_class::set_prec (mp_bitcnt_t prec)
+    // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
     mpf_class() { mpf_init(value); }
     ~mpf_class() { mpf_clear(value); }
+    // mpf_class::mpf_class (type op)
+    // mpf_class::mpf_class (type op, mp_bitcnt_t prec)
+    mpf_class(const mpf_class &op) {
+        mpf_init2(value, mpf_get_prec(op));
+        mpf_set(value, op.value);
+    }
+    mpf_class(mpf_class &&op) noexcept { mpf_swap(value, op.value); }
+    mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
+        mpf_init2(value, prec);
+        mpf_set(value, op.value);
+    }
+    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned long int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+        mpf_init2(value, prec);
+        mpf_set_ui(value, op);
+    }
+    ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+        mpf_init2(value, prec);
+        mpf_set_si(value, op);
+    }
+    ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = defaults::prec) noexcept {
+        mpf_init(value, prec);
+        mpf_set_d(value, op);
+    }
+
     void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
     mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
 
-    mpf_class(const mpf_class &other) {
-        mpf_init2(value, mpf_get_prec(other.value));
-        mpf_set(value, other.value);
-    }
-
-    mpf_class(mpf_class &&other) noexcept { mpf_swap(value, other.value); }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned long int ui) noexcept {
-        mpf_init(value);
-        mpf_set_ui(value, ui);
-    }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int si) noexcept {
-        mpf_init(value);
-        mpf_set_si(value, si);
-    }
     mpf_class(const char *str, int base = defaults::base) {
         mpf_init(value);
         if (mpf_set_str(value, str, base) != 0) {
