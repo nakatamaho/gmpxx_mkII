@@ -31,7 +31,7 @@
 #include <cstring>
 #include <string>
 
-#include "mpf_class_mkII.h"
+#include "gmpxx_mkII.h"
 
 using namespace gmp;
 
