@@ -200,11 +200,50 @@ class mpf_class {
     friend inline bool operator>(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) > 0; }
     friend inline bool operator<=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) <= 0; }
     friend inline bool operator>=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) >= 0; }
+
+    mpf_class &operator+=(double rhs) {
+        mpf_t temp;
+        mpf_init_set_d(temp, rhs);
+        mpf_add(value, value, temp);
+        mpf_clear(temp);
+        return *this;
+    }
+    mpf_class &operator-=(double rhs) {
+        mpf_t temp;
+        mpf_init_set_d(temp, rhs);
+        mpf_sub(value, value, temp);
+        mpf_clear(temp);
+        return *this;
+    }
+    mpf_class &operator*=(double rhs) {
+        mpf_t temp;
+        mpf_init_set_d(temp, rhs);
+        mpf_mul(value, value, temp);
+        mpf_clear(temp);
+        return *this;
+    }
+    mpf_class &operator/=(double rhs) {
+        mpf_t temp;
+        mpf_init_set_d(temp, rhs);
+        mpf_div(value, value, temp);
+        mpf_clear(temp);
+        return *this;
+    }
+    friend mpf_class operator+(const mpf_class &lhs, const double rhs);
+    friend mpf_class operator+(const double lhs, const mpf_class &rhs);
+    friend mpf_class operator-(const mpf_class &lhs, const double rhs);
+    friend mpf_class operator-(const double lhs, const mpf_class &rhs);
+    friend mpf_class operator*(const mpf_class &lhs, const double rhs);
+    friend mpf_class operator*(const double lhs, const mpf_class &rhs);
+    friend mpf_class operator/(const mpf_class &lhs, double rhs);
+    friend mpf_class operator/(const double lhs, const mpf_class &rhs);
+
     mpf_srcptr get_mpf_t() const { return value; }
 
   private:
     mpf_t value;
 };
+
 inline mpf_class sqrt(const mpf_class &op) {
     mpf_class rop;
     mpf_sqrt(rop.value, op.get_mpf_t());
@@ -221,6 +260,46 @@ inline mpf_class abs(const mpf_class &op) {
     return rop;
 }
 
+inline mpf_class operator+(const mpf_class &lhs, const double rhs) {
+    mpf_class result(lhs);
+    result += rhs;
+    return result;
+}
+inline mpf_class operator+(const double lhs, const mpf_class &rhs) {
+    mpf_class result(lhs);
+    result += rhs;
+    return result;
+}
+inline mpf_class operator-(const mpf_class &lhs, const double rhs) {
+    mpf_class result (lhs);
+    result -= rhs;
+    return result;
+}
+inline mpf_class operator-(const double lhs, const mpf_class &rhs) {
+    mpf_class result(lhs);
+    result -= rhs;
+    return result;
+}
+inline mpf_class operator*(const mpf_class &lhs, const double rhs) {
+    mpf_class result = (lhs);
+    result *= rhs;
+    return result;
+}
+inline mpf_class operator*(const double lhs, const mpf_class &rhs) {
+    mpf_class result(lhs);
+    result *= rhs;
+    return result;
+}
+inline mpf_class operator/(const mpf_class &lhs, const double rhs) {
+    mpf_class result = lhs;
+    result /= rhs;
+    return result;
+}
+inline mpf_class operator/(const double lhs, const mpf_class &rhs) {
+    mpf_class result(lhs);
+    result /= rhs;
+    return result;
+}
 } // namespace gmp
 
 mp_bitcnt_t gmp::defaults::prec;

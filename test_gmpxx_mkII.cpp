@@ -200,35 +200,35 @@ void testSubtraction() {
 }
 
 void testComparisonOperators() {
-  mpf_class num1("1.23"), num2("4.56"), num3("1.23");
+    mpf_class num1("1.23"), num2("4.56"), num3("1.23");
 
-  // Test == operator
-  assert(num1 == num3);
-  assert(!(num1 == num2));
+    // Test == operator
+    assert(num1 == num3);
+    assert(!(num1 == num2));
 
-  // Test != operator
-  assert(num1 != num2);
-  assert(!(num1 != num3));
+    // Test != operator
+    assert(num1 != num2);
+    assert(!(num1 != num3));
 
-  // Test < operator
-  assert(num1 < num2);
-  assert(!(num2 < num1));
+    // Test < operator
+    assert(num1 < num2);
+    assert(!(num2 < num1));
 
-  // Test > operator
-  assert(num2 > num1);
-  assert(!(num1 > num2));
+    // Test > operator
+    assert(num2 > num1);
+    assert(!(num1 > num2));
 
-  // Test <= operator
-  assert(num1 <= num3); // Equal case
-  assert(num1 <= num2); // Less than case
-  assert(!(num2 <= num1)); // Not less than or equal
+    // Test <= operator
+    assert(num1 <= num3);    // Equal case
+    assert(num1 <= num2);    // Less than case
+    assert(!(num2 <= num1)); // Not less than or equal
 
-  // Test >= operator
-  assert(num1 >= num3); // Equal case
-  assert(num2 >= num1); // Greater than case
-  assert(!(num1 >= num2)); // Not greater than or equal
+    // Test >= operator
+    assert(num1 >= num3);    // Equal case
+    assert(num2 >= num1);    // Greater than case
+    assert(!(num1 >= num2)); // Not greater than or equal
 
-  std::cout << "All comparison operator tests passed successfully." << std::endl;
+    std::cout << "All comparison operator tests passed successfully." << std::endl;
 }
 
 void testSqrt() {
@@ -269,6 +269,61 @@ void testAbs() {
     std::cout << "abs test passed." << std::endl;
 }
 
+void test_mpf_class_double_addition() {
+    mpf_class a(1.0), c;
+    const char *expectedValue = "3.0000000000";
+    double b = 2.0;
+
+    c = a + b;
+    assert(Is_mpf_class_Equals(c, expectedValue));
+    c = b + a;
+    assert(Is_mpf_class_Equals(c, expectedValue));
+    a += b;
+    assert(Is_mpf_class_Equals(a, expectedValue));
+    std::cout << "mpf_class + double test passed." << std::endl;
+}
+void test_mpf_class_double_subtraction() {
+    mpf_class a(5.0), c, d;
+    const char *expectedValueC = "3.0000000000";
+    const char *expectedValueD = "-3.0000000000";
+    double b = 2.0;
+
+    c = a - b;
+    assert(Is_mpf_class_Equals(c, expectedValueC));
+    d = b - a;
+    assert(Is_mpf_class_Equals(d, expectedValueD));
+    a -= b;
+    assert(Is_mpf_class_Equals(a, expectedValueC));
+    std::cout << "mpf_class - double test passed." << std::endl;
+}
+void test_mpf_class_double_multiplication() {
+    mpf_class a(2.0), c;
+    const char *expectedValueMul = "4.0000000000";
+    double b = 2.0;
+
+    c = a * b;
+    assert(Is_mpf_class_Equals(c, expectedValueMul));
+    c = b * a;
+    assert(Is_mpf_class_Equals(c, expectedValueMul));
+    a *= b;
+    assert(Is_mpf_class_Equals(a, expectedValueMul));
+    std::cout << "mpf_class * double test passed." << std::endl;
+}
+void test_mpf_class_double_division() {
+    mpf_class a(4.0), c, d;
+    const char *expectedValueDiv = "2.0000000000";
+    const char *expectedValueDivRev = "0.5000000000";
+    double b = 2.0;
+
+    c = a / b;
+    assert(Is_mpf_class_Equals(c, expectedValueDiv));
+    d = b / a;
+    assert(Is_mpf_class_Equals(d, expectedValueDivRev));
+    a /= b;
+    assert(Is_mpf_class_Equals(a, expectedValueDiv));
+    std::cout << "mpf_class / double test passed." << std::endl;
+}
+
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -284,10 +339,10 @@ int main() {
     testSqrt();
     testNeg();
     testAbs();
-    //    test_mpf_class_double_addition();
-    //    test_mpf_class_double_subtraction();
-    //    test_mpf_class_double_multiplication();
-    //    test_mpf_class_double_division();
+    test_mpf_class_double_addition();
+    test_mpf_class_double_subtraction();
+    test_mpf_class_double_multiplication();
+    test_mpf_class_double_division();
 
     std::cout << "All tests passed." << std::endl;
 
