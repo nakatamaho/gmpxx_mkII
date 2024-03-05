@@ -214,6 +214,23 @@ void testEqNonEq() {
     std::cout << "Subtle difference test passed." << std::endl;
 }
 
+void testNeg() {
+    mpf_class a(-3.5);
+    mpf_class result = neg(a);
+    mpf_class expected = "3.5";
+    assert(result == expected);
+    std::cout << "neg test passed." << std::endl;
+}
+
+void testAbs() {
+    mpf_class a(-3.5);
+    mpf_class c = abs(a);
+    mpf_class expected = "3.5";
+    mpf_class result = abs(a);
+    assert(result == expected);
+    std::cout << "abs test passed." << std::endl;
+}
+
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -226,6 +243,14 @@ int main() {
     testDivision();
     testSubtraction();
     testEqNonEq();
+    //    testSqrt();
+    testNeg();
+    testAbs();
+    //    test_mpf_class_double_addition();
+    //    test_mpf_class_double_subtraction();
+    //    test_mpf_class_double_multiplication();
+    //    test_mpf_class_double_division();
+
     std::cout << "All tests passed." << std::endl;
 
     return 0;

@@ -189,18 +189,33 @@ class mpf_class {
         mpf_div(value, value, rhs.value);
         return *this;
     }
-    static mpf_class sqrt(const mpf_class &a) {
-        mpf_class result;
-        mpf_sqrt(result.value, a.value);
-        return result;
-    }
+
+    friend mpf_class sqrt(const mpf_class &a);
+    friend mpf_class neg(const mpf_class &a);
+    friend mpf_class abs(const mpf_class &a);
+
     friend inline bool operator==(const mpf_class &lhs, const mpf_class &rhs) { return mpf_cmp(lhs.value, rhs.value) == 0; }
     friend inline bool operator!=(const mpf_class &lhs, const mpf_class &rhs) { return mpf_cmp(lhs.value, rhs.value) != 0; }
-    mpf_t *get_mpf_t() { return &value; }
+    mpf_srcptr get_mpf_t() const { return value; }
 
   private:
     mpf_t value;
 };
+inline mpf_class sqrt(const mpf_class &op) {
+    mpf_class rop;
+    mpf_sqrt(rop.value, op.get_mpf_t());
+    return rop;
+}
+inline mpf_class neg(const mpf_class &op) {
+    mpf_class rop;
+    mpf_neg(rop.value, op.get_mpf_t());
+    return rop;
+}
+inline mpf_class abs(const mpf_class &op) {
+    mpf_class rop;
+    mpf_abs(rop.value, op.get_mpf_t());
+    return rop;
+}
 
 } // namespace gmp
 
