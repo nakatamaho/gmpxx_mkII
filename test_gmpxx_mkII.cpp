@@ -199,19 +199,36 @@ void testSubtraction() {
     std::cout << "Subtraction Test passed." << std::endl;
 }
 
-void testEqNonEq() {
-    mpf_class obj1("2.718281828459045");
-    mpf_class obj2("2.718281828459045");
-    assert(obj1 == obj2);
-    std::cout << "Equality test passed." << std::endl;
+void testComparisonOperators() {
+  mpf_class num1("1.23"), num2("4.56"), num3("1.23");
 
-    mpf_class obj3("3.141592653589793");
-    assert(obj1 != obj3);
-    std::cout << "Inequality test passed." << std::endl;
+  // Test == operator
+  assert(num1 == num3);
+  assert(!(num1 == num2));
 
-    mpf_class obj4("2.7182818284590451");
-    assert(obj1 != obj4);
-    std::cout << "Subtle difference test passed." << std::endl;
+  // Test != operator
+  assert(num1 != num2);
+  assert(!(num1 != num3));
+
+  // Test < operator
+  assert(num1 < num2);
+  assert(!(num2 < num1));
+
+  // Test > operator
+  assert(num2 > num1);
+  assert(!(num1 > num2));
+
+  // Test <= operator
+  assert(num1 <= num3); // Equal case
+  assert(num1 <= num2); // Less than case
+  assert(!(num2 <= num1)); // Not less than or equal
+
+  // Test >= operator
+  assert(num1 >= num3); // Equal case
+  assert(num2 >= num1); // Greater than case
+  assert(!(num1 >= num2)); // Not greater than or equal
+
+  std::cout << "All comparison operator tests passed successfully." << std::endl;
 }
 
 void testSqrt() {
@@ -263,7 +280,7 @@ int main() {
     testMultplication();
     testDivision();
     testSubtraction();
-    testEqNonEq();
+    testComparisonOperators();
     testSqrt();
     testNeg();
     testAbs();
