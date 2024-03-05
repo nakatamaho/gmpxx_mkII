@@ -214,6 +214,27 @@ void testEqNonEq() {
     std::cout << "Subtle difference test passed." << std::endl;
 }
 
+void testSqrt() {
+    // Test Case 1: Calculate the square root of a positive number
+    mpf_class a;
+    a = "4.0"; // Square root of 4.0 is 2.0
+    mpf_class result = sqrt(a);
+    std::string expected = "2.0000000000";
+    assert(Is_mpf_class_Equals(result, expected.c_str()));
+
+    // Test Case 2: Calculate the square root of 0
+    mpf_class b("0.0"); // Square root of 0.0 is 0.0
+    result = sqrt(b);
+    expected = "0.0000000000";
+    assert(Is_mpf_class_Equals(result, expected.c_str()));
+
+    // Test Case 3: Calculate the square root of a negative number (should raise an error)
+    //  mpf_class c("-1.0");
+    //  result = sqrt(c);
+    //  assert(result.is_nan()); // Check if the result is NaN
+    std::cout << "Test square root test passed." << std::endl;
+}
+
 void testNeg() {
     mpf_class a(-3.5);
     mpf_class result = neg(a);
@@ -243,7 +264,7 @@ int main() {
     testDivision();
     testSubtraction();
     testEqNonEq();
-    //    testSqrt();
+    testSqrt();
     testNeg();
     testAbs();
     //    test_mpf_class_double_addition();

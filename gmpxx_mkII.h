@@ -194,8 +194,12 @@ class mpf_class {
     friend mpf_class neg(const mpf_class &a);
     friend mpf_class abs(const mpf_class &a);
 
-    friend inline bool operator==(const mpf_class &lhs, const mpf_class &rhs) { return mpf_cmp(lhs.value, rhs.value) == 0; }
-    friend inline bool operator!=(const mpf_class &lhs, const mpf_class &rhs) { return mpf_cmp(lhs.value, rhs.value) != 0; }
+    friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
+    friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
+    friend inline bool operator<(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) < 0; }
+    friend inline bool operator>(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) > 0; }
+    friend inline bool operator<=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) <= 0; }
+    friend inline bool operator>=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) >= 0; }
     mpf_srcptr get_mpf_t() const { return value; }
 
   private:
