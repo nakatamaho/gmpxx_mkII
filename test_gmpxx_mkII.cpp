@@ -30,6 +30,7 @@
 #include <cassert>
 #include <cstring>
 #include <string>
+#include <iomanip>
 
 #include "gmpxx_mkII.h"
 
@@ -323,7 +324,34 @@ void test_mpf_class_double_division() {
     assert(Is_mpf_class_Equals(a, expectedValueDiv));
     std::cout << "mpf_class / double test passed." << std::endl;
 }
+void testOutputOperator() {
+    mpf_class num0(12345.6789);
+    mpf_class num1(123456.789);
+    mpf_class num2(0.0000123456789);
+    mpf_class num3(123456789.0);
+    std::ostringstream oss;
 
+    oss.str("");
+    oss.clear();
+    oss << std::setprecision(6) << num0; // Using default (general) format
+    assert(oss.str() == "12345.7");      // Expected output in general format with precision 6
+    oss.str("");
+    oss.clear();
+
+    oss << std::fixed << std::setprecision(3) << num1;
+    assert(oss.str() == "123456.789");
+    oss.str("");
+    oss.clear();
+
+    oss << std::fixed << std::setprecision(4) << num2;
+    assert(oss.str() == "0.0000");
+    oss.str("");
+    oss.clear();
+
+    oss << std::scientific << std::setprecision(2) << num3;
+    assert(oss.str() == "1.23e+08");
+    std::cout << "output test passed." << std::endl;
+}
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -343,6 +371,7 @@ int main() {
     test_mpf_class_double_subtraction();
     test_mpf_class_double_multiplication();
     test_mpf_class_double_division();
+    testOutputOperator();
 
     std::cout << "All tests passed." << std::endl;
 

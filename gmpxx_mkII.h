@@ -238,6 +238,8 @@ class mpf_class {
     friend mpf_class operator/(const mpf_class &lhs, double rhs);
     friend mpf_class operator/(const double lhs, const mpf_class &rhs);
 
+    friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
+
     mpf_srcptr get_mpf_t() const { return value; }
 
   private:
@@ -271,7 +273,7 @@ inline mpf_class operator+(const double lhs, const mpf_class &rhs) {
     return result;
 }
 inline mpf_class operator-(const mpf_class &lhs, const double rhs) {
-    mpf_class result (lhs);
+    mpf_class result(lhs);
     result -= rhs;
     return result;
 }
@@ -300,6 +302,23 @@ inline mpf_class operator/(const double lhs, const mpf_class &rhs) {
     result /= rhs;
     return result;
 }
+std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
+    std::streamsize prec = os.precision();
+    std::ios_base::fmtflags flags = os.flags();
+
+    char *str = nullptr;
+    if (flags & std::ios::scientific) {
+        gmp_asprintf(&str, "%.*Fe", static_cast<int>(prec), m.value);
+    } else if (flags & std::ios::fixed) {
+        gmp_asprintf(&str, "%.*Ff", static_cast<int>(prec), m.value);
+    } else {
+        gmp_asprintf(&str, "%.*Fg", static_cast<int>(prec), m.value);
+    }
+    os << str;
+    free(str);
+    return os;
+}
+
 } // namespace gmp
 
 mp_bitcnt_t gmp::defaults::prec;
