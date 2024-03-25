@@ -53,12 +53,7 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // explicit mpf_class::mpf_class (const mpf_t f)
     // mpf_class::mpf_class (const mpf_t f, mp_bitcnt_t prec)
-    // explicit mpf_class::mpf_class (const char *s)
-    // mpf_class::mpf_class (const char *s, mp_bitcnt_t prec, int base = 0)
-    // explicit mpf_class::mpf_class (const string& s)
-    // mpf_class::mpf_class (const string& s, mp_bitcnt_t prec, int base = 0)
     // mpf_class operator"" _mpf (const char *str)
-    // mpf_class& mpf_class::operator= (type op)
     // int cmp (mpf_class op1, type op2)
     // int cmp (type op1, mpf_class op2)
     // bool mpf_class::fits_sint_p (void)
@@ -67,9 +62,7 @@ class mpf_class {
     // bool mpf_class::fits_uint_p (void)
     // bool mpf_class::fits_ulong_p (void)
     // bool mpf_class::fits_ushort_p (void)
-
     // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
-
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
     // void mpf_class::swap (mpf_class& op)
@@ -114,18 +107,34 @@ class mpf_class {
         mpf_set_d(value, op);
     }
 
-    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
-    mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
-
-    mpf_class(const char *str, int base = defaults::base) {
+    // explicit mpf_class::mpf_class (const char *s)
+    // mpf_class::mpf_class (const char *s, mp_bitcnt_t prec, int base = 0)
+    // explicit mpf_class::mpf_class (const string& s)
+    // mpf_class::mpf_class (const string& s, mp_bitcnt_t prec, int base = 0)
+    mpf_class(const char *str) {
         mpf_init(value);
+        if (mpf_set_str(value, str, defaults::base) != 0) {
+            std::cerr << "Error initializing mpf_t from const char*: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+        }
+    }
+
+    mpf_class(const char *str, mp_bitcnt_t prec, int base = 0) {
+        mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
             std::cerr << "Error initializing mpf_t from const char*: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
-    mpf_class(const std::string &str, int base = defaults::base) {
+    mpf_class(const std::string &str) {
         mpf_init(value);
+        if (mpf_set_str(value, str.c_str(), defaults::base) != 0) {
+            std::cerr << "Error initializing mpf_t from std::string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+        }
+    }
+    mpf_class(const std::string &str, mp_bitcnt_t prec, int base = 0) {
+        mpf_init2(value, prec);
         if (mpf_set_str(value, str.c_str(), base) != 0) {
             std::cerr << "Error initializing mpf_t from std::string: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
@@ -133,6 +142,7 @@ class mpf_class {
     }
     // Initialization using assignment operator
     // Copy-and-Swap Idiom; it does both the copy assignment operator and the move assignment operator.
+    // mpf_class& mpf_class::operator= (type op)
     mpf_class &operator=(mpf_class other) noexcept {
         mpf_swap(value, other.value);
         return *this;
