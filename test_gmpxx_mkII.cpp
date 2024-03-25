@@ -541,7 +541,17 @@ void test_set_str() {
 
     std::cout << "All set_str tests passed." << std::endl;
 }
+void test_trunc_function() {
+    mpf_class num1(3.14159);
+    mpf_class truncated1 = trunc(num1);
+    assert(mpf_cmp_d(truncated1.get_mpf_t(), 3.0) == 0); // trancate 3.14159 => 3
 
+    mpf_class num2(-3.14159);
+    mpf_class truncated2 = trunc(num2);
+    assert(mpf_cmp_d(truncated2.get_mpf_t(), -3.0) == 0); // trancate -3.14159 => -3
+
+    std::cout << "trunc function tests passed." << std::endl;
+}
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -574,6 +584,7 @@ int main() {
     test_mpf_class_swap();
     test_template_cmp();
     test_set_str();
+    test_trunc_function();
 
     std::cout << "All tests passed." << std::endl;
 

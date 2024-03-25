@@ -158,6 +158,9 @@ class mpf_class {
     friend mpf_class neg(const mpf_class &op);
     friend int sgn(const mpf_class &op);
 
+    // mpf_class trunc (mpf_class op)
+    friend mpf_class trunc(const mpf_class &op);
+
     // void swap (mpf_class& op1, mpf_class& op2)
     void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
 
@@ -286,6 +289,12 @@ class mpf_class {
   private:
     mpf_t value;
 };
+
+inline mpf_class trunc(const mpf_class &op) {
+    mpf_class rop;
+    mpf_trunc(rop.value, op.get_mpf_t());
+    return rop;
+}
 
 inline mpf_class sqrt(const mpf_class &op) {
     mpf_class rop;
