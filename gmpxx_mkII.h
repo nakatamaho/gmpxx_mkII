@@ -66,7 +66,6 @@ class mpf_class {
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
     // void mpf_class::swap (mpf_class& op)
-    // void swap (mpf_class& op1, mpf_class& op2)
     // mpf_class trunc (mpf_class op)
 
     // constructor
@@ -220,6 +219,9 @@ class mpf_class {
     friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
     friend mpf_class neg(const mpf_class &op);
     friend int sgn(const mpf_class &op);
+
+    // void swap (mpf_class& op1, mpf_class& op2)
+    void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
 
     friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }

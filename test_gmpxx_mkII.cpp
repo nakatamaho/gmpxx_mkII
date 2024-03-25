@@ -37,7 +37,7 @@
 using namespace gmp;
 
 // Asserts that the mpf_class object equals the expected string representation
-bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, int base = defaults::base, int precision = 10) {
+bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, int base = defaults::base, int precision = 10, bool debug_flag = false) {
     char formatString[64];
     char buffer[64];
 
@@ -57,8 +57,12 @@ bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, int base = def
     }
     if (std::strcmp(buffer, expected) == 0)
         return true;
-    else
+    else {
+        if (debug_flag == true) {
+            printf("%s\n", buffer);
+        }
         return false;
+    }
 }
 
 void testDefaultPrecision() {
@@ -497,6 +501,19 @@ void test_mpf_class_literal() {
 
     std::cout << "User-defined literal tests for mpf_class passed." << std::endl;
 }
+
+void test_mpf_class_swap() {
+    mpf_class a("123.456"), b("789.012");
+
+    // Swap 'a' and 'b'
+    a.swap(b);
+
+    // Verify that their contents have been swapped
+    assert(Is_mpf_class_Equals(a, "789.0120000000"));
+    assert(Is_mpf_class_Equals(b, "123.4560000000"));
+
+    std::cout << "Swap tests passed." << std::endl;
+}
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -526,6 +543,7 @@ int main() {
     test_get_si();
     test_mpf_class_constructor();
     test_mpf_class_literal();
+    test_mpf_class_swap();
 
     std::cout << "All tests passed." << std::endl;
 
