@@ -514,6 +514,20 @@ void test_mpf_class_swap() {
 
     std::cout << "Swap tests passed." << std::endl;
 }
+
+void test_template_cmp() {
+  mpf_class num1(3.14);
+  assert(cmp(num1, 3.14) == 0);
+  assert(cmp(3.14, num1) == 0);
+  assert(cmp(num1, 2.71f) > 0);
+  assert(cmp(2.71f, num1) < 0);
+  //  assert(cmp(num1, 3ll) > 0);
+  //  assert(cmp(3ll, num1) < 0);
+
+  std::cout << "Template cmp function tests passed." << std::endl;
+}
+
+
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -544,6 +558,7 @@ int main() {
     test_mpf_class_constructor();
     test_mpf_class_literal();
     test_mpf_class_swap();
+    test_template_cmp();
 
     std::cout << "All tests passed." << std::endl;
 

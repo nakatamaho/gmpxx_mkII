@@ -54,8 +54,6 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // 12.4 C++ Interface Floats
     ////////////////////////////////////////////////////////////////////////////////////////
-    // int cmp (mpf_class op1, type op2)
-    // int cmp (type op1, mpf_class op2)
     // bool mpf_class::fits_sint_p (void)
     // bool mpf_class::fits_slong_p (void)
     // bool mpf_class::fits_sshort_p (void)
@@ -65,7 +63,6 @@ class mpf_class {
     // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
-    // void mpf_class::swap (mpf_class& op)
     // mpf_class trunc (mpf_class op)
 
     // constructor
@@ -144,6 +141,23 @@ class mpf_class {
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
+    // mpf_class sqrt (mpf_class op)
+    // mpf_class abs (mpf_class op)
+    // mpf_class ceil (mpf_class op)
+    // mpf_class floor (mpf_class op)
+    // mpf_class hypot (mpf_class op1, mpf_class op2)
+    // int sgn (mpf_class op)
+    friend mpf_class sqrt(const mpf_class &op);
+    friend mpf_class abs(const mpf_class &op);
+    friend mpf_class ceil(const mpf_class &op);
+    friend mpf_class floor(const mpf_class &op);
+    friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
+    friend mpf_class neg(const mpf_class &op);
+    friend int sgn(const mpf_class &op);
+
+    // void swap (mpf_class& op1, mpf_class& op2)
+    void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
+
     // Initialization using assignment operator
     // Copy-and-Swap Idiom; it does both the copy assignment operator and the move assignment operator.
     // mpf_class& mpf_class::operator= (type op)
@@ -205,23 +219,6 @@ class mpf_class {
         mpf_div(value, value, rhs.value);
         return *this;
     }
-
-    // mpf_class sqrt (mpf_class op)
-    // mpf_class abs (mpf_class op)
-    // mpf_class ceil (mpf_class op)
-    // mpf_class floor (mpf_class op)
-    // mpf_class hypot (mpf_class op1, mpf_class op2)
-    // int sgn (mpf_class op)
-    friend mpf_class sqrt(const mpf_class &op);
-    friend mpf_class abs(const mpf_class &op);
-    friend mpf_class ceil(const mpf_class &op);
-    friend mpf_class floor(const mpf_class &op);
-    friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
-    friend mpf_class neg(const mpf_class &op);
-    friend int sgn(const mpf_class &op);
-
-    // void swap (mpf_class& op1, mpf_class& op2)
-    void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
 
     friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
@@ -377,6 +374,18 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
     free(str);
     return os;
 }
+// int cmp (mpf_class op1, type op2)
+// int cmp (type op1, mpf_class op2)
+template <typename T> int cmp(const mpf_class &op1, const T &op2) {
+    mpf_class temp(op2);
+    return mpf_cmp(op1.get_mpf_t(), temp.get_mpf_t());
+}
+template <typename T> int cmp(const T &op1, const mpf_class &op2) {
+    mpf_class temp(op1);
+    return mpf_cmp(temp.get_mpf_t(), op2.get_mpf_t());
+}
+template <> int cmp<double>(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
+template <> int cmp<double>(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1); }
 
 } // namespace gmp
 
