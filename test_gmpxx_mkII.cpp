@@ -140,7 +140,7 @@ void testInitializationAndAssignmentString() {
     // Testing initialization with a hexadecimal number using an assignment operator
     const char *expectedHexValue = "0x3.243f6a8885a3p+0";
     const char *inputHexValue = "3.243F6A8885A308D313198A2E03707344A4093822299F31D008";
-    mpf_class e(inputHexValue, 16);
+    mpf_class e(inputHexValue, defaults::prec, 16);
     assert(Is_mpf_class_Equals(e, expectedHexValue, 16, 12));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 
