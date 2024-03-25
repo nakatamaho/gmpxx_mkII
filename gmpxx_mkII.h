@@ -61,8 +61,6 @@ class mpf_class {
     // bool mpf_class::fits_ulong_p (void)
     // bool mpf_class::fits_ushort_p (void)
     // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
-    // int mpf_class::set_str (const char *str, int base)
-    // int mpf_class::set_str (const string& str, int base)
     // mpf_class trunc (mpf_class op)
 
     // constructor
@@ -141,6 +139,11 @@ class mpf_class {
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
+    // int mpf_class::set_str (const char *str, int base)
+    // int mpf_class::set_str (const string& str, int base)
+    int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
+    int set_str(const std::string &str, int base) { return mpf_set_str(value, str.c_str(), base); }
+
     // mpf_class sqrt (mpf_class op)
     // mpf_class abs (mpf_class op)
     // mpf_class ceil (mpf_class op)
@@ -385,7 +388,11 @@ template <typename T> int cmp(const T &op1, const mpf_class &op2) {
     return mpf_cmp(temp.get_mpf_t(), op2.get_mpf_t());
 }
 template <> int cmp<double>(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
-template <> int cmp<double>(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1); }
+template <> int cmp<double>(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
+template <> int cmp<unsigned long int>(const mpf_class &op1, const unsigned long int &op2) { return mpf_cmp_ui(op1.get_mpf_t(), op2); }
+template <> int cmp<unsigned long int>(const unsigned long int &op1, const mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), op1); }
+template <> int cmp<signed long int>(const mpf_class &op1, const signed long int &op2) { return mpf_cmp_si(op1.get_mpf_t(), op2); }
+template <> int cmp<signed long int>(const signed long int &op1, const mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), op1); }
 
 } // namespace gmp
 

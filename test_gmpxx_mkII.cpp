@@ -516,17 +516,31 @@ void test_mpf_class_swap() {
 }
 
 void test_template_cmp() {
-  mpf_class num1(3.14);
-  assert(cmp(num1, 3.14) == 0);
-  assert(cmp(3.14, num1) == 0);
-  assert(cmp(num1, 2.71f) > 0);
-  assert(cmp(2.71f, num1) < 0);
-  assert(cmp(num1, 3UL) > 0);
-  assert(cmp(3L, num1) < 0);
+    mpf_class num1(3.14);
+    assert(cmp(num1, 3.14) == 0);
+    assert(cmp(3.14, num1) == 0);
+    assert(cmp(num1, 2.71f) > 0);
+    assert(cmp(2.71f, num1) < 0);
+    assert(cmp(num1, 3UL) > 0);
+    assert(cmp(3L, num1) < 0);
 
-  std::cout << "Template cmp function tests passed." << std::endl;
+    std::cout << "Template cmp function tests passed." << std::endl;
 }
+void test_set_str() {
+    mpf_class num;
+    const char *num_c = "123.456";
+    std::string num_s = "1.25e-3";
+    std::string num_f = "FF";
 
+    assert(num.set_str(num_c, 10) == 0);
+    assert(Is_mpf_class_Equals(num, "123.4560000000"));
+
+    assert(num.set_str(num_s, 10) == 0);
+    assert(Is_mpf_class_Equals(num, "0.0012500000"));
+    assert(num.set_str(num_f, 10) == -1);
+
+    std::cout << "All set_str tests passed." << std::endl;
+}
 
 int main() {
     testDefaultPrecision();
@@ -559,6 +573,7 @@ int main() {
     test_mpf_class_literal();
     test_mpf_class_swap();
     test_template_cmp();
+    test_set_str();
 
     std::cout << "All tests passed." << std::endl;
 
