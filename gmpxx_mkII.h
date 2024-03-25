@@ -41,9 +41,12 @@ namespace gmp {
 class defaults {
   public:
     static mp_bitcnt_t prec;
+    static mp_bitcnt_t prec_raw;
     static int base;
-    static inline void set_default_prec(const mp_bitcnt_t prec) { mpf_set_default_prec(prec); }
+    static inline void set_default_prec(const mp_bitcnt_t _prec) { mpf_set_default_prec(_prec); }
+    static inline void set_default_prec_raw(const mp_bitcnt_t prec_raw) { mpf_set_default_prec(prec_raw); }
     static inline mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
+    static inline void set_default_base(const int _base) { base = _base; }
 };
 
 class mpf_class {
@@ -51,8 +54,6 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // 12.4 C++ Interface Floats
     ////////////////////////////////////////////////////////////////////////////////////////
-    // explicit mpf_class::mpf_class (const mpf_t f)
-    // mpf_class::mpf_class (const mpf_t f, mp_bitcnt_t prec)
     // mpf_class operator"" _mpf (const char *str)
     // int cmp (mpf_class op1, type op2)
     // int cmp (type op1, mpf_class op2)
@@ -68,12 +69,20 @@ class mpf_class {
     // void mpf_class::swap (mpf_class& op)
     // void swap (mpf_class& op1, mpf_class& op2)
     // mpf_class trunc (mpf_class op)
-    // mp_bitcnt_t mpf_class::get_prec ()
-    // void mpf_class::set_prec (mp_bitcnt_t prec)
-    // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
 
+    // constructor
     mpf_class() { mpf_init(value); }
     ~mpf_class() { mpf_clear(value); }
+    // explicit mpf_class::mpf_class (const mpf_t f)
+    explicit mpf_class(const mpf_t f) {
+        mpf_init(value);
+        mpf_set(value, f);
+    }
+    //  mpf_class::mpf_class (const mpf_t f, mp_bitcnt_t prec)
+    mpf_class(const mpf_t f, mp_bitcnt_t prec) {
+        mpf_init2(value, prec);
+        mpf_set(value, f);
+    }
     // mpf_class::mpf_class (type op)
     mpf_class(const mpf_class &op) {
         mpf_init2(value, mpf_get_prec(op.value));
@@ -101,12 +110,10 @@ class mpf_class {
         mpf_init2(value, prec);
         mpf_set_si(value, (signed long)op);
     }
-
     ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = defaults::prec) noexcept {
         mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
-
     // explicit mpf_class::mpf_class (const char *s)
     // mpf_class::mpf_class (const char *s, mp_bitcnt_t prec, int base = 0)
     // explicit mpf_class::mpf_class (const string& s)
@@ -118,7 +125,6 @@ class mpf_class {
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
-
     mpf_class(const char *str, mp_bitcnt_t prec, int base = 0) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
@@ -266,9 +272,15 @@ class mpf_class {
     // double mpf_class::get_d (void)
     // unsigned long mpf_class::get_ui (void)
     // long mpf_class::get_si (void)
+    // mp_bitcnt_t mpf_class::get_prec ()
+    // void mpf_class::set_prec (mp_bitcnt_t prec)
+    // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
     double get_d() const { return mpf_get_d(value); }
     unsigned long get_ui() const { return mpf_get_ui(value); }
     long get_si() const { return mpf_get_si(value); }
+    mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
+    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
+    void set_prec_raw(mp_bitcnt_t prec) { mpf_set_prec_raw(value, prec); }
 
   private:
     mpf_t value;
@@ -368,12 +380,14 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
 } // namespace gmp
 
 mp_bitcnt_t gmp::defaults::prec;
+mp_bitcnt_t gmp::defaults::prec_raw;
 int gmp::defaults::base;
 
 class mpf_class_initializer {
   public:
     mpf_class_initializer() {
         gmp::defaults::set_default_prec(512);
+        gmp::defaults::set_default_prec_raw(512);
         gmp::defaults::base = 10;
     }
 };

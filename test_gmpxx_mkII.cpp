@@ -466,7 +466,23 @@ void test_get_si() {
 
     std::cout << "get_si function tests passed." << std::endl;
 }
+void test_mpf_class_constructor() {
+    mpf_t f;
+    mp_bitcnt_t prec = 128; // Example precision
+    const char *expected = "0.0390625000";
+    mpf_init2(f, defaults::get_default_prec());
+    mpf_set_str(f, "0.0390625", 10); // Initialize f with a string value, base 10
 
+    mpf_class result(f);
+    assert(Is_mpf_class_Equals(result, expected));
+
+    mpf_class b(f, prec);
+    assert(b.get_prec() == prec);
+    assert(Is_mpf_class_Equals(b, expected));
+    mpf_clear(f);
+
+    std::cout << "Constructor tests passed." << std::endl;
+}
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -494,7 +510,7 @@ int main() {
     test_get_d();
     test_get_ui();
     test_get_si();
-
+    test_mpf_class_constructor();
     std::cout << "All tests passed." << std::endl;
 
     return 0;
