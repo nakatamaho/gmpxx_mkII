@@ -32,16 +32,18 @@
 #include <string>
 #include <iomanip>
 
-#if defined ORIGINAL_GMPXX
-#include <gmpxx.h>
-#else
+#if defined GMPXX_MKII
 #include "gmpxx_mkII.h"
+#else
+#include <gmpxx.h>
 #endif
 
+#if defined GMPXX_MKII
 using namespace gmp;
+#endif
 
 // Asserts that the mpf_class object equals the expected string representation
-bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, int base = defaults::base, int precision = 10, bool debug_flag = false) {
+bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, bool debug_flag = false, int precision = 10, int base = 10) {
     char formatString[64];
     char buffer[64];
 
@@ -68,7 +70,7 @@ bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, int base = def
         return false;
     }
 }
-
+#if defined GMPXX_MKII
 void testDefaultPrecision() {
     mp_bitcnt_t defaultPrec = defaults::get_default_prec();
     assert(defaultPrec == 512);
@@ -81,7 +83,7 @@ void testDefaultPrecision() {
 
     defaults::set_default_prec(512);
 }
-
+#endif
 void testDefaultConstructor() {
     mpf_class a;
     char buffer[100];
@@ -110,11 +112,11 @@ void testInitializationAndAssignmentDouble() {
     double testValue = 3.1415926535;
     const char *expectedValue = "3.1415926535";
 
-    gmp::mpf_class a = (mpf_class)testValue;
+    mpf_class a = (mpf_class)testValue;
     assert(Is_mpf_class_Equals(a, expectedValue));
     std::cout << "Substitution from double using constructor test passed." << std::endl;
 
-    gmp::mpf_class b;
+    mpf_class b;
     b = testValue;
     assert(Is_mpf_class_Equals(b, expectedValue));
     std::cout << "Substitution from double using assignment test passed." << std::endl;
@@ -568,7 +570,9 @@ void test_trunc_function() {
     std::cout << "trunc function tests passed." << std::endl;
 }
 int main() {
+#if defined GMPXX_MKII
     testDefaultPrecision();
+#endif
     testDefaultConstructor();
     testCopyConstructor();
     testAssignmentOperator();
