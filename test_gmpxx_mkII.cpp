@@ -32,7 +32,11 @@
 #include <string>
 #include <iomanip>
 
+#if defined ORIGINAL_GMPXX
+#include <gmpxx.h>
+#else
 #include "gmpxx_mkII.h"
+#endif
 
 using namespace gmp;
 
