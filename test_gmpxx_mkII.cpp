@@ -417,6 +417,56 @@ void testSgn() {
     std::cout << "Sign function tests passed." << std::endl;
 }
 
+void test_get_d() {
+    // Test with a positive double
+    mpf_class pos(0.125);
+    assert(pos.get_d() == 0.125);
+
+    mpf_class neg(-0.25);
+    assert(neg.get_d() == -0.25);
+
+    // Test with zero
+    mpf_class zero(0.0);
+    assert(zero.get_d() == 0.0);
+
+    std::cout << "get_d function tests passed." << std::endl;
+}
+void test_get_ui() {
+    // Test with a positive value
+    mpf_class pos(123);
+    assert(pos.get_ui() == 123);
+
+    // Test with a value requiring rounding
+    mpf_class round(123.456);
+    assert(round.get_ui() == 123);
+
+    // Test with zero
+    mpf_class zero(0.0);
+    assert(zero.get_ui() == 0);
+
+    std::cout << "get_ui function tests passed." << std::endl;
+}
+
+void test_get_si() {
+    // Test with a positive value
+    mpf_class pos(123);
+    assert(pos.get_si() == 123);
+
+    // Test with a negative value
+    mpf_class neg(-123);
+    assert(neg.get_si() == -123);
+
+    // Test with a value requiring rounding
+    mpf_class round(-123.456);
+    assert(round.get_si() == -123);
+
+    // Test with zero
+    mpf_class zero(0.0);
+    assert(zero.get_si() == 0);
+
+    std::cout << "get_si function tests passed." << std::endl;
+}
+
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -441,6 +491,9 @@ int main() {
     testFloor();
     testHypot();
     testSgn();
+    test_get_d();
+    test_get_ui();
+    test_get_si();
 
     std::cout << "All tests passed." << std::endl;
 

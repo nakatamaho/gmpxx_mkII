@@ -67,10 +67,9 @@ class mpf_class {
     // bool mpf_class::fits_uint_p (void)
     // bool mpf_class::fits_ulong_p (void)
     // bool mpf_class::fits_ushort_p (void)
-    // double mpf_class::get_d (void)
-    // long mpf_class::get_si (void)
+
     // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
-    // unsigned long mpf_class::get_ui (void)
+
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
     // void mpf_class::swap (mpf_class& op)
@@ -97,10 +96,19 @@ class mpf_class {
         mpf_init2(value, prec);
         mpf_set_ui(value, op);
     }
+    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+        mpf_init2(value, prec);
+        mpf_set_ui(value, (unsigned long)op);
+    }
     ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int op, mp_bitcnt_t prec = defaults::prec) noexcept {
         mpf_init2(value, prec);
         mpf_set_si(value, op);
     }
+    ___MPF_CLASS_EXPLICIT___ mpf_class(signed int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+        mpf_init2(value, prec);
+        mpf_set_si(value, (signed long)op);
+    }
+
     ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = defaults::prec) noexcept {
         mpf_init2(value, prec);
         mpf_set_d(value, op);
@@ -245,6 +253,12 @@ class mpf_class {
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
     mpf_srcptr get_mpf_t() const { return value; }
+    // double mpf_class::get_d (void)
+    // unsigned long mpf_class::get_ui (void)
+    // long mpf_class::get_si (void)
+    double get_d() const { return mpf_get_d(value); }
+    unsigned long get_ui() const { return mpf_get_ui(value); }
+    long get_si() const { return mpf_get_si(value); }
 
   private:
     mpf_t value;
