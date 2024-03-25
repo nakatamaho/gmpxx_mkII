@@ -521,8 +521,8 @@ void test_template_cmp() {
   assert(cmp(3.14, num1) == 0);
   assert(cmp(num1, 2.71f) > 0);
   assert(cmp(2.71f, num1) < 0);
-  //  assert(cmp(num1, 3ll) > 0);
-  //  assert(cmp(3ll, num1) < 0);
+  assert(cmp(num1, 3UL) > 0);
+  assert(cmp(3L, num1) < 0);
 
   std::cout << "Template cmp function tests passed." << std::endl;
 }
