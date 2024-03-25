@@ -512,6 +512,17 @@ void test_mpf_class_swap() {
     assert(Is_mpf_class_Equals(a, "789.0120000000"));
     assert(Is_mpf_class_Equals(b, "123.4560000000"));
 
+    mpf_class num1(3.14159);
+    mpf_class num2(2.71828);
+
+    mpf_class original_num1 = num1;
+    mpf_class original_num2 = num2;
+
+    swap(num1, num2);
+
+    assert(num1 == original_num2 && "After swap, num1 should have the value of original num2");
+    assert(num2 == original_num1 && "After swap, num2 should have the value of original num1");
+
     std::cout << "Swap tests passed." << std::endl;
 }
 

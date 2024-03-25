@@ -161,8 +161,10 @@ class mpf_class {
     // mpf_class trunc (mpf_class op)
     friend mpf_class trunc(const mpf_class &op);
 
-    // void swap (mpf_class& op1, mpf_class& op2)
+    // void mpf_class::swap (mpf_class& op)
     void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
+    // void swap (mpf_class& op1, mpf_class& op2)
+    friend void swap(mpf_class &op1, mpf_class &op2) { mpf_swap(op1.value, op2.value); }
 
     // Initialization using assignment operator
     // Copy-and-Swap Idiom; it does both the copy assignment operator and the move assignment operator.
