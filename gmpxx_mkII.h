@@ -59,8 +59,6 @@ class mpf_class {
     // mpf_class::mpf_class (const string& s, mp_bitcnt_t prec, int base = 0)
     // mpf_class operator"" _mpf (const char *str)
     // mpf_class& mpf_class::operator= (type op)
-    // mpf_class abs (mpf_class op)
-    // mpf_class ceil (mpf_class op)
     // int cmp (mpf_class op1, type op2)
     // int cmp (type op1, mpf_class op2)
     // bool mpf_class::fits_sint_p (void)
@@ -69,31 +67,28 @@ class mpf_class {
     // bool mpf_class::fits_uint_p (void)
     // bool mpf_class::fits_ulong_p (void)
     // bool mpf_class::fits_ushort_p (void)
-    // mpf_class floor (mpf_class op)
-    // mpf_class hypot (mpf_class op1, mpf_class op2)
     // double mpf_class::get_d (void)
     // long mpf_class::get_si (void)
     // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
     // unsigned long mpf_class::get_ui (void)
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
-    // int sgn (mpf_class op)
-    // mpf_class sqrt (mpf_class op)
     // void mpf_class::swap (mpf_class& op)
     // void swap (mpf_class& op1, mpf_class& op2)
     // mpf_class trunc (mpf_class op)
     // mp_bitcnt_t mpf_class::get_prec ()
     // void mpf_class::set_prec (mp_bitcnt_t prec)
     // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
+
     mpf_class() { mpf_init(value); }
     ~mpf_class() { mpf_clear(value); }
     // mpf_class::mpf_class (type op)
-    // mpf_class::mpf_class (type op, mp_bitcnt_t prec)
     mpf_class(const mpf_class &op) {
         mpf_init2(value, mpf_get_prec(op.value));
         mpf_set(value, op.value);
     }
     mpf_class(mpf_class &&op) noexcept { mpf_swap(value, op.value); }
+    // mpf_class::mpf_class (type op, mp_bitcnt_t prec)
     mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
         mpf_init2(value, prec);
         mpf_set(value, op.value);
@@ -189,10 +184,19 @@ class mpf_class {
         return *this;
     }
 
-    friend mpf_class sqrt(const mpf_class &a);
-    friend mpf_class neg(const mpf_class &a);
-    friend mpf_class abs(const mpf_class &a);
-    friend mpf_class ceil(const mpf_class &a);
+    // mpf_class sqrt (mpf_class op)
+    // mpf_class abs (mpf_class op)
+    // mpf_class ceil (mpf_class op)
+    // mpf_class floor (mpf_class op)
+    // mpf_class hypot (mpf_class op1, mpf_class op2)
+    // int sgn (mpf_class op)
+    friend mpf_class sqrt(const mpf_class &op);
+    friend mpf_class abs(const mpf_class &op);
+    friend mpf_class ceil(const mpf_class &op);
+    friend mpf_class floor(const mpf_class &op);
+    friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
+    friend mpf_class neg(const mpf_class &op);
+    friend int sgn(const mpf_class &op);
 
     friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
@@ -265,6 +269,20 @@ inline mpf_class ceil(const mpf_class &op) {
     mpf_class rop;
     mpf_ceil(rop.value, op.get_mpf_t());
     return rop;
+}
+inline mpf_class floor(const mpf_class &op) {
+    mpf_class rop;
+    mpf_floor(rop.value, op.get_mpf_t());
+    return rop;
+}
+inline mpf_class hypot(const mpf_class &op1, const mpf_class &op2) {
+    mpf_class rop;
+    rop = gmp::sqrt(op1 * op1 + op2 * op2);
+    return rop;
+}
+inline int sgn(const mpf_class &op) {
+    int flag = mpf_sgn(op.get_mpf_t());
+    return flag;
 }
 inline mpf_class operator+(const mpf_class &lhs, const double rhs) {
     mpf_class result(lhs);

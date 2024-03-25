@@ -325,31 +325,39 @@ void test_mpf_class_double_division() {
     std::cout << "mpf_class / double test passed." << std::endl;
 }
 void testOutputOperator() {
-    mpf_class num0(12345.6789);
-    mpf_class num1(123456.789);
-    mpf_class num2(0.0000123456789);
-    mpf_class num3(123456789.0);
+    mpf_class num1(-0.33231);
+    mpf_class num2(12345.6789);
+    mpf_class num3(123456.789);
+    mpf_class num4(0.0000123456789);
+    mpf_class num5(123456789.0);
     std::ostringstream oss;
 
     oss.str("");
     oss.clear();
-    oss << std::setprecision(6) << num0; // Using default (general) format
-    assert(oss.str() == "12345.7");      // Expected output in general format with precision 6
+    oss << num1;
+    assert(oss.str() == "-0.33231");
+
     oss.str("");
     oss.clear();
+    oss << std::setprecision(8) << num2; // Using default (general) format
+    assert(oss.str() == "12345.679");    // Expected output in general format with precision 8
 
-    oss << std::fixed << std::setprecision(3) << num1;
+    oss.str("");
+    oss.clear();
+    oss << std::fixed << std::setprecision(3) << num3;
     assert(oss.str() == "123456.789");
+
     oss.str("");
     oss.clear();
-
-    oss << std::fixed << std::setprecision(4) << num2;
+    oss << std::fixed << std::setprecision(4) << num4;
     assert(oss.str() == "0.0000");
+
     oss.str("");
     oss.clear();
-
-    oss << std::scientific << std::setprecision(2) << num3;
+    oss << std::scientific << std::setprecision(2) << num5;
     assert(oss.str() == "1.23e+08");
+
+    std::cout.setf(std::ios_base::fmtflags(0), std::ios_base::floatfield);
     std::cout << "output test passed." << std::endl;
 }
 
@@ -357,8 +365,8 @@ void testCeilFunction() {
     mpf_class num1(123.456);
     mpf_class num2(-123.456);
     mpf_class result;
-    const char *expected1 = "124.000000000";
-    const char *expected2 = "-123.000000000";
+    const char *expected1 = "124.0000000000";
+    const char *expected2 = "-123.0000000000";
 
     result = ceil(num1);
     assert(Is_mpf_class_Equals(result, expected1));
@@ -367,6 +375,46 @@ void testCeilFunction() {
     assert(Is_mpf_class_Equals(result, expected2));
 
     std::cout << "Ceil function tests passed." << std::endl;
+}
+void testFloor() {
+    mpf_class numPositive(3.14);
+    mpf_class numNegative(-3.14);
+    mpf_class result;
+    const char *expected1 = "3.0000000000";
+    const char *expected2 = "-4.0000000000";
+
+    // Testing floor on a positive number
+    result = floor(numPositive);
+    assert(Is_mpf_class_Equals(result, expected1));
+
+    // Testing floor on a negative number
+    result = floor(numNegative);
+    assert(Is_mpf_class_Equals(result, expected2));
+
+    std::cout << "Floor tests passed." << std::endl;
+}
+void testHypot() {
+    mpf_class op1(3.0);
+    mpf_class op2(4.0);
+    const char *expected = "5.0000000000";
+    mpf_class result;
+
+    // Since mpf_hypot doesn't exist, let's assume a correct implementation for hypot
+    result = hypot(op1, op2);
+    assert(Is_mpf_class_Equals(result, expected));
+
+    std::cout << "Hypot tests passed." << std::endl;
+}
+void testSgn() {
+    mpf_class positive(123.456);
+    mpf_class negative(-123.456);
+    mpf_class zero(0.0);
+
+    assert(sgn(positive) > 0);
+    assert(sgn(negative) < 0);
+    assert(sgn(zero) == 0);
+
+    std::cout << "Sign function tests passed." << std::endl;
 }
 
 int main() {
@@ -390,6 +438,9 @@ int main() {
     test_mpf_class_double_division();
     testOutputOperator();
     testCeilFunction();
+    testFloor();
+    testHypot();
+    testSgn();
 
     std::cout << "All tests passed." << std::endl;
 
