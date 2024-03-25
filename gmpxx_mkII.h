@@ -54,7 +54,6 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // 12.4 C++ Interface Floats
     ////////////////////////////////////////////////////////////////////////////////////////
-    // mpf_class operator"" _mpf (const char *str)
     // int cmp (mpf_class op1, type op2)
     // int cmp (type op1, mpf_class op2)
     // bool mpf_class::fits_sint_p (void)
@@ -378,6 +377,9 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
 }
 
 } // namespace gmp
+
+// mpf_class operator"" _mpf (const char *str)
+gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
 
 mp_bitcnt_t gmp::defaults::prec;
 mp_bitcnt_t gmp::defaults::prec_raw;

@@ -483,6 +483,20 @@ void test_mpf_class_constructor() {
 
     std::cout << "Constructor tests passed." << std::endl;
 }
+void test_mpf_class_literal() {
+    // Using the user-defined literal to create mpf_class objects
+    mpf_class num1 = "3.14159"_mpf;
+    mpf_class num2 = "2.71828"_mpf;
+    mpf_class num3 = "0.0"_mpf;
+    mpf_class num4 = "-123.456"_mpf;
+
+    assert(Is_mpf_class_Equals(num1, "3.1415900000"));
+    assert(Is_mpf_class_Equals(num2, "2.7182800000"));
+    assert(Is_mpf_class_Equals(num3, "0.0000000000"));
+    assert(Is_mpf_class_Equals(num4, "-123.4560000000"));
+
+    std::cout << "User-defined literal tests for mpf_class passed." << std::endl;
+}
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -511,6 +525,8 @@ int main() {
     test_get_ui();
     test_get_si();
     test_mpf_class_constructor();
+    test_mpf_class_literal();
+
     std::cout << "All tests passed." << std::endl;
 
     return 0;
