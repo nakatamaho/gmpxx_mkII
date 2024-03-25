@@ -124,7 +124,7 @@ class mpf_class {
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
-    mpf_class(const char *str, mp_bitcnt_t prec, int base = 0) {
+    mpf_class(const char *str, mp_bitcnt_t prec, int base = defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
             std::cerr << "Error initializing mpf_t from const char*: " << str << std::endl;
@@ -138,7 +138,7 @@ class mpf_class {
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
-    mpf_class(const std::string &str, mp_bitcnt_t prec, int base = 0) {
+    mpf_class(const std::string &str, mp_bitcnt_t prec, int base = defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str.c_str(), base) != 0) {
             std::cerr << "Error initializing mpf_t from std::string: " << str << std::endl;
