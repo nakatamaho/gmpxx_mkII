@@ -152,7 +152,6 @@ class mpf_class {
         }
         return *this;
     }
-
     mpf_class operator+(const mpf_class &rhs) const {
         mpf_class result;
         mpf_add(result.value, value, rhs.value);
@@ -193,6 +192,7 @@ class mpf_class {
     friend mpf_class sqrt(const mpf_class &a);
     friend mpf_class neg(const mpf_class &a);
     friend mpf_class abs(const mpf_class &a);
+    friend mpf_class ceil(const mpf_class &a);
 
     friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
@@ -261,7 +261,11 @@ inline mpf_class abs(const mpf_class &op) {
     mpf_abs(rop.value, op.get_mpf_t());
     return rop;
 }
-
+inline mpf_class ceil(const mpf_class &op) {
+    mpf_class rop;
+    mpf_ceil(rop.value, op.get_mpf_t());
+    return rop;
+}
 inline mpf_class operator+(const mpf_class &lhs, const double rhs) {
     mpf_class result(lhs);
     result += rhs;

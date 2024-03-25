@@ -352,6 +352,23 @@ void testOutputOperator() {
     assert(oss.str() == "1.23e+08");
     std::cout << "output test passed." << std::endl;
 }
+
+void testCeilFunction() {
+    mpf_class num1(123.456);
+    mpf_class num2(-123.456);
+    mpf_class result;
+    const char *expected1 = "124.000000000";
+    const char *expected2 = "-123.000000000";
+
+    result = ceil(num1);
+    assert(Is_mpf_class_Equals(result, expected1));
+
+    result = ceil(num2);
+    assert(Is_mpf_class_Equals(result, expected2));
+
+    std::cout << "Ceil function tests passed." << std::endl;
+}
+
 int main() {
     testDefaultPrecision();
     testDefaultConstructor();
@@ -372,6 +389,7 @@ int main() {
     test_mpf_class_double_multiplication();
     test_mpf_class_double_division();
     testOutputOperator();
+    testCeilFunction();
 
     std::cout << "All tests passed." << std::endl;
 
