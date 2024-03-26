@@ -493,6 +493,14 @@ void test_mpf_class_constructor_precision() {
     assert(f4_2.get_prec() == 64);
     mpf_class f4_3(floor(x));
     assert(f4_3.get_prec() == 64);
+    mpf_class f4_4(sqrt(y));
+    assert(f4_4.get_prec() == 1024);
+    mpf_class f4_5(sqrt(z));
+    assert(f4_5.get_prec() == 2048);
+    mpf_class f4_6(hypot(x, y));
+    assert(f4_6.get_prec() == 1024);
+    mpf_class f4_7(sqrt(x + y));
+    assert(f4_7.get_prec() == 1024);
 
     mpf_class f5_1(-g, 1024);
     assert(f5_1.get_prec() == 1024);

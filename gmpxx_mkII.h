@@ -198,7 +198,7 @@ class mpf_class {
 #if defined __GMPXX_MKII_NOPRECCHANGE__
         mpf_swap(value, op.value);
 #else
-        mpf_init(value);
+        mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
         mpf_set(value, op.value);
 #endif
         return *this;
@@ -386,8 +386,15 @@ inline mpf_class floor(const mpf_class &op) {
     return rop;
 }
 inline mpf_class hypot(const mpf_class &op1, const mpf_class &op2) {
+#if defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class rop;
     rop = gmp::sqrt(op1 * op1 + op2 * op2);
+#else
+    mpf_class rop;
+    mp_bitcnt_t prec = largerprec(op1, op2);
+    mpf_init2(rop.value, prec);
+    rop = gmp::sqrt(op1 * op1 + op2 * op2);
+#endif
     return rop;
 }
 inline int sgn(const mpf_class &op) {
