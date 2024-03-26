@@ -327,32 +327,32 @@ template <> int cmp<signed long int>(const mpf_class &op1, const signed long int
 template <> int cmp<signed long int>(const signed long int &op1, const mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), op1); }
 
 inline mpf_class trunc(const mpf_class &op) {
-    mpf_class rop;
+    mpf_class rop(op);
     mpf_trunc(rop.value, op.get_mpf_t());
     return rop;
 }
 inline mpf_class sqrt(const mpf_class &op) {
-    mpf_class rop;
+    mpf_class rop(op);
     mpf_sqrt(rop.value, op.get_mpf_t());
     return rop;
 }
 inline mpf_class neg(const mpf_class &op) {
-    mpf_class rop;
+    mpf_class rop(op);
     mpf_neg(rop.value, op.get_mpf_t());
     return rop;
 }
 inline mpf_class abs(const mpf_class &op) {
-    mpf_class rop;
+    mpf_class rop(op);
     mpf_abs(rop.value, op.get_mpf_t());
     return rop;
 }
 inline mpf_class ceil(const mpf_class &op) {
-    mpf_class rop;
+    mpf_class rop(op);
     mpf_ceil(rop.value, op.get_mpf_t());
     return rop;
 }
 inline mpf_class floor(const mpf_class &op) {
-    mpf_class rop;
+    mpf_class rop(op);
     mpf_floor(rop.value, op.get_mpf_t());
     return rop;
 }
