@@ -724,10 +724,25 @@ void test_fits_ushort_p() {
 
     std::cout << "All fits_ushort_p tests passed." << std::endl;
 }
+void testDefaultConstructor_mpz_class() {
+    mpz_class a;
+    char buffer[100];
+    gmp_snprintf(buffer, sizeof(buffer), "%Zd", a.get_mpz_t());
+    assert(std::string(buffer) == "0");
+    // initialized to zero
+    std::cout << "Default constructor test passed." << std::endl;
+}
+void testCopyConstructor_mpz_class() {
+    mpz_class a;
+    mpz_class b = a;
+    assert(true);
+    std::cout << "Copy constructor test passed." << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
 #endif
+    //mpf_class
     testDefaultPrecision();
     testDefaultConstructor();
     testCopyConstructor();
@@ -768,6 +783,10 @@ int main() {
     test_fits_uint_p();
     test_fits_ulong_p();
     test_fits_ushort_p();
+
+    //mpz_class
+    testDefaultConstructor_mpz_class();
+    testCopyConstructor_mpz_class();
     std::cout << "All tests passed." << std::endl;
 
     return 0;

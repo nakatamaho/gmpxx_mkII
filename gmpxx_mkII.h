@@ -64,6 +64,20 @@ class mpz_class {
         mpz_init(value);
         mpz_set_si(value, op);
     }
+    mpz_class(double op) {
+        mpz_init(value);
+        mpz_set_d(value, op);
+    }
+    mpz_class(const mpq_t op) {
+        mpz_init(value);
+        mpz_set_q(value, op);
+    }
+    mpz_class(const mpf_t op) {
+        mpz_init(value);
+        mpz_set_f(value, op);
+    }
+
+    mpz_srcptr get_mpz_t() const { return value; }
 
   private:
     mpz_t value;
