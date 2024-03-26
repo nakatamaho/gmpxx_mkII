@@ -76,6 +76,50 @@ class mpz_class {
         mpz_init(value);
         mpz_set_f(value, op);
     }
+    explicit mpz_class(const mpz_t z) {
+        mpz_init(value);
+        mpz_set(value, z);
+    }
+    explicit mpz_class(const char *str, int base = 0) {
+        mpz_init(value);
+        if (mpz_set_str(value, str, base) != 0) {
+            std::cerr << "Error initializing mpz_class from const char*: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+    }
+    explicit mpz_class(const std::string &str, int base = 0) {
+        mpz_init(value);
+        if (mpz_set_str(value, str.c_str(), base) != 0) {
+            std::cerr << "Error initializing mpz_class from std::string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+    }
+    mpz_class(const mpz_class &op) {
+        mpz_init(value);
+        mpz_set(value, op.value);
+    }
+    mpz_class &operator=(mpz_class op) noexcept {
+        mpz_swap(value, op.value);
+        return *this;
+    }
+    mpz_class &operator=(double d) noexcept {
+        mpz_set_d(value, d);
+        return *this;
+    }
+    mpz_class &operator=(const char *str) {
+        if (mpz_set_str(value, str, 0) != 0) {
+            std::cerr << "Error assigning mpz_class from char:" << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+        return *this;
+    }
+    mpz_class &operator=(const std::string &str) {
+        if (mpz_set_str(value, str.c_str(), 0) != 0) {
+            std::cerr << "Error assigning mpz_class from string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+        return *this;
+    }
 
     mpz_srcptr get_mpz_t() const { return value; }
 
@@ -158,29 +202,29 @@ class mpf_class {
     mpf_class(const char *str) {
         mpf_init(value);
         if (mpf_set_str(value, str, defaults::base) != 0) {
-            std::cerr << "Error initializing mpf_t from const char*: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+            std::cerr << "Error initializing mpf_class from const char*: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
     }
     mpf_class(const char *str, mp_bitcnt_t prec, int base = defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
-            std::cerr << "Error initializing mpf_t from const char*: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+            std::cerr << "Error initializing mpf_class from const char*: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
     }
     mpf_class(const std::string &str) {
         mpf_init(value);
         if (mpf_set_str(value, str.c_str(), defaults::base) != 0) {
-            std::cerr << "Error initializing mpf_t from std::string: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+            std::cerr << "Error initializing mpf_class from std::string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
     }
     mpf_class(const std::string &str, mp_bitcnt_t prec, int base = defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str.c_str(), base) != 0) {
-            std::cerr << "Error initializing mpf_t from std::string: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+            std::cerr << "Error initializing mpf_class from std::string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
     }
     // mpf_class abs (mpf_class op)
@@ -264,15 +308,15 @@ class mpf_class {
     }
     mpf_class &operator=(const char *str) {
         if (mpf_set_str(value, str, defaults::base) != 0) {
-            std::cerr << "Error assigning mpf_t from char:" << std::endl;
-            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+            std::cerr << "Error assigning mpf_class from char:" << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
         return *this;
     }
     mpf_class &operator=(const std::string &str) {
         if (mpf_set_str(value, str.c_str(), defaults::base) != 0) {
-            std::cerr << "Error assigning mpf_t from string: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpf_t with given string.");
+            std::cerr << "Error assigning mpf_class from string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
         return *this;
     }

@@ -44,8 +44,8 @@ using namespace gmp;
 
 // Asserts that the mpf_class object equals the expected string representation
 bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, bool debug_flag = false, int precision = 10, int base = 10) {
-    char formatString[64];
-    char buffer[64];
+    char formatString[1024];
+    char buffer[1024];
 
     // Adjust the comparison based on the base
     switch (base) {
@@ -64,6 +64,27 @@ bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, bool debug_fla
     if (std::strcmp(buffer, expected) == 0)
         return true;
     else {
+        if (debug_flag == true) {
+            printf("%s\n", buffer);
+        }
+        return false;
+    }
+}
+bool Is_mpz_class_Equals(mpz_class &gmpobj, const char *expected, bool debug_flag = false, int base = 0) {
+    char buffer[1024];
+
+    // Adjust the comparison based on the base
+    switch (base) {
+    case 0:
+        gmp_sprintf(buffer, "%Zd", gmpobj.get_mpz_t());
+        break;
+    default:
+        printf("not supported");
+        exit(-1);
+    }
+    if (std::strcmp(buffer, expected) == 0) {
+        return true;
+    } else {
         if (debug_flag == true) {
             printf("%s\n", buffer);
         }
@@ -738,11 +759,31 @@ void testCopyConstructor_mpz_class() {
     assert(true);
     std::cout << "Copy constructor test passed." << std::endl;
 }
+void testAssignmentOperator_mpz_class() {
+    mpz_class a;
+    mpz_class b;
+    b = a;
+    assert(true);
+    std::cout << "Assignment operator test passed." << std::endl;
+}
+void testInitializationAndAssignmentDouble_mpz_class() {
+    double testValue = 31415926535;
+    const char *expectedValue = "31415926535";
+
+    mpz_class a = (mpz_class)testValue;
+    assert(Is_mpz_class_Equals(a, expectedValue, true));
+    std::cout << "Substitution from double using constructor test passed." << std::endl;
+
+    mpz_class b;
+    b = testValue;
+    assert(Is_mpz_class_Equals(b, expectedValue, true));
+    std::cout << "Substitution from double using assignment test passed." << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
 #endif
-    //mpf_class
+    // mpf_class
     testDefaultPrecision();
     testDefaultConstructor();
     testCopyConstructor();
@@ -784,9 +825,12 @@ int main() {
     test_fits_ulong_p();
     test_fits_ushort_p();
 
-    //mpz_class
+    // mpz_class
     testDefaultConstructor_mpz_class();
     testCopyConstructor_mpz_class();
+    testAssignmentOperator_mpz_class();
+    testInitializationAndAssignmentDouble_mpz_class();
+
     std::cout << "All tests passed." << std::endl;
 
     return 0;
