@@ -216,6 +216,11 @@ class mpf_class {
         }
         return *this;
     }
+    mpf_class operator-() const {
+        mpf_class result;
+        mpf_neg(result.value, this->value);
+        return result;
+    }
     mpf_class operator+(const mpf_class &rhs) const {
         mpf_class result;
         mpf_add(result.value, value, rhs.value);
