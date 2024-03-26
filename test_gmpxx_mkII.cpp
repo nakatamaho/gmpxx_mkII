@@ -473,6 +473,7 @@ void test_get_si() {
 }
 
 void test_mpf_class_constructor_precision() {
+#if !defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class f1(1.5); // default precision
     assert(f1.get_prec() == mpf_get_default_prec());
     mpf_class f2(1.5, 1024); // 1024 bits (at least)
@@ -492,10 +493,13 @@ void test_mpf_class_constructor_precision() {
     mpf_class y(3.5, 1024);
     mpf_class f6(x + y);
     assert(f6.get_prec() == 1024);
+
     mpf_class z(3.5, 2048);
     mpf_class f7(z + x);
     assert(f7.get_prec() == 2048);
+
     std::cout << "test_mpf_class_constructor_precision passed." << std::endl;
+#endif
 }
 
 void test_mpf_class_constructor_with_mpf() {

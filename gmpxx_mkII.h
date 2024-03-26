@@ -275,7 +275,7 @@ inline mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs) {
     return lhs;
 }
 inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs) {
-#if defined __GMPXX_MKII_PRECNOCHANGE__
+#if defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class result;
     mpf_add(result.value, lhs.value, rhs.value);
 #else
