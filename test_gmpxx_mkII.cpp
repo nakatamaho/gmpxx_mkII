@@ -481,6 +481,7 @@ void test_mpf_class_constructor_precision() {
     mpf_class x(-1.5, 64); // 64 bits (at least)
     mpf_class f3(x);       // precision of x
     assert(f3.get_prec() == 64);
+
 #if !defined GMPXX_MKII
     mpf_class f4(abs(x)); // precision of x
     assert(f4.get_prec() == 64);
@@ -488,10 +489,11 @@ void test_mpf_class_constructor_precision() {
     mpf_class g(2.5);
     mpf_class f5(-g, 1024);
     assert(f5.get_prec() == 1024);
-#if !defined GMPXX_MKII
+
     mpf_class y(3.5, 1024);
     mpf_class f6(x + y);
     assert(f6.get_prec() == 1024);
+#if !defined GMPXX_MKII
     mpf_class z(3.5, 512);
     mpf_class f7(z + x);
     assert(f7.get_prec() == 512);
