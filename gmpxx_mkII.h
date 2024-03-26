@@ -136,7 +136,14 @@ class mpf_class {
     // int mpf_class::set_str (const string& str, int base)
     int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
     int set_str(const std::string &str, int base) { return mpf_set_str(value, str.c_str(), base); }
-
+    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
+        char *temp = mpf_get_str(nullptr, &exp, base, digits, value);
+        std::string result = temp;
+        void (*freefunc)(void *, size_t);
+        mp_get_memory_functions(nullptr, nullptr, &freefunc);
+        freefunc(temp, std::strlen(temp) + 1);
+        return result;
+    }
     // mpf_class sqrt (mpf_class op)
     // mpf_class abs (mpf_class op)
     // mpf_class ceil (mpf_class op)

@@ -551,6 +551,22 @@ void test_set_str() {
 
     std::cout << "All set_str tests passed." << std::endl;
 }
+void test_mpf_class_get_str() {
+    mp_exp_t exp;
+    mpf_class num1("1234.56789");
+
+    // Test in base 10 with default digits (entire number)
+    std::string str1 = num1.get_str(exp, 10);
+    std::cout << "String: " << str1 << ", Exponent: " << exp << std::endl;
+    assert(str1 == "123456789" && exp == 4);
+
+    // Test in base 16 with limited digits
+    std::string str2 = num1.get_str(exp, 16, 4);
+    std::cout << "String: " << str2 << ", Exponent: " << exp << std::endl;
+    assert(str2 == "4d29" && exp == 3); // 4 * (16^2) + 13 * (16^1) + 2 * (16^0) + 9 * (16^(-1)) = 1234.56250
+
+    std::cout << "mpf_class get_str method tests passed." << std::endl;
+}
 void test_trunc_function() {
     mpf_class num1(3.14159);
     mpf_class truncated1 = trunc(num1);
@@ -581,50 +597,52 @@ void test_fits_sint_p() {
     std::cout << "All fits_sint_p tests passed." << std::endl;
 }
 void test_fits_slong_p() {
-    mpf_class value("2147483647"); // INT_MAX
+    mpf_class value(std::to_string(INT_MAX));
     assert(value.fits_slong_p() == true);
 
-    mpf_class outOfRange("9223372036854775808"); // LONG_MAX + 1
+    mpf_class outOfRange(std::to_string(LONG_MAX));
+    outOfRange += 1;
     assert(outOfRange.fits_slong_p() == false);
 
     std::cout << "All fits_slong_p tests passed." << std::endl;
 }
 
 void test_fits_sshort_p() {
-    mpf_class value("32767"); // SHRT_MAX
+    mpf_class value(std::to_string(SHRT_MAX));
     assert(value.fits_sshort_p() == true);
 
-    mpf_class outOfRange("32768"); // SHRT_MAX + 1
+    mpf_class outOfRange(std::to_string(SHRT_MAX));
+    outOfRange += 1;
     assert(outOfRange.fits_sshort_p() == false);
 
     std::cout << "All fits_sshort_p tests passed." << std::endl;
 }
 
 void test_fits_uint_p() {
-    mpf_class value("4294967295"); // UINT_MAX
+    mpf_class value(std::to_string(UINT_MAX));
     assert(value.fits_uint_p() == true);
 
-    mpf_class outOfRange("4294967296"); // UINT_MAX + 1
+    mpf_class outOfRange = value + 1;
     assert(outOfRange.fits_uint_p() == false);
 
     std::cout << "All fits_uint_p tests passed." << std::endl;
 }
 
 void test_fits_ulong_p() {
-    mpf_class value("18446744073709551615"); // ULONG_MAX
+    mpf_class value(std::to_string(ULONG_MAX));
     assert(value.fits_ulong_p() == true);
 
-    mpf_class outOfRange("18446744073709551616"); // ULONG_MAX + 1
+    mpf_class outOfRange = value + 1;
     assert(outOfRange.fits_ulong_p() == false);
 
     std::cout << "All fits_ulong_p tests passed." << std::endl;
 }
 
 void test_fits_ushort_p() {
-    mpf_class value("65535"); // USHRT_MAX
+    mpf_class value(std::to_string(USHRT_MAX));
     assert(value.fits_ushort_p() == true);
 
-    mpf_class outOfRange("65536"); // USHRT_MAX + 1
+    mpf_class outOfRange = value + 1;
     assert(outOfRange.fits_ushort_p() == false);
 
     std::cout << "All fits_ushort_p tests passed." << std::endl;
@@ -669,6 +687,7 @@ int main() {
     test_mpf_class_swap();
     test_template_cmp();
     test_set_str();
+    test_mpf_class_get_str();
     test_trunc_function();
     test_fits_sint_p();
     test_fits_slong_p();
