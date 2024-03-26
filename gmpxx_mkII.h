@@ -216,15 +216,15 @@ class mpf_class {
         }
         return *this;
     }
-    friend mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
-    friend mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
-    friend mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
-    friend mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs);
-    friend mpf_class operator-(const mpf_class &op);
-    friend mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs);
-    friend mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs);
-    friend mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs);
-    friend mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class operator-(const mpf_class &op);
+    friend inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs);
 
     friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
@@ -233,18 +233,18 @@ class mpf_class {
     friend inline bool operator<=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) <= 0; }
     friend inline bool operator>=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) >= 0; }
 
-    friend mpf_class &operator+=(mpf_class &lhs, double rhs);
-    friend mpf_class &operator-=(mpf_class &lhs, double rhs);
-    friend mpf_class &operator*=(mpf_class &lhs, double rhs);
-    friend mpf_class &operator/=(mpf_class &lhs, double rhs);
-    friend mpf_class operator+(const mpf_class &lhs, const double rhs);
-    friend mpf_class operator+(const double lhs, const mpf_class &rhs);
-    friend mpf_class operator-(const mpf_class &lhs, const double rhs);
-    friend mpf_class operator-(const double lhs, const mpf_class &rhs);
-    friend mpf_class operator*(const mpf_class &lhs, const double rhs);
-    friend mpf_class operator*(const double lhs, const mpf_class &rhs);
-    friend mpf_class operator/(const mpf_class &lhs, double rhs);
-    friend mpf_class operator/(const double lhs, const mpf_class &rhs);
+    friend inline mpf_class &operator+=(mpf_class &lhs, double rhs);
+    friend inline mpf_class &operator-=(mpf_class &lhs, double rhs);
+    friend inline mpf_class &operator*=(mpf_class &lhs, double rhs);
+    friend inline mpf_class &operator/=(mpf_class &lhs, double rhs);
+    friend inline mpf_class operator+(const mpf_class &lhs, const double rhs);
+    friend inline mpf_class operator+(const double lhs, const mpf_class &rhs);
+    friend inline mpf_class operator-(const mpf_class &lhs, const double rhs);
+    friend inline mpf_class operator-(const double lhs, const mpf_class &rhs);
+    friend inline mpf_class operator*(const mpf_class &lhs, const double rhs);
+    friend inline mpf_class operator*(const double lhs, const mpf_class &rhs);
+    friend inline mpf_class operator/(const mpf_class &lhs, double rhs);
+    friend inline mpf_class operator/(const double lhs, const mpf_class &rhs);
 
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
