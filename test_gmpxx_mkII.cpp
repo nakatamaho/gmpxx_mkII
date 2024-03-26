@@ -479,24 +479,38 @@ void test_mpf_class_constructor_precision() {
     mpf_class f2(1.5, 1024); // 1024 bits (at least)
     assert(f2.get_prec() == 1024);
 
+    mpf_class g(2.5);
     mpf_class x(-1.5, 64); // 64 bits (at least)
-    mpf_class f3(x);       // precision of x
+    mpf_class y(3.5, 1024);
+    mpf_class z(3.5, 2048);
+
+    mpf_class f3(x); // precision of x
     assert(f3.get_prec() == 64);
 
-    mpf_class f4(abs(x)); // precision of x
-    assert(f4.get_prec() == 64);
+    mpf_class f4_1(abs(x)); // precision of x
+    assert(f4_1.get_prec() == 64);
+    mpf_class f4_2(ceil(x)); // precision of x
+    assert(f4_2.get_prec() == 64);
 
-    mpf_class g(2.5);
     mpf_class f5(-g, 1024);
     assert(f5.get_prec() == 1024);
 
-    mpf_class y(3.5, 1024);
-    mpf_class f6(x + y);
-    assert(f6.get_prec() == 1024);
-
-    mpf_class z(3.5, 2048);
-    mpf_class f7(z + x);
-    assert(f7.get_prec() == 2048);
+    mpf_class f6_1(x + y);
+    assert(f6_1.get_prec() == 1024);
+    mpf_class f6_2(y + x);
+    assert(f6_2.get_prec() == 1024);
+    mpf_class f6_3(x - y);
+    assert(f6_3.get_prec() == 1024);
+    mpf_class f6_4(y - x);
+    assert(f6_4.get_prec() == 1024);
+    mpf_class f6_5(x * y);
+    assert(f6_5.get_prec() == 1024);
+    mpf_class f6_6(y * x);
+    assert(f6_6.get_prec() == 1024);
+    mpf_class f6_7(x / y);
+    assert(f6_7.get_prec() == 1024);
+    mpf_class f6_8(y / x);
+    assert(f6_8.get_prec() == 1024);
 
     std::cout << "test_mpf_class_constructor_precision passed." << std::endl;
 #endif
