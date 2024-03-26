@@ -287,18 +287,39 @@ inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs) {
     return result;
 }
 inline mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs) {
+#if defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class result;
     mpf_sub(result.value, lhs.value, rhs.value);
+#else
+    mpf_class result;
+    mp_bitcnt_t prec = largerprec(lhs, rhs);
+    mpf_init2(result.value, prec);
+    mpf_sub(result.value, lhs.value, rhs.value);
+#endif
     return result;
 }
 inline mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs) {
+#if defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class result;
     mpf_mul(result.value, lhs.value, rhs.value);
+#else
+    mpf_class result;
+    mp_bitcnt_t prec = largerprec(lhs, rhs);
+    mpf_init2(result.value, prec);
+    mpf_mul(result.value, lhs.value, rhs.value);
+#endif
     return result;
 }
 inline mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs) {
+#if defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class result;
     mpf_div(result.value, lhs.value, rhs.value);
+#else
+    mpf_class result;
+    mp_bitcnt_t prec = largerprec(lhs, rhs);
+    mpf_init2(result.value, prec);
+    mpf_div(result.value, lhs.value, rhs.value);
+#endif
     return result;
 }
 inline mpf_class operator-(const mpf_class &op) {
