@@ -54,8 +54,6 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // 12.4 C++ Interface Floats
     ////////////////////////////////////////////////////////////////////////////////////////
-    // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
-
     // constructor
     mpf_class() { mpf_init(value); }
     ~mpf_class() { mpf_clear(value); }
@@ -132,39 +130,10 @@ class mpf_class {
             throw std::runtime_error("Failed to initialize mpf_t with given string.");
         }
     }
-    // int mpf_class::set_str (const char *str, int base)
-    // int mpf_class::set_str (const string& str, int base)
-    int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
-    int set_str(const std::string &str, int base) { return mpf_set_str(value, str.c_str(), base); }
-    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
-        char *temp = mpf_get_str(nullptr, &exp, base, digits, value);
-        std::string result = temp;
-        void (*freefunc)(void *, size_t);
-        mp_get_memory_functions(nullptr, nullptr, &freefunc);
-        freefunc(temp, std::strlen(temp) + 1);
-        return result;
-    }
-    // mpf_class sqrt (mpf_class op)
     // mpf_class abs (mpf_class op)
     // mpf_class ceil (mpf_class op)
-    // mpf_class floor (mpf_class op)
-    // mpf_class hypot (mpf_class op1, mpf_class op2)
-    // int sgn (mpf_class op)
-    friend mpf_class sqrt(const mpf_class &op);
     friend mpf_class abs(const mpf_class &op);
     friend mpf_class ceil(const mpf_class &op);
-    friend mpf_class floor(const mpf_class &op);
-    friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
-    friend mpf_class neg(const mpf_class &op);
-    friend int sgn(const mpf_class &op);
-
-    // mpf_class trunc (mpf_class op)
-    friend mpf_class trunc(const mpf_class &op);
-
-    // void mpf_class::swap (mpf_class& op)
-    void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
-    // void swap (mpf_class& op1, mpf_class& op2)
-    friend void swap(mpf_class &op1, mpf_class &op2) { mpf_swap(op1.value, op2.value); }
 
     // bool mpf_class::fits_sint_p (void)
     // bool mpf_class::fits_slong_p (void)
@@ -178,6 +147,52 @@ class mpf_class {
     bool fits_uint_p() const { return mpf_fits_uint_p(value); }
     bool fits_ulong_p() const { return mpf_fits_ulong_p(value); }
     bool fits_ushort_p() const { return mpf_fits_ushort_p(value); }
+
+    // mpf_class floor (mpf_class op)
+    // mpf_class hypot (mpf_class op1, mpf_class op2)
+    friend mpf_class floor(const mpf_class &op);
+    friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
+
+    // double mpf_class::get_d (void)
+    // long mpf_class::get_si (void)
+    // unsigned long mpf_class::get_ui (void)
+    // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
+    double get_d() const { return mpf_get_d(value); }
+    unsigned long get_ui() const { return mpf_get_ui(value); }
+    long get_si() const { return mpf_get_si(value); }
+    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
+        char *temp = mpf_get_str(nullptr, &exp, base, digits, value);
+        std::string result = temp;
+        void (*freefunc)(void *, size_t);
+        mp_get_memory_functions(nullptr, nullptr, &freefunc);
+        freefunc(temp, std::strlen(temp) + 1);
+        return result;
+    }
+
+    // int mpf_class::set_str (const char *str, int base)
+    // int mpf_class::set_str (const string& str, int base)
+    int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
+    int set_str(const std::string &str, int base) { return mpf_set_str(value, str.c_str(), base); }
+
+    // int sgn (mpf_class op)
+    // mpf_class sqrt (mpf_class op)
+    // void mpf_class::swap (mpf_class& op)
+    // void swap (mpf_class& op1, mpf_class& op2)
+    // mpf_class trunc (mpf_class op)
+    friend int sgn(const mpf_class &op);
+    friend mpf_class sqrt(const mpf_class &op);
+    friend mpf_class neg(const mpf_class &op);
+    void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
+    friend void swap(mpf_class &op1, mpf_class &op2) { mpf_swap(op1.value, op2.value); }
+    friend mpf_class trunc(const mpf_class &op);
+
+    // mp_bitcnt_t mpf_class::get_prec()
+    // void mpf_class::set_prec (mp_bitcnt_t prec)
+    // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
+    mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
+    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
+    void set_prec_raw(mp_bitcnt_t prec) { mpf_set_prec_raw(value, prec); }
+
     // Initialization using assignment operator
     // Copy-and-Swap Idiom; it does both the copy assignment operator and the move assignment operator.
     // mpf_class& mpf_class::operator= (type op)
@@ -287,22 +302,27 @@ class mpf_class {
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
     mpf_srcptr get_mpf_t() const { return value; }
-    // double mpf_class::get_d (void)
-    // unsigned long mpf_class::get_ui (void)
-    // long mpf_class::get_si (void)
-    // mp_bitcnt_t mpf_class::get_prec ()
-    // void mpf_class::set_prec (mp_bitcnt_t prec)
-    // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
-    double get_d() const { return mpf_get_d(value); }
-    unsigned long get_ui() const { return mpf_get_ui(value); }
-    long get_si() const { return mpf_get_si(value); }
-    mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
-    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
-    void set_prec_raw(mp_bitcnt_t prec) { mpf_set_prec_raw(value, prec); }
 
   private:
     mpf_t value;
 };
+// int cmp (mpf_class op1, type op2)
+// int cmp (type op1, mpf_class op2)
+template <typename T> int cmp(const mpf_class &op1, const T &op2) {
+    mpf_class temp(op2);
+    return mpf_cmp(op1.get_mpf_t(), temp.get_mpf_t());
+}
+template <typename T> int cmp(const T &op1, const mpf_class &op2) {
+    mpf_class temp(op1);
+    return mpf_cmp(temp.get_mpf_t(), op2.get_mpf_t());
+}
+template <> int cmp<double>(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
+template <> int cmp<double>(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
+template <> int cmp<unsigned long int>(const mpf_class &op1, const unsigned long int &op2) { return mpf_cmp_ui(op1.get_mpf_t(), op2); }
+template <> int cmp<unsigned long int>(const unsigned long int &op1, const mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), op1); }
+template <> int cmp<signed long int>(const mpf_class &op1, const signed long int &op2) { return mpf_cmp_si(op1.get_mpf_t(), op2); }
+template <> int cmp<signed long int>(const signed long int &op1, const mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), op1); }
+
 inline mpf_class trunc(const mpf_class &op) {
     mpf_class rop;
     mpf_trunc(rop.value, op.get_mpf_t());
@@ -398,22 +418,6 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
     free(str);
     return os;
 }
-// int cmp (mpf_class op1, type op2)
-// int cmp (type op1, mpf_class op2)
-template <typename T> int cmp(const mpf_class &op1, const T &op2) {
-    mpf_class temp(op2);
-    return mpf_cmp(op1.get_mpf_t(), temp.get_mpf_t());
-}
-template <typename T> int cmp(const T &op1, const mpf_class &op2) {
-    mpf_class temp(op1);
-    return mpf_cmp(temp.get_mpf_t(), op2.get_mpf_t());
-}
-template <> int cmp<double>(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
-template <> int cmp<double>(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
-template <> int cmp<unsigned long int>(const mpf_class &op1, const unsigned long int &op2) { return mpf_cmp_ui(op1.get_mpf_t(), op2); }
-template <> int cmp<unsigned long int>(const unsigned long int &op1, const mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), op1); }
-template <> int cmp<signed long int>(const mpf_class &op1, const signed long int &op2) { return mpf_cmp_si(op1.get_mpf_t(), op2); }
-template <> int cmp<signed long int>(const signed long int &op1, const mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), op1); }
 
 } // namespace gmp
 

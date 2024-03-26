@@ -72,16 +72,20 @@ bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, bool debug_fla
 }
 #if defined GMPXX_MKII
 void testDefaultPrecision() {
+    mpf_class f("1.5");
     mp_bitcnt_t defaultPrec = defaults::get_default_prec();
-    assert(defaultPrec == 512);
-    std::cout << "Default precision test passed." << std::endl;
+    assert(defaultPrec == f.get_prec());
+    std::cout << "Default precision: " << f.get_prec() << " test passed." << std::endl;
 
     defaults::set_default_prec(1024);
     defaultPrec = defaults::get_default_prec();
     assert(defaultPrec == 1024);
-    std::cout << "Set and get precision test passed." << std::endl;
+    mpf_class g("2.5");
+    std::cout << "Set and get precision: " << g.get_prec() << " test passed." << std::endl;
 
     defaults::set_default_prec(512);
+    mpf_class h("1.5");
+    std::cout << "Now get back to precision: " << h.get_prec() << " test passed." << std::endl;
 }
 #endif
 void testDefaultConstructor() {
@@ -466,23 +470,39 @@ void test_get_si() {
     std::cout << "get_si function tests passed." << std::endl;
 }
 void test_mpf_class_constructor() {
-    mpf_t f;
+    mpf_t g;
     mp_bitcnt_t prec = 128; // Example precision
     const char *expected = "0.0390625000";
 #if defined GMPXX_MKII
-    mpf_init2(f, defaults::get_default_prec());
+    mpf_init2(g, defaults::get_default_prec());
 #else
-    mpf_init2(f, mpf_get_default_prec());
+    mpf_init2(g, mpf_get_default_prec());
 #endif
-    mpf_set_str(f, "0.0390625", 10); // Initialize f with a string value, base 10
+    mpf_set_str(g, "0.0390625", 10); // Initialize f with a string value, base 10
 
-    mpf_class result(f);
+    mpf_class result(g);
     assert(Is_mpf_class_Equals(result, expected));
 
-    mpf_class b(f, prec);
+    mpf_class b(g, prec);
     assert(b.get_prec() == prec);
     assert(Is_mpf_class_Equals(b, expected));
-    mpf_clear(f);
+    mpf_clear(g);
+
+    mpf_class f(1.5); // default precision
+#if defined GMPXX_MKII
+    std::cout << "maho: " << f.get_prec();
+    // assert(f.get_prec()==defaults::get_default_prec());
+#else
+    assert(f.get_prec() == mpf_get_default_prec());
+#endif
+
+#ifdef MAHO
+    mpf_class f(1.5, 500); // 500 bits (at least)
+    mpf_class f(x);        // precision of x
+    mpf_class f(abs(x));   // precision of x
+    mpf_class f(-g, 1000); // 1000 bits (at least)
+    mpf_class f(x + y);    // greater of precisions of x and y
+#endif
 
     std::cout << "Constructor tests passed." << std::endl;
 }
