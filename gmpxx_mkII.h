@@ -47,6 +47,47 @@ class defaults {
     static inline void set_default_base(const int _base) { base = _base; }
 };
 
+class mpz_class {
+  public:
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // 12.2 C++ Interface Integers
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // constructor
+    mpz_class() { mpz_init(value); }
+    ~mpz_class() { mpz_clear(value); }
+
+    mpz_class(unsigned long int op) {
+        mpz_init(value);
+        mpz_set_ui(value, op);
+    }
+    mpz_class(signed long int op) {
+        mpz_init(value);
+        mpz_set_si(value, op);
+    }
+
+  private:
+    mpz_t value;
+};
+
+class mpq_class {
+  public:
+    // constructor
+    mpq_class() { mpq_init(value); }
+    ~mpq_class() { mpq_clear(value); }
+
+    mpq_class(unsigned long int op1, unsigned long int op2) {
+        mpq_init(value);
+        mpq_set_ui(value, op1, op2);
+    }
+    mpq_class(signed long int op1, signed long int op2) {
+        mpq_init(value);
+        mpq_set_si(value, op1, op2);
+    }
+
+  private:
+    mpq_t value;
+};
+
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
