@@ -194,8 +194,13 @@ class mpf_class {
     // Initialization using assignment operator
     // Copy-and-Swap Idiom; it does both the copy assignment operator and the move assignment operator.
     // mpf_class& mpf_class::operator= (type op)
-    mpf_class &operator=(mpf_class other) noexcept {
-        mpf_swap(value, other.value);
+    mpf_class &operator=(mpf_class op) noexcept {
+#if defined __GMPXX_MKII_NOPRECCHANGE__
+        mpf_swap(value, op.value);
+#else
+        mpf_init(value);
+        mpf_set(value, op.value);
+#endif
         return *this;
     }
     mpf_class &operator=(double d) noexcept {
@@ -220,6 +225,7 @@ class mpf_class {
     friend inline mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
     friend inline mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
     friend inline mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs);
+    friend inline mpf_class operator+(const mpf_class &op);
     friend inline mpf_class operator-(const mpf_class &op);
     friend inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs);
     friend inline mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs);
@@ -320,6 +326,10 @@ inline mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs) {
     mpf_init2(result.value, prec);
     mpf_div(result.value, lhs.value, rhs.value);
 #endif
+    return result;
+}
+inline mpf_class operator+(const mpf_class &op) {
+    mpf_class result(op.value);
     return result;
 }
 inline mpf_class operator-(const mpf_class &op) {
