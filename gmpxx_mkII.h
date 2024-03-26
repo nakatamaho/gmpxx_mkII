@@ -40,8 +40,6 @@ namespace gmp {
 
 class defaults {
   public:
-    static mp_bitcnt_t prec;
-    static mp_bitcnt_t prec_raw;
     static int base;
     static inline void set_default_prec(const mp_bitcnt_t _prec) { mpf_set_default_prec(_prec); }
     static inline void set_default_prec_raw(const mp_bitcnt_t prec_raw) { mpf_set_default_prec(prec_raw); }
@@ -78,23 +76,23 @@ class mpf_class {
         mpf_init2(value, prec);
         mpf_set(value, op.value);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned long int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned long int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_ui(value, op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_ui(value, (unsigned long)op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_si(value, op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(signed int op, mp_bitcnt_t prec = defaults::prec) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(signed int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_si(value, (signed long)op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = defaults::prec) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
@@ -424,8 +422,6 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
 // mpf_class operator"" _mpf (const char *str)
 gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
 
-mp_bitcnt_t gmp::defaults::prec;
-mp_bitcnt_t gmp::defaults::prec_raw;
 int gmp::defaults::base;
 
 class mpf_class_initializer {

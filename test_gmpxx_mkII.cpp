@@ -70,8 +70,8 @@ bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, bool debug_fla
         return false;
     }
 }
-#if defined GMPXX_MKII
 void testDefaultPrecision() {
+#if defined GMPXX_MKII
     mpf_class f("1.5");
     mp_bitcnt_t defaultPrec = defaults::get_default_prec();
     assert(defaultPrec == f.get_prec());
@@ -84,10 +84,12 @@ void testDefaultPrecision() {
     std::cout << "Set and get precision: " << g.get_prec() << " test passed." << std::endl;
 
     defaults::set_default_prec(512);
+    defaultPrec = defaults::get_default_prec();
     mpf_class h("1.5");
+    assert(defaultPrec == 512);
     std::cout << "Now get back to precision: " << h.get_prec() << " test passed." << std::endl;
-}
 #endif
+}
 void testDefaultConstructor() {
     mpf_class a;
     char buffer[100];
@@ -122,8 +124,8 @@ void testInitializationAndAssignmentDouble() {
     assert(Is_mpf_class_Equals(b, expectedValue));
     std::cout << "Substitution from double using assignment test passed." << std::endl;
 }
-#if defined GMPXX_MKII
 void testInitializationAndAssignmentString() {
+#if defined GMPXX_MKII
     // Testing initialization with a decimal number using a constructor
     const char *expectedDecimalValue = "1.4142135624";
     mpf_class a = expectedDecimalValue;
@@ -150,7 +152,7 @@ void testInitializationAndAssignmentString() {
     // Testing initialization with a hexadecimal number using an assignment operator
     const char *expectedHexValue = "0x3.243f6a8885a3p+0";
     const char *inputHexValue = "3.243F6A8885A308D313198A2E03707344A4093822299F31D008";
-    mpf_class e(inputHexValue, defaults::prec, 16);
+    mpf_class e(inputHexValue, defaults::get_default_prec(), 16);
     assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 
@@ -161,8 +163,8 @@ void testInitializationAndAssignmentString() {
     assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, defaults::base));
     std::cout << "Constructor initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
     defaults::base = 10;
-}
 #endif
+}
 void testAddition() {
     mpf_class a(1.5);
     mpf_class b(2.5);
@@ -259,15 +261,15 @@ void testSqrt() {
     //  assert(result.is_nan()); // Check if the result is NaN
     std::cout << "Test square root test passed." << std::endl;
 }
-#if defined GMPXX_MKII
 void testNeg() {
+#if defined GMPXX_MKII
     mpf_class a(-3.5);
     mpf_class result = neg(a);
     mpf_class expected = "3.5";
     assert(result == expected);
     std::cout << "neg test passed." << std::endl;
-}
 #endif
+}
 void testAbs() {
     mpf_class a(-3.5);
     mpf_class c = abs(a);
@@ -469,45 +471,53 @@ void test_get_si() {
 
     std::cout << "get_si function tests passed." << std::endl;
 }
-void test_mpf_class_constructor() {
-    mpf_t g;
+
+void test_mpf_class_constructor_precision() {
+    mpf_class f1(1.5); // default precision
+    assert(f1.get_prec() == mpf_get_default_prec());
+    mpf_class f2(1.5, 1024); // 1024 bits (at least)
+    assert(f2.get_prec() == 1024);
+
+    mpf_class x(-1.5, 64); // 64 bits (at least)
+    mpf_class f3(x);       // precision of x
+    assert(f3.get_prec() == 64);
+
+    mpf_class f4(abs(x)); // precision of x
+    assert(f4.get_prec() == 64);
+
+#if !defined GMPXX_MKII
+    mpf_class g(2.5);
+    mpf_class f5(-g, 1024);
+    assert(f5.get_prec() == 1024);
+    mpf_class y(3.5, 1024);
+    mpf_class f6(x + y);
+    assert(f6.get_prec() == 1024);
+    mpf_class z(3.5, 512);
+    mpf_class f7(z + x);
+    assert(f7.get_prec() == 512);
+#endif
+    std::cout << "test_mpf_class_constructor_precision passed." << std::endl;
+}
+
+void test_mpf_class_constructor_with_mpf() {
+    mpf_t f;
     mp_bitcnt_t prec = 128; // Example precision
     const char *expected = "0.0390625000";
-#if defined GMPXX_MKII
-    mpf_init2(g, defaults::get_default_prec());
-#else
-    mpf_init2(g, mpf_get_default_prec());
-#endif
-    mpf_set_str(g, "0.0390625", 10); // Initialize f with a string value, base 10
+    mpf_init2(f, mpf_get_default_prec());
+    mpf_set_str(f, "0.0390625", 10); // Initialize f with a string value, base 10
 
-    mpf_class result(g);
+    mpf_class result(f);
     assert(Is_mpf_class_Equals(result, expected));
 
-    mpf_class b(g, prec);
+    mpf_class b(f, prec);
     assert(b.get_prec() == prec);
     assert(Is_mpf_class_Equals(b, expected));
-    mpf_clear(g);
-
-    mpf_class f(1.5); // default precision
-#if defined GMPXX_MKII
-    std::cout << "maho: " << f.get_prec();
-    // assert(f.get_prec()==defaults::get_default_prec());
-#else
-    assert(f.get_prec() == mpf_get_default_prec());
-#endif
-
-#ifdef MAHO
-    mpf_class f(1.5, 500); // 500 bits (at least)
-    mpf_class f(x);        // precision of x
-    mpf_class f(abs(x));   // precision of x
-    mpf_class f(-g, 1000); // 1000 bits (at least)
-    mpf_class f(x + y);    // greater of precisions of x and y
-#endif
+    mpf_clear(f);
 
     std::cout << "Constructor tests passed." << std::endl;
 }
-#ifdef GMPXX_MKII
 void test_mpf_class_literal() {
+#ifdef GMPXX_MKII
     // Using the user-defined literal to create mpf_class objects
     mpf_class num1 = "3.14159"_mpf;
     mpf_class num2 = "2.71828"_mpf;
@@ -520,8 +530,8 @@ void test_mpf_class_literal() {
     assert(Is_mpf_class_Equals(num4, "-123.4560000000"));
 
     std::cout << "User-defined literal tests for mpf_class passed." << std::endl;
-}
 #endif
+}
 void test_mpf_class_swap() {
     mpf_class a("123.456"), b("789.012");
 
@@ -668,25 +678,22 @@ void test_fits_ushort_p() {
     std::cout << "All fits_ushort_p tests passed." << std::endl;
 }
 int main() {
-#if defined GMPXX_MKII
-    testDefaultPrecision();
+#if !defined GMPXX_MKII
+    mpf_set_default_prec(512);
 #endif
+    testDefaultPrecision();
     testDefaultConstructor();
     testCopyConstructor();
     testAssignmentOperator();
     testInitializationAndAssignmentDouble();
-#if defined GMPXX_MKII
     testInitializationAndAssignmentString();
-#endif
     testAddition();
     testMultplication();
     testDivision();
     testSubtraction();
     testComparisonOperators();
     testSqrt();
-#if defined GMPXX_MKII
     testNeg();
-#endif
     testAbs();
     test_mpf_class_double_addition();
     test_mpf_class_double_subtraction();
@@ -700,10 +707,9 @@ int main() {
     test_get_d();
     test_get_ui();
     test_get_si();
-    test_mpf_class_constructor();
-#ifdef GMPXX_MKII
+    test_mpf_class_constructor_precision();
+    test_mpf_class_constructor_with_mpf();
     test_mpf_class_literal();
-#endif
     test_mpf_class_swap();
     test_template_cmp();
     test_set_str();
