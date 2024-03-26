@@ -489,14 +489,12 @@ void test_mpf_class_constructor_precision() {
     mpf_class f5(-g, 1024);
     assert(f5.get_prec() == 1024);
 
-#if !defined GMPXX_MKII
     mpf_class y(3.5, 1024);
     mpf_class f6(x + y);
     assert(f6.get_prec() == 1024);
     mpf_class z(3.5, 2048);
     mpf_class f7(z + x);
     assert(f7.get_prec() == 2048);
-#endif
     std::cout << "test_mpf_class_constructor_precision passed." << std::endl;
 }
 

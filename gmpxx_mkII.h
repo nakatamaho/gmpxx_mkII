@@ -56,9 +56,9 @@ class mpf_class {
     mpf_class() { mpf_init(value); }
     ~mpf_class() { mpf_clear(value); }
     // explicit mpf_class::mpf_class (const mpf_t f)
-    explicit mpf_class(const mpf_t f) {
-        mpf_init(value);
-        mpf_set(value, f);
+    explicit mpf_class(const mpf_t op) {
+        mpf_init2(value, mpf_get_prec(op));
+        mpf_set(value, op);
     }
     //  mpf_class::mpf_class (const mpf_t f, mp_bitcnt_t prec)
     mpf_class(const mpf_t f, mp_bitcnt_t prec) {
@@ -216,47 +216,15 @@ class mpf_class {
         }
         return *this;
     }
-    mpf_class operator-() const {
-        mpf_class result;
-        mpf_neg(result.value, this->value);
-        return result;
-    }
-    mpf_class operator+(const mpf_class &rhs) const {
-        mpf_class result;
-        mpf_add(result.value, value, rhs.value);
-        return result;
-    }
-    mpf_class &operator+=(const mpf_class &rhs) {
-        mpf_add(value, value, rhs.value);
-        return *this;
-    }
-    mpf_class operator*(const mpf_class &rhs) const {
-        mpf_class result;
-        mpf_mul(result.value, this->value, rhs.value);
-        return result;
-    }
-    mpf_class &operator*=(const mpf_class &rhs) {
-        mpf_mul(value, value, rhs.value);
-        return *this;
-    }
-    mpf_class operator-(const mpf_class &rhs) const {
-        mpf_class result;
-        mpf_sub(result.value, this->value, rhs.value);
-        return result;
-    }
-    mpf_class &operator-=(const mpf_class &rhs) {
-        mpf_sub(value, value, rhs.value);
-        return *this;
-    }
-    mpf_class operator/(const mpf_class &rhs) const {
-        mpf_class result;
-        mpf_div(result.value, this->value, rhs.value);
-        return result;
-    }
-    mpf_class &operator/=(const mpf_class &rhs) {
-        mpf_div(value, value, rhs.value);
-        return *this;
-    }
+    friend mpf_class operator-(const mpf_class &op);
+    friend mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs);
+    friend mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
+    friend mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs);
+    friend mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
+    friend mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs);
+    friend mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
+    friend mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs);
+    friend mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs);
 
     friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
@@ -309,6 +277,52 @@ class mpf_class {
   private:
     mpf_t value;
 };
+
+inline mpf_class operator-(const mpf_class &op) {
+    mpf_class result;
+    mpf_neg(result.value, op.value);
+    return result;
+}
+inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs) {
+    mp_bitcnt_t prec1 = lhs.get_prec(), prec2 = rhs.get_prec();
+    mp_bitcnt_t prec = (prec1 > prec2) ? prec1 : prec2;
+    mpf_class result;
+    mpf_init2(result.value, prec);
+    mpf_add(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs) {
+    mpf_add(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs) {
+    mpf_class result;
+    mpf_mul(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs) {
+    mpf_mul(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs) {
+    mpf_class result;
+    mpf_sub(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs) {
+    mpf_sub(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs) {
+    mpf_class result;
+    mpf_div(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs) {
+    mpf_div(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+
 // int cmp (mpf_class op1, type op2)
 // int cmp (type op1, mpf_class op2)
 template <typename T> int cmp(const mpf_class &op1, const T &op2) {
