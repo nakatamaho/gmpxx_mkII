@@ -2,6 +2,7 @@ CXX = g++-12
 CXXFLAGS = -Wall -Wextra
 LDFLAGS = -L/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib -lgmp
 INCLUDES = -I/home/docker/gmpxx_mkII/i/GMP-6.3.0/include
+RPATH_FLAGS = -Wl,-rpath,/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib
 
 TARGET = test_gmpxx_mkII
 TARGET_EXTRA = test_gmpxx
@@ -20,7 +21,7 @@ $(OBJECTS): $(SOURCES) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -DGMPXX_MKII -c $(@:.o=.cpp)
 
 $(TARGET_EXTRA): $(OBJECTS_EXTRA)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET_EXTRA) $(OBJECTS_EXTRA) -lgmpxx $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET_EXTRA) $(OBJECTS_EXTRA) $(RPATH_FLAGS) -lgmpxx $(LDFLAGS)
 
 $(OBJECTS_EXTRA): $(SOURCES) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $(SOURCES) -o $@

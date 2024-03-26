@@ -562,6 +562,73 @@ void test_trunc_function() {
 
     std::cout << "trunc function tests passed." << std::endl;
 }
+void test_fits_sint_p() {
+    mpf_class smallValue("123");
+    assert(smallValue.fits_sint_p() == true);
+
+    mpf_class largeValue("999999999999999999999999999999");
+    assert(largeValue.fits_sint_p() == false);
+
+    mpf_class negativeValue("-123");
+    assert(negativeValue.fits_sint_p() == true);
+
+    mpf_class edgeCaseMax(std::to_string(INT_MAX));
+    assert(edgeCaseMax.fits_sint_p() == true);
+
+    mpf_class edgeCaseMin(std::to_string(INT_MIN));
+    assert(edgeCaseMin.fits_sint_p() == true);
+
+    std::cout << "All fits_sint_p tests passed." << std::endl;
+}
+void test_fits_slong_p() {
+    mpf_class value("2147483647"); // INT_MAX
+    assert(value.fits_slong_p() == true);
+
+    mpf_class outOfRange("9223372036854775808"); // LONG_MAX + 1
+    assert(outOfRange.fits_slong_p() == false);
+
+    std::cout << "All fits_slong_p tests passed." << std::endl;
+}
+
+void test_fits_sshort_p() {
+    mpf_class value("32767"); // SHRT_MAX
+    assert(value.fits_sshort_p() == true);
+
+    mpf_class outOfRange("32768"); // SHRT_MAX + 1
+    assert(outOfRange.fits_sshort_p() == false);
+
+    std::cout << "All fits_sshort_p tests passed." << std::endl;
+}
+
+void test_fits_uint_p() {
+    mpf_class value("4294967295"); // UINT_MAX
+    assert(value.fits_uint_p() == true);
+
+    mpf_class outOfRange("4294967296"); // UINT_MAX + 1
+    assert(outOfRange.fits_uint_p() == false);
+
+    std::cout << "All fits_uint_p tests passed." << std::endl;
+}
+
+void test_fits_ulong_p() {
+    mpf_class value("18446744073709551615"); // ULONG_MAX
+    assert(value.fits_ulong_p() == true);
+
+    mpf_class outOfRange("18446744073709551616"); // ULONG_MAX + 1
+    assert(outOfRange.fits_ulong_p() == false);
+
+    std::cout << "All fits_ulong_p tests passed." << std::endl;
+}
+
+void test_fits_ushort_p() {
+    mpf_class value("65535"); // USHRT_MAX
+    assert(value.fits_ushort_p() == true);
+
+    mpf_class outOfRange("65536"); // USHRT_MAX + 1
+    assert(outOfRange.fits_ushort_p() == false);
+
+    std::cout << "All fits_ushort_p tests passed." << std::endl;
+}
 int main() {
 #if defined GMPXX_MKII
     testDefaultPrecision();
@@ -603,7 +670,12 @@ int main() {
     test_template_cmp();
     test_set_str();
     test_trunc_function();
-
+    test_fits_sint_p();
+    test_fits_slong_p();
+    test_fits_sshort_p();
+    test_fits_uint_p();
+    test_fits_ulong_p();
+    test_fits_ushort_p();
     std::cout << "All tests passed." << std::endl;
 
     return 0;

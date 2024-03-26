@@ -54,14 +54,7 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // 12.4 C++ Interface Floats
     ////////////////////////////////////////////////////////////////////////////////////////
-    // bool mpf_class::fits_sint_p (void)
-    // bool mpf_class::fits_slong_p (void)
-    // bool mpf_class::fits_sshort_p (void)
-    // bool mpf_class::fits_uint_p (void)
-    // bool mpf_class::fits_ulong_p (void)
-    // bool mpf_class::fits_ushort_p (void)
     // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
-    // mpf_class trunc (mpf_class op)
 
     // constructor
     mpf_class() { mpf_init(value); }
@@ -166,6 +159,18 @@ class mpf_class {
     // void swap (mpf_class& op1, mpf_class& op2)
     friend void swap(mpf_class &op1, mpf_class &op2) { mpf_swap(op1.value, op2.value); }
 
+    // bool mpf_class::fits_sint_p (void)
+    // bool mpf_class::fits_slong_p (void)
+    // bool mpf_class::fits_sshort_p (void)
+    // bool mpf_class::fits_uint_p (void)
+    // bool mpf_class::fits_ulong_p (void)
+    // bool mpf_class::fits_ushort_p (void)
+    bool fits_sint_p() const { return mpf_fits_sint_p(value); }
+    bool fits_slong_p() const { return mpf_fits_slong_p(value); }
+    bool fits_sshort_p() const { return mpf_fits_sshort_p(value); }
+    bool fits_uint_p() const { return mpf_fits_uint_p(value); }
+    bool fits_ulong_p() const { return mpf_fits_ulong_p(value); }
+    bool fits_ushort_p() const { return mpf_fits_ushort_p(value); }
     // Initialization using assignment operator
     // Copy-and-Swap Idiom; it does both the copy assignment operator and the move assignment operator.
     // mpf_class& mpf_class::operator= (type op)
@@ -291,13 +296,11 @@ class mpf_class {
   private:
     mpf_t value;
 };
-
 inline mpf_class trunc(const mpf_class &op) {
     mpf_class rop;
     mpf_trunc(rop.value, op.get_mpf_t());
     return rop;
 }
-
 inline mpf_class sqrt(const mpf_class &op) {
     mpf_class rop;
     mpf_sqrt(rop.value, op.get_mpf_t());
