@@ -47,6 +47,116 @@ class defaults {
     static inline void set_default_base(const int _base) { base = _base; }
 };
 class mpz_class;
+class mpq_class;
+class mpf_class;
+
+class mpz_class {
+  public:
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // 12.2 C++ Interface Integers
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // constructor
+    mpz_class() { mpz_init(value); }
+    ~mpz_class() { mpz_clear(value); }
+
+    mpz_class(unsigned long int op) {
+        mpz_init(value);
+        mpz_set_ui(value, op);
+    }
+    mpz_class(signed long int op) {
+        mpz_init(value);
+        mpz_set_si(value, op);
+    }
+    mpz_class(double op) {
+        mpz_init(value);
+        mpz_set_d(value, op);
+    }
+    mpz_class(const mpq_t op) {
+        mpz_init(value);
+        mpz_set_q(value, op);
+    }
+    mpz_class(const mpf_t op) {
+        mpz_init(value);
+        mpz_set_f(value, op);
+    }
+    mpz_class(const mpz_class &op) {
+        mpz_init(value);
+        mpz_set(value, op.value);
+    }
+    explicit mpz_class(const mpz_t z) {
+        mpz_init(value);
+        mpz_set(value, z);
+    }
+    explicit mpz_class(const char *str, int base = 0) {
+        mpz_init(value);
+        if (mpz_set_str(value, str, base) != 0) {
+            std::cerr << "Error initializing mpz_class from const char*: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+    }
+    explicit mpz_class(const std::string &str, int base = 0) {
+        mpz_init(value);
+        if (mpz_set_str(value, str.c_str(), base) != 0) {
+            std::cerr << "Error initializing mpz_class from std::string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+    }
+    mpz_class &operator=(mpz_class op) noexcept {
+        mpz_swap(value, op.value);
+        return *this;
+    }
+    mpz_class &operator=(double d) noexcept {
+        mpz_set_d(value, d);
+        return *this;
+    }
+    mpz_class &operator=(signed long int op) noexcept {
+        mpz_set_si(value, op);
+        return *this;
+    }
+    mpz_class &operator=(unsigned long int op) noexcept {
+        mpz_set_ui(value, op);
+        return *this;
+    }
+    mpz_class &operator=(const char *str) {
+        if (mpz_set_str(value, str, 0) != 0) {
+            std::cerr << "Error assigning mpz_class from char:" << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+        return *this;
+    }
+    mpz_class &operator=(const std::string &str) {
+        if (mpz_set_str(value, str.c_str(), 0) != 0) {
+            std::cerr << "Error assigning mpz_class from string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpz_class with given string.");
+        }
+        return *this;
+    }
+    mpz_class &operator=(const mpf_class &) = delete;
+    mpz_t *get_mpz_t() { return &value; }
+    mpz_srcptr get_mpz_t() const { return value; }
+
+  private:
+    mpz_t value;
+};
+
+class mpq_class {
+  public:
+    // constructor
+    mpq_class() { mpq_init(value); }
+    ~mpq_class() { mpq_clear(value); }
+
+    mpq_class(unsigned long int op1, unsigned long int op2) {
+        mpq_init(value);
+        mpq_set_ui(value, op1, op2);
+    }
+    mpq_class(signed long int op1, signed long int op2) {
+        mpq_init(value);
+        mpq_set_si(value, op1, op2);
+    }
+
+  private:
+    mpq_t value;
+};
 
 class mpf_class {
   public:
@@ -256,10 +366,17 @@ class mpf_class {
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
     mpf_srcptr get_mpf_t() const { return value; }
+    operator mpz_class() const;
 
   private:
     mpf_t value;
 };
+
+mpf_class::operator mpz_class() const {
+    mpz_class rop;
+    mpz_set_f(*const_cast<mpz_t *>(rop.get_mpz_t()), this->get_mpf_t());
+    return rop;
+}
 
 inline mp_bitcnt_t largerprec(const mpf_class &lhs, const mpf_class &rhs) {
     mp_bitcnt_t prec1 = lhs.get_prec(), prec2 = rhs.get_prec();
@@ -486,117 +603,6 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
     free(str);
     return os;
 }
-
-class mpq_class {
-  public:
-    // constructor
-    mpq_class() { mpq_init(value); }
-    ~mpq_class() { mpq_clear(value); }
-
-    mpq_class(unsigned long int op1, unsigned long int op2) {
-        mpq_init(value);
-        mpq_set_ui(value, op1, op2);
-    }
-    mpq_class(signed long int op1, signed long int op2) {
-        mpq_init(value);
-        mpq_set_si(value, op1, op2);
-    }
-
-  private:
-    mpq_t value;
-};
-
-class mpz_class {
-  public:
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // 12.2 C++ Interface Integers
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // constructor
-    mpz_class() { mpz_init(value); }
-    ~mpz_class() { mpz_clear(value); }
-
-    mpz_class(unsigned long int op) {
-        mpz_init(value);
-        mpz_set_ui(value, op);
-    }
-    mpz_class(signed long int op) {
-        mpz_init(value);
-        mpz_set_si(value, op);
-    }
-    mpz_class(double op) {
-        mpz_init(value);
-        mpz_set_d(value, op);
-    }
-    mpz_class(const mpq_t op) {
-        mpz_init(value);
-        mpz_set_q(value, op);
-    }
-    mpz_class(const mpf_t op) {
-        mpz_init(value);
-        mpz_set_f(value, op);
-    }
-    mpz_class(const mpz_class &op) {
-        mpz_init(value);
-        mpz_set(value, op.value);
-    }
-    explicit mpz_class(const mpz_t z) {
-        mpz_init(value);
-        mpz_set(value, z);
-    }
-    explicit mpz_class(const char *str, int base = 0) {
-        mpz_init(value);
-        if (mpz_set_str(value, str, base) != 0) {
-            std::cerr << "Error initializing mpz_class from const char*: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpz_class with given string.");
-        }
-    }
-    explicit mpz_class(const std::string &str, int base = 0) {
-        mpz_init(value);
-        if (mpz_set_str(value, str.c_str(), base) != 0) {
-            std::cerr << "Error initializing mpz_class from std::string: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpz_class with given string.");
-        }
-    }
-    explicit mpz_class(const mpf_class &op) {
-        mpz_init(value);
-        mpz_set_f(value, op.get_mpf_t());
-    }
-    mpz_class &operator=(mpz_class op) noexcept {
-        mpz_swap(value, op.value);
-        return *this;
-    }
-    mpz_class &operator=(double d) noexcept {
-        mpz_set_d(value, d);
-        return *this;
-    }
-    mpz_class &operator=(signed long int op) noexcept {
-        mpz_set_si(value, op);
-        return *this;
-    }
-    mpz_class &operator=(unsigned long int op) noexcept {
-        mpz_set_ui(value, op);
-        return *this;
-    }
-    mpz_class &operator=(const char *str) {
-        if (mpz_set_str(value, str, 0) != 0) {
-            std::cerr << "Error assigning mpz_class from char:" << std::endl;
-            throw std::runtime_error("Failed to initialize mpz_class with given string.");
-        }
-        return *this;
-    }
-    mpz_class &operator=(const std::string &str) {
-        if (mpz_set_str(value, str.c_str(), 0) != 0) {
-            std::cerr << "Error assigning mpz_class from string: " << str << std::endl;
-            throw std::runtime_error("Failed to initialize mpz_class with given string.");
-        }
-        return *this;
-    }
-    mpz_class &operator=(const mpf_class &) = delete;
-    mpz_srcptr get_mpz_t() const { return value; }
-
-  private:
-    mpz_t value;
-};
 
 } // namespace gmp
 
