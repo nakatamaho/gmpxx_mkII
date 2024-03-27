@@ -779,6 +779,46 @@ void testInitializationAndAssignmentDouble_mpz_class() {
     assert(Is_mpz_class_Equals(b, expectedValue, true));
     std::cout << "Substitution from double using assignment test passed." << std::endl;
 }
+void testInitializationAndAssignmentInt_mpz_class() {
+    signed long int testValue = -31415926535;
+    const char *expectedValue = "-31415926535";
+
+    mpz_class a = (mpz_class)testValue;
+    assert(Is_mpz_class_Equals(a, expectedValue, true));
+    std::cout << "Substitution from signed long int using constructor test passed." << std::endl;
+
+    mpz_class b;
+    b = testValue;
+    assert(Is_mpz_class_Equals(b, expectedValue, true));
+    std::cout << "Substitution from signed long int using assignment test passed." << std::endl;
+
+    unsigned long int testValue2 = 31415926535;
+    const char *expectedValue2 = "31415926535";
+
+    mpz_class c = (mpz_class)testValue2;
+    assert(Is_mpz_class_Equals(c, expectedValue2, true));
+    std::cout << "Substitution from unsigned long int using constructor test passed." << std::endl;
+
+    mpz_class d;
+    d = testValue2;
+    assert(Is_mpz_class_Equals(d, expectedValue2, true));
+    std::cout << "Substitution from unsigned long int using assignment test passed." << std::endl;
+}
+
+void testInitializationAndAssignment_mpf_class_mpz_class() {
+    mpf_class testValue("-31415926535");
+    const char *expectedValue = "-31415926535";
+
+    mpz_class a = (mpz_class)testValue; // explicit cast requested
+    assert(Is_mpz_class_Equals(a, expectedValue, true));
+    std::cout << "Substitution from signed long int using constructor test passed." << std::endl;
+
+    mpz_class b;
+    b = testValue;
+    assert(Is_mpz_class_Equals(b, expectedValue, true));
+    std::cout << "Substitution from signed long int using assignment test passed." << std::endl;
+}
+
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -830,6 +870,8 @@ int main() {
     testCopyConstructor_mpz_class();
     testAssignmentOperator_mpz_class();
     testInitializationAndAssignmentDouble_mpz_class();
+    testInitializationAndAssignmentInt_mpz_class();
+    testInitializationAndAssignment_mpf_class_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 
