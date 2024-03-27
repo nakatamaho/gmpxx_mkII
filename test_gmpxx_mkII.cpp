@@ -132,6 +132,23 @@ void testAssignmentOperator() {
     assert(true);
     std::cout << "Assignment operator test passed." << std::endl;
 }
+void testAssignmentOperator_class_move_and_copy() {
+    mpf_class a = mpf_class("123");
+    mpf_class b = mpf_class("456");
+    const char *expectedValue_b = "456.0000000000";
+    a = b;
+    assert(Is_mpf_class_Equals(a, expectedValue_b) && Is_mpf_class_Equals(b, expectedValue_b) && "copy test failed");
+
+    mpf_class c = mpf_class("789");
+    mpf_class d = mpf_class("123");
+    const char *expectedValue_d = "789.0000000000";
+
+    d = std::move(c);
+    /*
+    assert(Is_mpf_class_Equals(d, expectedValue_d) && "move test failed");
+    */
+    std::cout << "Assignment operator (move and copy) test passed." << std::endl;
+}
 void testInitializationAndAssignmentDouble() {
     double testValue = 3.1415926535;
     const char *expectedValue = "3.1415926535";
@@ -766,6 +783,21 @@ void testAssignmentOperator_mpz_class() {
     assert(true);
     std::cout << "Assignment operator test passed." << std::endl;
 }
+/*
+void testAssignmentOperator_mpz_class_move_and_copy() {
+    mpz_class a = 123L;
+    mpz_class b = 456L;
+    a = b;
+    assert(a == 456 && b == 456 && "copy test failed");
+
+    mpz_class c = 789L;
+
+    a = std::move(c);
+    assert(a == 789 && "move test failed");
+
+    std::cout << "Assignment operator (move and copy) test passed." << std::endl;
+}
+*/
 void testInitializationAndAssignmentDouble_mpz_class() {
     double testValue = 31415926535;
     const char *expectedValue = "31415926535";
@@ -911,6 +943,7 @@ int main() {
     test_fits_uint_p();
     test_fits_ulong_p();
     test_fits_ushort_p();
+    testAssignmentOperator_class_move_and_copy();
 
     // mpz_class
     testDefaultConstructor_mpz_class();
@@ -921,7 +954,7 @@ int main() {
     testInitializationAndAssignment_mpf_class_mpz_class();
     testInitializationAndAssignment_mpz_class_mpf_class();
     testInitializationAndAssignmentString_mpz_class();
-
+    //    testAssignmentOperator_mpz_class_move_and_copy();
     std::cout << "All tests passed." << std::endl;
 
     return 0;

@@ -131,6 +131,35 @@ class mpz_class {
         }
         return *this;
     }
+// mpz_class operator/ (mpz_class a, mpz_class d)
+// mpz_class operator% (mpz_class a, mpz_class d)
+// mpz_class abs (mpz_class op)
+// int cmp (mpz_class op1, type op2)
+// int cmp (type op1, mpz_class op2)
+// bool mpz_class::fits_sint_p (void)
+// bool mpz_class::fits_slong_p (void)
+// bool mpz_class::fits_sshort_p (void)
+// bool mpz_class::fits_uint_p (void)
+// bool mpz_class::fits_ulong_p (void)
+// bool mpz_class::fits_ushort_p (void)
+// double mpz_class::get_d (void)
+// long mpz_class::get_si (void)
+// string mpz_class::get_str (int base = 10)
+// unsigned long mpz_class::get_ui (void)
+// int mpz_class::set_str (const char *str, int base)
+// int mpz_class::set_str (const string& str, int base)
+// int sgn (mpz_class op)
+// mpz_class sqrt (mpz_class op)
+// mpz_class gcd (mpz_class op1, mpz_class op2)
+// mpz_class lcm (mpz_class op1, mpz_class op2)
+// mpz_class mpz_class::factorial (type op)
+// mpz_class factorial (mpz_class op)
+// mpz_class mpz_class::primorial (type op)
+// mpz_class primorial (mpz_class op)
+// mpz_class mpz_class::fibonacci (type op)
+// mpz_class fibonacci (mpz_class op)
+// void mpz_class::swap (mpz_class& op)
+// void swap (mpz_class& op1, mpz_class& op2)
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpz_class &operator=(const mpf_class &) = delete;
 #endif
@@ -620,7 +649,9 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
 } // namespace gmp
 
 // mpf_class operator"" _mpf (const char *str)
+// mpz_class operator"" _mpz (const char *str)
 gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
+gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
 
 int gmp::defaults::base;
 
