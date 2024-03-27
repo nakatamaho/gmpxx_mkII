@@ -47,6 +47,25 @@ class defaults {
     static inline void set_default_base(const int _base) { base = _base; }
 };
 
+class mpq_class {
+  public:
+    // constructor
+    mpq_class() { mpq_init(value); }
+    ~mpq_class() { mpq_clear(value); }
+
+    mpq_class(unsigned long int op1, unsigned long int op2) {
+        mpq_init(value);
+        mpq_set_ui(value, op1, op2);
+    }
+    mpq_class(signed long int op1, signed long int op2) {
+        mpq_init(value);
+        mpq_set_si(value, op1, op2);
+    }
+
+  private:
+    mpq_t value;
+};
+
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -571,34 +590,13 @@ class mpz_class {
         }
         return *this;
     }
-    mpz_class &operator=(const mpf_class &op) {
-        mpz_set_f(value, op.get_mpf_t());
-        return *this;
-    }
+    mpz_class &operator=(const mpf_class &) = delete;
     mpz_srcptr get_mpz_t() const { return value; }
 
   private:
     mpz_t value;
 };
 
-class mpq_class {
-  public:
-    // constructor
-    mpq_class() { mpq_init(value); }
-    ~mpq_class() { mpq_clear(value); }
-
-    mpq_class(unsigned long int op1, unsigned long int op2) {
-        mpq_init(value);
-        mpq_set_ui(value, op1, op2);
-    }
-    mpq_class(signed long int op1, signed long int op2) {
-        mpq_init(value);
-        mpq_set_si(value, op1, op2);
-    }
-
-  private:
-    mpq_t value;
-};
 
 } // namespace gmp
 

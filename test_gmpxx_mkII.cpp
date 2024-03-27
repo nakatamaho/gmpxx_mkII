@@ -814,7 +814,7 @@ void testInitializationAndAssignment_mpf_class_mpz_class() {
     std::cout << "Substitution from signed long int using constructor test passed." << std::endl;
 
     mpz_class b;
-    b = testValue;
+    b = (mpz_class)testValue; // explicit cast requested
     assert(Is_mpz_class_Equals(b, expectedValue, true));
     std::cout << "Substitution from signed long int using assignment test passed." << std::endl;
 }
