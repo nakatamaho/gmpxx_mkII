@@ -851,27 +851,18 @@ void testInitializationAndAssignmentString_mpz_class() {
     assert(Is_mpz_class_Equals(c, expectedDecimalValueString.c_str()));
     std::cout << "Constructor initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
 
-#ifdef NOTYET
     // Testing initialization with a decimal number using an assignment operator
-    mpf_class d;
+    mpz_class d;
     d = expectedDecimalValueString;
-    assert(Is_mpf_class_Equals(d, expectedDecimalValueString.c_str()));
+    assert(Is_mpz_class_Equals(d, expectedDecimalValueString.c_str()));
     std::cout << "Assignment initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
-    // Testing initialization with a hexadecimal number using an assignment operator
-    const char *expectedHexValue = "0x3.243f6a8885a3p+0";
-    const char *inputHexValue = "3.243F6A8885A308D313198A2E03707344A4093822299F31D008";
-    mpf_class e(inputHexValue, defaults::get_default_prec(), 16);
-    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
-    std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 
-    defaults::base = 16;
-    // Testing initialization with a hexadecimal number using a constructor
-    mpf_class f;
-    e = inputHexValue;
-    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, defaults::base));
-    std::cout << "Constructor initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
-    defaults::base = 10;
-#endif
+    // Testing initialization with a hexadecimal number using an assignment operator
+    const char *expectedHexValue = "66814286504060421741230023322616923956";
+    const char *inputHexValue = "3243F6A8885A308D313198A2E0370734";
+    mpz_class e(inputHexValue, 16);
+    assert(Is_mpz_class_Equals(e, expectedHexValue, true));
+    std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 #endif
 }
 
