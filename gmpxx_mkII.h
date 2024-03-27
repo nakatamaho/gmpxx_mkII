@@ -87,14 +87,14 @@ class mpz_class {
         mpz_init(value);
         mpz_set(value, z);
     }
-    explicit mpz_class(const char *str, int base = 0) {
+    mpz_class(const char *str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str, base) != 0) {
             std::cerr << "Error initializing mpz_class from const char*: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpz_class with given string.");
         }
     }
-    explicit mpz_class(const std::string &str, int base = 0) {
+    mpz_class(const std::string &str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str.c_str(), base) != 0) {
             std::cerr << "Error initializing mpz_class from std::string: " << str << std::endl;

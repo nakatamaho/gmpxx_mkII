@@ -831,6 +831,49 @@ void testInitializationAndAssignment_mpf_class_mpz_class() {
     assert(Is_mpf_class_Equals(b, expectedValue));
     std::cout << "Substitution from mpz_class to mpf_class using assignment test passed." << std::endl;
 }
+void testInitializationAndAssignmentString_mpz_class() {
+#if defined GMPXX_MKII
+    // Testing initialization with a decimal number using a constructor
+    const char *expectedDecimalValue = "14142135624";
+    mpz_class a = expectedDecimalValue;
+    assert(Is_mpz_class_Equals(a, expectedDecimalValue));
+    std::cout << "Constructor initialization with decimal '" << expectedDecimalValue << "' test passed." << std::endl;
+
+    // Testing initialization with a decimal number using an assignment operator
+    mpz_class b;
+    b = expectedDecimalValue;
+    assert(Is_mpz_class_Equals(b, expectedDecimalValue));
+    std::cout << "Assignment initialization with decimal '" << expectedDecimalValue << "' test passed." << std::endl;
+
+    // Testing initialization with a decimal number using a constructor
+    std::string expectedDecimalValueString = "31415926535";
+    mpz_class c = expectedDecimalValueString;
+    assert(Is_mpz_class_Equals(c, expectedDecimalValueString.c_str()));
+    std::cout << "Constructor initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
+
+#ifdef NOTYET
+    // Testing initialization with a decimal number using an assignment operator
+    mpf_class d;
+    d = expectedDecimalValueString;
+    assert(Is_mpf_class_Equals(d, expectedDecimalValueString.c_str()));
+    std::cout << "Assignment initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
+    // Testing initialization with a hexadecimal number using an assignment operator
+    const char *expectedHexValue = "0x3.243f6a8885a3p+0";
+    const char *inputHexValue = "3.243F6A8885A308D313198A2E03707344A4093822299F31D008";
+    mpf_class e(inputHexValue, defaults::get_default_prec(), 16);
+    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
+    std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
+
+    defaults::base = 16;
+    // Testing initialization with a hexadecimal number using a constructor
+    mpf_class f;
+    e = inputHexValue;
+    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, defaults::base));
+    std::cout << "Constructor initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
+    defaults::base = 10;
+#endif
+#endif
+}
 
 int main() {
 #if !defined GMPXX_MKII
@@ -886,6 +929,7 @@ int main() {
     testInitializationAndAssignmentInt_mpz_class();
     testInitializationAndAssignment_mpf_class_mpz_class();
     testInitializationAndAssignment_mpz_class_mpf_class();
+    testInitializationAndAssignmentString_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 
