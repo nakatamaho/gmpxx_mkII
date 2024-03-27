@@ -46,25 +46,7 @@ class defaults {
     static inline mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
     static inline void set_default_base(const int _base) { base = _base; }
 };
-
-class mpq_class {
-  public:
-    // constructor
-    mpq_class() { mpq_init(value); }
-    ~mpq_class() { mpq_clear(value); }
-
-    mpq_class(unsigned long int op1, unsigned long int op2) {
-        mpq_init(value);
-        mpq_set_ui(value, op1, op2);
-    }
-    mpq_class(signed long int op1, signed long int op2) {
-        mpq_init(value);
-        mpq_set_si(value, op1, op2);
-    }
-
-  private:
-    mpq_t value;
-};
+class mpz_class;
 
 class mpf_class {
   public:
@@ -505,6 +487,25 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
     return os;
 }
 
+class mpq_class {
+  public:
+    // constructor
+    mpq_class() { mpq_init(value); }
+    ~mpq_class() { mpq_clear(value); }
+
+    mpq_class(unsigned long int op1, unsigned long int op2) {
+        mpq_init(value);
+        mpq_set_ui(value, op1, op2);
+    }
+    mpq_class(signed long int op1, signed long int op2) {
+        mpq_init(value);
+        mpq_set_si(value, op1, op2);
+    }
+
+  private:
+    mpq_t value;
+};
+
 class mpz_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -596,7 +597,6 @@ class mpz_class {
   private:
     mpz_t value;
 };
-
 
 } // namespace gmp
 
