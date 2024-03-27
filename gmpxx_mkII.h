@@ -131,8 +131,11 @@ class mpz_class {
         }
         return *this;
     }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpz_class &operator=(const mpf_class &) = delete;
-    mpz_t *get_mpz_t() { return &value; }
+#endif
+    operator mpf_class() const;
+    mpz_t *_get_mpz_t() { return &value; }
     mpz_srcptr get_mpz_t() const { return value; }
 
   private:
@@ -365,8 +368,12 @@ class mpf_class {
 
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
-    mpf_srcptr get_mpf_t() const { return value; }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    mpf_class &operator=(const mpz_class &) = delete;
+#endif
     operator mpz_class() const;
+    mpf_t *_get_mpf_t() { return &value; }
+    mpf_srcptr get_mpf_t() const { return value; }
 
   private:
     mpf_t value;
@@ -374,7 +381,13 @@ class mpf_class {
 
 mpf_class::operator mpz_class() const {
     mpz_class rop;
-    mpz_set_f(*const_cast<mpz_t *>(rop.get_mpz_t()), this->get_mpf_t());
+    mpz_set_f(*const_cast<mpz_t *>(rop._get_mpz_t()), this->get_mpf_t());
+    return rop;
+}
+
+mpz_class::operator mpf_class() const {
+    mpf_class rop;
+    mpf_set_z(*const_cast<mpf_t *>(rop._get_mpf_t()), this->get_mpz_t());
     return rop;
 }
 

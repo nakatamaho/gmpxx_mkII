@@ -805,7 +805,7 @@ void testInitializationAndAssignmentInt_mpz_class() {
     std::cout << "Substitution from unsigned long int using assignment test passed." << std::endl;
 }
 
-void testInitializationAndAssignment_mpf_class_mpz_class() {
+void testInitializationAndAssignment_mpz_class_mpf_class() {
     mpf_class testValue("-31415926535");
     const char *expectedValue = "-31415926535";
 
@@ -818,8 +818,7 @@ void testInitializationAndAssignment_mpf_class_mpz_class() {
     assert(Is_mpz_class_Equals(b, expectedValue));
     std::cout << "Substitution from mpf_class using assignment test passed." << std::endl;
 }
-void testInitializationAndAssignment_mpz_class_mpf_class() {
-#if !defined GMPXX_MKII
+void testInitializationAndAssignment_mpf_class_mpz_class() {
     mpz_class testValue("-31415926535");
     const char *expectedValue = "-31415926535.0000000000";
 
@@ -828,10 +827,9 @@ void testInitializationAndAssignment_mpz_class_mpf_class() {
     std::cout << "Substitution from mpz_class to mpf_class using constructor test passed." << std::endl;
 
     mpf_class b;
-    b = testValue; // explicit cast requested
+    b = (mpf_class)testValue; // explicit cast requested
     assert(Is_mpf_class_Equals(b, expectedValue));
     std::cout << "Substitution from mpz_class to mpf_class using assignment test passed." << std::endl;
-#endif
 }
 
 int main() {
