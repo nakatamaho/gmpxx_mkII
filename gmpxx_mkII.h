@@ -214,8 +214,8 @@ class mpf_class {
         mpf_init2(value, mpf_get_prec(op.value));
         mpf_set(value, op.value);
     }
-    mpf_class(mpf_class &&op) noexcept { // The rule 4 of 5 copy constructor
-                                         // std::cout << "The rule 4 of 5 copy constructor\n" ;
+    mpf_class(mpf_class &&op) noexcept { // The rule 4 of 5 move constructor
+                                         // std::cout << "The rule 4 of 5 move constructor\n" ;
         mpf_init(value);
         mpf_swap(value, op.value);
     }
@@ -353,7 +353,7 @@ class mpf_class {
         return *this;
     }
     mpf_class &operator=(mpf_class &&op) noexcept { // The rule 5 of 5 move assignment operator
-        // std::cout << "The rule 5 of 5 copy assignment operator\n" ;
+        // std::cout << "The rule 5 of 5 move assignment operator\n" ;
         if (this != &op) {
             mpf_swap(value, op.value);
         }
