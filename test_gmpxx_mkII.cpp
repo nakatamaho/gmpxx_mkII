@@ -132,21 +132,34 @@ void testAssignmentOperator() {
     assert(true);
     std::cout << "Assignment operator test passed." << std::endl;
 }
-void testAssignmentOperator_class_move_and_copy() {
-    mpf_class a = mpf_class("123");
-    mpf_class b = mpf_class("456");
-    const char *expectedValue_b = "456.0000000000";
-    a = b; // test mpf_class &operator=(mpf_class op) noexcept
-    assert(Is_mpf_class_Equals(a, expectedValue_b) && Is_mpf_class_Equals(b, expectedValue_b) && " test failed");
-    std::cout << "Assignment operator (move and copy) test passed." << std::endl;
-}
-void testAssignmentOperator_class_move_and_copy2() {
-    mpf_class a = mpf_class("123");
-    mpf_class b = mpf_class("456");
-    const char *expectedValue_b = "456.0000000000";
-    a = std::move(b); // test mpf_class(mpf_class &&op) noexcept
-    assert(Is_mpf_class_Equals(a, expectedValue_b) && " test failed");
-    std::cout << "Assignment operator (move and copy) test passed." << std::endl;
+void testAssignmentOperator_the_rule_of_five() {
+    mpf_class a("123.0");
+
+    // testing the rule 1 of 5: copy constructor
+    std::cout << "##testing the rule 1 of 5: copy constructor\n";
+    mpf_class b(a);
+    assert(b == a && " test failed");
+    std::cout << "##testing the rule 1 of 5: copy constructor test passed.\n" << std::endl;
+
+    // testing the rule 4 of 5: move constructor
+    std::cout << "##testing the rule 4 of 5: move constructor\n";
+    mpf_class c(std::move(a));
+    assert(c == b && " test failed");
+    std::cout << "##testing the rule 4 of 5: move constructor test passed.\n" << std::endl;
+
+    // testing the rule 2 of 5: copy assignment
+    std::cout << "##testing the rule 2 of 5: copy assignment\n";
+    mpf_class d;
+    d = b;
+    assert(d == b && " test failed");
+    std::cout << "##testing the rule 2 of 5: copy assignment test passed.\n" << std::endl;
+
+    // testing the rule 5 of 5: move assignment
+    std::cout << "##testing the rule 5 of 5: copy assignment\n";
+    mpf_class e;
+    e = std::move(c);
+    assert(e == b);
+    std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
 }
 void testInitializationAndAssignmentDouble() {
     double testValue = 3.1415926535;
@@ -942,8 +955,7 @@ int main() {
     test_fits_uint_p();
     test_fits_ulong_p();
     test_fits_ushort_p();
-    testAssignmentOperator_class_move_and_copy();
-    testAssignmentOperator_class_move_and_copy2();
+    testAssignmentOperator_the_rule_of_five();
 
     // mpz_class
     testDefaultConstructor_mpz_class();

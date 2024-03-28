@@ -196,8 +196,8 @@ class mpf_class {
     // 12.4 C++ Interface Floats
     ////////////////////////////////////////////////////////////////////////////////////////
     // constructor
-    mpf_class() { mpf_init(value); }
-    ~mpf_class() { mpf_clear(value); }
+    mpf_class() { mpf_init(value); }   // default constructor
+    ~mpf_class() { mpf_clear(value); } // The rule 3 of 5 default deconstructor
     // explicit mpf_class::mpf_class (const mpf_t f)
     explicit mpf_class(const mpf_t op) {
         mpf_init2(value, mpf_get_prec(op));
@@ -209,11 +209,16 @@ class mpf_class {
         mpf_set(value, f);
     }
     // mpf_class::mpf_class (type op)
-    mpf_class(const mpf_class &op) {
+    mpf_class(const mpf_class &op) { // The rule 1 of 5 copy constructor
+                                     // std::cout << "The rule 1 of 5 copy constructor\n" ;
         mpf_init2(value, mpf_get_prec(op.value));
         mpf_set(value, op.value);
     }
-    mpf_class(mpf_class &&op) noexcept { mpf_swap(value, op.value); }
+    mpf_class(mpf_class &&op) noexcept { // The rule 4 of 5 copy constructor
+                                         // std::cout << "The rule 4 of 5 copy constructor\n" ;
+        mpf_init(value);
+        mpf_swap(value, op.value);
+    }
     // mpf_class::mpf_class (type op, mp_bitcnt_t prec)
     mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
         mpf_init2(value, prec);
@@ -337,13 +342,21 @@ class mpf_class {
     // Initialization using assignment operator
     // Copy-and-Swap Idiom; it does both the copy assignment operator and the move assignment operator.
     // mpf_class& mpf_class::operator= (type op)
-    mpf_class &operator=(mpf_class op) noexcept {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
-        mpf_swap(value, op.value);
-#else
-        mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
-        mpf_set(value, op.value);
+    mpf_class &operator=(const mpf_class &op) noexcept { // The rule 2 of 5 copy assignment operator
+        // std::cout << "The rule 2 of 5 copy assignment operator\n" ;
+        if (this != &op) {
+#if !defined __GMPXX_MKII_NOPRECCHANGE__
+            mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
 #endif
+            mpf_set(value, op.value);
+        }
+        return *this;
+    }
+    mpf_class &operator=(mpf_class &&op) noexcept { // The rule 5 of 5 move assignment operator
+        // std::cout << "The rule 5 of 5 copy assignment operator\n" ;
+        if (this != &op) {
+            mpf_swap(value, op.value);
+        }
         return *this;
     }
     mpf_class &operator=(double d) noexcept {
