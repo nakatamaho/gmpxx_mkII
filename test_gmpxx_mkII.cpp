@@ -994,7 +994,38 @@ void test_arithmetic_operators_mpz_class() {
     assert(c == mpz_class(1));
     std::cout << "All operator tests passed." << std::endl;
 }
+void testFitsFunctions_mpz_class() {
+    mpz_class small("123");
+    mpz_class large("12345678901234567890123456789012345678901234567890");
 
+    assert(small.fits_sint_p() == true);
+    assert(small.fits_slong_p() == true);
+    assert(small.fits_sshort_p() == true);
+    assert(small.fits_uint_p() == true);
+    assert(small.fits_ulong_p() == true);
+    assert(small.fits_ushort_p() == true);
+
+    assert(large.fits_sint_p() == false);
+    assert(large.fits_slong_p() == false);
+    assert(large.fits_sshort_p() == false);
+    assert(large.fits_uint_p() == false);
+    assert(large.fits_ulong_p() == false);
+    assert(large.fits_ushort_p() == false);
+
+    std::cout << "All fits functions tests passed." << std::endl;
+}
+
+void testAbsFunction_mpz_class() {
+    mpz_class pos("123");
+    mpz_class neg("-456");
+    mpz_class zero("0");
+
+    assert(abs(pos) == pos);
+    assert(abs(neg) == mpz_class("456"));
+    assert(abs(zero) == zero);
+
+    std::cout << "abs function tests passed." << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1055,6 +1086,8 @@ int main() {
     testAssignmentOperator_the_rule_of_five_mpz_class();
     test_mpz_class_literal();
     test_arithmetic_operators_mpz_class();
+    testAbsFunction_mpz_class();
+    testFitsFunctions_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 

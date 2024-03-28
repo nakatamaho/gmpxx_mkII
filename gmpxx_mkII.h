@@ -163,6 +163,8 @@ class mpz_class {
         }
         return *this;
     }
+    // mpz_class operator/ (mpz_class a, mpz_class d)
+    // mpz_class operator% (mpz_class a, mpz_class d)
     friend inline mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs);
@@ -176,6 +178,8 @@ class mpz_class {
     friend inline mpz_class operator/(const mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs);
 
+    // int cmp (mpz_class op1, type op2)
+    // int cmp (type op1, mpz_class op2)
     friend inline bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
     friend inline bool operator<(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) < 0; }
@@ -183,17 +187,20 @@ class mpz_class {
     friend inline bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
     friend inline bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
 
-// mpz_class operator/ (mpz_class a, mpz_class d)
-// mpz_class operator% (mpz_class a, mpz_class d)
-// mpz_class abs (mpz_class op)
-// int cmp (mpz_class op1, type op2)
-// int cmp (type op1, mpz_class op2)
-// bool mpz_class::fits_sint_p (void)
-// bool mpz_class::fits_slong_p (void)
-// bool mpz_class::fits_sshort_p (void)
-// bool mpz_class::fits_uint_p (void)
-// bool mpz_class::fits_ulong_p (void)
-// bool mpz_class::fits_ushort_p (void)
+    // mpz_class abs (mpz_class op)
+    friend inline mpz_class abs(const mpz_class &op);
+    // bool mpz_class::fits_sint_p (void)
+    // bool mpz_class::fits_slong_p (void)
+    // bool mpz_class::fits_sshort_p (void)
+    // bool mpz_class::fits_uint_p (void)
+    // bool mpz_class::fits_ulong_p (void)
+    // bool mpz_class::fits_ushort_p (void)
+    bool fits_sint_p() const { return mpz_fits_sint_p(value) != 0; }
+    bool fits_slong_p() const { return mpz_fits_slong_p(value) != 0; }
+    bool fits_sshort_p() const { return mpz_fits_sshort_p(value) != 0; }
+    bool fits_uint_p() const { return mpz_fits_uint_p(value) != 0; }
+    bool fits_ulong_p() const { return mpz_fits_ulong_p(value) != 0; }
+    bool fits_ushort_p() const { return mpz_fits_ushort_p(value) != 0; }
 // double mpz_class::get_d (void)
 // long mpz_class::get_si (void)
 // string mpz_class::get_str (int base = 10)
@@ -273,7 +280,11 @@ inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs) {
     mpz_mod(result.value, lhs.value, rhs.value);
     return result;
 }
-
+inline mpz_class abs(const mpz_class &op) {
+    mpz_class result;
+    mpz_abs(result.value, op.value);
+    return result;
+}
 class mpq_class {
   public:
     // constructor
