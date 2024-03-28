@@ -166,11 +166,16 @@ class mpz_class {
     friend inline mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class &operator/=(mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class &operator%=(mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class operator+(const mpz_class &op);
     friend inline mpz_class operator-(const mpz_class &op);
     friend inline mpz_class operator+(const mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class operator-(const mpz_class &lhs, const mpz_class &rhs);
     friend inline mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class operator/(const mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs);
+
     friend inline bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
     friend inline bool operator<(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) < 0; }
@@ -225,6 +230,14 @@ inline mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs) {
     mpz_sub(lhs.value, lhs.value, rhs.value);
     return lhs;
 }
+inline mpz_class &operator/=(mpz_class &lhs, const mpz_class &rhs) {
+    mpz_tdiv_q(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpz_class &operator%=(mpz_class &lhs, const mpz_class &rhs) {
+    mpz_mod(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
 inline mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs) {
     mpz_mul(lhs.value, lhs.value, rhs.value);
     return lhs;
@@ -248,6 +261,16 @@ inline mpz_class operator-(const mpz_class &lhs, const mpz_class &rhs) {
 inline mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs) {
     mpz_class result;
     mpz_mul(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpz_class operator/(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_tdiv_q(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_mod(result.value, lhs.value, rhs.value);
     return result;
 }
 

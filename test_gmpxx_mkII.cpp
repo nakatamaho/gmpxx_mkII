@@ -957,6 +957,43 @@ void test_mpz_class_literal() {
     std::cout << "User-defined literal tests for mpz_class passed." << std::endl;
 #endif
 }
+void test_arithmetic_operators_mpz_class() {
+    mpz_class a(10);
+    mpz_class b(5);
+    mpz_class c(10);
+    mpz_class d(3);
+    mpz_class result;
+
+    result = a;
+    result += b;
+    assert(result == mpz_class(15));
+
+    result = a;
+    result -= b;
+    assert(result == mpz_class(5));
+
+    result = a;
+    result *= b;
+    assert(result == mpz_class(50));
+
+    result = a + b;
+    assert(result == mpz_class(15));
+
+    result = a - b;
+    assert(result == mpz_class(5));
+
+    result = a * b;
+    assert(result == mpz_class(50));
+
+    result = c % d;
+    std::cout << "10 % 3 = " << result << std::endl;
+    assert(result == mpz_class(1));
+
+    c %= d;
+    std::cout << "After c %= d, c = " << c << std::endl;
+    assert(c == mpz_class(1));
+    std::cout << "All operator tests passed." << std::endl;
+}
 
 int main() {
 #if !defined GMPXX_MKII
@@ -1017,6 +1054,7 @@ int main() {
     test_template_cmp_mpz_class();
     testAssignmentOperator_the_rule_of_five_mpz_class();
     test_mpz_class_literal();
+    test_arithmetic_operators_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 
