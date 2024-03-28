@@ -163,6 +163,14 @@ class mpz_class {
         }
         return *this;
     }
+    friend inline mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class operator+(const mpz_class &op);
+    friend inline mpz_class operator-(const mpz_class &op);
+    friend inline mpz_class operator+(const mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class operator-(const mpz_class &lhs, const mpz_class &rhs);
+    friend inline mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs);
     friend inline bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
     friend inline bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
     friend inline bool operator<(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) < 0; }
@@ -209,6 +217,39 @@ class mpz_class {
   private:
     mpz_t value;
 };
+inline mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs) {
+    mpz_add(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs) {
+    mpz_sub(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs) {
+    mpz_mul(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpz_class operator+(const mpz_class &op) { return op; }
+inline mpz_class operator-(const mpz_class &op) {
+    mpz_class result;
+    mpz_neg(result.value, op.value);
+    return result;
+}
+inline mpz_class operator+(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_add(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpz_class operator-(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_sub(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_mul(result.value, lhs.value, rhs.value);
+    return result;
+}
 
 class mpq_class {
   public:
