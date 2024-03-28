@@ -223,10 +223,10 @@ class mpz_class {
     // mpz_class sqrt (mpz_class op)
     // mpz_class gcd (mpz_class op1, mpz_class op2)
     // mpz_class lcm (mpz_class op1, mpz_class op2)
-    friend int sgn(const mpz_class &op);
-    friend mpz_class sqrt(const mpz_class &op);
-    friend mpz_class gcd(const mpz_class &op1, const mpz_class &op2);
-    friend mpz_class lcm(const mpz_class &op1, const mpz_class &op2);
+    friend int sgn(const mpz_class &op);                              // XXX use static
+    friend mpz_class sqrt(const mpz_class &op);                       // XXX use static
+    friend mpz_class gcd(const mpz_class &op1, const mpz_class &op2); // XXX use static
+    friend mpz_class lcm(const mpz_class &op1, const mpz_class &op2); // XXX use static
 
 // mpz_class mpz_class::factorial (type op)
 // mpz_class factorial (mpz_class op)
