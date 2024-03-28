@@ -70,6 +70,14 @@ class mpz_class {
         mpz_init(value);
         mpz_set_si(value, op);
     }
+    mpz_class(unsigned int op) {
+        mpz_init(value);
+        mpz_set_ui(value, (unsigned long int)op);
+    }
+    mpz_class(signed int op) {
+        mpz_init(value);
+        mpz_set_si(value, (signed long int)op);
+    }
     mpz_class(double op) {
         mpz_init(value);
         mpz_set_d(value, op);
@@ -131,6 +139,14 @@ class mpz_class {
     }
     mpz_class &operator=(unsigned long int op) noexcept {
         mpz_set_ui(value, op);
+        return *this;
+    }
+    mpz_class &operator=(signed int op) noexcept {
+        mpz_set_si(value, (signed long int)op);
+        return *this;
+    }
+    mpz_class &operator=(unsigned int op) noexcept {
+        mpz_set_ui(value, (unsigned long int)op);
         return *this;
     }
     mpz_class &operator=(const char *str) {
