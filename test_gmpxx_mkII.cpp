@@ -136,17 +136,16 @@ void testAssignmentOperator_class_move_and_copy() {
     mpf_class a = mpf_class("123");
     mpf_class b = mpf_class("456");
     const char *expectedValue_b = "456.0000000000";
-    a = b;
-    assert(Is_mpf_class_Equals(a, expectedValue_b) && Is_mpf_class_Equals(b, expectedValue_b) && "copy test failed");
-
-    mpf_class c = mpf_class("789");
-    mpf_class d = mpf_class("123");
-    const char *expectedValue_d = "789.0000000000";
-
-    d = std::move(c);
-    /*
-    assert(Is_mpf_class_Equals(d, expectedValue_d) && "move test failed");
-    */
+    a = b; // test mpf_class &operator=(mpf_class op) noexcept
+    assert(Is_mpf_class_Equals(a, expectedValue_b) && Is_mpf_class_Equals(b, expectedValue_b) && " test failed");
+    std::cout << "Assignment operator (move and copy) test passed." << std::endl;
+}
+void testAssignmentOperator_class_move_and_copy2() {
+    mpf_class a = mpf_class("123");
+    mpf_class b = mpf_class("456");
+    const char *expectedValue_b = "456.0000000000";
+    a = std::move(b); // test mpf_class(mpf_class &&op) noexcept
+    assert(Is_mpf_class_Equals(a, expectedValue_b) && " test failed");
     std::cout << "Assignment operator (move and copy) test passed." << std::endl;
 }
 void testInitializationAndAssignmentDouble() {
@@ -944,6 +943,7 @@ int main() {
     test_fits_ulong_p();
     test_fits_ushort_p();
     testAssignmentOperator_class_move_and_copy();
+    testAssignmentOperator_class_move_and_copy2();
 
     // mpz_class
     testDefaultConstructor_mpz_class();
