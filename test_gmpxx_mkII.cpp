@@ -1052,6 +1052,32 @@ void testConversionFunctions_mpz_class() {
     std::cout << "All conversion function tests passed." << std::endl;
 }
 
+void testMathFunctions_mpz_class() {
+    mpz_class num1("24");
+    mpz_class num2("36");
+
+    // Testing sgn()
+    assert(sgn(num1) > 0);
+    assert(sgn(mpz_class("-1")) < 0);
+
+    // Testing sqrt()
+    mpz_class sqrtResult = sqrt(num1);
+    std::cout << "Sqrt of " << num1.get_str() << " is " << sqrtResult.get_str() << std::endl;
+    assert(sqrtResult == mpz_class("4"));
+
+    // Testing gcd()
+    mpz_class gcdResult = gcd(num1, num2);
+    std::cout << "GCD of " << num1.get_str() << " and " << num2.get_str() << " is " << gcdResult.get_str() << std::endl;
+    assert(gcdResult == mpz_class("12"));
+
+    // Testing lcm()
+    mpz_class lcmResult = lcm(num1, num2);
+    std::cout << "LCM of " << num1.get_str() << " and " << num2.get_str() << " is " << lcmResult.get_str() << std::endl;
+    assert(lcmResult == mpz_class("72"));
+
+    std::cout << "All math function tests for mpz_class passed." << std::endl;
+}
+
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1115,6 +1141,7 @@ int main() {
     testAbsFunction_mpz_class();
     testFitsFunctions_mpz_class();
     testConversionFunctions_mpz_class();
+    testMathFunctions_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 

@@ -216,12 +216,18 @@ class mpz_class {
         freefunc(temp, std::strlen(temp) + 1);
         return result;
     }
-// int mpz_class::set_str (const char *str, int base)
-// int mpz_class::set_str (const string& str, int base)
-// int sgn (mpz_class op)
-// mpz_class sqrt (mpz_class op)
-// mpz_class gcd (mpz_class op1, mpz_class op2)
-// mpz_class lcm (mpz_class op1, mpz_class op2)
+    // int mpz_class::set_str (const char *str, int base)
+    // int mpz_class::set_str (const string& str, int base)
+
+    // int sgn (mpz_class op)
+    // mpz_class sqrt (mpz_class op)
+    // mpz_class gcd (mpz_class op1, mpz_class op2)
+    // mpz_class lcm (mpz_class op1, mpz_class op2)
+    friend int sgn(const mpz_class &op);
+    friend mpz_class sqrt(const mpz_class &op);
+    friend mpz_class gcd(const mpz_class &op1, const mpz_class &op2);
+    friend mpz_class lcm(const mpz_class &op1, const mpz_class &op2);
+
 // mpz_class mpz_class::factorial (type op)
 // mpz_class factorial (mpz_class op)
 // mpz_class mpz_class::primorial (type op)
@@ -296,6 +302,23 @@ inline mpz_class abs(const mpz_class &op) {
     mpz_abs(result.value, op.value);
     return result;
 }
+inline int sgn(const mpz_class &op) { return mpz_sgn(op.value); }
+inline mpz_class sqrt(const mpz_class &op) {
+    mpz_class result;
+    mpz_sqrt(result.value, op.value);
+    return result;
+}
+inline mpz_class gcd(const mpz_class &op1, const mpz_class &op2) {
+    mpz_class result;
+    mpz_gcd(result.value, op1.value, op2.value);
+    return result;
+}
+inline mpz_class lcm(const mpz_class &op1, const mpz_class &op2) {
+    mpz_class result;
+    mpz_lcm(result.value, op1.value, op2.value);
+    return result;
+}
+
 class mpq_class {
   public:
     // constructor
