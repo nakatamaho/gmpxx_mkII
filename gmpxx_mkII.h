@@ -56,9 +56,12 @@ class mpz_class {
     // 12.2 C++ Interface Integers
     ////////////////////////////////////////////////////////////////////////////////////////
     // constructor
-    mpz_class() { mpz_init(value); }
-    ~mpz_class() { mpz_clear(value); }
-
+    mpz_class() { mpz_init(value); }   // default constructor
+    ~mpz_class() { mpz_clear(value); } // The rule 3 of 5 default deconstructor
+    explicit mpz_class(const mpz_t z) {
+        mpz_init(value);
+        mpz_set(value, z);
+    }
     mpz_class(unsigned long int op) {
         mpz_init(value);
         mpz_set_ui(value, op);
@@ -79,13 +82,15 @@ class mpz_class {
         mpz_init(value);
         mpz_set_f(value, op);
     }
-    mpz_class(const mpz_class &op) {
+    mpz_class(const mpz_class &op) { // The rule 1 of 5 copy constructor
+                                     // std::cout << "The rule 1 of 5 copy constructor\n" ;
         mpz_init(value);
         mpz_set(value, op.value);
     }
-    explicit mpz_class(const mpz_t z) {
+    mpz_class(mpz_class &&op) noexcept { // The rule 4 of 5 move constructor
+                                         // std::cout << "The rule 4 of 5 move constructor\n" ;
         mpz_init(value);
-        mpz_set(value, z);
+        mpz_swap(value, op.value);
     }
     mpz_class(const char *str, int base = 0) {
         mpz_init(value);
@@ -101,8 +106,19 @@ class mpz_class {
             throw std::runtime_error("Failed to initialize mpz_class with given string.");
         }
     }
-    mpz_class &operator=(mpz_class op) noexcept {
-        mpz_swap(value, op.value);
+    // mpz_class& mpz_class::operator= (type op)
+    mpz_class &operator=(const mpz_class &op) noexcept { // The rule 2 of 5 copy assignment operator
+        // std::cout << "The rule 2 of 5 copy assignment operator\n" ;
+        if (this != &op) {
+            mpz_set(value, op.value);
+        }
+        return *this;
+    }
+    mpz_class &operator=(mpz_class &&op) noexcept { // The rule 5 of 5 move assignment operator
+        // std::cout << "The rule 5 of 5 move assignment operator\n" ;
+        if (this != &op) {
+            mpz_swap(value, op.value);
+        }
         return *this;
     }
     mpz_class &operator=(double d) noexcept {
@@ -131,6 +147,13 @@ class mpz_class {
         }
         return *this;
     }
+    friend inline bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
+    friend inline bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
+    friend inline bool operator<(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) < 0; }
+    friend inline bool operator>(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) > 0; }
+    friend inline bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
+    friend inline bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
+
 // mpz_class operator/ (mpz_class a, mpz_class d)
 // mpz_class operator% (mpz_class a, mpz_class d)
 // mpz_class abs (mpz_class op)

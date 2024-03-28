@@ -795,21 +795,35 @@ void testAssignmentOperator_mpz_class() {
     assert(true);
     std::cout << "Assignment operator test passed." << std::endl;
 }
-/*
-void testAssignmentOperator_mpz_class_move_and_copy() {
-    mpz_class a = 123L;
-    mpz_class b = 456L;
-    a = b;
-    assert(a == 456 && b == 456 && "copy test failed");
+void testAssignmentOperator_the_rule_of_five_mpz_class() {
+    mpz_class a("123");
 
-    mpz_class c = 789L;
+    // testing the rule 1 of 5: copy constructor
+    std::cout << "##testing the rule 1 of 5: copy constructor\n";
+    mpz_class b(a);
+    assert(b == a && " test failed");
+    std::cout << "##testing the rule 1 of 5: copy constructor test passed.\n" << std::endl;
 
-    a = std::move(c);
-    assert(a == 789 && "move test failed");
+    // testing the rule 4 of 5: move constructor
+    std::cout << "##testing the rule 4 of 5: move constructor\n";
+    mpz_class c(std::move(a));
+    assert(c == b && " test failed");
+    std::cout << "##testing the rule 4 of 5: move constructor test passed.\n" << std::endl;
 
-    std::cout << "Assignment operator (move and copy) test passed." << std::endl;
+    // testing the rule 2 of 5: copy assignment
+    std::cout << "##testing the rule 2 of 5: copy assignment\n";
+    mpz_class d;
+    d = b;
+    assert(d == b && " test failed");
+    std::cout << "##testing the rule 2 of 5: copy assignment test passed.\n" << std::endl;
+
+    // testing the rule 5 of 5: move assignment
+    std::cout << "##testing the rule 5 of 5: copy assignment\n";
+    mpz_class e;
+    e = std::move(c);
+    assert(e == b);
+    std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
 }
-*/
 void testInitializationAndAssignmentDouble_mpz_class() {
     double testValue = 31415926535;
     const char *expectedValue = "31415926535";
@@ -909,6 +923,17 @@ void testInitializationAndAssignmentString_mpz_class() {
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 #endif
 }
+void test_template_cmp_mpz_class() {
+    mpz_class num1(314L);
+    assert(cmp(num1, 314L) == 0);
+    assert(cmp(314L, num1) == 0);
+    assert(cmp(num1, 271L) > 0);
+    assert(cmp(271L, num1) < 0);
+    assert(cmp(num1, 3UL) > 0);
+    assert(cmp(3L, num1) < 0);
+
+    std::cout << "Template cmp function tests passed." << std::endl;
+}
 
 int main() {
 #if !defined GMPXX_MKII
@@ -966,7 +991,9 @@ int main() {
     testInitializationAndAssignment_mpf_class_mpz_class();
     testInitializationAndAssignment_mpz_class_mpf_class();
     testInitializationAndAssignmentString_mpz_class();
-    //    testAssignmentOperator_mpz_class_move_and_copy();
+    test_template_cmp_mpz_class();
+    testAssignmentOperator_the_rule_of_five_mpz_class();
+
     std::cout << "All tests passed." << std::endl;
 
     return 0;
