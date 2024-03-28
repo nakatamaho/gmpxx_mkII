@@ -201,10 +201,21 @@ class mpz_class {
     bool fits_uint_p() const { return mpz_fits_uint_p(value) != 0; }
     bool fits_ulong_p() const { return mpz_fits_ulong_p(value) != 0; }
     bool fits_ushort_p() const { return mpz_fits_ushort_p(value) != 0; }
-// double mpz_class::get_d (void)
-// long mpz_class::get_si (void)
-// string mpz_class::get_str (int base = 10)
-// unsigned long mpz_class::get_ui (void)
+    // double mpz_class::get_d (void)
+    // long mpz_class::get_si (void)
+    // unsigned long mpz_class::get_ui (void)
+    double get_d() const { return mpz_get_d(value); }
+    long get_si() const { return mpz_get_si(value); }
+    long get_ui() const { return mpz_get_ui(value); }
+    // string mpz_class::get_str (int base = 10)
+    std::string get_str(int base = 10) const {
+        char *temp = mpz_get_str(nullptr, base, value);
+        std::string result(temp);
+        void (*freefunc)(void *, size_t);
+        mp_get_memory_functions(nullptr, nullptr, &freefunc);
+        freefunc(temp, std::strlen(temp) + 1);
+        return result;
+    }
 // int mpz_class::set_str (const char *str, int base)
 // int mpz_class::set_str (const string& str, int base)
 // int sgn (mpz_class op)

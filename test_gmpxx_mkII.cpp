@@ -1026,6 +1026,32 @@ void testAbsFunction_mpz_class() {
 
     std::cout << "abs function tests passed." << std::endl;
 }
+void testConversionFunctions_mpz_class() {
+    mpz_class num("123456789");
+
+    // Testing get_d()
+    double d = num.get_d();
+    std::cout << "Double: " << d << std::endl;
+    assert(d == 123456789.0);
+
+    // Testing get_si()
+    long si = num.get_si();
+    std::cout << "Long: " << si << std::endl;
+    assert(si == 123456789);
+
+    // Testing get_ui()
+    unsigned long ui = num.get_ui();
+    std::cout << "Unsigned Long: " << ui << std::endl;
+    assert(ui == 123456789);
+
+    // Testing get_str()
+    std::string str = num.get_str();
+    std::cout << "String: " << str << std::endl;
+    assert(str == "123456789");
+
+    std::cout << "All conversion function tests passed." << std::endl;
+}
+
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1088,6 +1114,7 @@ int main() {
     test_arithmetic_operators_mpz_class();
     testAbsFunction_mpz_class();
     testFitsFunctions_mpz_class();
+    testConversionFunctions_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 
