@@ -934,6 +934,29 @@ void test_template_cmp_mpz_class() {
 
     std::cout << "Template cmp function tests passed." << std::endl;
 }
+void test_mpz_class_literal() {
+#ifdef GMPXX_MKII
+    // Using the user-defined literal to create mpz_class objects
+    mpz_class num1 = "314159"_mpz;
+    mpz_class num2 = "271828"_mpz;
+    mpz_class num3 = "0"_mpz;
+    mpz_class num4 = "-123456"_mpz;
+    mpz_class num5 = "99999999999999999999999999999999999999999999999999999999"_mpz;
+
+    const char *num1_expected = "314159";
+    const char *num2_expected = "271828";
+    const char *num3_expected = "0";
+    const char *num4_expected = "-123456";
+    const char *num5_expected = "99999999999999999999999999999999999999999999999999999999";
+    assert(Is_mpz_class_Equals(num1, num1_expected));
+    assert(Is_mpz_class_Equals(num2, num2_expected));
+    assert(Is_mpz_class_Equals(num3, num3_expected));
+    assert(Is_mpz_class_Equals(num4, num4_expected));
+    assert(Is_mpz_class_Equals(num5, num5_expected));
+
+    std::cout << "User-defined literal tests for mpz_class passed." << std::endl;
+#endif
+}
 
 int main() {
 #if !defined GMPXX_MKII
@@ -993,6 +1016,7 @@ int main() {
     testInitializationAndAssignmentString_mpz_class();
     test_template_cmp_mpz_class();
     testAssignmentOperator_the_rule_of_five_mpz_class();
+    test_mpz_class_literal();
 
     std::cout << "All tests passed." << std::endl;
 
