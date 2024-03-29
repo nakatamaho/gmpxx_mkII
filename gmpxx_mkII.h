@@ -189,26 +189,27 @@ class mpz_class {
 
     // mpz_class abs (mpz_class op)
     friend inline mpz_class abs(const mpz_class &op);
+
     // bool mpz_class::fits_sint_p (void)
     // bool mpz_class::fits_slong_p (void)
     // bool mpz_class::fits_sshort_p (void)
     // bool mpz_class::fits_uint_p (void)
     // bool mpz_class::fits_ulong_p (void)
     // bool mpz_class::fits_ushort_p (void)
-    bool fits_sint_p() const { return mpz_fits_sint_p(value) != 0; }
-    bool fits_slong_p() const { return mpz_fits_slong_p(value) != 0; }
-    bool fits_sshort_p() const { return mpz_fits_sshort_p(value) != 0; }
-    bool fits_uint_p() const { return mpz_fits_uint_p(value) != 0; }
-    bool fits_ulong_p() const { return mpz_fits_ulong_p(value) != 0; }
-    bool fits_ushort_p() const { return mpz_fits_ushort_p(value) != 0; }
+    inline bool fits_sint_p() const { return mpz_fits_sint_p(value) != 0; }
+    inline bool fits_slong_p() const { return mpz_fits_slong_p(value) != 0; }
+    inline bool fits_sshort_p() const { return mpz_fits_sshort_p(value) != 0; }
+    inline bool fits_uint_p() const { return mpz_fits_uint_p(value) != 0; }
+    inline bool fits_ulong_p() const { return mpz_fits_ulong_p(value) != 0; }
+    inline bool fits_ushort_p() const { return mpz_fits_ushort_p(value) != 0; }
     // double mpz_class::get_d (void)
     // long mpz_class::get_si (void)
     // unsigned long mpz_class::get_ui (void)
-    double get_d() const { return mpz_get_d(value); }
-    long get_si() const { return mpz_get_si(value); }
-    long get_ui() const { return mpz_get_ui(value); }
+    inline double get_d() const { return mpz_get_d(value); }
+    inline long get_si() const { return mpz_get_si(value); }
+    inline long get_ui() const { return mpz_get_ui(value); }
     // string mpz_class::get_str (int base = 10)
-    std::string get_str(int base = 10) const {
+    inline std::string get_str(int base = 10) const {
         char *temp = mpz_get_str(nullptr, base, value);
         std::string result(temp);
         void (*freefunc)(void *, size_t);
