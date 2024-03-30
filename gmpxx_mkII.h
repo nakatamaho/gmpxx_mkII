@@ -464,9 +464,34 @@ std::ostream &operator<<(std::ostream &os, const mpz_class &m) {
 class mpq_class {
   public:
     // constructor
-    mpq_class() { mpq_init(value); }
-    ~mpq_class() { mpq_clear(value); }
+    mpq_class() { mpq_init(value); }   // default constructor
+    ~mpq_class() { mpq_clear(value); } // The rule 3 of 5 default deconstructor
 
+    mpq_class(const mpq_class &op) { // The rule 1 of 5 copy constructor
+                                     // std::cout << "The rule 1 of 5 copy constructor\n" ;
+        mpq_init(value);
+        mpq_set(value, op.value);
+    }
+    mpq_class(mpq_class &&op) noexcept { // The rule 4 of 5 move constructor
+                                         // std::cout << "The rule 4 of 5 move constructor\n" ;
+        mpq_init(value);
+        mpq_swap(value, op.value);
+    }
+    // mpq_class& mpq_class::operator= (type op)
+    mpq_class &operator=(const mpq_class &op) noexcept { // The rule 2 of 5 copy assignment operator
+        // std::cout << "The rule 2 of 5 copy assignment operator\n" ;
+        if (this != &op) {
+            mpq_set(value, op.value);
+        }
+        return *this;
+    }
+    mpq_class &operator=(mpq_class &&op) noexcept { // The rule 5 of 5 move assignment operator
+        // std::cout << "The rule 5 of 5 move assignment operator\n" ;
+        if (this != &op) {
+            mpq_swap(value, op.value);
+        }
+        return *this;
+    }
     mpq_class(unsigned long int op1, unsigned long int op2) {
         mpq_init(value);
         mpq_set_ui(value, op1, op2);
