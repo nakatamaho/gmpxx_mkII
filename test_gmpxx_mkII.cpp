@@ -1138,6 +1138,25 @@ void test_set_str_mpz_class() {
 
     std::cout << "set_str tests passed." << std::endl;
 }
+void test_factorial_mpz_class() {
+    mpz_class fact5 = factorial((mpz_class)5);
+    const char *expectedValue_fact5 = "120";
+    assert(Is_mpz_class_Equals(fact5, expectedValue_fact5)); // 5! = 120
+    std::cout << "Factorial test passed.\n";
+}
+void test_primorial_mpz_class() {
+    mpz_class primorial5 = primorial((mpz_class)5);
+    const char *expectedValue_primorial = "30";
+    assert(Is_mpz_class_Equals(primorial5, expectedValue_primorial)); // 2*3*5 = 30
+    std::cout << "Primorial test passed.\n";
+}
+void test_fibonacci_mpz_class() {
+    mpz_class fibonacci7 = fibonacci((mpz_class)7);
+    const char *expectedValue_fibonacci = "13";
+    assert(Is_mpz_class_Equals(fibonacci7, expectedValue_fibonacci)); // F(7) = 13
+    std::cout << "Fibonacchi test passed.\n";
+}
+
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1205,6 +1224,9 @@ int main() {
     testMathFunctions_mpz_class();
     test_mpz_class_extention();
     test_set_str_mpz_class();
+    test_factorial_mpz_class();
+    test_primorial_mpz_class();
+    test_fibonacci_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 

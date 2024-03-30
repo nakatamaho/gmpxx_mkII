@@ -66,6 +66,7 @@ class mpz_class {
         mpz_init(value);
         mpz_set_ui(value, op);
     }
+    explicit operator unsigned long int() const { return mpz_get_ui(this->value); }
     mpz_class(signed long int op) {
         mpz_init(value);
         mpz_set_si(value, op);
@@ -226,17 +227,36 @@ class mpz_class {
     // mpz_class sqrt (mpz_class op)
     // mpz_class gcd (mpz_class op1, mpz_class op2)
     // mpz_class lcm (mpz_class op1, mpz_class op2)
-    friend int sgn(const mpz_class &op);                              // XXX use static
-    friend mpz_class sqrt(const mpz_class &op);                       // XXX use static
-    friend mpz_class gcd(const mpz_class &op1, const mpz_class &op2); // XXX use static
-    friend mpz_class lcm(const mpz_class &op1, const mpz_class &op2); // XXX use static
+    friend int sgn(const mpz_class &op);
+    friend mpz_class sqrt(const mpz_class &op);
+    friend mpz_class gcd(const mpz_class &op1, const mpz_class &op2);
+    friend mpz_class lcm(const mpz_class &op1, const mpz_class &op2);
 
-// mpz_class mpz_class::factorial (type op)
-// mpz_class factorial (mpz_class op)
-// mpz_class mpz_class::primorial (type op)
-// mpz_class primorial (mpz_class op)
-// mpz_class mpz_class::fibonacci (type op)
-// mpz_class fibonacci (mpz_class op)
+    // mpz_class mpz_class::factorial (type op)
+    // mpz_class factorial (mpz_class op)
+    // mpz_class mpz_class::fibonacci (type op)
+    // mpz_class fibonacci (mpz_class op)
+    // mpz_class mpz_class::primorial (type op)
+    // mpz_class primorial (mpz_class op)
+    static mpz_class factorial(unsigned long int n) {
+        mpz_class result;
+        mpz_fac_ui(result.value, n);
+        return result;
+    }
+    friend mpz_class factorial(const mpz_class &op);
+    static mpz_class primorial(unsigned long int n) {
+        mpz_class result;
+        mpz_primorial_ui(result.value, n);
+        return result;
+    }
+    friend mpz_class primorial(const mpz_class &op);
+    static mpz_class fibonacci(unsigned long int n) {
+        mpz_class result;
+        mpz_fib_ui(result.value, n);
+        return result;
+    }
+    friend mpz_class fibonacci(const mpz_class &op);
+
 // void mpz_class::swap (mpz_class& op)
 // void swap (mpz_class& op1, mpz_class& op2)
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
@@ -321,7 +341,21 @@ inline mpz_class lcm(const mpz_class &op1, const mpz_class &op2) {
     mpz_lcm(result.value, op1.value, op2.value);
     return result;
 }
-
+inline mpz_class factorial(const mpz_class &op) {
+    mpz_class result;
+    mpz_fac_ui(result.value, op.get_ui());
+    return result;
+}
+inline mpz_class primorial(const mpz_class &op) {
+    mpz_class result;
+    mpz_primorial_ui(result.value, op.get_ui());
+    return result;
+}
+inline mpz_class fibonacci(const mpz_class &op) {
+    mpz_class result;
+    mpz_fib_ui(result.value, op.get_ui());
+    return result;
+}
 class mpq_class {
   public:
     // constructor
