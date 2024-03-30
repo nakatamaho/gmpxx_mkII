@@ -1179,6 +1179,38 @@ void test_mpz_class_swap() {
 
     std::cout << "Swap tests passed." << std::endl;
 }
+void testOutputOperator_mpz_class() {
+    // Test decimal output
+    mpz_class numDec(123456789);
+    std::ostringstream ossDec;
+    ossDec << numDec;
+    assert(ossDec.str() == "123456789");
+    std::cout << ossDec.str() << "\n";
+
+    // Test hexadecimal output in lowercase
+    mpz_class numHexLower(255); // FF in hex
+    std::ostringstream ossHexLower;
+    ossHexLower << std::hex << std::nouppercase << numHexLower;
+    assert(ossHexLower.str() == "ff"); // Lowercase hex
+    std::cout << ossHexLower.str() << "\n";
+
+    // Test hexadecimal output in uppercase
+    mpz_class numHexUpper(255); // FF in hex
+    std::ostringstream ossHexUpper;
+    ossHexUpper << std::hex << std::uppercase << numHexUpper;
+    assert(ossHexUpper.str() == "FF"); // Uppercase hex
+    std::cout << ossHexUpper.str() << "\n";
+
+    // Test octal output
+    mpz_class numOct(8); // 10 in oct
+    std::ostringstream ossOct;
+    ossOct << std::oct << numOct;
+    assert(ossOct.str() == "10");
+    std::cout << ossOct.str() << "\n";
+
+    std::cout << "Output operator tests for mpz_class passed." << std::endl;
+}
+
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1250,6 +1282,7 @@ int main() {
     test_primorial_mpz_class();
     test_fibonacci_mpz_class();
     test_mpz_class_swap();
+    testOutputOperator_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 

@@ -67,6 +67,7 @@ class mpz_class {
         mpz_set_ui(value, op);
     }
     explicit operator unsigned long int() const { return mpz_get_ui(this->value); }
+    explicit operator signed long int() const { return mpz_get_si(this->value); }
     mpz_class(signed long int op) {
         mpz_init(value);
         mpz_set_si(value, op);
@@ -166,30 +167,30 @@ class mpz_class {
     }
     // mpz_class operator/ (mpz_class a, mpz_class d)
     // mpz_class operator% (mpz_class a, mpz_class d)
-    friend inline mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class &operator/=(mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class &operator%=(mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class operator+(const mpz_class &op);
-    friend inline mpz_class operator-(const mpz_class &op);
-    friend inline mpz_class operator+(const mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class operator-(const mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class operator/(const mpz_class &lhs, const mpz_class &rhs);
-    friend inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class &operator/=(mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class &operator%=(mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator+(const mpz_class &op);
+    inline friend mpz_class operator-(const mpz_class &op);
+    inline friend mpz_class operator+(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator-(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator/(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs);
 
     // int cmp (mpz_class op1, type op2)
     // int cmp (type op1, mpz_class op2)
-    friend inline bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
-    friend inline bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
-    friend inline bool operator<(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) < 0; }
-    friend inline bool operator>(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) > 0; }
-    friend inline bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
-    friend inline bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
+    inline friend bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
+    inline friend bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
+    inline friend bool operator<(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) < 0; }
+    inline friend bool operator>(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) > 0; }
+    inline friend bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
+    inline friend bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
 
     // mpz_class abs (mpz_class op)
-    friend inline mpz_class abs(const mpz_class &op);
+    inline friend mpz_class abs(const mpz_class &op);
 
     // bool mpz_class::fits_sint_p (void)
     // bool mpz_class::fits_slong_p (void)
@@ -262,6 +263,24 @@ class mpz_class {
     void swap(mpz_class &op) { mpz_swap(this->value, op.value); }
     friend void swap(mpz_class &op1, mpz_class &op2) { mpz_swap(op1.value, op2.value); }
 
+    inline friend mpz_class &operator+=(mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class &operator-=(mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class &operator*=(mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class &operator/=(mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class &operator%=(mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class operator+(const mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class operator+(const unsigned long int lhs, const mpz_class &rhs);
+    inline friend mpz_class operator-(const mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class operator-(const unsigned long int lhs, const mpz_class &rhs);
+    inline friend mpz_class operator*(const mpz_class &lhs, const unsigned long int rhs);
+    inline friend mpz_class operator*(const unsigned long int lhs, const mpz_class &rhs);
+    inline friend mpz_class operator/(const mpz_class &lhs, unsigned long int rhs);
+    inline friend mpz_class operator/(const unsigned long int lhs, const mpz_class &rhs);
+    inline friend mpz_class operator%(const mpz_class &lhs, unsigned long int rhs);
+    inline friend mpz_class operator%(const unsigned long int lhs, const mpz_class &rhs);
+
+    friend std::ostream &operator<<(std::ostream &os, const mpz_class &m);
+
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpz_class &operator=(const mpf_class &) = delete;
 #endif
@@ -272,6 +291,69 @@ class mpz_class {
   private:
     mpz_t value;
 };
+
+inline mpz_class &operator+=(mpz_class &lhs, const unsigned long int rhs) {
+    mpz_add_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator-=(mpz_class &lhs, const unsigned long int rhs) {
+    mpz_sub_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator*=(mpz_class &lhs, const unsigned long int rhs) {
+    mpz_mul_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator/=(mpz_class &lhs, const unsigned long int rhs) {
+    mpz_div_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator%=(mpz_class &lhs, const unsigned long int rhs) {
+    mpz_mod_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class operator+(const mpz_class &lhs, const unsigned long int rhs) {
+    mpz_class result;
+    mpz_add_ui(result.value, lhs.value, rhs);
+    return result;
+}
+inline mpz_class operator+(const unsigned long int lhs, const mpz_class &rhs) { return rhs + lhs; }
+inline mpz_class operator-(const mpz_class &lhs, const unsigned long int rhs) {
+    mpz_class result;
+    mpz_sub_ui(result.value, lhs.value, rhs);
+    return result;
+}
+inline mpz_class operator-(const unsigned long int lhs, const mpz_class &rhs) {
+    mpz_class result(lhs);
+    result -= rhs;
+    return result;
+}
+inline mpz_class operator*(const mpz_class &lhs, const unsigned long int rhs) {
+    mpz_class result;
+    mpz_mul_ui(result.value, lhs.value, rhs);
+    return result;
+}
+inline mpz_class operator*(const unsigned long int lhs, const mpz_class &rhs) { return rhs * lhs; }
+inline mpz_class operator/(const mpz_class &lhs, const unsigned long int rhs) {
+    mpz_class result;
+    mpz_div_ui(result.value, lhs.value, rhs);
+    return result;
+}
+inline mpz_class operator/(const unsigned long int lhs, const mpz_class &rhs) {
+    mpz_class result(lhs);
+    result /= rhs;
+    return result;
+}
+inline mpz_class operator%(const mpz_class &lhs, const unsigned long int rhs) {
+    mpz_class result;
+    mpz_mod_ui(result.value, lhs.value, rhs);
+    return result;
+}
+inline mpz_class operator%(const unsigned long int lhs, const mpz_class &rhs) {
+    mpz_class result(lhs);
+    result %= rhs;
+    return result;
+}
 inline mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs) {
     mpz_add(lhs.value, lhs.value, rhs.value);
     return lhs;
@@ -359,6 +441,26 @@ inline mpz_class fibonacci(const mpz_class &op) {
     mpz_fib_ui(result.value, op.get_ui());
     return result;
 }
+std::ostream &operator<<(std::ostream &os, const mpz_class &m) {
+    std::ios_base::fmtflags flags = os.flags();
+
+    char *str = nullptr;
+    if (flags & std::ios::oct) { // Output in octal
+        gmp_asprintf(&str, "%Zo", m.get_mpz_t());
+    } else if (flags & std::ios::hex) { // Output in hexadecimal
+        if (flags & std::ios::uppercase) {
+            gmp_asprintf(&str, "%ZX", m.get_mpz_t());
+        } else {
+            gmp_asprintf(&str, "%Zx", m.get_mpz_t());
+        }
+    } else { // Default output (decimal)
+        gmp_asprintf(&str, "%Zd", m.get_mpz_t());
+    }
+    os << str;
+    free(str);
+    return os;
+}
+
 class mpq_class {
   public:
     // constructor
@@ -565,36 +667,36 @@ class mpf_class {
         }
         return *this;
     }
-    friend inline mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
-    friend inline mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
-    friend inline mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
-    friend inline mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs);
-    friend inline mpf_class operator+(const mpf_class &op);
-    friend inline mpf_class operator-(const mpf_class &op);
-    friend inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs);
-    friend inline mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs);
-    friend inline mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs);
-    friend inline mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class operator+(const mpf_class &op);
+    inline friend mpf_class operator-(const mpf_class &op);
+    inline friend mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs);
+    inline friend mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs);
 
-    friend inline bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
-    friend inline bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
-    friend inline bool operator<(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) < 0; }
-    friend inline bool operator>(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) > 0; }
-    friend inline bool operator<=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) <= 0; }
-    friend inline bool operator>=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) >= 0; }
+    inline friend bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
+    inline friend bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
+    inline friend bool operator<(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) < 0; }
+    inline friend bool operator>(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) > 0; }
+    inline friend bool operator<=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) <= 0; }
+    inline friend bool operator>=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) >= 0; }
 
-    friend inline mpf_class &operator+=(mpf_class &lhs, double rhs);
-    friend inline mpf_class &operator-=(mpf_class &lhs, double rhs);
-    friend inline mpf_class &operator*=(mpf_class &lhs, double rhs);
-    friend inline mpf_class &operator/=(mpf_class &lhs, double rhs);
-    friend inline mpf_class operator+(const mpf_class &lhs, const double rhs);
-    friend inline mpf_class operator+(const double lhs, const mpf_class &rhs);
-    friend inline mpf_class operator-(const mpf_class &lhs, const double rhs);
-    friend inline mpf_class operator-(const double lhs, const mpf_class &rhs);
-    friend inline mpf_class operator*(const mpf_class &lhs, const double rhs);
-    friend inline mpf_class operator*(const double lhs, const mpf_class &rhs);
-    friend inline mpf_class operator/(const mpf_class &lhs, double rhs);
-    friend inline mpf_class operator/(const double lhs, const mpf_class &rhs);
+    inline friend mpf_class &operator+=(mpf_class &lhs, const double rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const double rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const double rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const double rhs);
+    inline friend mpf_class operator+(const mpf_class &lhs, const double rhs);
+    inline friend mpf_class operator+(const double lhs, const mpf_class &rhs);
+    inline friend mpf_class operator-(const mpf_class &lhs, const double rhs);
+    inline friend mpf_class operator-(const double lhs, const mpf_class &rhs);
+    inline friend mpf_class operator*(const mpf_class &lhs, const double rhs);
+    inline friend mpf_class operator*(const double lhs, const mpf_class &rhs);
+    inline friend mpf_class operator/(const mpf_class &lhs, double rhs);
+    inline friend mpf_class operator/(const double lhs, const mpf_class &rhs);
 
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
@@ -608,19 +710,16 @@ class mpf_class {
   private:
     mpf_t value;
 };
-
 mpf_class::operator mpz_class() const {
     mpz_class rop;
     mpz_set_f(*const_cast<mpz_t *>(rop._get_mpz_t()), this->get_mpf_t());
     return rop;
 }
-
 mpz_class::operator mpf_class() const {
     mpf_class rop;
     mpf_set_z(*const_cast<mpf_t *>(rop._get_mpf_t()), this->get_mpz_t());
     return rop;
 }
-
 inline mp_bitcnt_t largerprec(const mpf_class &lhs, const mpf_class &rhs) {
     mp_bitcnt_t prec1 = lhs.get_prec(), prec2 = rhs.get_prec();
     return (prec1 > prec2) ? prec1 : prec2;
