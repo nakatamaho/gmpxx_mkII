@@ -204,6 +204,7 @@ class mpz_class {
     inline bool fits_uint_p() const { return mpz_fits_uint_p(value) != 0; }
     inline bool fits_ulong_p() const { return mpz_fits_ulong_p(value) != 0; }
     inline bool fits_ushort_p() const { return mpz_fits_ushort_p(value) != 0; }
+
     // double mpz_class::get_d (void)
     // long mpz_class::get_si (void)
     // unsigned long mpz_class::get_ui (void)
@@ -492,6 +493,20 @@ class mpq_class {
         }
         return *this;
     }
+    mpq_class(const char *str, int base = 0) {
+        mpq_init(value);
+        if (mpq_set_str(value, str, base) != 0) {
+            std::cerr << "Error initializing mpq_class from const char*: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpq_class with given string.");
+        }
+    }
+    mpq_class(const std::string &str, int base = 0) {
+        mpq_init(value);
+        if (mpq_set_str(value, str.c_str(), base) != 0) {
+            std::cerr << "Error initializing mpq_class from std::string: " << str << std::endl;
+            throw std::runtime_error("Failed to initialize mpq_class with given string.");
+        }
+    }
     mpq_class(unsigned long int op1, unsigned long int op2) {
         mpq_init(value);
         mpq_set_ui(value, op1, op2);
@@ -509,7 +524,24 @@ class mpq_class {
         mpq_set_ui(value, (unsigned long int)op1, (unsigned long int)op2);
     }
 
+    inline friend mpq_class &operator+=(mpq_class &lhs, const mpq_class &rhs);
+    inline friend mpq_class &operator-=(mpq_class &lhs, const mpq_class &rhs);
+    inline friend mpq_class &operator*=(mpq_class &lhs, const mpq_class &rhs);
+    inline friend mpq_class &operator/=(mpq_class &lhs, const mpq_class &rhs);
+    inline friend mpq_class operator+(const mpq_class &op);
+    inline friend mpq_class operator-(const mpq_class &op);
+    inline friend mpq_class operator+(const mpq_class &lhs, const mpq_class &rhs);
+    inline friend mpq_class operator-(const mpq_class &lhs, const mpq_class &rhs);
+    inline friend mpq_class operator*(const mpq_class &lhs, const mpq_class &rhs);
+    inline friend mpq_class operator/(const mpq_class &lhs, const mpq_class &rhs);
+
     inline friend bool operator==(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) == 0; }
+    inline friend bool operator!=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) != 0; }
+    inline friend bool operator<(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) < 0; }
+    inline friend bool operator>(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) > 0; }
+    inline friend bool operator<=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) <= 0; }
+    inline friend bool operator>=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) >= 0; }
+
     mpq_t *_get_mpq_t() { return &value; }
     mpq_srcptr get_mpq_t() const { return value; }
 
@@ -845,6 +877,23 @@ template <typename T> int cmp(const T &op1, const mpf_class &op2) {
     mpf_class temp(op1);
     return mpf_cmp(temp.get_mpf_t(), op2.get_mpf_t());
 }
+template <typename T> int cmp(const mpz_class &op1, const T &op2) {
+    mpz_class temp(op2);
+    return mpz_cmp(op1.get_mpz_t(), temp.get_mpz_t());
+}
+template <typename T> int cmp(const T &op1, const mpz_class &op2) {
+    mpz_class temp(op1);
+    return mpz_cmp(temp.get_mpz_t(), op2.get_mpz_t());
+}
+template <typename T> int cmp(const mpq_class &op1, const T &op2) {
+    mpq_class temp(op2);
+    return mpq_cmp(op1.get_mpq_t(), temp.get_mpq_t());
+}
+template <typename T> int cmp(const T &op1, const mpq_class &op2) {
+    mpq_class temp(op1);
+    return mpq_cmp(temp.get_mpq_t(), op2.get_mpq_t());
+}
+inline int cmp(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.get_mpq_t(), op2.get_mpq_t()); }
 template <> int cmp<double>(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
 template <> int cmp<double>(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
 template <> int cmp<unsigned long int>(const mpf_class &op1, const unsigned long int &op2) { return mpf_cmp_ui(op1.get_mpf_t(), op2); }

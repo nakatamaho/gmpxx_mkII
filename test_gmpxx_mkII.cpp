@@ -91,9 +91,20 @@ bool Is_mpz_class_Equals(mpz_class &gmpobj, const char *expected, bool debug_fla
         return false;
     }
 }
-bool Is_mpq_class_Equals(mpq_class &gmpobj, const char *expected, bool debug_flag = false) {
+bool Is_mpq_class_Equals(mpq_class &gmpobj, const char *expected, bool debug_flag = false, int base = 0) {
     char buffer[1024];
-    gmp_sprintf(buffer, "%Qd", gmpobj.get_mpq_t());
+    // Adjust the comparison based on the base
+    switch (base) {
+    case 0:
+        gmp_sprintf(buffer, "%Qd", gmpobj.get_mpq_t());
+        break;
+    case 16:
+        gmp_sprintf(buffer, "%Qx", gmpobj.get_mpq_t());
+        break;
+    default:
+        printf("not supported");
+        exit(-1);
+    }
     if (std::strcmp(buffer, expected) == 0) {
         return true;
     } else {
@@ -1356,6 +1367,44 @@ void testAssignmentOperator_the_rule_of_five_mpq_class() {
     assert(e == b);
     std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
 }
+void testInitializationAndAssignmentString_mpq_class() {
+    try {
+        mpq_class decimalFraction("-13/297");
+        const char *expectedValue_decimalFraction = "-13/297";
+        assert(Is_mpq_class_Equals(decimalFraction, expectedValue_decimalFraction, true));
+        std::cout << "Constructor initialization with decimal '" << expectedValue_decimalFraction << "' test passed." << std::endl;
+
+        mpq_class hexFraction("1/a", 16);
+        const char *expectedValue_hexFraction = "1/a";
+        assert(Is_mpq_class_Equals(hexFraction, expectedValue_hexFraction, true, 16));
+        std::cout << "Constructor initialization with hex '" << expectedValue_hexFraction << "' test passed." << std::endl;
+
+        std::string strFraction = "3/4";
+        mpq_class stringFraction(strFraction);
+        const char *expectedValue_strFraction = "3/4";
+        std::cout << "String fraction: " << expectedValue_strFraction << std::endl;
+
+        mpq_class invalidFraction("not a number");
+    } catch (const std::runtime_error &e) {
+        std::cout << "Caught an exception: " << e.what() << std::endl;
+    }
+}
+void test_template_cmp_mpq_class() {
+    mpq_class num1(1, 3);
+    mpq_class num2(1, 3);
+    mpq_class num3(2, 7);
+    assert(cmp(num1, num1) == 0);
+    assert(cmp(num2, num1) == 0);
+    assert(cmp(num2, num1) >= 0);
+    assert(cmp(num1, num1) <= 0);
+    assert(cmp(num3, num1) < 0);
+    assert(cmp(num1, num3) > 0);
+    assert(cmp(num3, num1) <= 0);
+    assert(cmp(num1, num3) >= 0);
+
+    std::cout << "Template cmp mpq_class function tests passed." << std::endl;
+}
+
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1438,6 +1487,8 @@ int main() {
     testDefaultConstructor_mpq_class();
     testCopyConstructor_mpq_class();
     testAssignmentOperator_mpq_class();
+    testInitializationAndAssignmentString_mpq_class();
+    test_template_cmp_mpq_class();
 
     std::cout << "All tests passed." << std::endl;
 
