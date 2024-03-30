@@ -1156,7 +1156,29 @@ void test_fibonacci_mpz_class() {
     assert(Is_mpz_class_Equals(fibonacci7, expectedValue_fibonacci)); // F(7) = 13
     std::cout << "Fibonacchi test passed.\n";
 }
+void test_mpz_class_swap() {
+    mpz_class a("123456"), b("789012");
 
+    // Swap 'a' and 'b'
+    a.swap(b);
+
+    // Verify that their contents have been swapped
+    assert(Is_mpz_class_Equals(a, "789012"));
+    assert(Is_mpz_class_Equals(b, "123456"));
+
+    mpz_class num1(314159);
+    mpz_class num2(271828);
+
+    mpz_class original_num1 = num1;
+    mpz_class original_num2 = num2;
+
+    swap(num1, num2);
+
+    assert(num1 == original_num2 && "After swap, num1 should have the value of original num2");
+    assert(num2 == original_num1 && "After swap, num2 should have the value of original num1");
+
+    std::cout << "Swap tests passed." << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1227,6 +1249,7 @@ int main() {
     test_factorial_mpz_class();
     test_primorial_mpz_class();
     test_fibonacci_mpz_class();
+    test_mpz_class_swap();
 
     std::cout << "All tests passed." << std::endl;
 

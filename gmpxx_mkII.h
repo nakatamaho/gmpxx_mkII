@@ -257,8 +257,11 @@ class mpz_class {
     }
     friend mpz_class fibonacci(const mpz_class &op);
 
-// void mpz_class::swap (mpz_class& op)
-// void swap (mpz_class& op1, mpz_class& op2)
+    // void mpz_class::swap (mpz_class& op)
+    // void swap (mpz_class& op1, mpz_class& op2)
+    void swap(mpz_class &op) { mpz_swap(this->value, op.value); }
+    friend void swap(mpz_class &op1, mpz_class &op2) { mpz_swap(op1.value, op2.value); }
+
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpz_class &operator=(const mpf_class &) = delete;
 #endif
