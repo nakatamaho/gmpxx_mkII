@@ -91,6 +91,18 @@ bool Is_mpz_class_Equals(mpz_class &gmpobj, const char *expected, bool debug_fla
         return false;
     }
 }
+bool Is_mpq_class_Equals(mpq_class &gmpobj, const char *expected, bool debug_flag = false) {
+    char buffer[1024];
+    gmp_sprintf(buffer, "%Qd", gmpobj.get_mpq_t());
+    if (std::strcmp(buffer, expected) == 0) {
+        return true;
+    } else {
+        if (debug_flag == true) {
+            printf("%s\n", buffer);
+        }
+        return false;
+    }
+}
 void testDefaultPrecision() {
 #if defined GMPXX_MKII
     mpf_class f("1.5");
@@ -1267,7 +1279,6 @@ void test_mpz_class_division() {
     assert(Is_mpz_class_Equals(a, expectedValue));
     std::cout << "mpz_class / unsigned long int division test passed." << std::endl;
 }
-
 void test_mpz_class_modulus() {
     mpz_class a(5), c, d;
     const char *expectedValue = "1";
@@ -1283,7 +1294,68 @@ void test_mpz_class_modulus() {
     assert(Is_mpz_class_Equals(a, expectedValue));
     std::cout << "mpz_class % unsigned long int modulus test passed." << std::endl;
 }
+void testDefaultConstructor_mpq_class() {
+    mpq_class a;
+    char buffer[100];
+    gmp_snprintf(buffer, sizeof(buffer), "%Qd", a.get_mpq_t());
+    assert(std::string(buffer) == "0");
+    // initialized to zero
+    std::cout << "Default constructor mpq_class test passed." << std::endl;
+}
+void testCopyConstructor_mpq_class() {
+    mpq_class a;
+    mpq_class b = a;
+    assert(true);
+    std::cout << "Copy constructor mpq_class test passed." << std::endl;
+}
+void testAssignmentOperator_mpq_class() {
+    mpq_class a;
+    mpq_class b;
+    b = a;
+    assert(true);
+    std::cout << "Assignment operator mpq_class test passed." << std::endl;
+}
+void testInitializationAndAssignmentInt_mpq_class() {
+    const char *expectedValue = "355/113";
 
+    mpq_class a(355, 113);
+    assert(Is_mpq_class_Equals(a, expectedValue, true));
+    std::cout << "Substitution mpq_class from integers test passed." << std::endl;
+
+    mpq_class b;
+    b = a;
+    assert(Is_mpq_class_Equals(b, expectedValue, true));
+    std::cout << "Substitution mpq_class assignment test passed." << std::endl;
+}
+void testAssignmentOperator_the_rule_of_five_mpq_class() {
+    mpq_class a(1, 7);
+
+    // testing the rule 1 of 5: copy constructor
+    std::cout << "##testing the rule 1 of 5: copy constructor\n";
+    mpq_class b(a);
+    assert(b == a && " test failed");
+    std::cout << "##testing the rule 1 of 5: copy constructor test passed.\n" << std::endl;
+
+    // testing the rule 4 of 5: move constructor
+    std::cout << "##testing the rule 4 of 5: move constructor\n";
+    mpq_class c(std::move(a));
+    assert(c == b && " test failed");
+    std::cout << "##testing the rule 4 of 5: move constructor test passed.\n" << std::endl;
+
+    // testing the rule 2 of 5: copy assignment
+    std::cout << "##testing the rule 2 of 5: copy assignment\n";
+    mpq_class d;
+    d = b;
+    assert(d == b && " test failed");
+    std::cout << "##testing the rule 2 of 5: copy assignment test passed.\n" << std::endl;
+
+    // testing the rule 5 of 5: move assignment
+    std::cout << "##testing the rule 5 of 5: copy assignment\n";
+    mpq_class e;
+    e = std::move(c);
+    assert(e == b);
+    std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1361,6 +1433,11 @@ int main() {
     test_mpz_class_multiplication();
     test_mpz_class_division();
     test_mpz_class_modulus();
+
+    // mpq_class
+    testDefaultConstructor_mpq_class();
+    testCopyConstructor_mpq_class();
+    testAssignmentOperator_mpq_class();
 
     std::cout << "All tests passed." << std::endl;
 

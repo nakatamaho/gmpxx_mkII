@@ -500,6 +500,18 @@ class mpq_class {
         mpq_init(value);
         mpq_set_si(value, op1, op2);
     }
+    mpq_class(int op1, int op2) {
+        mpq_init(value);
+        mpq_set_si(value, (signed long int)op1, (signed long int)op2);
+    }
+    mpq_class(unsigned int op1, unsigned int op2) {
+        mpq_init(value);
+        mpq_set_ui(value, (unsigned long int)op1, (unsigned long int)op2);
+    }
+
+    inline friend bool operator==(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) == 0; }
+    mpq_t *_get_mpq_t() { return &value; }
+    mpq_srcptr get_mpq_t() const { return value; }
 
   private:
     mpq_t value;
