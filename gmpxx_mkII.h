@@ -219,6 +219,8 @@ class mpz_class {
     }
     // int mpz_class::set_str (const char *str, int base)
     // int mpz_class::set_str (const string& str, int base)
+    int set_str(const char *str, int base) { return mpz_set_str(value, str, base); }
+    int set_str(const std::string &str, int base) { return mpz_set_str(value, str.c_str(), base); }
 
     // int sgn (mpz_class op)
     // mpz_class sqrt (mpz_class op)

@@ -1099,6 +1099,45 @@ void test_mpz_class_extention() {
     std::cout << "The result of test_func(f * h, g) is: " << result << std::endl;
 #endif
 }
+void test_set_str_mpz_class() {
+    mpz_class a, b, c, d, e, f;
+
+    // Test setting value from C-style string
+    assert(a.set_str("FF", 16) == 0);         // Hexadecimal
+    assert(b.set_str("1010", 2) == 0);        // Binary
+    assert(c.set_str("1234567890", 10) == 0); // Decimal
+    const char *expectedValue_a = "255";
+    const char *expectedValue_b = "10";
+    const char *expectedValue_c = "1234567890";
+
+    // Print to verify the values
+    gmp_printf("a (hex 'FF') as integer: %Zd\n", a.get_mpz_t());
+    gmp_printf("b (binary '1010') as integer: %Zd\n", b.get_mpz_t());
+    gmp_printf("c (decimal '1234567890') as integer: %Zd\n", c.get_mpz_t());
+
+    assert(Is_mpz_class_Equals(a, expectedValue_a));
+    assert(Is_mpz_class_Equals(b, expectedValue_b));
+    assert(Is_mpz_class_Equals(c, expectedValue_c));
+
+    // Test setting value from std::string
+    assert(d.set_str(std::string("255"), 10) == 0);    // Decimal
+    assert(e.set_str(std::string("377"), 8) == 0);     // Octal
+    assert(f.set_str(std::string("C3665C"), 16) == 0); // Hexadecimal
+    const char *expectedValue_d = "255";
+    const char *expectedValue_e = "255";
+    const char *expectedValue_f = "12805724";
+
+    // Print to verify the values
+    gmp_printf("d (decimal '255') as integer: %Zd\n", d.get_mpz_t());
+    gmp_printf("e (octal '377') as integer: %Zd\n", e.get_mpz_t());
+    gmp_printf("f (hexadecimal 'C3665C') as integer: %Zd\n", f.get_mpz_t());
+
+    assert(Is_mpz_class_Equals(d, expectedValue_d));
+    assert(Is_mpz_class_Equals(e, expectedValue_e));
+    assert(Is_mpz_class_Equals(f, expectedValue_f));
+
+    std::cout << "set_str tests passed." << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1165,6 +1204,7 @@ int main() {
     testConversionFunctions_mpz_class();
     testMathFunctions_mpz_class();
     test_mpz_class_extention();
+    test_set_str_mpz_class();
 
     std::cout << "All tests passed." << std::endl;
 
