@@ -1078,6 +1078,27 @@ void testMathFunctions_mpz_class() {
     std::cout << "All math function tests for mpz_class passed." << std::endl;
 }
 
+template <class T> T test_func(const T &a, const T &b) { return a * b; }
+void test_mpf_class_extention() {
+#if defined GMPXX_MKII
+    mpf_class f(2), g(1), h(3);
+
+    mpf_class result;
+    result = test_func(f * h, g);
+
+    std::cout << "The result of test_func(f * h, g) is: " << result << std::endl;
+#endif
+}
+void test_mpz_class_extention() {
+#if defined GMPXX_MKII
+    mpz_class f(2), g(1), h(3);
+
+    mpz_class result;
+    result = test_func(f * h, g);
+
+    std::cout << "The result of test_func(f * h, g) is: " << result << std::endl;
+#endif
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1124,6 +1145,7 @@ int main() {
     test_fits_ulong_p();
     test_fits_ushort_p();
     testAssignmentOperator_the_rule_of_five();
+    test_mpf_class_extention();
 
     // mpz_class
     testDefaultConstructor_mpz_class();
@@ -1142,6 +1164,7 @@ int main() {
     testFitsFunctions_mpz_class();
     testConversionFunctions_mpz_class();
     testMathFunctions_mpz_class();
+    test_mpz_class_extention();
 
     std::cout << "All tests passed." << std::endl;
 
