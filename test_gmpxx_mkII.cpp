@@ -1210,6 +1210,79 @@ void testOutputOperator_mpz_class() {
 
     std::cout << "Output operator tests for mpz_class passed." << std::endl;
 }
+void test_mpz_class_addition() {
+    mpz_class a(1), c;
+    const char *expectedValue = "3";
+    unsigned long int b = 2;
+
+    c = a + b;
+    assert(Is_mpz_class_Equals(c, expectedValue));
+    c = b + a;
+    assert(Is_mpz_class_Equals(c, expectedValue));
+    a += b;
+    assert(Is_mpz_class_Equals(a, expectedValue));
+    std::cout << "mpz_class + unsigned long int addition test passed." << std::endl;
+}
+void test_mpz_class_subtraction() {
+    mpz_class a(5), c, d;
+    const char *expectedValueC = "3";
+    const char *expectedValueD = "4";
+    unsigned long int b = 2;
+
+    c = a - b;
+    assert(Is_mpz_class_Equals(c, expectedValueC));
+    b = 9;
+    d = b - a;
+    assert(Is_mpz_class_Equals(d, expectedValueD));
+    b = 2;
+    a -= b;
+    assert(Is_mpz_class_Equals(a, expectedValueC));
+    std::cout << "mpz_class - unsigned long int subtraction test passed." << std::endl;
+}
+void test_mpz_class_multiplication() {
+    mpz_class a(3), c;
+    const char *expectedValue = "6";
+    unsigned long int b = 2;
+
+    c = a * b;
+    assert(Is_mpz_class_Equals(c, expectedValue));
+    c = b * a;
+    assert(Is_mpz_class_Equals(c, expectedValue));
+    a *= b;
+    assert(Is_mpz_class_Equals(a, expectedValue));
+    std::cout << "mpz_class * unsigned long int multiplication test passed." << std::endl;
+}
+void test_mpz_class_division() {
+    mpz_class a(6), c, d;
+    const char *expectedValue = "3";
+    unsigned long int b = 2;
+
+    c = a / b;
+    assert(Is_mpz_class_Equals(c, expectedValue));
+    b = 18;
+    d = b / a;
+    assert(Is_mpz_class_Equals(d, expectedValue));
+    b = 2;
+    a /= b;
+    assert(Is_mpz_class_Equals(a, expectedValue));
+    std::cout << "mpz_class / unsigned long int division test passed." << std::endl;
+}
+
+void test_mpz_class_modulus() {
+    mpz_class a(5), c, d;
+    const char *expectedValue = "1";
+    unsigned long int b = 2;
+
+    c = a % b;
+    assert(Is_mpz_class_Equals(c, expectedValue));
+    b = 11;
+    d = b % a;
+    assert(Is_mpz_class_Equals(d, expectedValue));
+    b = 2;
+    a %= b;
+    assert(Is_mpz_class_Equals(a, expectedValue));
+    std::cout << "mpz_class % unsigned long int modulus test passed." << std::endl;
+}
 
 int main() {
 #if !defined GMPXX_MKII
@@ -1283,6 +1356,11 @@ int main() {
     test_fibonacci_mpz_class();
     test_mpz_class_swap();
     testOutputOperator_mpz_class();
+    test_mpz_class_addition();
+    test_mpz_class_subtraction();
+    test_mpz_class_multiplication();
+    test_mpz_class_division();
+    test_mpz_class_modulus();
 
     std::cout << "All tests passed." << std::endl;
 
