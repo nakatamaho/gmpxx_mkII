@@ -542,12 +542,76 @@ class mpq_class {
     inline friend bool operator<=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) >= 0; }
 
+    friend std::ostream &operator<<(std::ostream &os, const mpq_class &m);
+
     mpq_t *_get_mpq_t() { return &value; }
     mpq_srcptr get_mpq_t() const { return value; }
 
   private:
     mpq_t value;
 };
+std::ostream &operator<<(std::ostream &os, const mpq_class &m) {
+    std::ios_base::fmtflags flags = os.flags();
+
+    char *str = nullptr;
+    if (flags & std::ios::oct) { // Output in octal
+        gmp_asprintf(&str, "%Qo", m.get_mpq_t());
+    } else if (flags & std::ios::hex) { // Output in hexadecimal
+        if (flags & std::ios::uppercase) {
+            gmp_asprintf(&str, "%QX", m.get_mpq_t());
+        } else {
+            gmp_asprintf(&str, "%Qx", m.get_mpq_t());
+        }
+    } else { // Default output (decimal)
+        gmp_asprintf(&str, "%Qd", m.get_mpq_t());
+    }
+    os << str;
+    free(str);
+    return os;
+}
+
+inline mpq_class &operator+=(mpq_class &lhs, const mpq_class &rhs) {
+    mpq_add(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpq_class &operator-=(mpq_class &lhs, const mpq_class &rhs) {
+    mpq_sub(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpq_class &operator/=(mpq_class &lhs, const mpq_class &rhs) {
+    mpq_div(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpq_class &operator*=(mpq_class &lhs, const mpq_class &rhs) {
+    mpq_mul(lhs.value, lhs.value, rhs.value);
+    return lhs;
+}
+inline mpq_class operator+(const mpq_class &op) { return op; }
+inline mpq_class operator-(const mpq_class &op) {
+    mpq_class result;
+    mpq_neg(result.value, op.value);
+    return result;
+}
+inline mpq_class operator+(const mpq_class &lhs, const mpq_class &rhs) {
+    mpq_class result;
+    mpq_add(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpq_class operator-(const mpq_class &lhs, const mpq_class &rhs) {
+    mpq_class result;
+    mpq_sub(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpq_class operator*(const mpq_class &lhs, const mpq_class &rhs) {
+    mpq_class result;
+    mpq_mul(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpq_class operator/(const mpq_class &lhs, const mpq_class &rhs) {
+    mpq_class result;
+    mpq_div(result.value, lhs.value, rhs.value);
+    return result;
+}
 
 class mpf_class {
   public:

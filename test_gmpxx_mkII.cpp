@@ -1368,7 +1368,9 @@ void testAssignmentOperator_the_rule_of_five_mpq_class() {
     std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
 }
 void testInitializationAndAssignmentString_mpq_class() {
+#if defined GMPXX_MKII
     try {
+#endif
         mpq_class decimalFraction("-13/297");
         const char *expectedValue_decimalFraction = "-13/297";
         assert(Is_mpq_class_Equals(decimalFraction, expectedValue_decimalFraction, true));
@@ -1383,11 +1385,12 @@ void testInitializationAndAssignmentString_mpq_class() {
         mpq_class stringFraction(strFraction);
         const char *expectedValue_strFraction = "3/4";
         std::cout << "String fraction: " << expectedValue_strFraction << std::endl;
-
+#if defined GMPXX_MKII
         mpq_class invalidFraction("not a number");
     } catch (const std::runtime_error &e) {
         std::cout << "Caught an exception: " << e.what() << std::endl;
     }
+#endif
 }
 void test_template_cmp_mpq_class() {
     mpq_class num1(1, 3);
@@ -1403,6 +1406,75 @@ void test_template_cmp_mpq_class() {
     assert(cmp(num1, num3) >= 0);
 
     std::cout << "Template cmp mpq_class function tests passed." << std::endl;
+}
+void test_arithmetic_operators_mpq_class_hardcoded1() {
+    mpq_class a("3/5");
+    mpq_class b("2/7");
+    mpq_class c("5/11");
+    mpq_class d("9/13");
+    mpq_class result;
+
+    result = a;
+    result += b;
+    mpq_class expectedAdd("31/35");
+    assert(result == expectedAdd);
+    std::cout << "a + b = " << result << " (Expected: 31/35)" << std::endl;
+
+    result = a;
+    result -= b;
+    mpq_class expectedSub("11/35");
+    assert(result == expectedSub);
+    std::cout << "a - b = " << result << " (Expected: 11/35)" << std::endl;
+
+    result = a;
+    result *= b;
+    mpq_class expectedMul("6/35");
+    assert(result == expectedMul);
+    std::cout << "a * b = " << result << " (Expected: 6/35)" << std::endl;
+
+    result = a;
+    result /= b;
+    mpq_class expectedDiv("21/10");
+    assert(result == expectedDiv);
+    std::cout << "a / b = " << result << " (Expected: 21/10)" << std::endl;
+
+    result = a;
+    result += c;
+    result -= d;
+    result *= b;
+    result /= c;
+    mpq_class expectedComplex("74/325");
+    assert(result == expectedComplex);
+    std::cout << "((a + c - d) * b) / c = " << result << " (Expected: 74/325)" << std::endl;
+
+    std::cout << "All operator tests for mpq_class with hardcoded results passed." << std::endl;
+}
+void test_arithmetic_operators_mpq_class_hardcoded2() {
+    mpq_class a("3/5");
+    mpq_class b("2/7");
+    mpq_class result;
+
+    result = a + b;
+    mpq_class expectedAdditionResult("31/35");
+    assert(result == expectedAdditionResult);
+    std::cout << "Addition test passed: " << result << " == " << expectedAdditionResult << std::endl;
+
+    result = a - b;
+    mpq_class expectedSubtractionResult("11/35");
+    assert(result == expectedSubtractionResult);
+    std::cout << "Subtraction test passed: " << result << " == " << expectedSubtractionResult << std::endl;
+
+    result = a * b;
+    mpq_class expectedMultiplicationResult("6/35");
+    assert(result == expectedMultiplicationResult);
+    std::cout << "Multiplication test passed: " << result << " == " << expectedMultiplicationResult << std::endl;
+
+    result = a / b;
+    mpq_class expectedDivisionResult("21/10");
+    assert(result == expectedDivisionResult);
+    std::cout << "Division test passed: " << result << " == " << expectedDivisionResult << std::endl;
+
+    std::cout << "All arithmetic operation tests for mpq_class passed." << std::endl;
 }
 
 int main() {
@@ -1489,6 +1561,8 @@ int main() {
     testAssignmentOperator_mpq_class();
     testInitializationAndAssignmentString_mpq_class();
     test_template_cmp_mpq_class();
+    test_arithmetic_operators_mpq_class_hardcoded1();
+    test_arithmetic_operators_mpq_class_hardcoded2();
 
     std::cout << "All tests passed." << std::endl;
 
