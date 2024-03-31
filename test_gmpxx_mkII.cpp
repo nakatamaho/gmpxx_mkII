@@ -1571,6 +1571,43 @@ void test_mpq_class_functions() {
     assert(sgn(d) == -1);
     std::cout << "Non-member swap test passed." << std::endl;
 
+    mpq_class fraction3("3/4");
+    mpz_class num = fraction3.get_num();
+    mpz_class den = fraction3.get_den();
+
+    // Test get_num() and get_den()
+    gmp_printf("Number: %Zd, Denominator: %Zd\n", num.get_mpz_t(), den.get_mpz_t());
+    assert(num == 3);
+    assert(den == 4);
+
+    // Test get_num_mpz_t() and get_den_mpz_t()
+    gmp_printf("Number (mpz_t): %Zd, Denominator (mpz_t): %Zd\n", fraction3.get_num_mpz_t(), fraction3.get_den_mpz_t());
+    // Direct comparisons with mpz_t types require manual comparison using mpz_cmp
+    assert(mpz_cmp_si(fraction3.get_num_mpz_t(), 3) == 0);
+    assert(mpz_cmp_si(fraction3.get_den_mpz_t(), 4) == 0);
+
+    // istream& operator>> (istream& stream, mpq_class& rop) test
+    {
+        std::istringstream input("3/4");
+        mpq_class a;
+        input >> a;
+        assert(a == mpq_class("3/4"));
+    }
+
+    {
+        std::istringstream input("5");
+        mpq_class a;
+        input >> a;
+        assert(a == mpq_class("5"));
+    }
+
+    {
+        std::istringstream input("invalid");
+        mpq_class a;
+        input >> a;
+        assert(input.fail());
+    }
+
     std::cout << "mpq_class functions tests are passed." << std::endl;
 }
 int main() {

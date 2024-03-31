@@ -574,13 +574,25 @@ class mpq_class {
     void swap(mpq_class &op) { mpq_swap(this->value, op.value); }
     friend int sgn(const mpq_class &op) { return mpq_sgn(op.value); }
     friend void swap(mpq_class &op1, mpq_class &op2) { mpq_swap(op1.value, op2.value); }
+
     // mpz_class& mpq_class::get_num ()
     // mpz_class& mpq_class::get_den ()
     // mpz_t mpq_class::get_num_mpz_t ()
     // mpz_t mpq_class::get_den_mpz_t ()
+    mpz_class get_num() const {
+        mpz_class num(mpq_numref(value));
+        return num;
+    }
+    mpz_class get_den() const {
+        mpz_class den(mpq_denref(value));
+        return den;
+    }
+    mpz_ptr get_num_mpz_t() { return mpq_numref(value); }
+    mpz_ptr get_den_mpz_t() { return mpq_denref(value); }
+
     // istream& operator>> (istream& stream, mpq_class& rop)
     friend std::ostream &operator<<(std::ostream &os, const mpq_class &m);
-
+    friend std::istream &operator>>(std::istream &stream, mpq_class &rop);
     mpq_t *_get_mpq_t() { return &value; }
     mpq_srcptr get_mpq_t() const { return value; }
 
@@ -606,7 +618,14 @@ std::ostream &operator<<(std::ostream &os, const mpq_class &m) {
     free(str);
     return os;
 }
-
+std::istream &operator>>(std::istream &stream, mpq_class &rop) {
+    std::string input;
+    std::getline(stream, input);
+    if (input.empty() || rop.set_str(input, 10) != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    return stream;
+}
 inline mpq_class &operator+=(mpq_class &lhs, const mpq_class &rhs) {
     mpq_add(lhs.value, lhs.value, rhs.value);
     return lhs;
