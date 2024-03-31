@@ -1476,6 +1476,40 @@ void test_arithmetic_operators_mpq_class_hardcoded2() {
 
     std::cout << "All arithmetic operation tests for mpq_class passed." << std::endl;
 }
+void test_mpq_class_literal() {
+#ifdef GMPXX_MKII
+    // Using the user-defined literal to create mpq_class objects
+    mpq_class num1 = "314159"_mpq;
+    mpq_class num2 = "271828"_mpq;
+    mpq_class num3 = "0"_mpq;
+    mpq_class num4 = "-123456"_mpq;
+    mpq_class num5 = "99999999999999999999999999999999999999999999999999999999"_mpq;
+
+    const char *num1_expected = "314159";
+    const char *num2_expected = "271828";
+    const char *num3_expected = "0";
+    const char *num4_expected = "-123456";
+    const char *num5_expected = "99999999999999999999999999999999999999999999999999999999";
+    assert(Is_mpq_class_Equals(num1, num1_expected));
+    assert(Is_mpq_class_Equals(num2, num2_expected));
+    assert(Is_mpq_class_Equals(num3, num3_expected));
+    assert(Is_mpq_class_Equals(num4, num4_expected));
+    assert(Is_mpq_class_Equals(num5, num5_expected));
+    // more tests
+    mpq_class a = "1/2"_mpq;
+    mpq_class b = "3/4"_mpq;
+
+    assert(a == mpq_class("1/2"));
+    assert(b == mpq_class("3/4"));
+
+    mpq_class result = a + b;
+    assert(result == mpq_class("5/4"));
+
+    std::cout << "a = " << a << ", b = " << b << std::endl;
+    std::cout << "a + b = " << result << std::endl;
+    std::cout << "User-defined literal tests for mpq_class passed." << std::endl;
+#endif
+}
 
 int main() {
 #if !defined GMPXX_MKII
@@ -1563,6 +1597,7 @@ int main() {
     test_template_cmp_mpq_class();
     test_arithmetic_operators_mpq_class_hardcoded1();
     test_arithmetic_operators_mpq_class_hardcoded2();
+    test_mpq_class_literal();
 
     std::cout << "All tests passed." << std::endl;
 

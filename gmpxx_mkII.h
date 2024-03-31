@@ -523,7 +523,6 @@ class mpq_class {
         mpq_init(value);
         mpq_set_ui(value, (unsigned long int)op1, (unsigned long int)op2);
     }
-
     inline friend mpq_class &operator+=(mpq_class &lhs, const mpq_class &rhs);
     inline friend mpq_class &operator-=(mpq_class &lhs, const mpq_class &rhs);
     inline friend mpq_class &operator*=(mpq_class &lhs, const mpq_class &rhs);
@@ -1100,8 +1099,10 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
 
 // mpf_class operator"" _mpf (const char *str)
 // mpz_class operator"" _mpz (const char *str)
+// mpq_class operator"" _mpq (const char *str)
 gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
 gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
+gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpq_class(str); }
 
 int gmp::defaults::base;
 
