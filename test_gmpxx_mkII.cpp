@@ -1511,6 +1511,68 @@ void test_mpq_class_literal() {
 #endif
 }
 
+void test_mpq_class_functions() {
+    mpq_class a("2/8"), b("-1/3");
+
+    // canonicalize
+    std::cout << "a = " << a;
+    a.canonicalize();
+    assert(a == mpq_class("1/4"));
+    std::cout << "  a = " << a << std::endl;
+
+    // abs
+    assert(abs(b) == mpq_class("1/3"));
+
+    // get_d
+    assert(a.get_d() == 0.25);
+
+    // get_str
+    mpq_class fraction1("1/2");
+    std::string fraction1Str = fraction1.get_str();
+    assert(fraction1Str == "1/2");
+    std::cout << "1/2 in base 10: " << fraction1Str << std::endl;
+
+    std::string fraction1Bin = fraction1.get_str(2);
+    std::cout << "1/2 in base 2: " << fraction1Bin << std::endl;
+
+    mpq_class fraction2("A/B", 16);
+    std::string fraction2Hex = fraction2.get_str(16);
+    assert(fraction2Hex == "a/b");
+    std::cout << "A/B in base 16: " << fraction2Hex << std::endl;
+
+    // set_str
+    mpq_class fraction;
+    assert(fraction.set_str("3/4") == 0);
+    assert(fraction.get_str() == "3/4");
+    std::cout << "Set to 3/4: " << fraction.get_str() << std::endl;
+
+    assert(fraction.set_str("11/100", 2) == 0);
+    assert(fraction.get_str(2) == "11/100");
+    std::cout << "Set to 11/100 in base 2: " << fraction.get_str(2) << std::endl;
+
+    assert(fraction.set_str("A/B", 16) == 0);
+    assert(fraction.get_str(16) == "a/b");
+    std::cout << "Set to A/B in base 16: " << fraction.get_str(16) << std::endl;
+
+    mpq_class c("1/2");
+    mpq_class d("-3/4");
+
+    assert(sgn(c) == 1);
+    assert(sgn(d) == -1);
+    std::cout << "Sign test passed." << std::endl;
+
+    c.swap(d);
+    assert(sgn(c) == -1);
+    assert(sgn(d) == 1);
+    std::cout << "Member swap test passed." << std::endl;
+
+    swap(c, d);
+    assert(sgn(c) == 1);
+    assert(sgn(d) == -1);
+    std::cout << "Non-member swap test passed." << std::endl;
+
+    std::cout << "mpq_class functions tests are passed." << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1598,6 +1660,7 @@ int main() {
     test_arithmetic_operators_mpq_class_hardcoded1();
     test_arithmetic_operators_mpq_class_hardcoded2();
     test_mpq_class_literal();
+    test_mpq_class_functions();
 
     std::cout << "All tests passed." << std::endl;
 

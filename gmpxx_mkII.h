@@ -541,6 +541,44 @@ class mpq_class {
     inline friend bool operator<=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) >= 0; }
 
+    // void mpq_class::canonicalize ()
+    // mpq_class abs (mpq_class op)
+    // double mpq_class::get_d (void)
+    void canonicalize() { mpq_canonicalize(value); }
+    friend mpq_class abs(const mpq_class &op);
+    double get_d() const { return mpq_get_d(value); }
+
+    // string mpq_class::get_str (int base = 10)
+    // int mpq_class::set_str (const char *str, int base)
+    // int mpq_class::set_str (const string& str, int base)
+    std::string get_str(int base = 10) const {
+        char *str = mpq_get_str(NULL, base, value);
+        std::string result(str);
+        void (*freefunc)(void *, size_t);
+        mp_get_memory_functions(NULL, NULL, &freefunc);
+        freefunc(str, std::strlen(str) + 1);
+        return result;
+    }
+    int set_str(const char *str, int base = 10) {
+        int ret = mpq_set_str(value, str, base);
+        if (ret == 0) {
+            mpq_canonicalize(value);
+        }
+        return ret;
+    }
+
+    int set_str(const std::string &str, int base = 10) { return set_str(str.c_str(), base); }
+    // int sgn (mpq_class op)
+    // void mpq_class::swap (mpq_class& op)
+    // void swap (mpq_class& op1, mpq_class& op2)
+    void swap(mpq_class &op) { mpq_swap(this->value, op.value); }
+    friend int sgn(const mpq_class &op) { return mpq_sgn(op.value); }
+    friend void swap(mpq_class &op1, mpq_class &op2) { mpq_swap(op1.value, op2.value); }
+    // mpz_class& mpq_class::get_num ()
+    // mpz_class& mpq_class::get_den ()
+    // mpz_t mpq_class::get_num_mpz_t ()
+    // mpz_t mpq_class::get_den_mpz_t ()
+    // istream& operator>> (istream& stream, mpq_class& rop)
     friend std::ostream &operator<<(std::ostream &os, const mpq_class &m);
 
     mpq_t *_get_mpq_t() { return &value; }
@@ -610,6 +648,11 @@ inline mpq_class operator/(const mpq_class &lhs, const mpq_class &rhs) {
     mpq_class result;
     mpq_div(result.value, lhs.value, rhs.value);
     return result;
+}
+inline mpq_class abs(const mpq_class &op) {
+    mpq_class rop(op);
+    mpq_abs(rop.value, op.get_mpq_t());
+    return rop;
 }
 
 class mpf_class {
@@ -948,6 +991,8 @@ template <typename T> int cmp(const T &op1, const mpz_class &op2) {
     mpz_class temp(op1);
     return mpz_cmp(temp.get_mpz_t(), op2.get_mpz_t());
 }
+// int cmp (mpq_class op1, type op2)
+// int cmp (type op1, mpq_class op2)
 template <typename T> int cmp(const mpq_class &op1, const T &op2) {
     mpq_class temp(op2);
     return mpq_cmp(op1.get_mpq_t(), temp.get_mpq_t());
