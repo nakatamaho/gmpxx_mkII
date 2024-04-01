@@ -1582,6 +1582,7 @@ void test_mpq_class_functions() {
 
     // Test get_num_mpz_t() and get_den_mpz_t()
     gmp_printf("Number (mpz_t): %Zd, Denominator (mpz_t): %Zd\n", fraction3.get_num_mpz_t(), fraction3.get_den_mpz_t());
+
     // Direct comparisons with mpz_t types require manual comparison using mpz_cmp
     assert(mpz_cmp_si(fraction3.get_num_mpz_t(), 3) == 0);
     assert(mpz_cmp_si(fraction3.get_den_mpz_t(), 4) == 0);
