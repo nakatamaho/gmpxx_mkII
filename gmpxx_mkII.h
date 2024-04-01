@@ -798,7 +798,10 @@ class mpf_class {
         freefunc(temp, std::strlen(temp) + 1);
         return result;
     }
-
+    void div_2exp(mp_bitcnt_t exp) {
+        mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
+        mpf_div_2exp(non_const_ptr, this->get_mpf_t(), exp);
+    }
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
     int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
@@ -894,6 +897,9 @@ class mpf_class {
 
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
+    static mpf_class const_pi();
+    static void reset_pi_cache();
+
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpf_class &operator=(const mpz_class &) = delete;
 #endif
@@ -903,6 +909,7 @@ class mpf_class {
 
   private:
     mpf_t value;
+    static mpf_class pi_cached;
 };
 mpf_class::operator mpz_class() const {
     mpz_class rop;
@@ -1159,6 +1166,55 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
     return os;
 }
 
+mpf_class pi_cached;
+mpf_class const_pi() {
+    static bool calculated = false;
+    static mp_bitcnt_t calculated_pi_precision = 0;
+    mp_bitcnt_t _default_prec = mpf_get_default_prec();
+
+    if (!calculated || (calculated && calculated_pi_precision != _default_prec)) {
+        pi_cached = mpf_class();
+        calculated_pi_precision = mpf_get_default_prec();
+        // calculating approximate pi using arithmetic-geometric mean
+        mpf_class one(1.0); // Second parameter sets the precision in bits
+        mpf_class two(2.0);
+        mpf_class four(4.0);
+        mpf_class a(one), b(one / sqrt(two)), t(0.25), p(one);
+        mpf_class a_next, b_next, t_next, tmp_pi, pi_previous;
+
+        bool converged = false;
+        int iteration = 0;
+
+        mpf_class epsilon = one;
+        epsilon.div_2exp(_default_prec);
+        while (!converged) {
+            iteration++;
+            a_next = (a + b) / two;
+            b_next = sqrt(a * b);
+            t_next = t - p * (a - a_next) * (a - a_next);
+            p = two * p;
+
+            // Update values for the next iteration
+            a = a_next;
+            b = b_next;
+            t = t_next;
+
+            // Calculate pi
+            pi_previous = tmp_pi;
+            tmp_pi = (a + b) * (a + b) / (four * t);
+
+            // Check for convergence
+            if (abs(tmp_pi - pi_previous) < epsilon) {
+                converged = true;
+            }
+        }
+        calculated = true;
+        pi_cached = tmp_pi;
+    } else {
+      //      std::cout << "pi cached\n";
+    }
+    return pi_cached;
+}
 } // namespace gmp
 
 // mpf_class operator"" _mpf (const char *str)
