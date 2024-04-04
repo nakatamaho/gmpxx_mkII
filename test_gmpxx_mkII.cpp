@@ -1617,12 +1617,13 @@ void test_mpf_class_const_pi() {
     const char *pi_approx = "3141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
     mpf_class calculated_pi = const_pi();
     mp_bitcnt_t prec = mpf_get_default_prec();
-    int decimal_digits = floor(log10(2) * prec) - 1;
+    int prec_decimal_digits = floor(log10(2) * prec);
+    int decimal_digits = prec_decimal_digits; // no decimal significants lost in 512bit
     mp_exp_t exp;
-    std::string calculated_pi_str = calculated_pi.get_str(exp, 10, decimal_digits);
+    std::string calculated_pi_str = calculated_pi.get_str(exp, 10, prec_decimal_digits);
 
     bool match = true;
-    for (int i = 0; i < decimal_digits; ++i) {
+    for (int i = 0; i < prec_decimal_digits; ++i) {
         if (pi_approx[i] != calculated_pi_str[i]) {
             match = false; // Set to false if any character does not match
             break;
@@ -1634,7 +1635,7 @@ void test_mpf_class_const_pi() {
 
     calculated_pi_str = calculated_pi_2nd.get_str(exp, 10, decimal_digits);
     match = true;
-    for (int i = 0; i < decimal_digits; ++i) {
+    for (int i = 0; i < prec_decimal_digits; ++i) {
         if (pi_approx[i] != calculated_pi_str[i]) {
             match = false; // Set to false if any character does not match
             std::cout << "\n" << i << "-th digit is wrong";
@@ -1646,10 +1647,11 @@ void test_mpf_class_const_pi() {
 
     mpf_set_default_prec(prec * 2);
     prec = mpf_get_default_prec();
-    decimal_digits = floor(log10(2) * prec) - 1;
+    prec_decimal_digits = floor(log10(2) * prec);
+    decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
 
     mpf_class calculated_pi_3rd = const_pi();
-    calculated_pi_str = calculated_pi_3rd.get_str(exp, 10, decimal_digits);
+    calculated_pi_str = calculated_pi_3rd.get_str(exp, 10, prec_decimal_digits);
     match = true;
     for (int i = 0; i < decimal_digits; ++i) {
         if (pi_approx[i] != calculated_pi_str[i]) {
@@ -1660,10 +1662,63 @@ void test_mpf_class_const_pi() {
     }
     assert(match);
     std::cout << "Pi matched 3rd in " << decimal_digits << " decimal digits" << std::endl;
-
+    mpf_set_default_prec(prec / 2);
 #endif
 }
+void test_mpf_class_const_log2() {
+#if defined GMPXX_MKII
+    const char *log2_approx = "6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875420014810205706857336855202357581305570326707516350759619307275708283714351903070386238916734711233501153644979552391204751726815749320651555247341395258829504530070953263666426541042391578149520437404303855008019441706416715186447128399681717845469570262716310645461502572074024816377733896385506952606683411372738737229289564935470257626520988596932019650585547647033067936544325476327449512504060694381471046899465062201677204245245296126879465461931651746813926725041038025462596568691441928716082938031727143677826548775664850856740776484514644399404614226031930967354025744460703080960850474866385231381816767514386674766478908814371419854942315199735488037516586127535291661000710535582498794147295092931138971559982056543928717000721808576102523688921324497138932037843935308877482597017155910708823683627589842589185353024363421436706118923678919237231467232172053401649256872747782344535348";
+    mpf_class calculated_log2 = const_log2();
 
+    mp_bitcnt_t prec = mpf_get_default_prec();
+    int prec_decimal_digits = floor(log10(2) * prec);
+    int decimal_digits = prec_decimal_digits - 2; // two decimal digits loss
+    mp_exp_t exp;
+    std::string calculated_log2_str = calculated_log2.get_str(exp, 10, prec_decimal_digits);
+
+    bool match = true;
+    for (int i = 0; i < decimal_digits; ++i) {
+        if (log2_approx[i] != calculated_log2_str[i]) {
+            match = false; // Set to false if any character does not match
+            std::cout << "log2 not matched in " << i << " decimal digits" << std::endl;
+            break;
+        }
+    }
+    assert(match);
+    std::cout << "log2 matched in " << decimal_digits << " decimal digits" << std::endl;
+    mpf_class calculated_log2_2nd = const_log2();
+    calculated_log2_str = calculated_log2_2nd.get_str(exp, 10, prec_decimal_digits);
+    match = true;
+    for (int i = 0; i < decimal_digits; ++i) {
+        if (log2_approx[i] != calculated_log2_str[i]) {
+            match = false; // Set to false if any character does not match
+            std::cout << "\n" << i << "-th digit is wrong";
+            break;
+        }
+    }
+    assert(match);
+    std::cout << "log2 matched 2nd in " << decimal_digits << " decimal digits (cached)" << std::endl;
+
+    mpf_set_default_prec(prec * 2);
+    prec = mpf_get_default_prec();
+    prec_decimal_digits = floor(log10(2) * prec);
+    decimal_digits = prec_decimal_digits - 1; // one decimal digit loss
+    mpf_class calculated_log2_3rd = const_log2();
+    calculated_log2_str = calculated_log2_3rd.get_str(exp, 10, prec_decimal_digits);
+
+    match = true;
+    for (int i = 0; i < decimal_digits; ++i) {
+        if (log2_approx[i] != calculated_log2_str[i]) {
+            match = false; // Set to false if any character does not match
+            std::cout << "\n" << i << "-th digit is wrong";
+            break;
+        }
+    }
+    assert(match);
+    std::cout << "log2 matched 3rd in " << decimal_digits << " decimal digits" << std::endl;
+    mpf_set_default_prec(prec / 2);
+#endif
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1754,6 +1809,7 @@ int main() {
     test_mpq_class_functions();
 
     test_mpf_class_const_pi();
+    test_mpf_class_const_log2();
 
     std::cout << "All tests passed." << std::endl;
 

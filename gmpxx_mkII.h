@@ -898,7 +898,13 @@ class mpf_class {
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
     static mpf_class const_pi();
+    static mpf_class const_e();
+    static mpf_class const_log10();
+    static mpf_class const_log2();
     static void reset_pi_cache();
+    static void reset_e_cache();
+    static void reset_log10_cache();
+    static void reset_log2_cache();
 
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpf_class &operator=(const mpz_class &) = delete;
@@ -910,6 +916,9 @@ class mpf_class {
   private:
     mpf_t value;
     static mpf_class pi_cached;
+    static mpf_class e_cached;
+    static mpf_class log10_cached;
+    static mpf_class log2_cached;
 };
 mpf_class::operator mpz_class() const {
     mpz_class rop;
@@ -1176,7 +1185,7 @@ mpf_class const_pi() {
         pi_cached = mpf_class();
         calculated_pi_precision = mpf_get_default_prec();
         // calculating approximate pi using arithmetic-geometric mean
-        mpf_class one(1.0); // Second parameter sets the precision in bits
+        mpf_class one(1.0);
         mpf_class two(2.0);
         mpf_class four(4.0);
         mpf_class a(one), b(one / sqrt(two)), t(0.25), p(one);
@@ -1187,6 +1196,7 @@ mpf_class const_pi() {
 
         mpf_class epsilon = one;
         epsilon.div_2exp(_default_prec);
+
         while (!converged) {
             iteration++;
             a_next = (a + b) / two;
@@ -1211,10 +1221,53 @@ mpf_class const_pi() {
         calculated = true;
         pi_cached = tmp_pi;
     } else {
-      //      std::cout << "pi cached\n";
+        //      std::cout << "pi cached\n";
     }
     return pi_cached;
 }
+
+mpf_class log2_cached;
+mpf_class const_log2() {
+    static mpf_class log2_cached;
+    static bool calculated = false;
+    static mp_bitcnt_t calculated_log2_precision = 0;
+    mp_bitcnt_t _default_prec = mpf_get_default_prec();
+
+    if (!calculated || (calculated && calculated_log2_precision != _default_prec)) {
+        log2_cached = mpf_class();
+        calculated_log2_precision = mpf_get_default_prec();
+        // calculating approximate log2 using arithmetic-geometric mean
+        mpf_class one(1.0);
+        mpf_class two(2.0);
+        mpf_class a(one);
+        mpf_class epsilon = one;
+        epsilon.div_2exp((_default_prec / 2) - 2);
+
+        mpf_class b = epsilon;
+        mpf_class sum = one;
+        mpf_class a_next, b_next;
+        mpf_class tmp;
+
+        bool converged = false;
+
+        log2_cached = 0.0;
+        while (!converged) {
+            a_next = (a + b) / two;
+            b_next = sqrt(a * b);
+
+            // Check for convergence
+            if (abs(a - b) < epsilon) {
+                converged = true;
+            }
+            a = a_next;
+            b = b_next;
+        }
+        log2_cached = const_pi() / (mpf_class(_default_prec) * a);
+        calculated = true;
+    }
+    return log2_cached;
+}
+
 } // namespace gmp
 
 // mpf_class operator"" _mpf (const char *str)
