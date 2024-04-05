@@ -1617,7 +1617,7 @@ void test_mpf_class_const_pi() {
     const char *pi_approx = "3141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
     mpf_class calculated_pi = const_pi();
     mp_bitcnt_t prec = mpf_get_default_prec();
-    int prec_decimal_digits = floor(log10(2) * prec);
+    int prec_decimal_digits = floor(std::log10(2) * prec);
     int decimal_digits = prec_decimal_digits; // no decimal significants lost in 512bit
     mp_exp_t exp;
     std::string calculated_pi_str = calculated_pi.get_str(exp, 10, prec_decimal_digits);
@@ -1647,7 +1647,7 @@ void test_mpf_class_const_pi() {
 
     mpf_set_default_prec(prec * 2);
     prec = mpf_get_default_prec();
-    prec_decimal_digits = floor(log10(2) * prec);
+    prec_decimal_digits = floor(std::log10(2) * prec);
     decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
 
     mpf_class calculated_pi_3rd = const_pi();
@@ -1669,7 +1669,7 @@ void test_mpf_class_const_pi() {
 
     calculated_pi_str = pi_2048.get_str(exp, 10, 2048);
     match = true;
-    prec_decimal_digits = floor(log10(2) * 2048);
+    prec_decimal_digits = floor(std::log10(2) * 2048);
     decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
     for (int i = 0; i < decimal_digits; ++i) {
         if (pi_approx[i] != calculated_pi_str[i]) {
@@ -1689,7 +1689,7 @@ void test_mpf_class_const_log2() {
     mpf_class calculated_log2 = const_log2();
 
     mp_bitcnt_t prec = mpf_get_default_prec();
-    int prec_decimal_digits = floor(log10(2) * prec);
+    int prec_decimal_digits = floor(std::log10(2) * prec);
     int decimal_digits = prec_decimal_digits - 2; // two decimal digits loss
     mp_exp_t exp;
     std::string calculated_log2_str = calculated_log2.get_str(exp, 10, prec_decimal_digits);
@@ -1719,7 +1719,7 @@ void test_mpf_class_const_log2() {
 
     mpf_set_default_prec(prec * 2);
     prec = mpf_get_default_prec();
-    prec_decimal_digits = floor(log10(2) * prec);
+    prec_decimal_digits = floor(std::log10(2) * prec);
     decimal_digits = prec_decimal_digits - 1; // one decimal digit loss
     mpf_class calculated_log2_3rd = const_log2();
     calculated_log2_str = calculated_log2_3rd.get_str(exp, 10, prec_decimal_digits);
@@ -1740,7 +1740,7 @@ void test_mpf_class_const_log2() {
     log2_2048 = const_log2(2048);
     calculated_log2_str = log2_2048.get_str(exp, 10, 2048);
     match = true;
-    prec_decimal_digits = floor(log10(2) * 2048);
+    prec_decimal_digits = floor(std::log10(2) * 2048);
     decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
     for (int i = 0; i < decimal_digits; ++i) {
         if (log2_approx[i] != calculated_log2_str[i]) {
@@ -1783,10 +1783,10 @@ void test_log_mpf_class(void) {
     bool match;
 
     x = 25.0;
-
+    std::cout << "here\n";
     calculated = log(x);
     prec = mpf_get_default_prec();
-    prec_decimal_digits = floor(log10(2) * prec);
+    prec_decimal_digits = floor(std::log10(2) * prec);
     decimal_digits = prec_decimal_digits - 3;
     calculated_str = calculated.get_str(exp, 10, prec_decimal_digits);
     match = true;
@@ -1804,7 +1804,7 @@ void test_log_mpf_class(void) {
 
     calculated = log(x);
     prec = mpf_get_default_prec();
-    prec_decimal_digits = floor(log10(2) * prec);
+    prec_decimal_digits = floor(std::log10(2) * prec);
     decimal_digits = prec_decimal_digits - 2;
     calculated_str = calculated.get_str(exp, 10, prec_decimal_digits);
     match = true;
