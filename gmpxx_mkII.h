@@ -1301,7 +1301,6 @@ mpf_class const_pi(mp_bitcnt_t req_precision) {
     return calculated_pi;
 }
 #endif
-
 mpf_class log2_cached;
 mpf_class const_log2() {
     static mpf_class log2_cached;
@@ -1350,15 +1349,15 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
 
     mpf_class log2(zero);
     mpf_class epsilon(one), tmp(zero);
-    mpf_class a(one), b(zero);
+    mpf_class a(one), b(one);
     mpf_class a_next(zero), b_next(zero);
     mpf_class sum(one);
 
     bool converged = false;
 
     // calculating approximate log2 using arithmetic-geometric mean
-    epsilon.div_2exp((req_precision / 2) - 2);
-    b = epsilon;
+    b.div_2exp((req_precision / 2) - 2);
+    epsilon.div_2exp(req_precision);
 
     assert(log2.get_prec() == req_precision);
     assert(epsilon.get_prec() == req_precision);
@@ -1401,6 +1400,53 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
     return log2;
 }
 #endif
+mpf_class log(const mpf_class &x) {
+    mpf_set_default_prec(1000);
+    mp_bitcnt_t precision = mpf_get_default_prec();
+    precision = 1000;
+
+    mpf_class zero(0.0);
+    mpf_class one(1.0);
+    mpf_class two(2.0);
+    mpf_class four(4.0);
+
+    mpf_class _log(zero);
+    mpf_class epsilon(one), tmp(zero);
+    mpf_class a(one), b(one);
+    mpf_class a_next(zero), b_next(zero);
+    mpf_class s(one);
+    bool converged = false;
+
+    // calculating approximate log2 using arithmetic-geometric mean
+    b.mul_2exp(precision / 2);
+    s = b / x;
+    mp_exp_t m;
+    double d = mpf_get_d_2exp(&m, s.get_mpf_t());
+
+    b = 1.0;
+    b.mul_2exp(m);
+    s = x * b;
+
+    b = four / s;
+    epsilon.div_2exp(precision);
+    int counter = 0;
+    while (!converged) {
+        counter++;
+        a_next = (a + b) / two;
+        b_next = sqrt(a * b);
+
+        // Check for convergence
+        if (abs(a - b) < epsilon) {
+            converged = true;
+        }
+        a = a_next;
+        b = b_next;
+    }
+    _log = const_pi() / (two * b) - m * const_log2();
+    std::cout << std::setprecision(100) << _log << std::endl;
+    return _log;
+}
+
 } // namespace gmp
 
 // mpf_class operator"" _mpf (const char *str)

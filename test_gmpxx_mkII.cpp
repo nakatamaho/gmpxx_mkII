@@ -1769,6 +1769,14 @@ void test_div2exp_mul2exp_mpf_class(void) {
     std::cout << "Test passed." << std::endl;
 #endif
 }
+void test_log_mpf_class(void) {
+#if defined GMPXX_MKII
+    mpf_class x(25.0);
+    mpf_class y(0.0);
+    y = log(x);
+    std::cout << std::setprecision(100) << y << std::endl;
+#endif
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -1861,6 +1869,7 @@ int main() {
     test_mpf_class_const_pi();
     test_mpf_class_const_log2();
     test_div2exp_mul2exp_mpf_class();
+    test_log_mpf_class();
 
     std::cout << "All tests passed." << std::endl;
 
