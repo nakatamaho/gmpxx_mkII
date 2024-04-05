@@ -1401,10 +1401,7 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
 }
 #endif
 mpf_class log(const mpf_class &x) {
-    mpf_set_default_prec(1000);
     mp_bitcnt_t precision = mpf_get_default_prec();
-    precision = 1000;
-
     mpf_class zero(0.0);
     mpf_class one(1.0);
     mpf_class two(2.0);
@@ -1443,7 +1440,6 @@ mpf_class log(const mpf_class &x) {
         b = b_next;
     }
     _log = const_pi() / (two * b) - m * const_log2();
-    std::cout << std::setprecision(100) << _log << std::endl;
     return _log;
 }
 
