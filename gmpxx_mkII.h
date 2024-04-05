@@ -802,6 +802,10 @@ class mpf_class {
         mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
         mpf_div_2exp(non_const_ptr, this->get_mpf_t(), exp);
     }
+    void mul_2exp(mp_bitcnt_t exp) {
+        mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
+        mpf_mul_2exp(non_const_ptr, this->get_mpf_t(), exp);
+    }
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
     int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
@@ -1226,6 +1230,77 @@ mpf_class const_pi() {
     return pi_cached;
 }
 
+mpf_class const_pi(mp_bitcnt_t req_precision) {
+    // calculating approximate pi using arithmetic-geometric mean
+    mpf_class zero(0.0, req_precision);
+    mpf_class quarter(0.25, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class four(4.0, req_precision);
+
+    mpf_class calculated_pi(zero);
+    mpf_class a(one), b(one / sqrt(two)), t(quarter), p(one);
+    mpf_class a_next(zero), b_next(zero), t_next(zero), tmp_pi(zero), pi_previous(zero);
+    mpf_class epsilon(zero), tmp(zero);
+
+    assert(calculated_pi.get_prec() == req_precision);
+    assert(a.get_prec() == req_precision);
+    assert(b.get_prec() == req_precision);
+    assert(t.get_prec() == req_precision);
+    assert(p.get_prec() == req_precision);
+    assert(a_next.get_prec() == req_precision);
+    assert(b_next.get_prec() == req_precision);
+    assert(t_next.get_prec() == req_precision);
+    assert(tmp_pi.get_prec() == req_precision);
+    assert(pi_previous.get_prec() == req_precision);
+    assert(epsilon.get_prec() == req_precision);
+    assert(tmp.get_prec() == req_precision);
+
+    bool converged = false;
+    int iteration = 0;
+
+    epsilon = one;
+    epsilon.div_2exp(req_precision);
+    while (!converged) {
+        iteration++;
+        a_next = (a + b) / two;
+        b_next = sqrt(a * b);
+        t_next = t - p * (a - a_next) * (a - a_next);
+        p = two * p;
+
+        // Update values for the next iteration
+        a = a_next;
+        b = b_next;
+        t = t_next;
+
+        // Calculate pi
+        pi_previous = tmp_pi;
+        tmp_pi = (a + b) * (a + b) / (four * t);
+
+        // Check for convergence
+        tmp = abs(tmp_pi - pi_previous);
+        if (tmp < epsilon) {
+            converged = true;
+        }
+    }
+    calculated_pi = tmp_pi;
+
+    assert(calculated_pi.get_prec() == req_precision);
+    assert(a.get_prec() == req_precision);
+    assert(b.get_prec() == req_precision);
+    assert(t.get_prec() == req_precision);
+    assert(p.get_prec() == req_precision);
+    assert(a_next.get_prec() == req_precision);
+    assert(b_next.get_prec() == req_precision);
+    assert(t_next.get_prec() == req_precision);
+    assert(tmp_pi.get_prec() == req_precision);
+    assert(pi_previous.get_prec() == req_precision);
+    assert(epsilon.get_prec() == req_precision);
+    assert(tmp.get_prec() == req_precision);
+
+    return calculated_pi;
+}
+
 mpf_class log2_cached;
 mpf_class const_log2() {
     static mpf_class log2_cached;
@@ -1250,7 +1325,6 @@ mpf_class const_log2() {
 
         bool converged = false;
 
-        log2_cached = 0.0;
         while (!converged) {
             a_next = (a + b) / two;
             b_next = sqrt(a * b);
@@ -1266,6 +1340,64 @@ mpf_class const_log2() {
         calculated = true;
     }
     return log2_cached;
+}
+
+mpf_class const_log2(mp_bitcnt_t req_precision) {
+    mpf_class zero(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+
+    mpf_class log2(zero);
+    mpf_class epsilon(one), tmp(zero);
+    mpf_class a(one), b(zero);
+    mpf_class a_next(zero), b_next(zero);
+    mpf_class sum(one);
+
+    bool converged = false;
+
+    // calculating approximate log2 using arithmetic-geometric mean
+    epsilon.div_2exp((req_precision / 2) - 2);
+    b = epsilon;
+
+    assert(log2.get_prec() == req_precision);
+    assert(epsilon.get_prec() == req_precision);
+    assert(tmp.get_prec() == req_precision);
+    assert(sum.get_prec() == req_precision);
+    assert(a.get_prec() == req_precision);
+    assert(b.get_prec() == req_precision);
+    assert(a_next.get_prec() == req_precision);
+    assert(b_next.get_prec() == req_precision);
+    assert(one.get_prec() == req_precision);
+    assert(two.get_prec() == req_precision);
+
+    while (!converged) {
+        a_next = (a + b) / two;
+        b_next = sqrt(a * b);
+        assert(b_next.get_prec() == req_precision);
+
+        // Check for convergence
+        if (abs(a - b) < epsilon) {
+            converged = true;
+        }
+        a = a_next;
+        b = b_next;
+    }
+    log2 = const_pi(req_precision) / (mpf_class(req_precision, req_precision) * a);
+
+    assert(const_pi(req_precision).get_prec() == req_precision);
+    assert(mpf_class(req_precision, req_precision).get_prec() == req_precision);
+    assert(log2.get_prec() == req_precision);
+    assert(epsilon.get_prec() == req_precision);
+    assert(tmp.get_prec() == req_precision);
+    assert(sum.get_prec() == req_precision);
+    assert(a.get_prec() == req_precision);
+    assert(b.get_prec() == req_precision);
+    assert(a_next.get_prec() == req_precision);
+    assert(b_next.get_prec() == req_precision);
+    assert(one.get_prec() == req_precision);
+    assert(two.get_prec() == req_precision);
+
+    return log2;
 }
 
 } // namespace gmp

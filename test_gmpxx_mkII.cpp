@@ -1663,6 +1663,24 @@ void test_mpf_class_const_pi() {
     assert(match);
     std::cout << "Pi matched 3rd in " << decimal_digits << " decimal digits" << std::endl;
     mpf_set_default_prec(prec / 2);
+
+    mpf_class pi_2048(0.0, 2048);
+    pi_2048 = const_pi(2048);
+
+    calculated_pi_str = pi_2048.get_str(exp, 10, 2048);
+    match = true;
+    prec_decimal_digits = floor(log10(2) * 2048);
+    decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
+    for (int i = 0; i < decimal_digits; ++i) {
+        if (pi_approx[i] != calculated_pi_str[i]) {
+            match = false; // Set to false if any character does not match
+            std::cout << "\n" << i << "-th digit is wrong";
+            break;
+        }
+    }
+    assert(match);
+    std::cout << "Pi matched 4th in " << decimal_digits << " decimal digits" << std::endl;
+
 #endif
 }
 void test_mpf_class_const_log2() {
@@ -1717,6 +1735,39 @@ void test_mpf_class_const_log2() {
     assert(match);
     std::cout << "log2 matched 3rd in " << decimal_digits << " decimal digits" << std::endl;
     mpf_set_default_prec(prec / 2);
+
+    mpf_class log2_2048(0.0, 2048);
+    log2_2048 = const_log2(2048);
+
+    calculated_log2_str = log2_2048.get_str(exp, 10, 2048);
+    match = true;
+    prec_decimal_digits = floor(log10(2) * 2048);
+    decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
+    for (int i = 0; i < decimal_digits; ++i) {
+        if (log2_approx[i] != calculated_log2_str[i]) {
+            match = false; // Set to false if any character does not match
+            std::cout << "\n" << i << "-th digit is wrong";
+            break;
+        }
+    }
+    assert(match);
+    std::cout << "Log2 matched 4th in " << decimal_digits << " decimal digits" << std::endl;
+
+#endif
+}
+void test_div2exp_mul2exp_mpf_class(void) {
+#if defined GMPXX_MKII
+    mpf_class value(2.0);
+
+    value.div_2exp(1); // value should now be 1.0
+    assert(value == mpf_class(1.0));
+    std::cout << "After div_2exp: " << value << std::endl;
+
+    value.mul_2exp(1); // value should now be back to 2.0
+    assert(value == mpf_class(2.0));
+    std::cout << "After mul_2exp: " << value << std::endl;
+
+    std::cout << "Test passed." << std::endl;
 #endif
 }
 int main() {
@@ -1810,6 +1861,7 @@ int main() {
 
     test_mpf_class_const_pi();
     test_mpf_class_const_log2();
+    test_div2exp_mul2exp_mpf_class();
 
     std::cout << "All tests passed." << std::endl;
 
