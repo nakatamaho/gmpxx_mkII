@@ -1401,18 +1401,20 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
 }
 #endif
 mpf_class log(const mpf_class &x) {
-    mp_bitcnt_t precision = mpf_get_default_prec();
-    mp_exp_t m;
-    mpf_class zero(0.0);
-    mpf_class one(1.0);
-    mpf_class two(2.0);
-    mpf_class four(4.0);
+    mp_bitcnt_t precision = x.get_prec();
+
+    mpf_class zero(0.0, precision);
+    mpf_class one(1.0, precision);
+    mpf_class two(2.0, precision);
+    mpf_class four(4.0, precision);
 
     mpf_class _log(zero);
     mpf_class epsilon(one), tmp(zero);
     mpf_class a(one), b(one);
     mpf_class a_next(zero), b_next(zero);
     mpf_class s(one);
+
+    mp_exp_t m;
     bool converged = false;
 
     // calculating approximate log2 using arithmetic-geometric mean
