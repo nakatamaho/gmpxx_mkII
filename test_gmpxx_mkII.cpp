@@ -1663,7 +1663,7 @@ void test_mpf_class_const_pi() {
     assert(match);
     std::cout << "Pi matched 3rd in " << decimal_digits << " decimal digits" << std::endl;
     mpf_set_default_prec(prec / 2);
-
+#if !defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class pi_2048(0.0, 2048);
     pi_2048 = const_pi(2048);
 
@@ -1680,7 +1680,7 @@ void test_mpf_class_const_pi() {
     }
     assert(match);
     std::cout << "Pi matched 4th in " << decimal_digits << " decimal digits" << std::endl;
-
+#endif
 #endif
 }
 void test_mpf_class_const_log2() {
@@ -1735,10 +1735,9 @@ void test_mpf_class_const_log2() {
     assert(match);
     std::cout << "log2 matched 3rd in " << decimal_digits << " decimal digits" << std::endl;
     mpf_set_default_prec(prec / 2);
-
+#if !defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class log2_2048(0.0, 2048);
     log2_2048 = const_log2(2048);
-
     calculated_log2_str = log2_2048.get_str(exp, 10, 2048);
     match = true;
     prec_decimal_digits = floor(log10(2) * 2048);
@@ -1752,7 +1751,7 @@ void test_mpf_class_const_log2() {
     }
     assert(match);
     std::cout << "Log2 matched 4th in " << decimal_digits << " decimal digits" << std::endl;
-
+#endif
 #endif
 }
 void test_div2exp_mul2exp_mpf_class(void) {

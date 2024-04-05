@@ -1229,7 +1229,7 @@ mpf_class const_pi() {
     }
     return pi_cached;
 }
-
+#if !defined __GMPXX_MKII_NOPRECCHANGE__
 mpf_class const_pi(mp_bitcnt_t req_precision) {
     // calculating approximate pi using arithmetic-geometric mean
     mpf_class zero(0.0, req_precision);
@@ -1300,6 +1300,7 @@ mpf_class const_pi(mp_bitcnt_t req_precision) {
 
     return calculated_pi;
 }
+#endif
 
 mpf_class log2_cached;
 mpf_class const_log2() {
@@ -1341,7 +1342,7 @@ mpf_class const_log2() {
     }
     return log2_cached;
 }
-
+#if !defined __GMPXX_MKII_NOPRECCHANGE__
 mpf_class const_log2(mp_bitcnt_t req_precision) {
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
@@ -1399,7 +1400,7 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
 
     return log2;
 }
-
+#endif
 } // namespace gmp
 
 // mpf_class operator"" _mpf (const char *str)
