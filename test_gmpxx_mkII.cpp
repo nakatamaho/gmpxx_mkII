@@ -1880,9 +1880,6 @@ void test_exp_mpf_class(void) {
 
     _calculated_str = calculated.get_str(exp, 10, decimal_digits);
     calculated_str = insertDecimalPoint(_calculated_str, exp);
-    std::cout << _calculated_str << std::endl;
-    std::cout << calculated_str << std::endl;
-    std::cout << exp0_approx << std::endl;
     if (exp0_approx[0] == calculated_str[0]) {
         std::cout << "exp0 matched" << std::endl;
     } else {
