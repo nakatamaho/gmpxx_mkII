@@ -1231,7 +1231,7 @@ mpf_class const_pi() {
 }
 mpf_class const_pi(mp_bitcnt_t req_precision) {
 #if defined __GMPXX_MKII_NOPRECCHANGE__
-    assert(req_precision != mpf_get_default_prec() && "const pi");
+    assert(req_precision != mpf_get_default_prec() && __FUNCTION__);
 #endif
     // calculating approximate pi using arithmetic-geometric mean
     mpf_class zero(0.0, req_precision);
@@ -1482,7 +1482,7 @@ mpf_class exp(const mpf_class &x) {
 #endif
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
-    mpf_class _exp(zero);
+    mpf_class _exp(one);
     mpf_class _x(x);
     mpf_class r(zero);
     mpf_class _pi(const_pi(req_precision));
@@ -1492,17 +1492,20 @@ mpf_class exp(const mpf_class &x) {
     // calculating approximate exp
     // taking modulo of log2
     mpf_get_d_2exp(&k, _x.get_mpf_t());
-    _x.div_2exp(k);    // 0.5<= x <1
-    _log2.div_2exp(k); // log2/2 = 0.346574
-
-    n = floor(_x / _log2).get_si();
-    r = _x - n * _log2;
-    l = req_precision / k;
-    _exp = _x;
+    if (k > 0) {
+        _x.div_2exp(k);    // 0.5<= x <1
+        _log2.div_2exp(k); // log2/2 = 0.346574
+        n = floor(_x / _log2).get_si();
+        r = _x - n * _log2;
+        l = req_precision / k;
+    } else {
+        k = 0;
+        l = req_precision;
+    }
     for (int i = l; i > 0; i--) {
         _exp = one + ((_x * _exp) / mpf_class(i, req_precision));
     }
-    for (int i = 0; i < k; ++i) {
+    for (int i = 0; i < k; i++) {
         _exp = _exp * _exp;
     }
     return _exp;
