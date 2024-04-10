@@ -1498,6 +1498,12 @@ mpf_class exp(const mpf_class &x) {
         n = floor(_x / _log2).get_si();
         r = _x - n * _log2;
         l = req_precision / k;
+    } else if (k > 0 && x < zero) {
+        _x.div_2exp(k);    // 0.5<= x <1
+        _log2.div_2exp(k); // log2/2 = 0.346574
+        n = floor(_x / _log2).get_si();
+        r = _x - n * _log2;
+        l = req_precision / k;
     } else {
         k = 0;
         l = req_precision;
@@ -1510,7 +1516,10 @@ mpf_class exp(const mpf_class &x) {
     for (int i = 0; i < k; i++) {
         _exp = _exp * _exp;
     }
-    _exp.mul_2exp(n);
+    if (n > 0)
+        _exp.mul_2exp(n);
+    if (n < 0)
+        _exp.div_2exp(-n);
     return _exp;
 }
 
