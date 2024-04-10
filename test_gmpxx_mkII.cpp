@@ -1674,26 +1674,23 @@ void test_mpf_class_const_pi() {
     }
     std::cout << "Pi matched 3rd in " << i - 1 << " decimal digits" << std::endl;
     assert(i - 1 > decimal_digits - 2 && "not accurate");
-    /*
 #if !defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class pi_2048(0.0, 2048);
     pi_2048 = const_pi(2048);
+    decimal_digits = floor(std::log10(2) * 2048);
 
-    calculated_pi_str = pi_2048.get_str(exp, 10, 2048);
-    match = true;
-    prec_decimal_digits = floor(std::log10(2) * 2048);
-    decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
-    for (int i = 0; i < decimal_digits; ++i) {
+    _calculated_pi_str = pi_2048.get_str(exp, 10, decimal_digits);
+    calculated_pi_str = insertDecimalPoint(_calculated_pi_str, exp);
+
+    for (i = 0; i < decimal_digits; ++i) {
         if (pi_approx[i] != calculated_pi_str[i]) {
-            match = false; // Set to false if any character does not match
-            std::cout << "\n" << i << "-th digit is wrong";
             break;
         }
     }
-    assert(match);
-    std::cout << "Pi matched 4th in " << decimal_digits << " decimal digits" << std::endl;
+    std::cout << "Pi matched 4th in " << i - 1 << " decimal digits" << std::endl;
+    assert(i - 1 > decimal_digits - 2 && "not accurate");
 #endif
-    */
+
 #endif
 }
 void test_mpf_class_const_log2() {
