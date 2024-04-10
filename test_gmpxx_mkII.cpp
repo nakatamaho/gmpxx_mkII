@@ -1690,78 +1690,74 @@ void test_mpf_class_const_pi() {
     std::cout << "Pi matched 4th in " << i - 1 << " decimal digits" << std::endl;
     assert(i - 1 > decimal_digits - 2 && "not accurate");
 #endif
-
+    mpf_set_default_prec(prec / 2);
 #endif
 }
 void test_mpf_class_const_log2() {
 #if defined GMPXX_MKII
-    const char *log2_approx = "6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875420014810205706857336855202357581305570326707516350759619307275708283714351903070386238916734711233501153644979552391204751726815749320651555247341395258829504530070953263666426541042391578149520437404303855008019441706416715186447128399681717845469570262716310645461502572074024816377733896385506952606683411372738737229289564935470257626520988596932019650585547647033067936544325476327449512504060694381471046899465062201677204245245296126879465461931651746813926725041038025462596568691441928716082938031727143677826548775664850856740776484514644399404614226031930967354025744460703080960850474866385231381816767514386674766478908814371419854942315199735488037516586127535291661000710535582498794147295092931138971559982056543928717000721808576102523688921324497138932037843935308877482597017155910708823683627589842589185353024363421436706118923678919237231467232172053401649256872747782344535348";
+    // https://www.wolframalpha.com/input?i=N%5Bln%282%29%2C+1000%5D
+    const char *log2_approx = "0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875420014810205706857336855202357581305570326707516350759619307275708283714351903070386238916734711233501153644979552391204751726815749320651555247341395258829504530070953263666426541042391578149520437404303855008019441706416715186447128399681717845469570262716310645461502572074024816377733896385506952606683411372738737229289564935470257626520988596932019650585547647033067936544325476327449512504060694381471046899465062201677204245245296126879465461931651746813926725041038025462596568691441928716082938031727143677826548775664850856740776484514644399404614226031930967354025744460703080960850474866385231381816767514386674766478908814371419854942315199735488037516586127535291661000710535582498794147295092931138971559982056543928717000721808576102523688921324497138932037843935308877482597017155910708823683627589842589185353024363421436706118923678919237231467232172053401649256872747782344535348";
     mpf_class calculated_log2 = const_log2();
-
     mp_bitcnt_t prec = mpf_get_default_prec();
-    int prec_decimal_digits = floor(std::log10(2) * prec);
-    int decimal_digits = prec_decimal_digits - 2; // two decimal digits loss
+    int decimal_digits = floor(std::log10(2) * prec);
     mp_exp_t exp;
-    std::string calculated_log2_str = calculated_log2.get_str(exp, 10, prec_decimal_digits);
+    std::string _calculated_log2_str = calculated_log2.get_str(exp, 10, decimal_digits);
+    std::string calculated_log2_str = insertDecimalPoint(_calculated_log2_str, exp);
 
-    bool match = true;
-    for (int i = 0; i < decimal_digits; ++i) {
+    int i;
+    for (i = 0; i < decimal_digits; ++i) {
         if (log2_approx[i] != calculated_log2_str[i]) {
-            match = false; // Set to false if any character does not match
-            std::cout << "log2 not matched in " << i << " decimal digits" << std::endl;
             break;
         }
     }
-    assert(match);
-    std::cout << "log2 matched in " << decimal_digits << " decimal digits" << std::endl;
+    std::cout << "log2 matched in " << i - 1 << " decimal digits" << std::endl;
+    assert(i - 1 > decimal_digits - 2 && "not accurate");
+
     mpf_class calculated_log2_2nd = const_log2();
-    calculated_log2_str = calculated_log2_2nd.get_str(exp, 10, prec_decimal_digits);
-    match = true;
-    for (int i = 0; i < decimal_digits; ++i) {
+
+    _calculated_log2_str = calculated_log2_2nd.get_str(exp, 10, decimal_digits);
+    calculated_log2_str = insertDecimalPoint(_calculated_log2_str, exp);
+    for (i = 0; i < decimal_digits; ++i) {
         if (log2_approx[i] != calculated_log2_str[i]) {
-            match = false; // Set to false if any character does not match
-            std::cout << "\n" << i << "-th digit is wrong";
             break;
         }
     }
-    assert(match);
-    std::cout << "log2 matched 2nd in " << decimal_digits << " decimal digits (cached)" << std::endl;
+    std::cout << "log2 matched 2nd in " << i - 1 << " decimal digits (cached)" << std::endl;
+    assert(i - 1 > decimal_digits - 2 && "not accurate");
 
     mpf_set_default_prec(prec * 2);
     prec = mpf_get_default_prec();
-    prec_decimal_digits = floor(std::log10(2) * prec);
-    decimal_digits = prec_decimal_digits - 1; // one decimal digit loss
-    mpf_class calculated_log2_3rd = const_log2();
-    calculated_log2_str = calculated_log2_3rd.get_str(exp, 10, prec_decimal_digits);
+    decimal_digits = floor(std::log10(2) * prec);
 
-    match = true;
-    for (int i = 0; i < decimal_digits; ++i) {
+    mpf_class calculated_log2_3rd = const_log2();
+
+    _calculated_log2_str = calculated_log2_3rd.get_str(exp, 10, decimal_digits);
+    calculated_log2_str = insertDecimalPoint(_calculated_log2_str, exp);
+
+    for (i = 0; i < decimal_digits; ++i) {
         if (log2_approx[i] != calculated_log2_str[i]) {
-            match = false; // Set to false if any character does not match
-            std::cout << "\n" << i << "-th digit is wrong";
             break;
         }
     }
-    assert(match);
-    std::cout << "log2 matched 3rd in " << decimal_digits << " decimal digits" << std::endl;
-    mpf_set_default_prec(prec / 2);
+    std::cout << "log2 matched 3rd in " << i - 1 << " decimal digits" << std::endl;
+    assert(i - 1 > decimal_digits - 2 && "not accurate");
 #if !defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class log2_2048(0.0, 2048);
     log2_2048 = const_log2(2048);
-    calculated_log2_str = log2_2048.get_str(exp, 10, 2048);
-    match = true;
-    prec_decimal_digits = floor(std::log10(2) * 2048);
-    decimal_digits = prec_decimal_digits - 1; // one decimal significant lost in 1024bit
-    for (int i = 0; i < decimal_digits; ++i) {
+    decimal_digits = floor(std::log10(2) * 2048);
+
+    _calculated_log2_str = log2_2048.get_str(exp, 10, decimal_digits);
+    calculated_log2_str = insertDecimalPoint(_calculated_log2_str, exp);
+
+    for (i = 0; i < decimal_digits; ++i) {
         if (log2_approx[i] != calculated_log2_str[i]) {
-            match = false; // Set to false if any character does not match
-            std::cout << "\n" << i << "-th digit is wrong";
             break;
         }
     }
-    assert(match);
-    std::cout << "Log2 matched 4th in " << decimal_digits << " decimal digits" << std::endl;
+    std::cout << "log2 matched 4th in " << i - 1 << " decimal digits" << std::endl;
+    assert(i - 1 > decimal_digits - 2 && "not accurate");
 #endif
+    mpf_set_default_prec(prec / 2);
 #endif
 }
 void test_div2exp_mul2exp_mpf_class(void) {
