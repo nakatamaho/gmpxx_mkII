@@ -1493,13 +1493,13 @@ mpf_class exp(const mpf_class &x) {
     // taking modulo of log2
     mpf_get_d_2exp(&k, _x.get_mpf_t());
     if (k > 0 && x > zero) {
-        _x.div_2exp(k);    // 0.5<= x <1
+        _x.div_2exp(k);    // 0.5 <= x < 1
         _log2.div_2exp(k); // log2/2 = 0.346574
         n = floor(_x / _log2).get_si();
         r = _x - n * _log2;
         l = req_precision / k;
     } else if (k > 0 && x < zero) {
-        _x.div_2exp(k);    // 0.5<= x <1
+        _x.div_2exp(k);    // -1 < x <= -0.5
         _log2.div_2exp(k); // log2/2 = 0.346574
         n = floor(_x / _log2).get_si();
         r = _x - n * _log2;
