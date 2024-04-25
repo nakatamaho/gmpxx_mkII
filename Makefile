@@ -17,7 +17,7 @@ OBJECTS_NOPRECCHANGE = $(SOURCES:.cpp=_noprecchange.o)
 OBJECTS_MKIISR = $(SOURCES:.cpp=_mkiisr.o)
 
 BENCHMARKS_DIR = benchmarks/00_inner_product
-BENCHMARKS = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
+BENCHMARKS = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp inner_product_gmp_12_mpblas)
 
 all: $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(BENCHMARKS)
 
@@ -49,7 +49,7 @@ $(BENCHMARKS_DIR)/%: $(BENCHMARKS_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
 
 clean:
-	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_NOPRECCHANGE) $(OBJECTS_MKIISR) *~
+	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_NOPRECCHANGE) $(OBJECTS_MKIISR) $(BENCHMARKS) *~
 
 check:
 	./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_NOPRECCHANGE) ./$(TARGET_MKIISR)
