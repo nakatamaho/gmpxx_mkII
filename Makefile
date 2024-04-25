@@ -17,7 +17,7 @@ OBJECTS_NOPRECCHANGE = $(SOURCES:.cpp=_noprecchange.o)
 OBJECTS_MKIISR = $(SOURCES:.cpp=_mkiisr.o)
 
 BENCHMARKS_DIR = benchmarks/00_inner_product
-BENCHMARKS = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive)
+BENCHMARKS = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
 
 all: $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(BENCHMARKS)
 
