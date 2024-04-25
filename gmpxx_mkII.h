@@ -1489,6 +1489,7 @@ mpf_class exp(const mpf_class &x) {
     mpf_class _log2(const_log2(req_precision));
     mp_exp_t k = 0, l = 0, n = 0;
 
+    if (_x < 0) _x = -_x;
     // calculating approximate exp
     // taking modulo of log2
     mpf_get_d_2exp(&k, _x.get_mpf_t());
