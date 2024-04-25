@@ -925,14 +925,16 @@ class mpf_class {
     static mpf_class log2_cached;
 };
 mpf_class::operator mpz_class() const {
-    mpz_class rop;
-    mpz_set_f(*const_cast<mpz_t *>(rop._get_mpz_t()), this->get_mpf_t());
-    return rop;
+    //    mpz_class rop;
+    //    mpz_set_f(*const_cast<mpz_t *>(rop._get_mpz_t()), this->get_mpf_t());
+    //    return rop;
+    return mpz_class(this->get_mpf_t());
 }
 mpz_class::operator mpf_class() const {
-    mpf_class rop;
-    mpf_set_z(*const_cast<mpf_t *>(rop._get_mpf_t()), this->get_mpz_t());
-    return rop;
+    //    mpf_class rop;
+    //    mpf_set_z(*const_cast<mpf_t *>(rop._get_mpf_t()), this->get_mpz_t());
+    //    return rop;
+    return mpf_class(this->get_mpz_t());
 }
 inline mp_bitcnt_t largerprec(const mpf_class &lhs, const mpf_class &rhs) {
     mp_bitcnt_t prec1 = lhs.get_prec(), prec2 = rhs.get_prec();
@@ -1489,7 +1491,8 @@ mpf_class exp(const mpf_class &x) {
     mpf_class _log2(const_log2(req_precision));
     mp_exp_t k = 0, l = 0, n = 0;
 
-    if (x < zero) _x = -_x; //avoid cancellation of significant digits
+    if (x < zero)
+        _x = -_x; // avoid cancellation of significant digits
     // calculating approximate exp
     // taking modulo of log2
     mpf_get_d_2exp(&k, _x.get_mpf_t());
@@ -1515,7 +1518,8 @@ mpf_class exp(const mpf_class &x) {
         _exp.mul_2exp(n);
     if (n < 0)
         _exp.div_2exp(-n);
-    if (x < zero) _exp = one / _exp; //avoid cancellation of significant digits
+    if (x < zero)
+        _exp = one / _exp; // avoid cancellation of significant digits
     return _exp;
 }
 
