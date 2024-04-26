@@ -703,6 +703,10 @@ class mpf_class {
         mpf_init(value);
         mpf_swap(value, op.value);
     }
+    mpf_class(const mpz_t op) {
+        mpf_init(value);
+        mpf_set_z(value, op);
+    }
     // mpf_class::mpf_class (type op, mp_bitcnt_t prec)
     mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
         mpf_init2(value, prec);
@@ -924,18 +928,8 @@ class mpf_class {
     static mpf_class log10_cached;
     static mpf_class log2_cached;
 };
-mpf_class::operator mpz_class() const {
-    mpz_class rop;
-    mpz_set_f(*const_cast<mpz_t *>(rop._get_mpz_t()), this->get_mpf_t());
-    return rop;
-    // return mpz_class(this->get_mpf_t());
-}
-mpz_class::operator mpf_class() const {
-    mpf_class rop;
-    mpf_set_z(*const_cast<mpf_t *>(rop._get_mpf_t()), this->get_mpz_t());
-    return rop;
-    // return mpf_class(this->get_mpz_t());
-}
+mpf_class::operator mpz_class() const { return mpz_class(this->get_mpf_t()); }
+mpz_class::operator mpf_class() const { return mpf_class(this->get_mpz_t()); }
 inline mp_bitcnt_t largerprec(const mpf_class &lhs, const mpf_class &rhs) {
     mp_bitcnt_t prec1 = lhs.get_prec(), prec2 = rhs.get_prec();
     return (prec1 > prec2) ? prec1 : prec2;
@@ -1525,16 +1519,15 @@ mpf_class exp(const mpf_class &x) {
 
 } // namespace gmp
 
-// in the manual, the following functions are avilable, but actually not.
 // mpf_class operator"" _mpf (const char *str)
 // mpz_class operator"" _mpz (const char *str)
 // mpq_class operator"" _mpq (const char *str)
-// cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
-// "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
-
 gmp::mpz_class operator"" _mpz(unsigned long long int val) { return gmp::mpz_class(static_cast<unsigned long int>(val)); }
 gmp::mpq_class operator"" _mpq(unsigned long long int val) { return gmp::mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
 gmp::mpf_class operator"" _mpf(long double val) { return gmp::mpf_class(static_cast<double>(val)); }
+// in the manual, the following functions are avilable, but actually not.
+// cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
+// "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
 gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
 gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpq_class(str); }
