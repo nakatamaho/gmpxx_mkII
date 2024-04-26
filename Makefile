@@ -1,7 +1,7 @@
 CXX = g++-12
 CXXFLAGS = -Wall -Wextra
 LDFLAGS = -L/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib -lgmp
-INCLUDES = -I/home/docker/gmpxx_mkII/i/GMP-6.3.0/include
+INCLUDES = -I/home/docker/gmpxx_mkII/i/GMP-6.3.0/include -I/home/docker/gmpxx_mkII/
 RPATH_FLAGS = -Wl,-rpath,/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib
 
 TARGET = test_gmpxx_mkII
@@ -17,9 +17,10 @@ OBJECTS_NOPRECCHANGE = $(SOURCES:.cpp=_noprecchange.o)
 OBJECTS_MKIISR = $(SOURCES:.cpp=_mkiisr.o)
 
 BENCHMARKS_DIR = benchmarks/00_inner_product
-BENCHMARKS = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp inner_product_gmp_12_mpblas)
+BENCHMARKS0 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
+BENCHMARKS1 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_12_mpblas inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_mkIISR)
 
-all: $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(BENCHMARKS)
+all: $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(BENCHMARKS0) $(BENCHMARKS1)
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -D___GMPXX_STRICT_COMPATIBILITY___ -DGMPXX_MKII -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RPATH_FLAGS)
@@ -48,10 +49,19 @@ $(OBJECTS_MKIISR): $(SOURCES) $(HEADERS)
 $(BENCHMARKS_DIR)/%: $(BENCHMARKS_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
 
-clean:
-	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_NOPRECCHANGE) $(OBJECTS_MKIISR) $(BENCHMARKS) *~
+$(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas: $(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
+
+$(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas_mkII: $(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -D___GMPXX_STRICT_COMPATIBILITY___ -DGMPXX_MKII -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas_mkIISR: $(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -D__GMPXX_MKII_NOPRECCHANGE__ -DGMPXX_MKII -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 check:
 	./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_NOPRECCHANGE) ./$(TARGET_MKIISR)
+
+clean:
+	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_NOPRECCHANGE) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_NOPRECCHANGE) $(OBJECTS_MKIISR) $(BENCHMARKS0) $(BENCHMARKS1) *~
 
 .PHONY: all clean check

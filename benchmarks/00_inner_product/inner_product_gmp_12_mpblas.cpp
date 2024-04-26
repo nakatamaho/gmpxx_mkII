@@ -1,7 +1,17 @@
 #include <iostream>
 #include <chrono>
 #include <gmp.h>
+#include <cstring>
+
+#if defined GMPXX_MKII
+#include "gmpxx_mkII.h"
+#else
 #include <gmpxx.h>
+#endif
+
+#if defined GMPXX_MKII
+using namespace gmp;
+#endif
 
 gmp_randstate_t state;
 

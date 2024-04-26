@@ -33,6 +33,7 @@
 #include <gmp.h>
 #include <iostream>
 #include <utility>
+#include <cassert>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
