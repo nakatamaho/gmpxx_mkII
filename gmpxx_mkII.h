@@ -286,7 +286,6 @@ class mpz_class {
     mpz_class &operator=(const mpf_class &) = delete;
 #endif
     operator mpf_class() const;
-    mpz_t *_get_mpz_t() { return &value; }
     mpz_srcptr get_mpz_t() const { return value; }
 
   private:
@@ -593,7 +592,6 @@ class mpq_class {
     // istream& operator>> (istream& stream, mpq_class& rop)
     friend std::ostream &operator<<(std::ostream &os, const mpq_class &m);
     friend std::istream &operator>>(std::istream &stream, mpq_class &rop);
-    mpq_t *_get_mpq_t() { return &value; }
     mpq_srcptr get_mpq_t() const { return value; }
 
   private:
@@ -918,7 +916,6 @@ class mpf_class {
     mpf_class &operator=(const mpz_class &) = delete;
 #endif
     operator mpz_class() const;
-    mpf_t *_get_mpf_t() { return &value; }
     mpf_srcptr get_mpf_t() const { return value; }
 
   private:

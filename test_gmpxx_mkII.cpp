@@ -1980,7 +1980,20 @@ void test_exp_mpf_class(void) {
 
 #endif
 }
+void test_casts() {
+    mpf_class a0("4.5");
+    mpz_class b0;
+    const char *expectedValue0 = "4";
+    b0 = mpz_class(a0);
+    assert(Is_mpz_class_Equals(b0, expectedValue0));
 
+    mpf_class a1;
+    mpz_class b1(3000);
+    const char *expectedValue1 = "3000.0000000000";
+    a1 = mpf_class(b1);
+    assert(Is_mpf_class_Equals(a1, expectedValue1));
+    std::cout << "Copy constructor test passed." << std::endl;
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -2075,6 +2088,9 @@ int main() {
     test_div2exp_mul2exp_mpf_class();
     test_log_mpf_class();
     test_exp_mpf_class();
+
+    // mpf_class, mpz_class, mpq_class cast
+    test_casts();
 
     std::cout << "All tests passed." << std::endl;
 
