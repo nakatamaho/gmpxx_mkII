@@ -285,7 +285,9 @@ class mpz_class {
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpz_class &operator=(const mpf_class &) = delete;
 #endif
+
     operator mpf_class() const;
+    operator mpq_class() const;
     mpz_srcptr get_mpz_t() const { return value; }
 
   private:
@@ -466,7 +468,10 @@ class mpq_class {
     // constructor
     mpq_class() { mpq_init(value); }   // default constructor
     ~mpq_class() { mpq_clear(value); } // The rule 3 of 5 default deconstructor
-
+    explicit mpq_class(const mpq_t q) {
+        mpq_init(value);
+        mpq_set(value, q);
+    }
     mpq_class(const mpq_class &op) { // The rule 1 of 5 copy constructor
                                      // std::cout << "The rule 1 of 5 copy constructor\n" ;
         mpq_init(value);
@@ -505,6 +510,10 @@ class mpq_class {
             std::cerr << "Error initializing mpq_class from std::string: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpq_class with given string.");
         }
+    }
+    mpq_class(const mpz_t op) {
+        mpq_init(value);
+        mpq_set_z(value, op);
     }
     mpq_class(unsigned long int op1, unsigned long int op2) {
         mpq_init(value);
@@ -592,6 +601,9 @@ class mpq_class {
     // istream& operator>> (istream& stream, mpq_class& rop)
     friend std::ostream &operator<<(std::ostream &os, const mpq_class &m);
     friend std::istream &operator>>(std::istream &stream, mpq_class &rop);
+
+    operator mpf_class() const;
+    operator mpz_class() const;
     mpq_srcptr get_mpq_t() const { return value; }
 
   private:
@@ -704,6 +716,10 @@ class mpf_class {
     mpf_class(const mpz_t op) {
         mpf_init(value);
         mpf_set_z(value, op);
+    }
+    mpf_class(const mpq_t op) {
+        mpf_init(value);
+        mpf_set_q(value, op);
     }
     // mpf_class::mpf_class (type op, mp_bitcnt_t prec)
     mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
@@ -920,13 +936,20 @@ class mpf_class {
 
   private:
     mpf_t value;
+
     static mpf_class pi_cached;
     static mpf_class e_cached;
     static mpf_class log10_cached;
     static mpf_class log2_cached;
 };
+// casts
+// mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); } should't exist, as it is not well defined.
 mpf_class::operator mpz_class() const { return mpz_class(this->get_mpf_t()); }
 mpz_class::operator mpf_class() const { return mpf_class(this->get_mpz_t()); }
+mpq_class::operator mpf_class() const { return mpf_class(this->get_mpq_t()); }
+mpz_class::operator mpq_class() const { return mpq_class(this->get_mpz_t()); }
+mpq_class::operator mpz_class() const { return mpz_class(this->get_mpq_t()); }
+
 inline mp_bitcnt_t largerprec(const mpf_class &lhs, const mpf_class &rhs) {
     mp_bitcnt_t prec1 = lhs.get_prec(), prec2 = rhs.get_prec();
     return (prec1 > prec2) ? prec1 : prec2;

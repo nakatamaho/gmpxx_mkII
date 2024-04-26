@@ -1981,18 +1981,42 @@ void test_exp_mpf_class(void) {
 #endif
 }
 void test_casts() {
+    // mpf_class -> mpz_class
     mpf_class a0("4.5");
     mpz_class b0;
     const char *expectedValue0 = "4";
     b0 = mpz_class(a0);
     assert(Is_mpz_class_Equals(b0, expectedValue0));
 
+    // mpz_class -> mpf_class
     mpf_class a1;
     mpz_class b1(3000);
     const char *expectedValue1 = "3000.0000000000";
     a1 = mpf_class(b1);
     assert(Is_mpf_class_Equals(a1, expectedValue1));
-    std::cout << "Copy constructor test passed." << std::endl;
+
+    // mpq_class -> mpf_class
+    mpf_class a2;
+    mpq_class b2("3000/13");
+    const char *expectedValue2 = "230.7692307692";
+    a2 = mpf_class(b2);
+    assert(Is_mpf_class_Equals(a2, expectedValue2, true));
+
+    // mpz_class -> mpq_class
+    mpz_class a3("3153");
+    mpq_class b3;
+    const char *expectedValue3 = "3153";
+    b3 = mpq_class(a3);
+    assert(Is_mpq_class_Equals(b3, expectedValue3, true));
+
+    // mpq_class -> mpz_class
+    mpz_class a4;
+    mpq_class b4("3000/13");
+    const char *expectedValue4 = "230";
+    a4 = mpz_class(b4);
+    assert(Is_mpz_class_Equals(a4, expectedValue4, true));
+
+    std::cout << "Cast tests passed." << std::endl;
 }
 int main() {
 #if !defined GMPXX_MKII
