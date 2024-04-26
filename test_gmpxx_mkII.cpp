@@ -1820,7 +1820,7 @@ void test_div2exp_mul2exp_mpf_class(void) {
     assert(value == mpf_class(2.0));
     std::cout << "After mul_2exp: " << value << std::endl;
 
-    std::cout << "Test passed." << std::endl;
+    std::cout << "div_2exp mul_2exp test passed." << std::endl;
 #endif
 }
 void test_log_mpf_class(void) {

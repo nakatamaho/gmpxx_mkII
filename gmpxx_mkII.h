@@ -1248,7 +1248,7 @@ mpf_class const_pi() {
 }
 mpf_class const_pi(mp_bitcnt_t req_precision) {
 #if defined __GMPXX_MKII_NOPRECCHANGE__
-    assert(req_precision != mpf_get_default_prec() && __FUNCTION__);
+    assert(req_precision == mpf_get_default_prec());
 #endif
     // calculating approximate pi using arithmetic-geometric mean
     mpf_class zero(0.0, req_precision);
@@ -1362,7 +1362,7 @@ mpf_class const_log2() {
 }
 mpf_class const_log2(mp_bitcnt_t req_precision) {
 #if defined __GMPXX_MKII_NOPRECCHANGE__
-    assert(req_precision != mpf_get_default_prec() && __FUNCTION__);
+    assert(req_precision == mpf_get_default_prec());
 #endif
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
@@ -1423,7 +1423,7 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
 mpf_class log(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined __GMPXX_MKII_NOPRECCHANGE__
-    assert(req_precision != mpf_get_default_prec() && __FUNCTION__);
+    assert(req_precision == mpf_get_default_prec());
 #endif
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
@@ -1495,7 +1495,7 @@ mpf_class exp(const mpf_class &x) {
     // https://www.mpfr.org/algorithms.pdf section 4.4
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined __GMPXX_MKII_NOPRECCHANGE__
-    assert(req_precision != mpf_get_default_prec() && __FUNCTION__);
+    assert(req_precision == mpf_get_default_prec());
 #endif
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
