@@ -655,20 +655,31 @@ void test_mpf_class_constructor_with_mpf() {
     std::cout << "Constructor tests passed." << std::endl;
 }
 void test_mpf_class_literal() {
-#ifdef GMPXX_MKII
     // Using the user-defined literal to create mpf_class objects
-    mpf_class num1 = "3.14159"_mpf;
-    mpf_class num2 = "2.71828"_mpf;
-    mpf_class num3 = "0.0"_mpf;
-    mpf_class num4 = "-123.456"_mpf;
+    mpf_class num1 = 3.14159_mpf;
+    mpf_class num2 = 2.71828_mpf;
+    mpf_class num3 = 0.0_mpf;
+    mpf_class num4 = -123.456_mpf;
 
     assert(Is_mpf_class_Equals(num1, "3.1415900000"));
     assert(Is_mpf_class_Equals(num2, "2.7182800000"));
     assert(Is_mpf_class_Equals(num3, "0.0000000000"));
     assert(Is_mpf_class_Equals(num4, "-123.4560000000"));
 
-    std::cout << "User-defined literal tests for mpf_class passed." << std::endl;
+#if defined GMPXX_MKII
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    mpf_class num5 = "2.23606"_mpf;
+    mpf_class num6 = "1.73205"_mpf;
+    mpf_class num7 = "8888.0"_mpf;
+    mpf_class num8 = "-456.123"_mpf;
+
+    assert(Is_mpf_class_Equals(num5, "2.2360600000"));
+    assert(Is_mpf_class_Equals(num6, "1.7320500000"));
+    assert(Is_mpf_class_Equals(num7, "8888.0000000000"));
+    assert(Is_mpf_class_Equals(num8, "-456.1230000000"));
 #endif
+#endif
+    std::cout << "User-defined literal tests for mpf_class passed." << std::endl;
 }
 void test_mpf_class_swap() {
     mpf_class a("123.456"), b("789.012");
@@ -976,27 +987,44 @@ void test_template_cmp_mpz_class() {
     std::cout << "Template cmp function tests passed." << std::endl;
 }
 void test_mpz_class_literal() {
-#ifdef GMPXX_MKII
     // Using the user-defined literal to create mpz_class objects
-    mpz_class num1 = "314159"_mpz;
-    mpz_class num2 = "271828"_mpz;
-    mpz_class num3 = "0"_mpz;
-    mpz_class num4 = "-123456"_mpz;
-    mpz_class num5 = "99999999999999999999999999999999999999999999999999999999"_mpz;
+    mpz_class num1 = 8801_mpz;
+    mpz_class num2 = 6809_mpz;
+    mpz_class num3 = 0_mpz;
+    mpz_class num4 = -123456789_mpz;
+    mpz_class num5 = 4294967295_mpz;
 
-    const char *num1_expected = "314159";
-    const char *num2_expected = "271828";
+    const char *num1_expected = "8801";
+    const char *num2_expected = "6809";
     const char *num3_expected = "0";
-    const char *num4_expected = "-123456";
-    const char *num5_expected = "99999999999999999999999999999999999999999999999999999999";
+    const char *num4_expected = "-123456789";
+    const char *num5_expected = "4294967295";
     assert(Is_mpz_class_Equals(num1, num1_expected));
     assert(Is_mpz_class_Equals(num2, num2_expected));
     assert(Is_mpz_class_Equals(num3, num3_expected));
     assert(Is_mpz_class_Equals(num4, num4_expected));
     assert(Is_mpz_class_Equals(num5, num5_expected));
+#if defined GMPXX_MKII
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    mpz_class num6 = "314159"_mpz;
+    mpz_class num7 = "271828"_mpz;
+    mpz_class num8 = "0"_mpz;
+    mpz_class num9 = "-123456"_mpz;
+    mpz_class num10 = "99999999999999999999999999999999999999999999999999999999"_mpz;
 
-    std::cout << "User-defined literal tests for mpz_class passed." << std::endl;
+    const char *num6_expected = "314159";
+    const char *num7_expected = "271828";
+    const char *num8_expected = "0";
+    const char *num9_expected = "-123456";
+    const char *num10_expected = "99999999999999999999999999999999999999999999999999999999";
+    assert(Is_mpz_class_Equals(num6, num6_expected));
+    assert(Is_mpz_class_Equals(num7, num7_expected));
+    assert(Is_mpz_class_Equals(num8, num8_expected));
+    assert(Is_mpz_class_Equals(num9, num9_expected));
+    assert(Is_mpz_class_Equals(num10, num10_expected));
 #endif
+#endif
+    std::cout << "User-defined literal tests for mpz_class passed." << std::endl;
 }
 void test_arithmetic_operators_mpz_class() {
     mpz_class a(10);
@@ -1406,7 +1434,7 @@ void testInitializationAndAssignmentString_mpq_class() {
 #if defined GMPXX_MKII
         mpq_class invalidFraction("not a number");
     } catch (const std::runtime_error &e) {
-        std::cout << "Caught an exception: " << e.what() << std::endl;
+        std::cout << "Expected Error: " << e.what() << std::endl;
     }
 #endif
 }
@@ -1495,24 +1523,40 @@ void test_arithmetic_operators_mpq_class_hardcoded2() {
     std::cout << "All arithmetic operation tests for mpq_class passed." << std::endl;
 }
 void test_mpq_class_literal() {
-#ifdef GMPXX_MKII
-    // Using the user-defined literal to create mpq_class objects
-    mpq_class num1 = "314159"_mpq;
-    mpq_class num2 = "271828"_mpq;
-    mpq_class num3 = "0"_mpq;
-    mpq_class num4 = "-123456"_mpq;
-    mpq_class num5 = "99999999999999999999999999999999999999999999999999999999"_mpq;
+    mpq_class num1 = 223606_mpq;
+    mpq_class num2 = 141421_mpq;
+    mpq_class num3 = 0_mpq;
+    mpq_class num4 = -9876543210_mpq;
+    mpq_class num5 = 999999999999_mpq;
 
-    const char *num1_expected = "314159";
-    const char *num2_expected = "271828";
+    const char *num1_expected = "223606";
+    const char *num2_expected = "141421";
     const char *num3_expected = "0";
-    const char *num4_expected = "-123456";
-    const char *num5_expected = "99999999999999999999999999999999999999999999999999999999";
+    const char *num4_expected = "-9876543210";
+    const char *num5_expected = "999999999999";
     assert(Is_mpq_class_Equals(num1, num1_expected));
     assert(Is_mpq_class_Equals(num2, num2_expected));
     assert(Is_mpq_class_Equals(num3, num3_expected));
     assert(Is_mpq_class_Equals(num4, num4_expected));
     assert(Is_mpq_class_Equals(num5, num5_expected));
+#if defined GMPXX_MKII
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    mpq_class num6 = "314159"_mpq;
+    mpq_class num7 = "271828"_mpq;
+    mpq_class num8 = "0"_mpq;
+    mpq_class num9 = "-123456"_mpq;
+    mpq_class num10 = "99999999999999999999999999999999999999999999999999999999"_mpq;
+
+    const char *num6_expected = "314159";
+    const char *num7_expected = "271828";
+    const char *num8_expected = "0";
+    const char *num9_expected = "-123456";
+    const char *num10_expected = "99999999999999999999999999999999999999999999999999999999";
+    assert(Is_mpq_class_Equals(num6, num6_expected));
+    assert(Is_mpq_class_Equals(num7, num7_expected));
+    assert(Is_mpq_class_Equals(num8, num8_expected));
+    assert(Is_mpq_class_Equals(num9, num9_expected));
+    assert(Is_mpq_class_Equals(num10, num10_expected));
     // more tests
     mpq_class a = "1/2"_mpq;
     mpq_class b = "3/4"_mpq;
@@ -1525,8 +1569,9 @@ void test_mpq_class_literal() {
 
     std::cout << "a = " << a << ", b = " << b << std::endl;
     std::cout << "a + b = " << result << std::endl;
-    std::cout << "User-defined literal tests for mpq_class passed." << std::endl;
 #endif
+#endif
+    std::cout << "User-defined literal tests for mpq_class passed." << std::endl;
 }
 
 void test_mpq_class_functions() {
