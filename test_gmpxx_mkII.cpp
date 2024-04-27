@@ -1605,7 +1605,7 @@ void test_mpq_class_functions() {
 
     // set_str
     mpq_class fraction;
-    assert(fraction.set_str("3/4") == 0);
+    assert(fraction.set_str("3/4", 10) == 0);
     assert(fraction.get_str() == "3/4");
     std::cout << "Set to 3/4: " << fraction.get_str() << std::endl;
 
