@@ -1570,7 +1570,6 @@ void test_mpq_class_literal() {
 #endif
     std::cout << "User-defined literal tests for mpq_class passed." << std::endl;
 }
-
 void test_mpq_class_functions() {
     mpq_class a("2/8"), b("-1/3");
 
@@ -1670,6 +1669,36 @@ void test_mpq_class_functions() {
     }
 
     std::cout << "mpq_class functions tests are passed." << std::endl;
+}
+void test_mpz_class_comparison_int() {
+    mpz_class a = 3;
+    mpz_class b = 5;
+
+    assert(a == 3);
+    assert(!(a == 4));
+    assert(b == 5);
+    assert(!(b == 3));
+
+    assert(3 == a);
+    assert(5 != a);
+    assert(5 == b);
+    assert(3 != b);
+
+    std::cout << "test_mpz_class_comparison_int tests passed successfully." << std::endl;
+}
+void test_mpq_class_comparison_double() {
+    mpq_class a(1, 2);
+    mpq_class b(2, 4);
+
+    assert(a == 0.5);
+    assert(b == 0.5);
+    assert(!(a == 0.51));
+
+    assert(0.5 == a);
+    assert(0.5 == b);
+    assert(!(0.51 == a));
+
+    std::cout << "test_mpq_class_comparison_double tests passed successfully." << std::endl;
 }
 void test_mpf_class_const_pi() {
 #if defined GMPXX_MKII
@@ -2092,6 +2121,7 @@ int main() {
     test_mpz_class_multiplication();
     test_mpz_class_division();
     test_mpz_class_modulus();
+    test_mpz_class_comparison_int();
 
     // mpq_class
     testDefaultConstructor_mpq_class();
@@ -2103,7 +2133,7 @@ int main() {
     test_arithmetic_operators_mpq_class_hardcoded2();
     test_mpq_class_literal();
     test_mpq_class_functions();
-
+    test_mpq_class_comparison_double();
     test_mpf_class_const_pi();
     test_mpf_class_const_log2();
     test_div2exp_mul2exp_mpf_class();

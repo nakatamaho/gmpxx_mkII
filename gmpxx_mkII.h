@@ -34,6 +34,7 @@
 #include <iostream>
 #include <utility>
 #include <cassert>
+#include <cstring>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -265,7 +266,9 @@ class mpz_class {
     // void mpz_class::swap (mpz_class& op)
     // void swap (mpz_class& op1, mpz_class& op2)
     void swap(mpz_class &op) { mpz_swap(this->value, op.value); }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpz_class &op1, mpz_class &op2) { mpz_swap(op1.value, op2.value); }
+#endif
 
     inline friend mpz_class &operator+=(mpz_class &lhs, const unsigned long int rhs);
     inline friend mpz_class &operator-=(mpz_class &lhs, const unsigned long int rhs);
@@ -410,6 +413,8 @@ inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs) {
     mpz_mod(result.value, lhs.value, rhs.value);
     return result;
 }
+inline bool operator==(const mpz_class &lhs, int rhs) { return lhs.get_si() == rhs; }
+inline bool operator==(int lhs, const mpz_class &rhs) { return lhs == rhs.get_si(); }
 inline mpz_class abs(const mpz_class &op) {
     mpz_class result;
     mpz_abs(result.value, op.value);
@@ -686,7 +691,8 @@ inline mpq_class abs(const mpq_class &op) {
     mpq_abs(rop.value, op.get_mpq_t());
     return rop;
 }
-
+inline bool operator==(const mpq_class &lhs, double rhs) { return lhs.get_d() == rhs; }
+inline bool operator==(double lhs, const mpq_class &rhs) { return lhs == rhs.get_d(); }
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -1565,6 +1571,10 @@ gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t len
 #endif
 
 #if defined ___GMPXX_STRICT_COMPATIBILITY___
+void swap(mpz_class &op1, mpz_class &op2) noexcept { op1.swap(op2); }
+#endif
+
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
 int gmpxx_defaults::base;
 
 class mpf_class_initializer {
@@ -1587,6 +1597,5 @@ class mpf_class_initializer {
     }
 };
 #endif
-
 
 mpf_class_initializer global_mpf_class_initializer;
