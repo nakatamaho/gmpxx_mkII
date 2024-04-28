@@ -1681,53 +1681,6 @@ void test_mpz_class_comparison_int() {
 
     std::cout << "test_mpz_class_comparison_int tests passed successfully." << std::endl;
 }
-void test_mpq_class_comparison_double() {
-    mpq_class a(1, 2);
-    mpq_class b(2, 4);
-
-    assert(a == 0.5);
-#if !defined ___GMPXX_POSSIBLE_BUGS___
-    assert(b == 0.5);
-#endif
-    assert(!(a == 0.51));
-    assert(!(b == 0.51));
-
-    assert(0.5 == a);
-#if !defined ___GMPXX_POSSIBLE_BUGS___
-    assert(0.5 == b);
-#endif
-    assert(!(0.51 == a));
-    assert(!(0.51 == b));
-
-    std::cout << "test_mpq_class_comparison_double tests passed successfully." << std::endl;
-}
-
-void test_mpq_class_charsubstitution() {
-    {
-        signed char a = -127;
-        mpq_class b;
-        b = a;
-        assert(b == -127);
-    }
-    {
-        unsigned char a = 255;
-        mpq_class b;
-        b = a;
-        assert(b == 255);
-    }
-    {
-        mpq_class a;
-        a = 'A';
-        assert(a == 65);
-    }
-    {
-        mpq_class a;
-        a = 'z';
-        assert(a == 122);
-    }
-
-    std::cout << "test_mpq_class_charsubstitution passed." << std::endl;
-}
 void test_mpf_class_const_pi() {
 #if defined GMPXX_MKII
     // https://www.wolframalpha.com/input?i=N%5Bpi%2C+1000%5D
@@ -2165,13 +2118,14 @@ int main() {
     test_mpq_class_literal();
     test_mpq_class_functions();
     test_mpq_class_comparison_double();
+
+    // mpf_class transcendental functions
     test_mpf_class_const_pi();
     test_mpf_class_const_log2();
     test_div2exp_mul2exp_mpf_class();
-    test_mpq_class_charsubstitution();
-
     test_log_mpf_class();
     test_exp_mpf_class();
+
     // mpf_class, mpz_class, mpq_class cast
     test_casts();
 
