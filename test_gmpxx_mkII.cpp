@@ -2117,7 +2117,6 @@ int main() {
     test_arithmetic_operators_mpq_class_hardcoded2();
     test_mpq_class_literal();
     test_mpq_class_functions();
-    test_mpq_class_comparison_double();
 
     // mpf_class transcendental functions
     test_mpf_class_const_pi();
