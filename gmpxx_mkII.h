@@ -41,7 +41,7 @@
 namespace gmp {
 #endif
 
-class defaults {
+class gmpxx_defaults {
   public:
     static int base;
     static inline void set_default_prec(const mp_bitcnt_t _prec) { mpf_set_default_prec(_prec); }
@@ -729,23 +729,23 @@ class mpf_class {
         mpf_init2(value, prec);
         mpf_set(value, op.value);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned long int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned long int op, mp_bitcnt_t prec = gmpxx_defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_ui(value, op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(unsigned int op, mp_bitcnt_t prec = gmpxx_defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_ui(value, (unsigned long)op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(signed long int op, mp_bitcnt_t prec = gmpxx_defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_si(value, op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(signed int op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(signed int op, mp_bitcnt_t prec = gmpxx_defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_si(value, (signed long)op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = defaults::get_default_prec()) noexcept {
+    ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = gmpxx_defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
@@ -755,12 +755,12 @@ class mpf_class {
     // mpf_class::mpf_class (const string& s, mp_bitcnt_t prec, int base = 0)
     mpf_class(const char *str) {
         mpf_init(value);
-        if (mpf_set_str(value, str, defaults::base) != 0) {
+        if (mpf_set_str(value, str, gmpxx_defaults::base) != 0) {
             std::cerr << "Error initializing mpf_class from const char*: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
     }
-    mpf_class(const char *str, mp_bitcnt_t prec, int base = defaults::base) {
+    mpf_class(const char *str, mp_bitcnt_t prec, int base = gmpxx_defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
             std::cerr << "Error initializing mpf_class from const char*: " << str << std::endl;
@@ -769,12 +769,12 @@ class mpf_class {
     }
     mpf_class(const std::string &str) {
         mpf_init(value);
-        if (mpf_set_str(value, str.c_str(), defaults::base) != 0) {
+        if (mpf_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
             std::cerr << "Error initializing mpf_class from std::string: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
     }
-    mpf_class(const std::string &str, mp_bitcnt_t prec, int base = defaults::base) {
+    mpf_class(const std::string &str, mp_bitcnt_t prec, int base = gmpxx_defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str.c_str(), base) != 0) {
             std::cerr << "Error initializing mpf_class from std::string: " << str << std::endl;
@@ -876,14 +876,14 @@ class mpf_class {
         return *this;
     }
     mpf_class &operator=(const char *str) {
-        if (mpf_set_str(value, str, defaults::base) != 0) {
+        if (mpf_set_str(value, str, gmpxx_defaults::base) != 0) {
             std::cerr << "Error assigning mpf_class from char:" << std::endl;
             throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
         return *this;
     }
     mpf_class &operator=(const std::string &str) {
-        if (mpf_set_str(value, str.c_str(), defaults::base) != 0) {
+        if (mpf_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
             std::cerr << "Error assigning mpf_class from string: " << str << std::endl;
             throw std::runtime_error("Failed to initialize mpf_class with given string.");
         }
@@ -1564,15 +1564,29 @@ gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t len
 gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
 #endif
 
-int gmp::defaults::base;
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+int gmpxx_defaults::base;
 
 class mpf_class_initializer {
   public:
     mpf_class_initializer() {
-        gmp::defaults::set_default_prec(512);
-        gmp::defaults::set_default_prec_raw(512);
-        gmp::defaults::base = 10;
+        gmpxx_defaults::set_default_prec(512);
+        gmpxx_defaults::set_default_prec_raw(512);
+        gmpxx_defaults::base = 10;
     }
 };
+#else
+int gmp::gmpxx_defaults::base;
+
+class mpf_class_initializer {
+  public:
+    mpf_class_initializer() {
+        gmp::gmpxx_defaults::set_default_prec(512);
+        gmp::gmpxx_defaults::set_default_prec_raw(512);
+        gmp::gmpxx_defaults::base = 10;
+    }
+};
+#endif
+
 
 mpf_class_initializer global_mpf_class_initializer;
