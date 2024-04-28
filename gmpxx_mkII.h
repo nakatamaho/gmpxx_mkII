@@ -733,7 +733,7 @@ inline bool operator==(const mpq_class &lhs, signed long int rhs) { return mpq_c
 inline bool operator==(signed long int lhs, const mpq_class &rhs) { return rhs == lhs; }
 inline bool operator==(const mpq_class &lhs, unsigned long int rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), rhs, (unsigned long int)1) == 0; }
 inline bool operator==(unsigned long int lhs, const mpq_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpq_class &lhs, signed int rhs) { return mpq_cmp_si(lhs.get_mpq_t(), (signed long int)rhs, (signed long int)1) == 0;}
+inline bool operator==(const mpq_class &lhs, signed int rhs) { return mpq_cmp_si(lhs.get_mpq_t(), (signed long int)rhs, (signed long int)1) == 0; }
 inline bool operator==(signed int lhs, const mpq_class &rhs) { return rhs == lhs; }
 inline bool operator==(const mpq_class &lhs, unsigned int rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), (unsigned long int)rhs, (unsigned long int)1) == 0; }
 inline bool operator==(unsigned int lhs, const mpq_class &rhs) { return rhs == lhs; }
