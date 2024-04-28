@@ -592,6 +592,8 @@ class mpq_class {
     inline mpq_class &operator=(signed char sc);
     inline mpq_class &operator=(unsigned char uc);
     inline mpq_class &operator=(char c);
+    inline mpq_class &operator=(float op);
+    inline mpq_class &operator=(double op);
 
     // void mpq_class::canonicalize ()
     // mpq_class abs (mpq_class op)
@@ -625,8 +627,9 @@ class mpq_class {
     // void swap (mpq_class& op1, mpq_class& op2)
     void swap(mpq_class &op) { mpq_swap(this->value, op.value); }
     friend int sgn(const mpq_class &op) { return mpq_sgn(op.value); }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpq_class &op1, mpq_class &op2) { mpq_swap(op1.value, op2.value); }
-
+#endif
     // mpz_class& mpq_class::get_num ()
     // mpz_class& mpq_class::get_den ()
     // mpz_t mpq_class::get_num_mpz_t ()
@@ -771,6 +774,14 @@ inline mpq_class &mpq_class::operator=(char c) {
         return *this = static_cast<signed char>(c);
     else
         return *this = static_cast<unsigned char>(c);
+}
+inline mpq_class &mpq_class::operator=(float op) {
+    mpq_set_d(this->value, (double)op);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(double op) {
+    mpq_set_d(this->value, op);
+    return *this;
 }
 class mpf_class {
   public:
@@ -926,7 +937,9 @@ class mpf_class {
     friend mpf_class sqrt(const mpf_class &op);
     friend mpf_class neg(const mpf_class &op);
     void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpf_class &op1, mpf_class &op2) { mpf_swap(op1.value, op2.value); }
+#endif
     friend mpf_class trunc(const mpf_class &op);
 
     // mp_bitcnt_t mpf_class::get_prec()
@@ -1115,6 +1128,17 @@ inline mpf_class operator-(const mpf_class &op) {
     mpf_neg(result.value, op.value);
     return result;
 }
+
+inline bool operator==(const mpf_class &lhs, signed long int rhs) { return lhs.get_si() == rhs; }
+inline bool operator==(signed long int lhs, const mpf_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpf_class &lhs, unsigned long int rhs) { return lhs.get_ui() == rhs; }
+inline bool operator==(unsigned long int lhs, const mpf_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpf_class &lhs, signed int rhs) { return lhs.get_si() == (signed long int)rhs; }
+inline bool operator==(signed int lhs, const mpf_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpf_class &lhs, unsigned int rhs) { return lhs.get_ui() == (unsigned long int)rhs; }
+inline bool operator==(unsigned int lhs, const mpf_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpf_class &lhs, double rhs) { return lhs.get_d() == rhs; }
+inline bool operator==(double lhs, const mpf_class &rhs) { return rhs == lhs; }
 
 // int cmp (mpf_class op1, type op2)
 // int cmp (type op1, mpf_class op2)
@@ -1651,6 +1675,8 @@ gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t len
 
 #if defined ___GMPXX_STRICT_COMPATIBILITY___
 void swap(mpz_class &op1, mpz_class &op2) noexcept { op1.swap(op2); }
+void swap(mpq_class &op1, mpq_class &op2) noexcept { op1.swap(op2); }
+void swap(mpf_class &op1, mpf_class &op2) noexcept { op1.swap(op2); }
 #endif
 
 #if defined ___GMPXX_STRICT_COMPATIBILITY___
