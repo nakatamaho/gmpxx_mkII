@@ -3,11 +3,11 @@
 #include <gmp.h>
 #include <cstring>
 
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined USE_ORIGINAL_GMPXX
 #include <gmpxx.h>
 #else
 #include "gmpxx_mkII.h"
-using namespace gmp;
+using namespace sgmp;
 #endif
 
 gmp_randstate_t state;

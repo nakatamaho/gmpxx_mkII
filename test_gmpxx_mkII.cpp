@@ -33,11 +33,13 @@
 #include <iomanip>
 #include <cmath>
 
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined USE_ORIGINAL_GMPXX
 #include <gmpxx.h>
 #else
 #include "gmpxx_mkII.h"
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
 using namespace gmp;
+#endif
 #endif
 
 std::string insertDecimalPoint(const std::string &str, signed long int exp) {
@@ -130,7 +132,7 @@ bool Is_mpq_class_Equals(mpq_class &gmpobj, const char *expected, bool debug_fla
     }
 }
 void testDefaultPrecision() {
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___ && !defined USE_ORIGINAL_GMPXX
     mpf_class f("1.5");
     mp_bitcnt_t defaultPrec = gmpxx_defaults::get_default_prec();
     assert(defaultPrec == f.get_prec());
