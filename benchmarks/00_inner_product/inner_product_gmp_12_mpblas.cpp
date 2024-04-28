@@ -3,13 +3,10 @@
 #include <gmp.h>
 #include <cstring>
 
-#if defined GMPXX_MKII
-#include "gmpxx_mkII.h"
-#else
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
 #include <gmpxx.h>
-#endif
-
-#if defined GMPXX_MKII
+#else
+#include "gmpxx_mkII.h"
 using namespace gmp;
 #endif
 
