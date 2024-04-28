@@ -147,6 +147,7 @@ void testDefaultPrecision() {
     mpf_class h("1.5");
     assert(defaultPrec == 512);
     std::cout << "Now get back to precision: " << h.get_prec() << " test passed." << std::endl;
+    std::cout << "testDefaultPrecision passed" << std::endl;
 #endif
 }
 void testDefaultConstructor() {
@@ -155,20 +156,20 @@ void testDefaultConstructor() {
     gmp_snprintf(buffer, sizeof(buffer), "%.0Ff", a.get_mpf_t());
     assert(std::string(buffer) == "0");
     // initialized to zero
-    std::cout << "Default constructor test passed." << std::endl;
+    std::cout << "testDefaultConstructor passed." << std::endl;
 }
 void testCopyConstructor() {
     mpf_class a;
     mpf_class b = a;
     assert(true);
-    std::cout << "Copy constructor test passed." << std::endl;
+    std::cout << "testCopyConstructor passed." << std::endl;
 }
 void testAssignmentOperator() {
     mpf_class a;
     mpf_class b;
     b = a;
     assert(true);
-    std::cout << "Assignment operator test passed." << std::endl;
+    std::cout << "testAssignmentOperator passed." << std::endl;
 }
 void testAssignmentOperator_the_rule_of_five() {
     mpf_class a("123.0");
@@ -198,6 +199,7 @@ void testAssignmentOperator_the_rule_of_five() {
     e = std::move(c);
     assert(e == b);
     std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
+    std::cout << "testAssignmentOperator_the_rule_of_five passed" << std::endl;
 }
 void testInitializationAndAssignmentDouble() {
     double testValue = 3.1415926535;
@@ -205,12 +207,11 @@ void testInitializationAndAssignmentDouble() {
 
     mpf_class a = (mpf_class)testValue;
     assert(Is_mpf_class_Equals(a, expectedValue));
-    std::cout << "Substitution from double using constructor test passed." << std::endl;
 
     mpf_class b;
     b = testValue;
     assert(Is_mpf_class_Equals(b, expectedValue));
-    std::cout << "Substitution from double using assignment test passed." << std::endl;
+    std::cout << "testInitializationAndAssignmentDouble passed" << std::endl;
 }
 void testInitializationAndAssignmentString() {
 #if defined GMPXX_MKII
@@ -251,6 +252,7 @@ void testInitializationAndAssignmentString() {
     assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, gmpxx_defaults::base));
     std::cout << "Constructor initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
     gmpxx_defaults::base = 10;
+    std::cout << "testInitializationAndAssignmentString passed" << std::endl;
 #endif
 }
 void testAddition() {
@@ -262,7 +264,7 @@ void testAddition() {
     assert(Is_mpf_class_Equals(c, expected.c_str()));
     a += b;
     assert(Is_mpf_class_Equals(a, expected.c_str()));
-    std::cout << "Addition Test passed." << std::endl;
+    std::cout << "testAddition passed." << std::endl;
 }
 void testMultplication() {
     mpf_class a(2.0);
@@ -273,7 +275,7 @@ void testMultplication() {
     assert(Is_mpf_class_Equals(c, expected.c_str()));
     a *= b;
     assert(Is_mpf_class_Equals(a, expected.c_str()));
-    std::cout << "Multiplication Test passed." << std::endl;
+    std::cout << "testMultplication passed." << std::endl;
 }
 void testDivision() {
     mpf_class a(6.0);
@@ -284,7 +286,7 @@ void testDivision() {
     assert(Is_mpf_class_Equals(c, expected.c_str()));
     a /= b;
     assert(Is_mpf_class_Equals(a, expected.c_str()));
-    std::cout << "Division Test passed." << std::endl;
+    std::cout << "testDivision passed." << std::endl;
 }
 void testSubtraction() {
     mpf_class a(5.0);
@@ -295,9 +297,8 @@ void testSubtraction() {
     assert(Is_mpf_class_Equals(c, expected.c_str()));
     a -= b;
     assert(Is_mpf_class_Equals(a, expected.c_str()));
-    std::cout << "Subtraction Test passed." << std::endl;
+    std::cout << "testSubtraction passed." << std::endl;
 }
-
 void testComparisonOperators() {
     mpf_class num1("1.23"), num2("4.56"), num3("1.23");
 
@@ -327,7 +328,7 @@ void testComparisonOperators() {
     assert(num2 >= num1);    // Greater than case
     assert(!(num1 >= num2)); // Not greater than or equal
 
-    std::cout << "All comparison operator tests passed successfully." << std::endl;
+    std::cout << "testComparisonOperators passed." << std::endl;
 }
 void testSqrt() {
     // Test Case 1: Calculate the square root of a positive number
@@ -347,7 +348,7 @@ void testSqrt() {
     //  mpf_class c("-1.0");
     //  result = sqrt(c);
     //  assert(result.is_nan()); // Check if the result is NaN
-    std::cout << "Test square root test passed." << std::endl;
+    std::cout << "testSqrt passed." << std::endl;
 }
 void testNeg() {
 #if defined GMPXX_MKII
@@ -355,7 +356,7 @@ void testNeg() {
     mpf_class result = neg(a);
     mpf_class expected = "3.5";
     assert(result == expected);
-    std::cout << "neg test passed." << std::endl;
+    std::cout << "testNeg passed." << std::endl;
 #endif
 }
 void testAbs() {
@@ -364,7 +365,7 @@ void testAbs() {
     mpf_class expected("3.5");
     mpf_class result = abs(a);
     assert(result == expected);
-    std::cout << "abs test passed." << std::endl;
+    std::cout << "testAbs passed." << std::endl;
 }
 void test_mpf_class_double_addition() {
     mpf_class a(1.0), c;
@@ -377,7 +378,7 @@ void test_mpf_class_double_addition() {
     assert(Is_mpf_class_Equals(c, expectedValue));
     a += b;
     assert(Is_mpf_class_Equals(a, expectedValue));
-    std::cout << "mpf_class + double test passed." << std::endl;
+    std::cout << "test_mpf_class_double_addition passed." << std::endl;
 }
 void test_mpf_class_double_subtraction() {
     mpf_class a(5.0), c, d;
@@ -391,7 +392,7 @@ void test_mpf_class_double_subtraction() {
     assert(Is_mpf_class_Equals(d, expectedValueD));
     a -= b;
     assert(Is_mpf_class_Equals(a, expectedValueC));
-    std::cout << "mpf_class - double test passed." << std::endl;
+    std::cout << "test_mpf_class_double_subtraction passed." << std::endl;
 }
 void test_mpf_class_double_multiplication() {
     mpf_class a(2.0), c;
@@ -404,7 +405,7 @@ void test_mpf_class_double_multiplication() {
     assert(Is_mpf_class_Equals(c, expectedValueMul));
     a *= b;
     assert(Is_mpf_class_Equals(a, expectedValueMul));
-    std::cout << "mpf_class * double test passed." << std::endl;
+    std::cout << "test_mpf_class_double_multiplication passed." << std::endl;
 }
 void test_mpf_class_double_division() {
     mpf_class a(4.0), c, d;
@@ -418,7 +419,7 @@ void test_mpf_class_double_division() {
     assert(Is_mpf_class_Equals(d, expectedValueDivRev));
     a /= b;
     assert(Is_mpf_class_Equals(a, expectedValueDiv));
-    std::cout << "mpf_class / double test passed." << std::endl;
+    std::cout << "test_mpf_class_double_division passed." << std::endl;
 }
 void testOutputOperator() {
     mpf_class num1(-0.33231);
@@ -454,7 +455,7 @@ void testOutputOperator() {
     assert(oss.str() == "1.23e+08");
 
     std::cout.setf(std::ios_base::fmtflags(0), std::ios_base::floatfield);
-    std::cout << "output test passed." << std::endl;
+    std::cout << "testOutputOperator passed." << std::endl;
 }
 void testCeilFunction() {
     mpf_class num1(123.456);
@@ -469,7 +470,7 @@ void testCeilFunction() {
     result = ceil(num2);
     assert(Is_mpf_class_Equals(result, expected2));
 
-    std::cout << "Ceil function tests passed." << std::endl;
+    std::cout << "testCeilFunction passed." << std::endl;
 }
 void testFloor() {
     mpf_class numPositive(3.14);
@@ -486,7 +487,7 @@ void testFloor() {
     result = floor(numNegative);
     assert(Is_mpf_class_Equals(result, expected2));
 
-    std::cout << "Floor tests passed." << std::endl;
+    std::cout << "testFloor passed." << std::endl;
 }
 void testHypot() {
     mpf_class op1(3.0);
@@ -498,7 +499,7 @@ void testHypot() {
     result = hypot(op1, op2);
     assert(Is_mpf_class_Equals(result, expected));
 
-    std::cout << "Hypot tests passed." << std::endl;
+    std::cout << "testHypot passed." << std::endl;
 }
 void testSgn() {
     mpf_class positive(123.456);
@@ -509,7 +510,7 @@ void testSgn() {
     assert(sgn(negative) < 0);
     assert(sgn(zero) == 0);
 
-    std::cout << "Sign function tests passed." << std::endl;
+    std::cout << "testSgn passed." << std::endl;
 }
 void test_get_d() {
     // Test with a positive double
@@ -523,7 +524,7 @@ void test_get_d() {
     mpf_class zero(0.0);
     assert(zero.get_d() == 0.0);
 
-    std::cout << "get_d function tests passed." << std::endl;
+    std::cout << "test_get_d passed." << std::endl;
 }
 void test_get_ui() {
     // Test with a positive value
@@ -538,7 +539,7 @@ void test_get_ui() {
     mpf_class zero(0.0);
     assert(zero.get_ui() == 0);
 
-    std::cout << "get_ui function tests passed." << std::endl;
+    std::cout << "test_get_ui passed." << std::endl;
 }
 void test_get_si() {
     // Test with a positive value
@@ -557,9 +558,8 @@ void test_get_si() {
     mpf_class zero(0.0);
     assert(zero.get_si() == 0);
 
-    std::cout << "get_si function tests passed." << std::endl;
+    std::cout << "test_get_si passed." << std::endl;
 }
-
 void test_mpf_class_constructor_precision() {
 #if !defined __GMPXX_MKII_NOPRECCHANGE__
     mpf_class f1(1.5); // default precision
@@ -633,7 +633,6 @@ void test_mpf_class_constructor_precision() {
     std::cout << "test_mpf_class_constructor_precision passed." << std::endl;
 #endif
 }
-
 void test_mpf_class_constructor_with_mpf() {
     mpf_t f;
     mp_bitcnt_t prec = 128; // Example precision
@@ -649,7 +648,7 @@ void test_mpf_class_constructor_with_mpf() {
     assert(Is_mpf_class_Equals(b, expected));
     mpf_clear(f);
 
-    std::cout << "Constructor tests passed." << std::endl;
+    std::cout << "test_mpf_class_constructor_with_mpf passed." << std::endl;
 }
 void test_mpf_class_literal() {
     // Using the user-defined literal to create mpf_class objects
@@ -664,7 +663,6 @@ void test_mpf_class_literal() {
     assert(Is_mpf_class_Equals(num4, "-123.4560000000"));
 
 #if defined GMPXX_MKII
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpf_class num5 = "2.23606"_mpf;
     mpf_class num6 = "1.73205"_mpf;
     mpf_class num7 = "8888.0"_mpf;
@@ -675,8 +673,7 @@ void test_mpf_class_literal() {
     assert(Is_mpf_class_Equals(num7, "8888.0000000000"));
     assert(Is_mpf_class_Equals(num8, "-456.1230000000"));
 #endif
-#endif
-    std::cout << "User-defined literal tests for mpf_class passed." << std::endl;
+    std::cout << "test_mpf_class_literal passed." << std::endl;
 }
 void test_mpf_class_swap() {
     mpf_class a("123.456"), b("789.012");
@@ -699,7 +696,7 @@ void test_mpf_class_swap() {
     assert(num1 == original_num2 && "After swap, num1 should have the value of original num2");
     assert(num2 == original_num1 && "After swap, num2 should have the value of original num1");
 
-    std::cout << "Swap tests passed." << std::endl;
+    std::cout << "test_mpf_class_swap passed." << std::endl;
 }
 void test_template_cmp() {
     mpf_class num1(3.14);
@@ -710,7 +707,7 @@ void test_template_cmp() {
     assert(cmp(num1, 3UL) > 0);
     assert(cmp(3L, num1) < 0);
 
-    std::cout << "Template cmp function tests passed." << std::endl;
+    std::cout << "test_template_cmp passed." << std::endl;
 }
 void test_set_str() {
     mpf_class num;
@@ -725,7 +722,7 @@ void test_set_str() {
     assert(Is_mpf_class_Equals(num, "0.0012500000"));
     assert(num.set_str(num_f, 10) == -1);
 
-    std::cout << "All set_str tests passed." << std::endl;
+    std::cout << "test_set_str passed." << std::endl;
 }
 void test_mpf_class_get_str() {
     mp_exp_t exp;
@@ -741,7 +738,7 @@ void test_mpf_class_get_str() {
     std::cout << "String: " << str2 << ", Exponent: " << exp << std::endl;
     assert(str2 == "4d29" && exp == 3); // 4 * (16^2) + 13 * (16^1) + 2 * (16^0) + 9 * (16^(-1)) = 1234.56250
 
-    std::cout << "mpf_class get_str method tests passed." << std::endl;
+    std::cout << "test_mpf_class_get_str passed." << std::endl;
 }
 void test_trunc_function() {
     mpf_class num1(3.14159);
@@ -752,7 +749,7 @@ void test_trunc_function() {
     mpf_class truncated2 = trunc(num2);
     assert(mpf_cmp_d(truncated2.get_mpf_t(), -3.0) == 0); // trancate -3.14159 => -3
 
-    std::cout << "trunc function tests passed." << std::endl;
+    std::cout << "test_trunc_function passed." << std::endl;
 }
 void test_fits_sint_p() {
     mpf_class smallValue("123");
@@ -770,7 +767,7 @@ void test_fits_sint_p() {
     mpf_class edgeCaseMin(std::to_string(INT_MIN));
     assert(edgeCaseMin.fits_sint_p() == true);
 
-    std::cout << "All fits_sint_p tests passed." << std::endl;
+    std::cout << "test_fits_sint_p passed." << std::endl;
 }
 void test_fits_slong_p() {
     mpf_class value(std::to_string(INT_MAX));
@@ -780,9 +777,8 @@ void test_fits_slong_p() {
     outOfRange += 1;
     assert(outOfRange.fits_slong_p() == false);
 
-    std::cout << "All fits_slong_p tests passed." << std::endl;
+    std::cout << "test_fits_slong_p passed." << std::endl;
 }
-
 void test_fits_sshort_p() {
     mpf_class value(std::to_string(SHRT_MAX));
     assert(value.fits_sshort_p() == true);
@@ -791,9 +787,8 @@ void test_fits_sshort_p() {
     outOfRange += 1;
     assert(outOfRange.fits_sshort_p() == false);
 
-    std::cout << "All fits_sshort_p tests passed." << std::endl;
+    std::cout << "test_fits_sshort_p passed." << std::endl;
 }
-
 void test_fits_uint_p() {
     mpf_class value(std::to_string(UINT_MAX));
     assert(value.fits_uint_p() == true);
@@ -801,9 +796,8 @@ void test_fits_uint_p() {
     mpf_class outOfRange = value + 1;
     assert(outOfRange.fits_uint_p() == false);
 
-    std::cout << "All fits_uint_p tests passed." << std::endl;
+    std::cout << "test_fits_uint_p passed." << std::endl;
 }
-
 void test_fits_ulong_p() {
     mpf_class value(std::to_string(ULONG_MAX));
     assert(value.fits_ulong_p() == true);
@@ -811,9 +805,8 @@ void test_fits_ulong_p() {
     mpf_class outOfRange = value + 1;
     assert(outOfRange.fits_ulong_p() == false);
 
-    std::cout << "All fits_ulong_p tests passed." << std::endl;
+    std::cout << "test_fits_ulong_p passed." << std::endl;
 }
-
 void test_fits_ushort_p() {
     mpf_class value(std::to_string(USHRT_MAX));
     assert(value.fits_ushort_p() == true);
@@ -821,7 +814,7 @@ void test_fits_ushort_p() {
     mpf_class outOfRange = value + 1;
     assert(outOfRange.fits_ushort_p() == false);
 
-    std::cout << "All fits_ushort_p tests passed." << std::endl;
+    std::cout << "test_fits_ushort_p passed." << std::endl;
 }
 void testDefaultConstructor_mpz_class() {
     mpz_class a;
@@ -829,20 +822,20 @@ void testDefaultConstructor_mpz_class() {
     gmp_snprintf(buffer, sizeof(buffer), "%Zd", a.get_mpz_t());
     assert(std::string(buffer) == "0");
     // initialized to zero
-    std::cout << "Default constructor test passed." << std::endl;
+    std::cout << "testDefaultConstructor_mpz_class passed." << std::endl;
 }
 void testCopyConstructor_mpz_class() {
     mpz_class a;
     mpz_class b = a;
     assert(true);
-    std::cout << "Copy constructor test passed." << std::endl;
+    std::cout << "testCopyConstructor_mpz_class passed." << std::endl;
 }
 void testAssignmentOperator_mpz_class() {
     mpz_class a;
     mpz_class b;
     b = a;
     assert(true);
-    std::cout << "Assignment operator test passed." << std::endl;
+    std::cout << "testAssignmentOperator_mpz_class passed." << std::endl;
 }
 void testAssignmentOperator_the_rule_of_five_mpz_class() {
     mpz_class a("123");
@@ -872,6 +865,7 @@ void testAssignmentOperator_the_rule_of_five_mpz_class() {
     e = std::move(c);
     assert(e == b);
     std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
+    std::cout << "testAssignmentOperator_the_rule_of_five_mpz_class passed." << std::endl;
 }
 void testInitializationAndAssignmentDouble_mpz_class() {
     double testValue = 31415926535;
@@ -885,6 +879,7 @@ void testInitializationAndAssignmentDouble_mpz_class() {
     b = testValue;
     assert(Is_mpz_class_Equals(b, expectedValue, true));
     std::cout << "Substitution from double using assignment test passed." << std::endl;
+    std::cout << "testInitializationAndAssignmentDouble_mpz_class passed." << std::endl;
 }
 void testInitializationAndAssignmentInt_mpz_class() {
     signed long int testValue = -31415926535;
@@ -910,8 +905,8 @@ void testInitializationAndAssignmentInt_mpz_class() {
     d = testValue2;
     assert(Is_mpz_class_Equals(d, expectedValue2, true));
     std::cout << "Substitution from unsigned long int using assignment test passed." << std::endl;
+    std::cout << "testInitializationAndAssignmentInt_mpz_class passed." << std::endl;
 }
-
 void testInitializationAndAssignment_mpz_class_mpf_class() {
     mpf_class testValue("-31415926535");
     const char *expectedValue = "-31415926535";
@@ -924,6 +919,7 @@ void testInitializationAndAssignment_mpz_class_mpf_class() {
     b = (mpz_class)testValue; // explicit cast requested
     assert(Is_mpz_class_Equals(b, expectedValue));
     std::cout << "Substitution from mpf_class using assignment test passed." << std::endl;
+    std::cout << "testInitializationAndAssignment_mpz_class_mpf_class passed." << std::endl;
 }
 void testInitializationAndAssignment_mpf_class_mpz_class() {
     mpz_class testValue("-31415926535");
@@ -937,6 +933,7 @@ void testInitializationAndAssignment_mpf_class_mpz_class() {
     b = (mpf_class)testValue; // explicit cast requested
     assert(Is_mpf_class_Equals(b, expectedValue));
     std::cout << "Substitution from mpz_class to mpf_class using assignment test passed." << std::endl;
+    std::cout << "testInitializationAndAssignment_mpf_class_mpz_class passed." << std::endl;
 }
 void testInitializationAndAssignmentString_mpz_class() {
 #if defined GMPXX_MKII
@@ -970,6 +967,7 @@ void testInitializationAndAssignmentString_mpz_class() {
     mpz_class e(inputHexValue, 16);
     assert(Is_mpz_class_Equals(e, expectedHexValue, true));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
+    std::cout << "testInitializationAndAssignmentString_mpz_class passed." << std::endl;
 #endif
 }
 void test_template_cmp_mpz_class() {
@@ -981,7 +979,7 @@ void test_template_cmp_mpz_class() {
     assert(cmp(num1, 3UL) > 0);
     assert(cmp(3L, num1) < 0);
 
-    std::cout << "Template cmp function tests passed." << std::endl;
+    std::cout << "test_template_cmp_mpz_class passed." << std::endl;
 }
 void test_mpz_class_literal() {
     // Using the user-defined literal to create mpz_class objects
@@ -1002,7 +1000,6 @@ void test_mpz_class_literal() {
     assert(Is_mpz_class_Equals(num4, num4_expected));
     assert(Is_mpz_class_Equals(num5, num5_expected));
 #if defined GMPXX_MKII
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpz_class num6 = "314159"_mpz;
     mpz_class num7 = "271828"_mpz;
     mpz_class num8 = "0"_mpz;
@@ -1020,8 +1017,7 @@ void test_mpz_class_literal() {
     assert(Is_mpz_class_Equals(num9, num9_expected));
     assert(Is_mpz_class_Equals(num10, num10_expected));
 #endif
-#endif
-    std::cout << "User-defined literal tests for mpz_class passed." << std::endl;
+    std::cout << "test_mpz_class_literal passed." << std::endl;
 }
 void test_arithmetic_operators_mpz_class() {
     mpz_class a(10);
@@ -1058,7 +1054,7 @@ void test_arithmetic_operators_mpz_class() {
     c %= d;
     std::cout << "After c %= d, c = " << c << std::endl;
     assert(c == mpz_class(1));
-    std::cout << "All operator tests passed." << std::endl;
+    std::cout << "test_arithmetic_operators_mpz_class passed." << std::endl;
 }
 void testFitsFunctions_mpz_class() {
     mpz_class small("123");
@@ -1078,7 +1074,7 @@ void testFitsFunctions_mpz_class() {
     assert(large.fits_ulong_p() == false);
     assert(large.fits_ushort_p() == false);
 
-    std::cout << "All fits functions tests passed." << std::endl;
+    std::cout << "testFitsFunctions_mpz_class passed." << std::endl;
 }
 
 void testAbsFunction_mpz_class() {
@@ -1090,7 +1086,7 @@ void testAbsFunction_mpz_class() {
     assert(abs(neg) == mpz_class("456"));
     assert(abs(zero) == zero);
 
-    std::cout << "abs function tests passed." << std::endl;
+    std::cout << "testAbsFunction_mpz_class passed." << std::endl;
 }
 void testConversionFunctions_mpz_class() {
     mpz_class num("123456789");
@@ -1115,9 +1111,8 @@ void testConversionFunctions_mpz_class() {
     std::cout << "String: " << str << std::endl;
     assert(str == "123456789");
 
-    std::cout << "All conversion function tests passed." << std::endl;
+    std::cout << "testConversionFunctions_mpz_class passed." << std::endl;
 }
-
 void testMathFunctions_mpz_class() {
     mpz_class num1("24");
     mpz_class num2("36");
@@ -1141,9 +1136,8 @@ void testMathFunctions_mpz_class() {
     std::cout << "LCM of " << num1.get_str() << " and " << num2.get_str() << " is " << lcmResult.get_str() << std::endl;
     assert(lcmResult == mpz_class("72"));
 
-    std::cout << "All math function tests for mpz_class passed." << std::endl;
+    std::cout << "testMathFunctions_mpz_class passed." << std::endl;
 }
-
 template <class T> T test_func(const T &a, const T &b) { return a * b; }
 void test_mpf_class_extention() {
 #if defined GMPXX_MKII
@@ -1164,6 +1158,7 @@ void test_mpz_class_extention() {
 
     std::cout << "The result of test_func(f * h, g) is: " << result << std::endl;
 #endif
+    std::cout << "test_mpz_class_extention passed." << std::endl;
 }
 void test_set_str_mpz_class() {
     mpz_class a, b, c, d, e, f;
@@ -1202,25 +1197,25 @@ void test_set_str_mpz_class() {
     assert(Is_mpz_class_Equals(e, expectedValue_e));
     assert(Is_mpz_class_Equals(f, expectedValue_f));
 
-    std::cout << "set_str tests passed." << std::endl;
+    std::cout << "test_set_str_mpz_class tests passed." << std::endl;
 }
 void test_factorial_mpz_class() {
     mpz_class fact5 = factorial((mpz_class)5);
     const char *expectedValue_fact5 = "120";
     assert(Is_mpz_class_Equals(fact5, expectedValue_fact5)); // 5! = 120
-    std::cout << "Factorial test passed.\n";
+    std::cout << "test_factorial_mpz_class passed.\n";
 }
 void test_primorial_mpz_class() {
     mpz_class primorial5 = primorial((mpz_class)5);
     const char *expectedValue_primorial = "30";
     assert(Is_mpz_class_Equals(primorial5, expectedValue_primorial)); // 2*3*5 = 30
-    std::cout << "Primorial test passed.\n";
+    std::cout << "test_primorial_mpz_class passed.\n";
 }
 void test_fibonacci_mpz_class() {
     mpz_class fibonacci7 = fibonacci((mpz_class)7);
     const char *expectedValue_fibonacci = "13";
     assert(Is_mpz_class_Equals(fibonacci7, expectedValue_fibonacci)); // F(7) = 13
-    std::cout << "Fibonacchi test passed.\n";
+    std::cout << "test_fibonacci_mpz_class passed.\n";
 }
 void test_mpz_class_swap() {
     mpz_class a("123456"), b("789012");
@@ -1243,7 +1238,7 @@ void test_mpz_class_swap() {
     assert(num1 == original_num2 && "After swap, num1 should have the value of original num2");
     assert(num2 == original_num1 && "After swap, num2 should have the value of original num1");
 
-    std::cout << "Swap tests passed." << std::endl;
+    std::cout << "test_mpz_class_swap passed." << std::endl;
 }
 void testOutputOperator_mpz_class() {
     // Test decimal output
@@ -1274,7 +1269,7 @@ void testOutputOperator_mpz_class() {
     assert(ossOct.str() == "10");
     std::cout << ossOct.str() << "\n";
 
-    std::cout << "Output operator tests for mpz_class passed." << std::endl;
+    std::cout << "testOutputOperator_mpz_class passed." << std::endl;
 }
 void test_mpz_class_addition() {
     mpz_class a(1), c;
@@ -1287,7 +1282,7 @@ void test_mpz_class_addition() {
     assert(Is_mpz_class_Equals(c, expectedValue));
     a += b;
     assert(Is_mpz_class_Equals(a, expectedValue));
-    std::cout << "mpz_class + unsigned long int addition test passed." << std::endl;
+    std::cout << "test_mpz_class_addition passed." << std::endl;
 }
 void test_mpz_class_subtraction() {
     mpz_class a(5), c, d;
@@ -1303,7 +1298,7 @@ void test_mpz_class_subtraction() {
     b = 2;
     a -= b;
     assert(Is_mpz_class_Equals(a, expectedValueC));
-    std::cout << "mpz_class - unsigned long int subtraction test passed." << std::endl;
+    std::cout << "test_mpz_class_subtraction passed." << std::endl;
 }
 void test_mpz_class_multiplication() {
     mpz_class a(3), c;
@@ -1316,7 +1311,7 @@ void test_mpz_class_multiplication() {
     assert(Is_mpz_class_Equals(c, expectedValue));
     a *= b;
     assert(Is_mpz_class_Equals(a, expectedValue));
-    std::cout << "mpz_class * unsigned long int multiplication test passed." << std::endl;
+    std::cout << "test_mpz_class_multiplication passed." << std::endl;
 }
 void test_mpz_class_division() {
     mpz_class a(6), c, d;
@@ -1331,7 +1326,7 @@ void test_mpz_class_division() {
     b = 2;
     a /= b;
     assert(Is_mpz_class_Equals(a, expectedValue));
-    std::cout << "mpz_class / unsigned long int division test passed." << std::endl;
+    std::cout << "test_mpz_class_division passed." << std::endl;
 }
 void test_mpz_class_modulus() {
     mpz_class a(5), c, d;
@@ -1346,7 +1341,7 @@ void test_mpz_class_modulus() {
     b = 2;
     a %= b;
     assert(Is_mpz_class_Equals(a, expectedValue));
-    std::cout << "mpz_class % unsigned long int modulus test passed." << std::endl;
+    std::cout << "test_mpz_class_modulus passed." << std::endl;
 }
 void testDefaultConstructor_mpq_class() {
     mpq_class a;
@@ -1354,20 +1349,20 @@ void testDefaultConstructor_mpq_class() {
     gmp_snprintf(buffer, sizeof(buffer), "%Qd", a.get_mpq_t());
     assert(std::string(buffer) == "0");
     // initialized to zero
-    std::cout << "Default constructor mpq_class test passed." << std::endl;
+    std::cout << "testDefaultConstructor_mpq_class passed." << std::endl;
 }
 void testCopyConstructor_mpq_class() {
     mpq_class a;
     mpq_class b = a;
     assert(true);
-    std::cout << "Copy constructor mpq_class test passed." << std::endl;
+    std::cout << "testCopyConstructor_mpq_class passed." << std::endl;
 }
 void testAssignmentOperator_mpq_class() {
     mpq_class a;
     mpq_class b;
     b = a;
     assert(true);
-    std::cout << "Assignment operator mpq_class test passed." << std::endl;
+    std::cout << "testAssignmentOperator_mpq_class passed." << std::endl;
 }
 void testInitializationAndAssignmentInt_mpq_class() {
     const char *expectedValue = "355/113";
@@ -1379,7 +1374,7 @@ void testInitializationAndAssignmentInt_mpq_class() {
     mpq_class b;
     b = a;
     assert(Is_mpq_class_Equals(b, expectedValue, true));
-    std::cout << "Substitution mpq_class assignment test passed." << std::endl;
+    std::cout << "testInitializationAndAssignmentInt_mpq_class passed." << std::endl;
 }
 void testAssignmentOperator_the_rule_of_five_mpq_class() {
     mpq_class a(1, 7);
@@ -1409,6 +1404,7 @@ void testAssignmentOperator_the_rule_of_five_mpq_class() {
     e = std::move(c);
     assert(e == b);
     std::cout << "##testing the rule 5 of 5: copy assignment test passed.\n" << std::endl;
+    std::cout << "testAssignmentOperator_the_rule_of_five_mpq_class passed." << std::endl;
 }
 void testInitializationAndAssignmentString_mpq_class() {
 #if defined GMPXX_MKII
@@ -1434,6 +1430,7 @@ void testInitializationAndAssignmentString_mpq_class() {
         std::cout << "Expected Error: " << e.what() << std::endl;
     }
 #endif
+    std::cout << "testInitializationAndAssignmentString_mpq_class passed." << std::endl;
 }
 void test_template_cmp_mpq_class() {
     mpq_class num1(1, 3);
@@ -1448,7 +1445,7 @@ void test_template_cmp_mpq_class() {
     assert(cmp(num3, num1) <= 0);
     assert(cmp(num1, num3) >= 0);
 
-    std::cout << "Template cmp mpq_class function tests passed." << std::endl;
+    std::cout << "test_template_cmp_mpq_class passed." << std::endl;
 }
 void test_arithmetic_operators_mpq_class_hardcoded1() {
     mpq_class a("3/5");
@@ -1490,7 +1487,7 @@ void test_arithmetic_operators_mpq_class_hardcoded1() {
     assert(result == expectedComplex);
     std::cout << "((a + c - d) * b) / c = " << result << " (Expected: 74/325)" << std::endl;
 
-    std::cout << "All operator tests for mpq_class with hardcoded results passed." << std::endl;
+    std::cout << "test_arithmetic_operators_mpq_class_hardcoded1 passed." << std::endl;
 }
 void test_arithmetic_operators_mpq_class_hardcoded2() {
     mpq_class a("3/5");
@@ -1517,7 +1514,7 @@ void test_arithmetic_operators_mpq_class_hardcoded2() {
     assert(result == expectedDivisionResult);
     std::cout << "Division test passed: " << result << " == " << expectedDivisionResult << std::endl;
 
-    std::cout << "All arithmetic operation tests for mpq_class passed." << std::endl;
+    std::cout << "test_arithmetic_operators_mpq_class_hardcoded2 passed." << std::endl;
 }
 void test_mpq_class_literal() {
     mpq_class num1 = 223606_mpq;
@@ -1537,7 +1534,6 @@ void test_mpq_class_literal() {
     assert(Is_mpq_class_Equals(num4, num4_expected));
     assert(Is_mpq_class_Equals(num5, num5_expected));
 #if defined GMPXX_MKII
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpq_class num6 = "314159"_mpq;
     mpq_class num7 = "271828"_mpq;
     mpq_class num8 = "0"_mpq;
@@ -1567,8 +1563,7 @@ void test_mpq_class_literal() {
     std::cout << "a = " << a << ", b = " << b << std::endl;
     std::cout << "a + b = " << result << std::endl;
 #endif
-#endif
-    std::cout << "User-defined literal tests for mpq_class passed." << std::endl;
+    std::cout << "test_mpq_class_literal passed." << std::endl;
 }
 void test_mpq_class_functions() {
     mpq_class a("2/8"), b("-1/3");
@@ -1668,7 +1663,7 @@ void test_mpq_class_functions() {
         assert(input.fail());
     }
 
-    std::cout << "mpq_class functions tests are passed." << std::endl;
+    std::cout << "test_mpq_class_functions passed." << std::endl;
 }
 void test_mpz_class_comparison_int() {
     mpz_class a = 3;
@@ -1772,6 +1767,7 @@ void test_mpf_class_const_pi() {
 #endif
     mpf_set_default_prec(prec / 2);
 #endif
+    std::cout << "test_mpf_class_const_pi passed." << std::endl;
 }
 void test_mpf_class_const_log2() {
 #if defined GMPXX_MKII
@@ -1838,6 +1834,7 @@ void test_mpf_class_const_log2() {
     assert(i - 1 > decimal_digits - 2 && "not accurate");
 #endif
     mpf_set_default_prec(prec / 2);
+    std::cout << "test_mpf_class_const_log2 passed." << std::endl;
 #endif
 }
 void test_div2exp_mul2exp_mpf_class(void) {
@@ -1852,7 +1849,7 @@ void test_div2exp_mul2exp_mpf_class(void) {
     assert(value == mpf_class(2.0));
     std::cout << "After mul_2exp: " << value << std::endl;
 
-    std::cout << "div_2exp mul_2exp test passed." << std::endl;
+    std::cout << "test_div2exp_mul2exp_mpf_class passed." << std::endl;
 #endif
 }
 void test_log_mpf_class(void) {
@@ -1900,6 +1897,7 @@ void test_log_mpf_class(void) {
     }
     std::cout << "log10 matched in " << i - 1 << " decimal digits" << std::endl;
     assert(i - 1 > decimal_digits - 4 && "not accurate");
+    std::cout << "test_log_mpf_class passed." << std::endl;
 #endif
 }
 void test_exp_mpf_class(void) {
@@ -2009,7 +2007,7 @@ void test_exp_mpf_class(void) {
     }
     std::cout << "expm10 matched in " << i - 1 << " decimal digits" << std::endl;
     assert(i - 1 > decimal_digits - 4 && "not accurate");
-
+    std::cout << "test_exp_mpf_class passed." << std::endl;
 #endif
 }
 void test_casts() {
@@ -2048,7 +2046,7 @@ void test_casts() {
     a4 = mpz_class(b4);
     assert(Is_mpz_class_Equals(a4, expectedValue4, true));
 
-    std::cout << "Cast tests passed." << std::endl;
+    std::cout << "test_casts passed." << std::endl;
 }
 int main() {
 #if !defined GMPXX_MKII
