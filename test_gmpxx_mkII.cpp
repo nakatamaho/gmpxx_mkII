@@ -1693,10 +1693,12 @@ void test_mpq_class_comparison_double() {
     assert(a == 0.5);
     assert(b == 0.5);
     assert(!(a == 0.51));
+    assert(!(b == 0.51));
 
     assert(0.5 == a);
     assert(0.5 == b);
     assert(!(0.51 == a));
+    assert(!(0.51 == b));
 
     std::cout << "test_mpq_class_comparison_double tests passed successfully." << std::endl;
 }
