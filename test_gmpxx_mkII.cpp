@@ -561,7 +561,7 @@ void test_get_si() {
     std::cout << "test_get_si passed." << std::endl;
 }
 void test_mpf_class_constructor_precision() {
-#if !defined __GMPXX_MKII_NOPRECCHANGE__
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class f1(1.5); // default precision
     assert(f1.get_prec() == mpf_get_default_prec());
     mpf_class f2(1.5, 1024); // 1024 bits (at least)
@@ -1776,7 +1776,7 @@ void test_mpf_class_const_pi() {
     }
     std::cout << "Pi matched 3rd in " << i - 1 << " decimal digits" << std::endl;
     assert(i - 1 > decimal_digits - 2 && "not accurate");
-#if !defined __GMPXX_MKII_NOPRECCHANGE__
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class pi_2048(0.0, 2048);
     pi_2048 = const_pi(2048);
     decimal_digits = floor(std::log10(2) * 2048);
@@ -1844,7 +1844,7 @@ void test_mpf_class_const_log2() {
     }
     std::cout << "log2 matched 3rd in " << i - 1 << " decimal digits" << std::endl;
     assert(i - 1 > decimal_digits - 2 && "not accurate");
-#if !defined __GMPXX_MKII_NOPRECCHANGE__
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class log2_2048(0.0, 2048);
     log2_2048 = const_log2(2048);
     decimal_digits = floor(std::log10(2) * 2048);
