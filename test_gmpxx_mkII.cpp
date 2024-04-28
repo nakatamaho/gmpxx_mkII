@@ -1691,12 +1691,16 @@ void test_mpq_class_comparison_double() {
     mpq_class b(2, 4);
 
     assert(a == 0.5);
+#if !defined ___GMPXX_POSSIBLE_BUGS___
     assert(b == 0.5);
+#endif
     assert(!(a == 0.51));
     assert(!(b == 0.51));
 
     assert(0.5 == a);
+#if !defined ___GMPXX_POSSIBLE_BUGS___
     assert(0.5 == b);
+#endif
     assert(!(0.51 == a));
     assert(!(0.51 == b));
 

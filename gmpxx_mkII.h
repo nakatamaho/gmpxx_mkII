@@ -1564,7 +1564,7 @@ gmp::mpf_class operator"" _mpf(long double val) { return gmp::mpf_class(static_c
 // in the manual, the following functions are avilable, but actually not.
 // cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
 // "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+#if !defined ___GMPXX_POSSIBLE_BUGS___
 gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
 gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpq_class(str); }
 gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
