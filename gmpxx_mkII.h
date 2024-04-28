@@ -37,7 +37,9 @@
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
 namespace gmp {
+#endif
 
 class defaults {
   public:
@@ -855,7 +857,7 @@ class mpf_class {
     mpf_class &operator=(const mpf_class &op) noexcept { // The rule 2 of 5 copy assignment operator
         // std::cout << "The rule 2 of 5 copy assignment operator\n" ;
         if (this != &op) {
-#if !defined __GMPXX_MKII_NOPRECCHANGE__
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
             mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
 #endif
             mpf_set(value, op.value);
@@ -972,7 +974,7 @@ inline mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs) {
     return lhs;
 }
 inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs) {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result;
     mpf_add(result.value, lhs.value, rhs.value);
 #else
@@ -984,7 +986,7 @@ inline mpf_class operator+(const mpf_class &lhs, const mpf_class &rhs) {
     return result;
 }
 inline mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs) {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result;
     mpf_sub(result.value, lhs.value, rhs.value);
 #else
@@ -996,7 +998,7 @@ inline mpf_class operator-(const mpf_class &lhs, const mpf_class &rhs) {
     return result;
 }
 inline mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs) {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result;
     mpf_mul(result.value, lhs.value, rhs.value);
 #else
@@ -1008,7 +1010,7 @@ inline mpf_class operator*(const mpf_class &lhs, const mpf_class &rhs) {
     return result;
 }
 inline mpf_class operator/(const mpf_class &lhs, const mpf_class &rhs) {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result;
     mpf_div(result.value, lhs.value, rhs.value);
 #else
@@ -1096,14 +1098,14 @@ inline mpf_class floor(const mpf_class &op) {
     return rop;
 }
 inline mpf_class hypot(const mpf_class &op1, const mpf_class &op2) {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class rop;
-    rop = gmp::sqrt(op1 * op1 + op2 * op2);
+    rop = sqrt(op1 * op1 + op2 * op2);
 #else
     mpf_class rop;
     mp_bitcnt_t prec = largerprec(op1, op2);
     mpf_init2(rop.value, prec);
-    rop = gmp::sqrt(op1 * op1 + op2 * op2);
+    rop = sqrt(op1 * op1 + op2 * op2);
 #endif
     return rop;
 }
@@ -1247,7 +1249,7 @@ mpf_class const_pi() {
     return pi_cached;
 }
 mpf_class const_pi(mp_bitcnt_t req_precision) {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
     // calculating approximate pi using arithmetic-geometric mean
@@ -1361,7 +1363,7 @@ mpf_class const_log2() {
     return log2_cached;
 }
 mpf_class const_log2(mp_bitcnt_t req_precision) {
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
     mpf_class zero(0.0, req_precision);
@@ -1422,7 +1424,7 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
 }
 mpf_class log(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
     mpf_class zero(0.0, req_precision);
@@ -1494,7 +1496,7 @@ mpf_class log(const mpf_class &x) {
 mpf_class exp(const mpf_class &x) {
     // https://www.mpfr.org/algorithms.pdf section 4.4
     mp_bitcnt_t req_precision = x.get_prec();
-#if defined __GMPXX_MKII_NOPRECCHANGE__
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
     mpf_class zero(0.0, req_precision);
@@ -1537,15 +1539,22 @@ mpf_class exp(const mpf_class &x) {
         _exp = one / _exp; // avoid cancellation of significant digits
     return _exp;
 }
-
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
 } // namespace gmp
+#endif
 
 // mpf_class operator"" _mpf (const char *str)
 // mpz_class operator"" _mpz (const char *str)
 // mpq_class operator"" _mpq (const char *str)
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+mpz_class operator"" _mpz(unsigned long long int val) { return mpz_class(static_cast<unsigned long int>(val)); }
+mpq_class operator"" _mpq(unsigned long long int val) { return mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
+mpf_class operator"" _mpf(long double val) { return mpf_class(static_cast<double>(val)); }
+#else
 gmp::mpz_class operator"" _mpz(unsigned long long int val) { return gmp::mpz_class(static_cast<unsigned long int>(val)); }
 gmp::mpq_class operator"" _mpq(unsigned long long int val) { return gmp::mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
 gmp::mpf_class operator"" _mpf(long double val) { return gmp::mpf_class(static_cast<double>(val)); }
+#endif
 // in the manual, the following functions are avilable, but actually not.
 // cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
 // "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
