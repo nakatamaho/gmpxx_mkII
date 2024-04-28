@@ -1,7 +1,6 @@
 #include <iostream>
 #include <chrono>
 #include <gmp.h>
-#include <cstring>
 
 #if defined USE_ORIGINAL_GMPXX
 #include <gmpxx.h>
@@ -14,10 +13,10 @@ using namespace gmp;
 
 gmp_randstate_t state;
 
-mpf_class Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t incy) {
-    int64_t ix = 0;
-    int64_t iy = 0;
-    int64_t i;
+inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy) {
+    long ix = 0;
+    long iy = 0;
+    long i;
     mpf_class temp, templ;
 
     temp = 0.0;
@@ -29,11 +28,21 @@ mpf_class Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t in
 
     temp = 0.0;
     if (incx == 1 && incy == 1) {
+// no reduction for multiple precision
+#ifdef _OPENMP
+#pragma omp parallel private(i, templ) shared(temp, dx, dy, n)
+#endif
         {
             templ = 0.0;
+#ifdef _OPENMP
+#pragma omp for
+#endif
             for (i = 0; i < n; i++) {
                 templ += dx[i] * dy[i];
             }
+#ifdef _OPENMP
+#pragma omp critical
+#endif
             temp += templ;
         }
     } else {
