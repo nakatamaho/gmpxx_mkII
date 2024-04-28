@@ -43,8 +43,8 @@ $(OBJECTS_MKIISR): $(SOURCES) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -D___GMPXX_MKII_NOPRECCHANGE___ -c $(SOURCES) -o $@
 
 $(ORIG_TESTS): $(ORIG_TESTS_SOURCES) $(HEADERS)
-	sed -i 's/#include "gmpxx\.h"/#include "gmpxx_mkII\.h"\nusing namespace gmp;/' $<
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
+	sed -i 's/#include "gmpxx\.h"/#include "gmpxx_mkII\.h"/' $<
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -D___GMPXX_STRICT_COMPATIBILITY___ -o $@ $< $(LDFLAGS)
 
 $(BENCHMARKS_DIR)/%: $(BENCHMARKS_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
