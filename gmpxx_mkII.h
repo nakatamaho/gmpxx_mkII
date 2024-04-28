@@ -139,22 +139,6 @@ class mpz_class {
         mpz_set_d(value, d);
         return *this;
     }
-    mpz_class &operator=(signed long int op) noexcept {
-        mpz_set_si(value, op);
-        return *this;
-    }
-    mpz_class &operator=(unsigned long int op) noexcept {
-        mpz_set_ui(value, op);
-        return *this;
-    }
-    mpz_class &operator=(signed int op) noexcept {
-        mpz_set_si(value, (signed long int)op);
-        return *this;
-    }
-    mpz_class &operator=(unsigned int op) noexcept {
-        mpz_set_ui(value, (unsigned long int)op);
-        return *this;
-    }
     mpz_class &operator=(const char *str) {
         if (mpz_set_str(value, str, 0) != 0) {
             std::cerr << "Error assigning mpz_class from char:" << std::endl;
@@ -193,6 +177,14 @@ class mpz_class {
     inline friend bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
 
+    inline mpz_class &operator=(signed long int sop);
+    inline mpz_class &operator=(unsigned long int uop);
+    inline mpz_class &operator=(signed int sop);
+    inline mpz_class &operator=(unsigned int uop);
+    inline mpz_class &operator=(signed char sc);
+    inline mpz_class &operator=(unsigned char uc);
+    inline mpz_class &operator=(char c);
+
     // mpz_class abs (mpz_class op)
     inline friend mpz_class abs(const mpz_class &op);
 
@@ -213,8 +205,8 @@ class mpz_class {
     // long mpz_class::get_si (void)
     // unsigned long mpz_class::get_ui (void)
     inline double get_d() const { return mpz_get_d(value); }
-    inline long get_si() const { return mpz_get_si(value); }
-    inline long get_ui() const { return mpz_get_ui(value); }
+    inline signed long int get_si() const { return mpz_get_si(value); }
+    inline unsigned long int get_ui() const { return mpz_get_ui(value); }
     // string mpz_class::get_str (int base = 10)
     inline std::string get_str(int base = 10) const {
         char *temp = mpz_get_str(nullptr, base, value);
@@ -413,8 +405,44 @@ inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs) {
     mpz_mod(result.value, lhs.value, rhs.value);
     return result;
 }
-inline bool operator==(const mpz_class &lhs, int rhs) { return lhs.get_si() == rhs; }
-inline bool operator==(int lhs, const mpz_class &rhs) { return lhs == rhs.get_si(); }
+inline bool operator==(const mpz_class &lhs, signed long int rhs) { return lhs.get_si() == rhs; }
+inline bool operator==(signed long int lhs, const mpz_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpz_class &lhs, unsigned long int rhs) { return lhs.get_ui() == rhs; }
+inline bool operator==(unsigned long int lhs, const mpz_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpz_class &lhs, signed int rhs) { return lhs.get_si() == rhs; }
+inline bool operator==(signed int lhs, const mpz_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpz_class &lhs, unsigned int rhs) { return lhs.get_ui() == rhs; }
+inline bool operator==(unsigned int lhs, const mpz_class &rhs) { return rhs == lhs; }
+inline mpz_class &mpz_class::operator=(signed long int sc) {
+    mpz_set_si(this->value, sc);
+    return *this;
+}
+inline mpz_class &mpz_class::operator=(unsigned long int uc) {
+    mpz_set_ui(this->value, uc);
+    return *this;
+}
+inline mpz_class &mpz_class::operator=(signed int sc) {
+    mpz_set_si(this->value, (signed long int)sc);
+    return *this;
+}
+inline mpz_class &mpz_class::operator=(unsigned int uc) {
+    mpz_set_ui(this->value, (unsigned long int)uc);
+    return *this;
+}
+inline mpz_class &mpz_class::operator=(signed char sc) {
+    mpz_set_si(this->value, (signed long int)sc);
+    return *this;
+}
+inline mpz_class &mpz_class::operator=(unsigned char uc) {
+    mpz_set_ui(this->value, (unsigned long int)uc);
+    return *this;
+}
+inline mpz_class &mpz_class::operator=(char c) {
+    if (std::is_signed<char>::value)
+        return *this = static_cast<signed char>(c);
+    else
+        return *this = static_cast<unsigned char>(c);
+}
 inline mpz_class abs(const mpz_class &op) {
     mpz_class result;
     mpz_abs(result.value, op.value);
@@ -557,6 +585,14 @@ class mpq_class {
     inline friend bool operator<=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) >= 0; }
 
+    inline mpq_class &operator=(signed long int sop);
+    inline mpq_class &operator=(unsigned long int uop);
+    inline mpq_class &operator=(signed int sop);
+    inline mpq_class &operator=(unsigned int uop);
+    inline mpq_class &operator=(signed char sc);
+    inline mpq_class &operator=(unsigned char uc);
+    inline mpq_class &operator=(char c);
+
     // void mpq_class::canonicalize ()
     // mpq_class abs (mpq_class op)
     // double mpq_class::get_d (void)
@@ -693,6 +729,49 @@ inline mpq_class abs(const mpq_class &op) {
 }
 inline bool operator==(const mpq_class &lhs, double rhs) { return lhs.get_d() == rhs; }
 inline bool operator==(double lhs, const mpq_class &rhs) { return lhs == rhs.get_d(); }
+inline bool operator==(const mpq_class &lhs, signed long int rhs) { return mpq_cmp_si(lhs.get_mpq_t(), rhs, (signed long int)1) == 0; }
+inline bool operator==(signed long int lhs, const mpq_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpq_class &lhs, unsigned long int rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), rhs, (unsigned long int)1) == 0; }
+inline bool operator==(unsigned long int lhs, const mpq_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpq_class &lhs, signed int rhs) { return mpq_cmp_si(lhs.get_mpq_t(), (signed long int)rhs, (signed long int)1) == 0;}
+inline bool operator==(signed int lhs, const mpq_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpq_class &lhs, unsigned int rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), (unsigned long int)rhs, (unsigned long int)1) == 0; }
+inline bool operator==(unsigned int lhs, const mpq_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpq_class &lhs, signed char rhs) { return mpq_cmp_si(lhs.get_mpq_t(), (signed long int)rhs, (signed long int)1) == 0; }
+inline bool operator==(signed char lhs, const mpq_class &rhs) { return rhs == lhs; }
+inline bool operator==(const mpq_class &lhs, unsigned char rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), (unsigned long int)rhs, (unsigned long int)1) == 0; }
+inline bool operator==(unsigned char lhs, const mpq_class &rhs) { return rhs == lhs; }
+
+inline mpq_class &mpq_class::operator=(signed long int sc) {
+    mpq_set_si(this->value, sc, (signed long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(unsigned long int uc) {
+    mpq_set_ui(this->value, uc, (unsigned long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(signed int sc) {
+    mpq_set_si(this->value, (signed long int)sc, (signed long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(unsigned int uc) {
+    mpq_set_ui(this->value, (unsigned long int)uc, (unsigned long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(signed char sc) {
+    mpq_set_si(this->value, (signed long int)sc, (signed long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(unsigned char uc) {
+    mpq_set_ui(this->value, (unsigned long int)uc, (unsigned long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(char c) {
+    if (std::is_signed<char>::value)
+        return *this = static_cast<signed char>(c);
+    else
+        return *this = static_cast<unsigned char>(c);
+}
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
