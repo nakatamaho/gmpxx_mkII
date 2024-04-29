@@ -2028,6 +2028,13 @@ void test_casts() {
     a4 = mpz_class(b4);
     assert(Is_mpz_class_Equals(a4, expectedValue4, true));
 
+    // mpf_class -> mpq_class
+    mpf_class a5("4.5");
+    mpq_class b5;
+    const char *expectedValue5 = "9/2";
+    b5 = mpq_class(a5);
+    assert(Is_mpq_class_Equals(b5, expectedValue5));
+
     std::cout << "test_casts passed." << std::endl;
 }
 int main() {

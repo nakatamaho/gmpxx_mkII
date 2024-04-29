@@ -618,6 +618,10 @@ class mpq_class {
         mpq_init(value);
         mpq_set_z(value, op);
     }
+    mpq_class(const mpf_t op) {
+        mpq_init(value);
+        mpq_set_f(value, op);
+    }
     mpq_class(unsigned long int op1, unsigned long int op2) {
         mpq_init(value);
         mpq_set_ui(value, op1, op2);
@@ -633,6 +637,10 @@ class mpq_class {
     mpq_class(unsigned int op1, unsigned int op2) {
         mpq_init(value);
         mpq_set_ui(value, (unsigned long int)op1, (unsigned long int)op2);
+    }
+    mpq_class(double op) {
+        mpq_init(value);
+        mpq_set_d(value, op);
     }
     inline friend mpq_class &operator+=(mpq_class &lhs, const mpq_class &rhs);
     inline friend mpq_class &operator-=(mpq_class &lhs, const mpq_class &rhs);
@@ -662,6 +670,11 @@ class mpq_class {
     inline mpq_class &operator=(float op);
     inline mpq_class &operator=(double op);
 
+    inline mpq_class operator<<(const mp_bitcnt_t shift) const {
+        mpq_class result;
+        mpq_mul_2exp(result.value, value, shift);
+        return result;
+    }
     // void mpq_class::canonicalize ()
     // mpq_class abs (mpq_class op)
     // double mpq_class::get_d (void)
@@ -718,6 +731,15 @@ class mpq_class {
     inline friend mpq_class operator*(const mpz_class &op1, const mpq_class &op2);
     inline friend mpq_class operator/(const mpq_class &op1, const mpz_class &op2);
     inline friend mpq_class operator/(const mpz_class &op1, const mpq_class &op2);
+
+    inline friend mpq_class operator+(const mpq_class &op1, const double op2);
+    inline friend mpq_class operator+(const double op1, const mpq_class &op2);
+    inline friend mpq_class operator-(const mpq_class &op1, const double op2);
+    inline friend mpq_class operator-(const double op1, const mpq_class &op2);
+    inline friend mpq_class operator*(const mpq_class &op1, const double op2);
+    inline friend mpq_class operator*(const double op1, const mpq_class &op2);
+    inline friend mpq_class operator/(const mpq_class &op1, const double op2);
+    inline friend mpq_class operator/(const double op1, const mpq_class &op2);
 
     // mpz_class& mpq_class::get_num ()
     // mpz_class& mpq_class::get_den ()
@@ -850,6 +872,46 @@ inline mpq_class operator/(const mpq_class &op1, const mpz_class &op2) {
     return result;
 }
 inline mpq_class operator/(const mpz_class &op1, const mpq_class &op2) {
+    mpq_class result(op1);
+    mpq_mul(result.value, result.value, op2.value);
+    return result;
+}
+inline mpq_class operator+(const mpq_class &op1, const double op2) {
+    mpq_class result(op2);
+    mpq_add(result.value, op1.value, result.value);
+    return result;
+}
+inline mpq_class operator+(const double op1, const mpq_class &op2) {
+    mpq_class result(op1);
+    mpq_add(result.value, result.value, op2.value);
+    return result;
+}
+inline mpq_class operator-(const mpq_class &op1, const double op2) {
+    mpq_class result(op2);
+    mpq_sub(result.value, op1.value, result.value);
+    return result;
+}
+inline mpq_class operator-(const double op1, const mpq_class &op2) {
+    mpq_class result(op1);
+    mpq_sub(result.value, result.value, op2.value);
+    return result;
+}
+inline mpq_class operator*(const mpq_class &op1, const double op2) {
+    mpq_class result(op2);
+    mpq_mul(result.value, op1.value, result.value);
+    return result;
+}
+inline mpq_class operator*(const double op1, const mpq_class &op2) {
+    mpq_class result(op1);
+    mpq_mul(result.value, result.value, op2.value);
+    return result;
+}
+inline mpq_class operator/(const mpq_class &op1, const double op2) {
+    mpq_class result(op2);
+    mpq_div(result.value, op1.value, result.value);
+    return result;
+}
+inline mpq_class operator/(const double op1, const mpq_class &op2) {
     mpq_class result(op1);
     mpq_mul(result.value, result.value, op2.value);
     return result;
@@ -1222,6 +1284,7 @@ class mpf_class {
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpf_class &operator=(const mpz_class &) = delete;
 #endif
+    operator mpq_class() const;
     operator mpz_class() const;
     mpf_srcptr get_mpf_t() const { return value; }
 
@@ -1234,7 +1297,7 @@ class mpf_class {
     static mpf_class log2_cached;
 };
 // casts
-// mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); } should't exist, as it is not well defined.
+mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); }
 mpf_class::operator mpz_class() const { return mpz_class(this->get_mpf_t()); }
 mpz_class::operator mpf_class() const { return mpf_class(this->get_mpz_t()); }
 mpq_class::operator mpf_class() const { return mpf_class(this->get_mpq_t()); }
