@@ -20,8 +20,17 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include "config.h"
 
 #include "gmpxx_mkII.h"
-#include "gmp-impl.h"
-#include "tests.h"
+using std::string;
+using std::invalid_argument;
+
+void assert_always(bool condition, const char* message, int line) {
+  if (!condition) {
+    std::cerr << "Assertion failed at line " << line << ": " << message << std::endl;
+    std::abort();
+  }
+}
+
+#define ASSERT_ALWAYS(cond) assert_always((cond), #cond, __LINE__)
 
 int f_z  (mpz_class){return 0;}
 int f_q  (mpq_class){return 1;}
@@ -73,10 +82,8 @@ check (void)
 int
 main (void)
 {
-  tests_start();
 
   check();
 
-  tests_end();
   return 0;
 }

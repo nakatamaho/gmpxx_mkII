@@ -21,8 +21,19 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include <cstdlib>
 #include <cstring>
 
-#include "gmp-impl.h"
-#include "tests.h"
+#include "gmpxx_mkII.h"
+
+using std::string;
+using std::invalid_argument;
+
+void assert_always(bool condition, const char* message, int line) {
+  if (!condition) {
+    std::cerr << "Assertion failed at line " << line << ": " << message << std::endl;
+    std::abort();
+  }
+}
+
+#define ASSERT_ALWAYS(cond) assert_always((cond), #cond, __LINE__)
 
 using namespace std;
 
@@ -586,13 +597,10 @@ main (int argc, char *argv[])
   if (argc > 1 && strcmp (argv[1], "-s") == 0)
     option_check_standard = true;
 
-  tests_start ();
-
   check_putback_tellg ();
   check_mpz ();
   check_mpq ();
   check_mpf ();
 
-  tests_end ();
   return 0;
 }
