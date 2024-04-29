@@ -27,7 +27,7 @@ ORIG_TESTS = $(patsubst tests/cxx/t-%.cc,tests/cxx/t-%,$(SOURCES))
 
 BENCHMARKS_DIR = benchmarks/00_inner_product
 BENCHMARKS0 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
-BENCHMARKS1 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_12_mpblas inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_mkIISR)
+BENCHMARKS1 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_12_mpblas inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
 
 all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(ORIG_TESTS) $(BENCHMARKS0) $(BENCHMARKS1)
 
@@ -72,6 +72,18 @@ $(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas_compat: $(BENCHMARKS_DIR)/inner_pr
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas_mkIISR: $(BENCHMARKS_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp: $(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
+
+$(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp_mkII: $(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp_compat: $(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp_mkIISR: $(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 check:
