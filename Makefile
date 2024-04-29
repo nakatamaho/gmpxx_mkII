@@ -23,7 +23,7 @@ OBJECTS_MKIISR = $(SOURCES:.cpp=_mkiisr.o)
 
 ORIG_TESTS_DIR = tests/cxx
 ORIG_TESTS_SOURCES = $(wildcard $(ORIG_TESTS_DIR)/*.cc)
-ORIG_TESTS = $(patsubst tests/cxx/t-%.cc,tests/cxx/t-%,$(SOURCES))
+ORIG_TESTS = $(ORIG_TESTS_SOURCES:$(ORIG_TESTS_DIR)/%.cc=$(ORIG_TESTS_DIR)/%)
 
 BENCHMARKS_DIR = benchmarks/00_inner_product
 BENCHMARKS0 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
