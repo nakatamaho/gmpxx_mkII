@@ -436,6 +436,16 @@ inline mpz_class operator+(double lhs, const mpz_class &rhs) {
     mpz_class temp(lhs);
     return temp + rhs;
 }
+inline mpz_class operator+(const mpz_class &lhs, const int rhs) {
+    mpz_class result(lhs);
+    result += rhs;
+    return result;
+}
+inline mpz_class operator+(const int lhs, const mpz_class &rhs) {
+    mpz_class result(rhs);
+    result += lhs;
+    return result;
+}
 inline mpz_class abs(const mpz_class &op) {
     mpz_class result;
     mpz_abs(result.value, op.value);
@@ -1249,6 +1259,16 @@ inline mpf_class operator+(const mpf_class &lhs, const double rhs) {
     return result;
 }
 inline mpf_class operator+(const double lhs, const mpf_class &rhs) {
+    mpf_class result(lhs);
+    result += rhs;
+    return result;
+}
+inline mpf_class operator+(const mpf_class &lhs, const int rhs) {
+    mpf_class result(lhs);
+    result += rhs;
+    return result;
+}
+inline mpf_class operator+(const int lhs, const mpf_class &rhs) {
     mpf_class result(lhs);
     result += rhs;
     return result;
