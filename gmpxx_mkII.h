@@ -94,15 +94,13 @@ class mpz_class {
     mpz_class(const char *str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str, base) != 0) {
-            std::cerr << "Error initializing mpz_class from const char*: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpz_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     mpz_class(const std::string &str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str.c_str(), base) != 0) {
-            std::cerr << "Error initializing mpz_class from std::string: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpz_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     // mpz_class& mpz_class::operator= (type op)
@@ -126,15 +124,13 @@ class mpz_class {
     }
     mpz_class &operator=(const char *str) {
         if (mpz_set_str(value, str, 0) != 0) {
-            std::cerr << "Error assigning mpz_class from char:" << std::endl;
-            throw std::invalid_argument("Failed to initialize mpz_class with given string.");
+            throw std::invalid_argument("");
         }
         return *this;
     }
     mpz_class &operator=(const std::string &str) {
         if (mpz_set_str(value, str.c_str(), 0) != 0) {
-            std::cerr << "Error assigning mpz_class from string: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpz_class with given string.");
+            throw std::invalid_argument("");
         }
         return *this;
     }
@@ -152,6 +148,9 @@ class mpz_class {
     inline friend mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs);
     inline friend mpz_class operator/(const mpz_class &lhs, const mpz_class &rhs);
     inline friend mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator&(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator|(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator^(const mpz_class &lhs, const mpz_class &rhs);
 
     // int cmp (mpz_class op1, type op2)
     // int cmp (type op1, mpz_class op2)
@@ -442,6 +441,21 @@ inline mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs) {
     mpz_mod(result.value, lhs.value, rhs.value);
     return result;
 }
+inline mpz_class operator&(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_and(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpz_class operator|(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_ior(result.value, lhs.value, rhs.value);
+    return result;
+}
+inline mpz_class operator^(const mpz_class &lhs, const mpz_class &rhs) {
+    mpz_class result;
+    mpz_xor(result.value, lhs.value, rhs.value);
+    return result;
+}
 inline bool operator==(const mpz_class &lhs, const signed long int rhs) { return lhs.get_si() == rhs; }
 inline bool operator==(const signed long int lhs, const mpz_class &rhs) { return rhs == lhs; }
 inline bool operator==(const mpz_class &lhs, const unsigned long int rhs) { return lhs.get_ui() == rhs; }
@@ -591,15 +605,13 @@ class mpq_class {
     mpq_class(const char *str, int base = 0) {
         mpq_init(value);
         if (mpq_set_str(value, str, base) != 0) {
-            std::cerr << "Error initializing mpq_class from const char*: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpq_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     mpq_class(const std::string &str, int base = 0) {
         mpq_init(value);
         if (mpq_set_str(value, str.c_str(), base) != 0) {
-            std::cerr << "Error initializing mpq_class from std::string: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpq_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     mpq_class(const mpz_t op) {
@@ -907,29 +919,25 @@ class mpf_class {
     mpf_class(const char *str) {
         mpf_init(value);
         if (mpf_set_str(value, str, gmpxx_defaults::base) != 0) {
-            std::cerr << "Error initializing mpf_class from const char*: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpf_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     mpf_class(const char *str, mp_bitcnt_t prec, int base = gmpxx_defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
-            std::cerr << "Error initializing mpf_class from const char*: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpf_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     mpf_class(const std::string &str) {
         mpf_init(value);
         if (mpf_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
-            std::cerr << "Error initializing mpf_class from std::string: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpf_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     mpf_class(const std::string &str, mp_bitcnt_t prec, int base = gmpxx_defaults::base) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, str.c_str(), base) != 0) {
-            std::cerr << "Error initializing mpf_class from std::string: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpf_class with given string.");
+            throw std::invalid_argument("");
         }
     }
     // mpf_class abs (mpf_class op)
@@ -1030,15 +1038,13 @@ class mpf_class {
     }
     mpf_class &operator=(const char *str) {
         if (mpf_set_str(value, str, gmpxx_defaults::base) != 0) {
-            std::cerr << "Error assigning mpf_class from char:" << std::endl;
-            throw std::invalid_argument("Failed to initialize mpf_class with given string.");
+            throw std::invalid_argument("");
         }
         return *this;
     }
     mpf_class &operator=(const std::string &str) {
         if (mpf_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
-            std::cerr << "Error assigning mpf_class from string: " << str << std::endl;
-            throw std::invalid_argument("Failed to initialize mpf_class with given string.");
+            throw std::invalid_argument("");
         }
         return *this;
     }
