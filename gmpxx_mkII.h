@@ -66,28 +66,13 @@ class mpz_class {
         mpz_init(value);
         mpz_set(value, z);
     }
-    mpz_class(unsigned long int op) {
-        mpz_init(value);
-        mpz_set_ui(value, op);
-    }
     explicit operator unsigned long int() const { return mpz_get_ui(this->value); }
     explicit operator signed long int() const { return mpz_get_si(this->value); }
-    mpz_class(signed long int op) {
-        mpz_init(value);
-        mpz_set_si(value, op);
-    }
-    mpz_class(unsigned int op) {
-        mpz_init(value);
-        mpz_set_ui(value, (unsigned long int)op);
-    }
-    mpz_class(signed int op) {
-        mpz_init(value);
-        mpz_set_si(value, (signed long int)op);
-    }
-    mpz_class(double op) {
-        mpz_init(value);
-        mpz_set_d(value, op);
-    }
+    mpz_class(unsigned long int op) { mpz_init_set_ui(value, op); }
+    mpz_class(signed long int op) { mpz_init_set_si(value, op); }
+    mpz_class(double op) { mpz_init_set_d(value, op); }
+    mpz_class(unsigned int op) { mpz_init_set_ui(value, (unsigned long int)op); }
+    mpz_class(signed int op) { mpz_init_set_si(value, (signed long int)op); }
     mpz_class(const mpq_t op) {
         mpz_init(value);
         mpz_set_q(value, op);
@@ -325,7 +310,7 @@ inline mpz_class operator-(const mpz_class &lhs, const unsigned long int rhs) {
 }
 inline mpz_class operator-(const unsigned long int lhs, const mpz_class &rhs) {
     mpz_class result(lhs);
-    result -= rhs;
+    mpz_ui_sub(result.value, lhs, rhs.value);
     return result;
 }
 inline mpz_class operator*(const mpz_class &lhs, const unsigned long int rhs) {
@@ -442,6 +427,14 @@ inline mpz_class &mpz_class::operator=(char c) {
         return *this = static_cast<signed char>(c);
     else
         return *this = static_cast<unsigned char>(c);
+}
+inline mpz_class operator+(const mpz_class &lhs, double rhs) {
+    mpz_class temp(rhs);
+    return lhs + temp;
+}
+inline mpz_class operator+(double lhs, const mpz_class &rhs) {
+    mpz_class temp(lhs);
+    return temp + rhs;
 }
 inline mpz_class abs(const mpz_class &op) {
     mpz_class result;
