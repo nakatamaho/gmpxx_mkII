@@ -1270,6 +1270,58 @@ class mpf_class {
     inline friend mpf_class operator/(const mpf_class &op1, const double op2);
     inline friend mpf_class operator/(const double op1, const mpf_class &op2);
 
+    inline friend mpf_class &operator+=(mpf_class &lhs, const signed long int rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const signed long int rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const signed long int rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const signed long int rhs);
+    inline friend mpf_class operator+(const mpf_class &op1, const signed long int op2);
+    inline friend mpf_class operator+(const signed long int op1, const mpf_class &op2);
+    inline friend mpf_class operator-(const mpf_class &op1, const signed long int op2);
+    inline friend mpf_class operator-(const signed long int op1, const mpf_class &op2);
+    inline friend mpf_class operator*(const mpf_class &op1, const signed long int op2);
+    inline friend mpf_class operator*(const signed long int op1, const mpf_class &op2);
+    inline friend mpf_class operator/(const mpf_class &op1, const signed long int op2);
+    inline friend mpf_class operator/(const signed long int op1, const mpf_class &op2);
+
+    inline friend mpf_class &operator+=(mpf_class &lhs, const signed int rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const signed int rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const signed int rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const signed int rhs);
+    inline friend mpf_class operator+(const mpf_class &op1, const signed int op2);
+    inline friend mpf_class operator+(const signed int op1, const mpf_class &op2);
+    inline friend mpf_class operator-(const mpf_class &op1, const signed int op2);
+    inline friend mpf_class operator-(const signed int op1, const mpf_class &op2);
+    inline friend mpf_class operator*(const mpf_class &op1, const signed int op2);
+    inline friend mpf_class operator*(const signed int op1, const mpf_class &op2);
+    inline friend mpf_class operator/(const mpf_class &op1, const signed int op2);
+    inline friend mpf_class operator/(const signed int op1, const mpf_class &op2);
+
+    inline friend mpf_class &operator+=(mpf_class &lhs, const unsigned long int rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const unsigned long int rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const unsigned long int rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const unsigned long int rhs);
+    inline friend mpf_class operator+(const mpf_class &op1, const unsigned long int op2);
+    inline friend mpf_class operator+(const unsigned long int op1, const mpf_class &op2);
+    inline friend mpf_class operator-(const mpf_class &op1, const unsigned long int op2);
+    inline friend mpf_class operator-(const unsigned long int op1, const mpf_class &op2);
+    inline friend mpf_class operator*(const mpf_class &op1, const unsigned long int op2);
+    inline friend mpf_class operator*(const unsigned long int op1, const mpf_class &op2);
+    inline friend mpf_class operator/(const mpf_class &op1, const unsigned long int op2);
+    inline friend mpf_class operator/(const unsigned long int op1, const mpf_class &op2);
+
+    inline friend mpf_class &operator+=(mpf_class &lhs, const unsigned int rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const unsigned int rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const unsigned int rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const unsigned int rhs);
+    inline friend mpf_class operator+(const mpf_class &op1, const unsigned int op2);
+    inline friend mpf_class operator+(const unsigned int op1, const mpf_class &op2);
+    inline friend mpf_class operator-(const mpf_class &op1, const unsigned int op2);
+    inline friend mpf_class operator-(const unsigned int op1, const mpf_class &op2);
+    inline friend mpf_class operator*(const mpf_class &op1, const unsigned int op2);
+    inline friend mpf_class operator*(const unsigned int op1, const mpf_class &op2);
+    inline friend mpf_class operator/(const mpf_class &op1, const unsigned int op2);
+    inline friend mpf_class operator/(const unsigned int op1, const mpf_class &op2);
+
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
 
     static mpf_class const_pi();
@@ -1513,16 +1565,6 @@ inline mpf_class operator+(const double op1, const mpf_class &op2) {
     result += op2;
     return result;
 }
-inline mpf_class operator+(const mpf_class &op1, const int op2) {
-    mpf_class result(op1);
-    result += op2;
-    return result;
-}
-inline mpf_class operator+(const int op1, const mpf_class &op2) {
-    mpf_class result(op1);
-    result += op2;
-    return result;
-}
 inline mpf_class operator-(const mpf_class &op1, const double op2) {
     mpf_class result(op1);
     result -= op2;
@@ -1549,6 +1591,278 @@ inline mpf_class operator/(const mpf_class &op1, const double op2) {
     return result;
 }
 inline mpf_class operator/(const double op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result /= op2;
+    return result;
+}
+inline mpf_class &operator+=(mpf_class &lhs, signed long int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, rhs);
+    mpf_add(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, signed long int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, rhs);
+    mpf_sub(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator*=(mpf_class &lhs, signed long int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, rhs);
+    mpf_mul(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator/=(mpf_class &lhs, signed long int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, rhs);
+    mpf_div(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const signed long int op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator+(const signed long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator-(const mpf_class &op1, const signed long int op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator-(const signed long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator*(const mpf_class &op1, const signed long int op2) {
+    mpf_class result = (op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator*(const signed long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator/(const mpf_class &op1, const signed long int op2) {
+    mpf_class result = op1;
+    result /= op2;
+    return result;
+}
+inline mpf_class operator/(const signed long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result /= op2;
+    return result;
+}
+inline mpf_class &operator+=(mpf_class &lhs, signed int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_add(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, signed int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_sub(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator*=(mpf_class &lhs, signed int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_mul(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator/=(mpf_class &lhs, signed int rhs) {
+    mpf_t temp;
+    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_div(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const signed int op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator+(const signed int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator-(const mpf_class &op1, const signed int op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator-(const signed int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator*(const mpf_class &op1, const signed int op2) {
+    mpf_class result = (op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator*(const signed int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator/(const mpf_class &op1, const signed int op2) {
+    mpf_class result = op1;
+    result /= op2;
+    return result;
+}
+inline mpf_class operator/(const signed int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result /= op2;
+    return result;
+}
+inline mpf_class &operator+=(mpf_class &lhs, unsigned long int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, rhs);
+    mpf_add(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, unsigned long int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, rhs);
+    mpf_sub(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator*=(mpf_class &lhs, unsigned long int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, rhs);
+    mpf_mul(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator/=(mpf_class &lhs, unsigned long int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, rhs);
+    mpf_div(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const unsigned long int op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator+(const unsigned long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator-(const mpf_class &op1, const unsigned long int op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator-(const unsigned long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator*(const mpf_class &op1, const unsigned long int op2) {
+    mpf_class result = (op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator*(const unsigned long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator/(const mpf_class &op1, const unsigned long int op2) {
+    mpf_class result = op1;
+    result /= op2;
+    return result;
+}
+inline mpf_class operator/(const unsigned long int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result /= op2;
+    return result;
+}
+inline mpf_class &operator+=(mpf_class &lhs, unsigned int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_add(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, unsigned int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_sub(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator*=(mpf_class &lhs, unsigned int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_mul(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class &operator/=(mpf_class &lhs, unsigned int rhs) {
+    mpf_t temp;
+    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_div(lhs.value, lhs.value, temp);
+    mpf_clear(temp);
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const unsigned int op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator+(const unsigned int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpf_class operator-(const mpf_class &op1, const unsigned int op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator-(const unsigned int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator*(const mpf_class &op1, const unsigned int op2) {
+    mpf_class result = (op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator*(const unsigned int op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpf_class operator/(const mpf_class &op1, const unsigned int op2) {
+    mpf_class result = op1;
+    result /= op2;
+    return result;
+}
+inline mpf_class operator/(const unsigned int op1, const mpf_class &op2) {
     mpf_class result(op1);
     result /= op2;
     return result;
