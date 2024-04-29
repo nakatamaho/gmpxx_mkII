@@ -256,7 +256,6 @@ class mpz_class {
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpz_class &op1, mpz_class &op2) { mpz_swap(op1.value, op2.value); }
 #endif
-
     inline friend mpz_class &operator+=(mpz_class &lhs, const unsigned long int rhs);
     inline friend mpz_class &operator-=(mpz_class &lhs, const unsigned long int rhs);
     inline friend mpz_class &operator*=(mpz_class &lhs, const unsigned long int rhs);
@@ -273,14 +272,67 @@ class mpz_class {
     inline friend mpz_class operator%(const mpz_class &op1, unsigned long int op2);
     inline friend mpz_class operator%(const unsigned long int op1, const mpz_class &op2);
 
-    inline friend mpz_class operator/(const mpz_class &op1, const int op2);
-    inline friend mpz_class operator/(const int op1, const mpz_class &op2);
+    inline friend mpz_class &operator+=(mpz_class &lhs, const signed long int rhs);
+    inline friend mpz_class &operator-=(mpz_class &lhs, const signed long int rhs);
+    inline friend mpz_class &operator*=(mpz_class &lhs, const signed long int rhs);
+    inline friend mpz_class &operator/=(mpz_class &lhs, const signed long int rhs);
+    inline friend mpz_class &operator%=(mpz_class &lhs, const signed long int rhs);
+    inline friend mpz_class operator+(const mpz_class &op1, const signed long int op2);
+    inline friend mpz_class operator+(const signed long int op1, const mpz_class &op2);
+    inline friend mpz_class operator-(const mpz_class &op1, const signed long int op2);
+    inline friend mpz_class operator-(const signed long int op1, const mpz_class &op2);
+    inline friend mpz_class operator*(const mpz_class &op1, const signed long int op2);
+    inline friend mpz_class operator*(const signed long int op1, const mpz_class &op2);
+    inline friend mpz_class operator/(const mpz_class &op1, signed long int op2);
+    inline friend mpz_class operator/(const signed long int op1, const mpz_class &op2);
+    inline friend mpz_class operator%(const mpz_class &op1, signed long int op2);
+    inline friend mpz_class operator%(const signed long int op1, const mpz_class &op2);
 
-    inline friend mpz_class operator/(const mpz_class &op1, const unsigned int op2);
+    inline friend mpz_class &operator+=(mpz_class &lhs, const unsigned int rhs);
+    inline friend mpz_class &operator-=(mpz_class &lhs, const unsigned int rhs);
+    inline friend mpz_class &operator*=(mpz_class &lhs, const unsigned int rhs);
+    inline friend mpz_class &operator/=(mpz_class &lhs, const unsigned int rhs);
+    inline friend mpz_class &operator%=(mpz_class &lhs, const unsigned int rhs);
+    inline friend mpz_class operator+(const mpz_class &op1, const unsigned int op2);
+    inline friend mpz_class operator+(const unsigned int op1, const mpz_class &op2);
+    inline friend mpz_class operator-(const mpz_class &op1, const unsigned int op2);
+    inline friend mpz_class operator-(const unsigned int op1, const mpz_class &op2);
+    inline friend mpz_class operator*(const mpz_class &op1, const unsigned int op2);
+    inline friend mpz_class operator*(const unsigned int op1, const mpz_class &op2);
+    inline friend mpz_class operator/(const mpz_class &op1, unsigned int op2);
     inline friend mpz_class operator/(const unsigned int op1, const mpz_class &op2);
+    inline friend mpz_class operator%(const mpz_class &op1, unsigned int op2);
+    inline friend mpz_class operator%(const unsigned int op1, const mpz_class &op2);
 
+    inline friend mpz_class &operator+=(mpz_class &lhs, const int rhs);
+    inline friend mpz_class &operator-=(mpz_class &lhs, const int rhs);
+    inline friend mpz_class &operator*=(mpz_class &lhs, const int rhs);
+    inline friend mpz_class &operator/=(mpz_class &lhs, const int rhs);
+    inline friend mpz_class &operator%=(mpz_class &lhs, const int rhs);
+    inline friend mpz_class operator+(const mpz_class &op1, const int op2);
+    inline friend mpz_class operator+(const int op1, const mpz_class &op2);
+    inline friend mpz_class operator-(const mpz_class &op1, const int op2);
+    inline friend mpz_class operator-(const int op1, const mpz_class &op2);
+    inline friend mpz_class operator*(const mpz_class &op1, const int op2);
+    inline friend mpz_class operator*(const int op1, const mpz_class &op2);
+    inline friend mpz_class operator/(const mpz_class &op1, int op2);
+    inline friend mpz_class operator/(const int op1, const mpz_class &op2);
+    inline friend mpz_class operator%(const mpz_class &op1, int op2);
+    inline friend mpz_class operator%(const int op1, const mpz_class &op2);
+
+    inline friend mpz_class &operator+=(mpz_class &lhs, const double rhs);
+    inline friend mpz_class &operator-=(mpz_class &lhs, const double rhs);
+    inline friend mpz_class &operator*=(mpz_class &lhs, const double rhs);
+    inline friend mpz_class &operator/=(mpz_class &lhs, const double rhs);
+    inline friend mpz_class &operator%=(mpz_class &lhs, const double rhs);
+    inline friend mpz_class operator+(const mpz_class &op1, const double op2);
+    inline friend mpz_class operator+(const double op1, const mpz_class &op2);
+    inline friend mpz_class operator-(const mpz_class &op1, const double op2);
+    inline friend mpz_class operator-(const double op1, const mpz_class &op2);
+    inline friend mpz_class operator*(const mpz_class &op1, const double op2);
+    inline friend mpz_class operator*(const double op1, const mpz_class &op2);
+    inline friend mpz_class operator/(const mpz_class &op1, double op2);
     inline friend mpz_class operator/(const double op1, const mpz_class &op2);
-    inline friend mpz_class operator/(const mpz_class &op1, const mpz_class op2);
 
     friend std::ostream &operator<<(std::ostream &os, const mpz_class &m);
 
@@ -295,7 +347,6 @@ class mpz_class {
   private:
     mpz_t value;
 };
-
 inline mpz_class &operator+=(mpz_class &lhs, const unsigned long int rhs) {
     mpz_add_ui(lhs.value, lhs.value, rhs);
     return lhs;
@@ -348,27 +399,141 @@ inline mpz_class operator/(const unsigned long int op1, const mpz_class &op2) {
     result /= op2;
     return result;
 }
+inline mpz_class operator%(const mpz_class &op1, const unsigned long int op2) {
+    mpz_class result;
+    mpz_mod_ui(result.value, op1.value, op2);
+    return result;
+}
+inline mpz_class operator%(const unsigned long int op1, const mpz_class &op2) {
+    mpz_class result(op1);
+    result %= op2;
+    return result;
+}
+inline mpz_class &operator+=(mpz_class &lhs, const unsigned int rhs) {
+    mpz_add_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator-=(mpz_class &lhs, const unsigned int rhs) {
+    mpz_sub_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator*=(mpz_class &lhs, const unsigned int rhs) {
+    mpz_mul_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator/=(mpz_class &lhs, const unsigned int rhs) {
+    mpz_div_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class &operator%=(mpz_class &lhs, const unsigned int rhs) {
+    mpz_mod_ui(lhs.value, lhs.value, rhs);
+    return lhs;
+}
+inline mpz_class operator+(const mpz_class &op1, const unsigned int op2) {
+    mpz_class result;
+    mpz_add_ui(result.value, op1.value, op2);
+    return result;
+}
+inline mpz_class operator+(const unsigned int op1, const mpz_class &op2) { return op2 + op1; }
+inline mpz_class operator-(const mpz_class &op1, const unsigned int op2) {
+    mpz_class result;
+    mpz_sub_ui(result.value, op1.value, op2);
+    return result;
+}
+inline mpz_class operator-(const unsigned int op1, const mpz_class &op2) {
+    mpz_class result(op1);
+    mpz_ui_sub(result.value, op1, op2.value);
+    return result;
+}
+inline mpz_class operator*(const mpz_class &op1, const unsigned int op2) {
+    mpz_class result;
+    mpz_mul_ui(result.value, op1.value, op2);
+    return result;
+}
+inline mpz_class operator*(const unsigned int op1, const mpz_class &op2) { return op2 * op1; }
 inline mpz_class operator/(const mpz_class &op1, const unsigned int op2) {
     mpz_class result;
-    mpz_div_ui(result.value, op1.value, (unsigned long int)op2);
+    mpz_div_ui(result.value, op1.value, op2);
     return result;
 }
 inline mpz_class operator/(const unsigned int op1, const mpz_class &op2) {
-    mpz_class result(op1); // maybe using mpz_div_ui is better?
-    result /= op2;
-    return result;
-}
-inline mpz_class operator/(const mpz_class &op1, const int op2) {
-    mpz_class result;
-    mpz_class op2_converted(op2);
-    mpz_div(result.value, op1.value, op2_converted.value);
-    return result;
-}
-inline mpz_class operator/(const int op1, const mpz_class &op2) {
     mpz_class result(op1);
     result /= op2;
     return result;
 }
+inline mpz_class operator%(const mpz_class &op1, const unsigned int op2) {
+    mpz_class result;
+    mpz_mod_ui(result.value, op1.value, op2);
+    return result;
+}
+inline mpz_class operator%(const unsigned int op1, const mpz_class &op2) {
+    mpz_class result(op1);
+    result %= op2;
+    return result;
+}
+inline mpz_class &operator+=(mpz_class &lhs, const signed long int rhs) {
+    if (rhs > 0)
+        mpz_add_ui(lhs.value, lhs.value, (unsigned long int)rhs);
+    else {
+        unsigned int _rhs = -rhs;
+        mpz_sub_ui(lhs.value, lhs.value, _rhs);
+    }
+    return lhs;
+}
+inline mpz_class &operator-=(mpz_class &lhs, const signed long int rhs) {
+    if (rhs > 0)
+        mpz_sub_ui(lhs.value, lhs.value, (unsigned long int)rhs);
+    else {
+        unsigned int _rhs = -rhs;
+        mpz_add_ui(lhs.value, lhs.value, _rhs);
+    }
+    return lhs;
+}
+inline mpz_class &operator*=(mpz_class &lhs, const signed long int rhs) {
+    if (rhs > 0)
+        mpz_mul_ui(lhs.value, lhs.value, (unsigned int)rhs);
+    else {
+        unsigned int _rhs = -rhs;
+        mpz_mul_ui(lhs.value, lhs.value, _rhs);
+        mpz_neg(lhs.value, lhs.value);
+    }
+    return lhs;
+}
+inline mpz_class &operator/=(mpz_class &lhs, const signed long int rhs) {}
+inline mpz_class &operator%=(mpz_class &lhs, const signed long int rhs) {}
+inline mpz_class operator+(const mpz_class &op1, const signed long int op2) {
+    mpz_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpz_class operator+(const signed long int op1, const mpz_class &op2) { return op2 + op1; }
+inline mpz_class operator-(const mpz_class &op1, const signed long int op2) {
+    mpz_class result(op1);
+    if (op2 > 0)
+        mpz_sub_ui(result.value, op1.value, (unsigned long int)op2);
+    else {
+        unsigned long int _op2 = (unsigned long int)(-op2);
+        mpz_add_ui(result.value, op1.value, _op2);
+    }
+    return result;
+}
+inline mpz_class operator-(const signed long int op1, const mpz_class &op2) {
+    mpz_class result(op2);
+    if (op1 > 0)
+        mpz_ui_sub(result.value, (unsigned long int)op1, op2.value);
+    else {
+        unsigned long int _op1 = (unsigned long int)(-op1);
+        mpz_sub_ui(result.value, op2.value, _op1);
+        mpz_neg(result.value, result.value);
+    }
+    return result;
+}
+inline mpz_class operator*(const mpz_class &op1, const signed long int op2) {}
+inline mpz_class operator*(const signed long int op1, const mpz_class &op2) {}
+inline mpz_class operator/(const mpz_class &op1, const signed long int op2) {}
+inline mpz_class operator/(const signed long int op1, const mpz_class &op2) {}
+inline mpz_class operator%(const mpz_class &op1, const signed long int op2) {}
+inline mpz_class operator%(const signed long int op1, const mpz_class &op2) {}
 inline mpz_class operator/(const double op1, const mpz_class &op2) {
     mpz_class result;
     mpz_class op1_converted(op1);
@@ -378,16 +543,6 @@ inline mpz_class operator/(const double op1, const mpz_class &op2) {
 inline mpz_class operator/(const mpz_class &op1, const double op2) {
     mpz_class result(op1);
     result /= op2;
-    return result;
-}
-inline mpz_class operator%(const mpz_class &op1, const unsigned long int op2) {
-    mpz_class result;
-    mpz_mod_ui(result.value, op1.value, op2);
-    return result;
-}
-inline mpz_class operator%(const unsigned long int op1, const mpz_class &op2) {
-    mpz_class result(op1);
-    result %= op2;
     return result;
 }
 inline mpz_class &operator+=(mpz_class &op1, const mpz_class &op2) {
@@ -501,16 +656,6 @@ inline mpz_class operator+(const mpz_class &op1, double op2) {
 inline mpz_class operator+(double op1, const mpz_class &op2) {
     mpz_class temp(op1);
     return temp + op2;
-}
-inline mpz_class operator+(const mpz_class &op1, const int op2) {
-    mpz_class result(op1);
-    result += op2;
-    return result;
-}
-inline mpz_class operator+(const int op1, const mpz_class &op2) {
-    mpz_class result(op2);
-    result += op1;
-    return result;
 }
 inline mpz_class abs(const mpz_class &op) {
     mpz_class result;
