@@ -143,14 +143,14 @@ class mpz_class {
     inline friend mpz_class &operator%=(mpz_class &lhs, const mpz_class &rhs);
     inline friend mpz_class operator+(const mpz_class &op);
     inline friend mpz_class operator-(const mpz_class &op);
-    inline friend mpz_class operator+(const mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator-(const mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator*(const mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator/(const mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator%(const mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator&(const mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator|(const mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator^(const mpz_class &lhs, const mpz_class &rhs);
+    inline friend mpz_class operator+(const mpz_class &op1, const mpz_class &op2);
+    inline friend mpz_class operator-(const mpz_class &op1, const mpz_class &op2);
+    inline friend mpz_class operator*(const mpz_class &op1, const mpz_class &op2);
+    inline friend mpz_class operator/(const mpz_class &op1, const mpz_class &op2);
+    inline friend mpz_class operator%(const mpz_class &op1, const mpz_class &op2);
+    inline friend mpz_class operator&(const mpz_class &op1, const mpz_class &op2);
+    inline friend mpz_class operator|(const mpz_class &op1, const mpz_class &op2);
+    inline friend mpz_class operator^(const mpz_class &op1, const mpz_class &op2);
 
     // int cmp (mpz_class op1, type op2)
     // int cmp (type op1, mpz_class op2)
@@ -161,22 +161,22 @@ class mpz_class {
     inline friend bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
 
-    inline mpz_class &operator=(const signed long int sop);
-    inline mpz_class &operator=(const unsigned long int uop);
-    inline mpz_class &operator=(const signed int sop);
-    inline mpz_class &operator=(const unsigned int uop);
-    inline mpz_class &operator=(const signed char sc);
-    inline mpz_class &operator=(const unsigned char uc);
-    inline mpz_class &operator=(const char c);
+    inline mpz_class &operator=(const signed long int op);
+    inline mpz_class &operator=(const unsigned long int op);
+    inline mpz_class &operator=(const signed int op);
+    inline mpz_class &operator=(const unsigned int op);
+    inline mpz_class &operator=(const signed char op);
+    inline mpz_class &operator=(const unsigned char op);
+    inline mpz_class &operator=(const char op);
 
-    inline friend mpz_class operator<<(const mpz_class &lhs, const unsigned int rhs) {
+    inline friend mpz_class operator<<(const mpz_class &op1, const unsigned int op2) {
         mpz_class result;
-        mpz_mul_2exp(result.value, lhs.get_mpz_t(), rhs);
+        mpz_mul_2exp(result.value, op1.get_mpz_t(), op2);
         return result;
     }
-    friend mpz_class operator>>(const mpz_class &lhs, const unsigned int rhs) {
+    friend mpz_class operator>>(const mpz_class &op1, const unsigned int op2) {
         mpz_class result;
-        mpz_tdiv_q_2exp(result.value, lhs.get_mpz_t(), rhs);
+        mpz_tdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
         return result;
     }
 
@@ -316,9 +316,9 @@ inline mpz_class &operator%=(mpz_class &lhs, const unsigned long int rhs) {
     mpz_mod_ui(lhs.value, lhs.value, rhs);
     return lhs;
 }
-inline mpz_class operator+(const mpz_class &op1, const unsigned long int rhs) {
+inline mpz_class operator+(const mpz_class &op1, const unsigned long int op2) {
     mpz_class result;
-    mpz_add_ui(result.value, op1.value, rhs);
+    mpz_add_ui(result.value, op1.value, op2);
     return result;
 }
 inline mpz_class operator+(const unsigned long int op1, const mpz_class &op2) { return op2 + op1; }
@@ -464,35 +464,35 @@ inline bool operator==(const mpz_class &lhs, const signed int rhs) { return lhs.
 inline bool operator==(const signed int lhs, const mpz_class &rhs) { return rhs == lhs; }
 inline bool operator==(const mpz_class &lhs, const unsigned int rhs) { return lhs.get_ui() == rhs; }
 inline bool operator==(const unsigned int lhs, const mpz_class &rhs) { return rhs == lhs; }
-inline mpz_class &mpz_class::operator=(const signed long int sc) {
-    mpz_set_si(this->value, sc);
+inline mpz_class &mpz_class::operator=(const signed long int op) {
+    mpz_set_si(this->value, op);
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const unsigned long int uc) {
-    mpz_set_ui(this->value, uc);
+inline mpz_class &mpz_class::operator=(const unsigned long int op) {
+    mpz_set_ui(this->value, op);
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const signed int sc) {
-    mpz_set_si(this->value, (signed long int)sc);
+inline mpz_class &mpz_class::operator=(const signed int op) {
+    mpz_set_si(this->value, (signed long int)op);
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const unsigned int uc) {
-    mpz_set_ui(this->value, (unsigned long int)uc);
+inline mpz_class &mpz_class::operator=(const unsigned int op) {
+    mpz_set_ui(this->value, (unsigned long int)op);
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const signed char sc) {
-    mpz_set_si(this->value, (signed long int)sc);
+inline mpz_class &mpz_class::operator=(const signed char op) {
+    mpz_set_si(this->value, (signed long int)op);
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const unsigned char uc) {
-    mpz_set_ui(this->value, (unsigned long int)uc);
+inline mpz_class &mpz_class::operator=(const unsigned char op) {
+    mpz_set_ui(this->value, (unsigned long int)op);
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const char c) {
+inline mpz_class &mpz_class::operator=(const char op) {
     if (std::is_signed<char>::value)
-        return *this = static_cast<signed char>(c);
+        return *this = static_cast<signed char>(op);
     else
-        return *this = static_cast<unsigned char>(c);
+        return *this = static_cast<unsigned char>(op);
 }
 inline mpz_class operator+(const mpz_class &op1, double op2) {
     mpz_class temp(op2);
