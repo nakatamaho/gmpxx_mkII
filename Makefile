@@ -55,7 +55,7 @@ $(TARGET_MKIISR): $(OBJECTS_MKIISR)
 $(OBJECTS_MKIISR): $(SOURCES) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -c $(SOURCES) -o $@
 
-$(ORIG_TESTS): tests/cxx/t-% : tests/cxx/t-%.cc
+$(ORIG_TESTS): $(ORIG_TESTS_DIR)/t-% : $(ORIG_TESTS_DIR)/t-%.cc
 	sed -i 's/#include "gmpxx\.h"/#include "gmpxx_mkII\.h"/' $<
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
 
