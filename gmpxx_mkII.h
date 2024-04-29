@@ -697,6 +697,19 @@ class mpq_class {
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpq_class &op1, mpq_class &op2) { mpq_swap(op1.value, op2.value); }
 #endif
+    inline friend mpq_class &operator+=(mpq_class &lhs, const signed long int rhs);
+    inline friend mpq_class &operator-=(mpq_class &lhs, const signed long int rhs);
+    inline friend mpq_class &operator*=(mpq_class &lhs, const signed long int rhs);
+    inline friend mpq_class &operator/=(mpq_class &lhs, const signed long int rhs);
+    inline friend mpq_class operator+(const mpq_class &lhs, const signed long int rhs);
+    inline friend mpq_class operator+(const signed long int lhs, const mpq_class &rhs);
+    inline friend mpq_class operator-(const mpq_class &lhs, const signed long int rhs);
+    inline friend mpq_class operator-(const signed long int lhs, const mpq_class &rhs);
+    inline friend mpq_class operator*(const mpq_class &lhs, const signed long int rhs);
+    inline friend mpq_class operator*(const signed long int lhs, const mpq_class &rhs);
+    inline friend mpq_class operator/(const mpq_class &lhs, signed long int rhs);
+    inline friend mpq_class operator/(const signed long int lhs, const mpq_class &rhs);
+
     // mpz_class& mpq_class::get_num ()
     // mpz_class& mpq_class::get_den ()
     // mpz_t mpq_class::get_num_mpz_t ()
@@ -850,6 +863,53 @@ inline mpq_class &mpq_class::operator=(double op) {
     mpq_set_d(this->value, op);
     return *this;
 }
+inline mpq_class &operator+=(mpq_class &lhs, const signed long int rhs) {
+    mpz_add(lhs.value, lhs.get_den_mpz_t(), rhs);
+    return lhs;
+}
+inline mpq_class &operator-=(mpq_class &lhs, const signed long int rhs) {
+    mpz_submul(lhs.get_num_mpz_t(), lhs.get_den_mpz_t(), rhs);
+    return lhs;
+}
+inline mpq_class &operator*=(mpq_class &lhs, const signed long int rhs) {
+    mpz_mul_si(lhs.get_num_mpz_t(), lhs.get_num_mpz_t(), rhs);
+    return lhs;
+}
+inline mpq_class &operator/=(mpq_class &lhs, const signed long int rhs) {
+    if (rhs == 0)
+        throw std::runtime_error("Division by zero");
+    mpz_divexact_si(lhs.get_num_mpz_t(), lhs.get_num_mpz_t(), rhs);
+    return lhs;
+}
+inline mpq_class operator+(const mpq_class &lhs, const signed long int rhs) {
+    mpq_class result(lhs);
+    result += rhs;
+    return result;
+}
+inline mpq_class operator+(const signed long int lhs, const mpq_class &rhs) { return rhs + lhs; }
+inline mpq_class operator-(const mpq_class &lhs, const signed long int rhs) {
+    mpq_class result(lhs);
+    result -= rhs;
+    return result;
+}
+inline mpq_class operator-(const signed long int lhs, const mpq_class &rhs) { return -(rhs - lhs); }
+inline mpq_class operator*(const mpq_class &lhs, const signed long int rhs) {
+    mpq_class result(lhs);
+    result *= rhs;
+    return result;
+}
+inline mpq_class operator*(const signed long int lhs, const mpq_class &rhs) { return rhs * lhs; }
+inline mpq_class operator/(const mpq_class &lhs, const signed long int rhs) {
+    mpq_class result(lhs);
+    result /= rhs;
+    return result;
+}
+inline mpq_class operator/(const signed long int lhs, const mpq_class &rhs) {
+    mpq_class result(lhs);
+    result /= rhs.get_mpq_t();
+    return result;
+}
+
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
