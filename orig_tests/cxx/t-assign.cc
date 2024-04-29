@@ -17,18 +17,23 @@ Public License for more details.
 You should have received a copy of the GNU General Public License along with
 the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
-#include "config.h"
-
 #include <iostream>
 #include <string>
+#include <cassert>
 
-#include "gmpxx.h"
-#include "gmp-impl.h"
-#include "tests.h"
+#include "gmpxx_mkII.h"
 
 using std::string;
 using std::invalid_argument;
 
+void assert_with_line(bool condition, const char* message, int line) {
+  if (!condition) {
+    std::cerr << "Assertion failed at line " << line << ": " << message << std::endl;
+    std::abort();
+  }
+}
+
+#define ASSERT_ALWAYS(cond) assert_with_line((cond), #cond, __LINE__)
 
 void
 check_mpz (void)
@@ -592,12 +597,10 @@ check_mpf (void)
 int
 main (void)
 {
-  tests_start();
 
   check_mpz();
   check_mpq();
   check_mpf();
 
-  tests_end();
   return 0;
 }
