@@ -1287,12 +1287,12 @@ void test_mpz_class_addition() {
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
     {
-        mpz_class a(1), c;
-        unsigned int b = 2;
-        const char *expectedValue = "3";
+        mpz_class a(-1), c;
+        signed long int b = 2;
+        const char *expectedValue = "1";
 
         c = a + b;
-        assert(Is_mpz_class_Equals(c, expectedValue));
+        assert(Is_mpz_class_Equals(c, expectedValue, true));
         c = b + a;
         assert(Is_mpz_class_Equals(c, expectedValue));
         a += b;
@@ -1311,8 +1311,44 @@ void test_mpz_class_addition() {
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
     {
+        mpz_class a(1), c;
+        unsigned int b = 2;
+        const char *expectedValue = "3";
+
+        c = a + b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b + a;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        a += b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
         mpz_class a(-1), c;
-        signed long int b = 2;
+        signed int b = 2;
+        const char *expectedValue = "1";
+
+        c = a + b;
+        assert(Is_mpz_class_Equals(c, expectedValue, true));
+        c = b + a;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        a += b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(1), c;
+        signed int b = -2;
+        const char *expectedValue = "-1";
+
+        c = a + b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b + a;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        a += b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(-1), c;
+        double b = 2.0;
         const char *expectedValue = "1";
 
         c = a + b;
@@ -1325,47 +1361,195 @@ void test_mpz_class_addition() {
     std::cout << "test_mpz_class_addition passed." << std::endl;
 }
 void test_mpz_class_subtraction() {
-    mpz_class a(5), c, d;
-    const char *expectedValueC = "3";
-    const char *expectedValueD = "4";
-    unsigned long int b = 2;
+    {
+        mpz_class a(1), c;
+        unsigned long int b = 2;
+        const char *expectedValue = "-1";
+        const char *expectedValue1 = "1";
 
-    c = a - b;
-    assert(Is_mpz_class_Equals(c, expectedValueC));
-    b = 9;
-    d = b - a;
-    assert(Is_mpz_class_Equals(d, expectedValueD));
-    b = 2;
-    a -= b;
-    assert(Is_mpz_class_Equals(a, expectedValueC));
+        c = a - b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b - a;
+        assert(Is_mpz_class_Equals(c, expectedValue1));
+        a -= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(-1), c;
+        signed long int b = 2;
+        const char *expectedValue = "-3";
+        const char *expectedValue1 = "3";
+
+        c = a - b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b - a;
+        assert(Is_mpz_class_Equals(c, expectedValue1));
+        a -= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(1), c;
+        signed long int b = -2;
+        const char *expectedValue = "3";
+        const char *expectedValue1 = "-3";
+
+        c = a - b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b - a;
+        assert(Is_mpz_class_Equals(c, expectedValue1));
+        a -= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(1), c;
+        unsigned int b = 2;
+        const char *expectedValue = "-1";
+        const char *expectedValue1 = "1";
+
+        c = a - b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b - a;
+        assert(Is_mpz_class_Equals(c, expectedValue1));
+        a -= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(-1), c;
+        signed int b = 2;
+        const char *expectedValue = "-3";
+        const char *expectedValue1 = "3";
+
+        c = a - b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b - a;
+        assert(Is_mpz_class_Equals(c, expectedValue1));
+        a -= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(1), c;
+        signed int b = -2;
+        const char *expectedValue = "3";
+        const char *expectedValue1 = "-3";
+
+        c = a - b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b - a;
+        assert(Is_mpz_class_Equals(c, expectedValue1));
+        a -= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(-1), c;
+        double b = 2.0;
+        const char *expectedValue = "-3";
+        const char *expectedValue1 = "3";
+
+        c = a - b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b - a;
+        assert(Is_mpz_class_Equals(c, expectedValue1));
+        a -= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
     std::cout << "test_mpz_class_subtraction passed." << std::endl;
 }
 void test_mpz_class_multiplication() {
-    mpz_class a(3), c;
-    const char *expectedValue = "6";
-    unsigned long int b = 2;
+    {
+        mpz_class a(3), c;
+        const char *expectedValue = "6";
+        unsigned long int b = 2;
 
-    c = a * b;
-    assert(Is_mpz_class_Equals(c, expectedValue));
-    c = b * a;
-    assert(Is_mpz_class_Equals(c, expectedValue));
-    a *= b;
-    assert(Is_mpz_class_Equals(a, expectedValue));
+        c = a * b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b * a;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        a *= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(3), c;
+        const char *expectedValue = "6";
+        signed long int b = 2;
+
+        c = a * b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b * a;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        a *= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(3), c;
+        const char *expectedValue = "-6";
+        signed long int b = -2;
+
+        c = a * b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b * a;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        a *= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(3), c;
+        const char *expectedValue = "-6";
+        double b = -2.0;
+
+        c = a * b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        c = b * a;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        a *= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
     std::cout << "test_mpz_class_multiplication passed." << std::endl;
 }
 void test_mpz_class_division() {
-    mpz_class a(6), c, d;
-    const char *expectedValue = "3";
-    unsigned long int b = 2;
+    {
+        mpz_class a(6), c, d;
+        const char *expectedValue = "3";
+        unsigned long int b = 2;
 
-    c = a / b;
-    assert(Is_mpz_class_Equals(c, expectedValue));
-    b = 18;
-    d = b / a;
-    assert(Is_mpz_class_Equals(d, expectedValue));
-    b = 2;
-    a /= b;
-    assert(Is_mpz_class_Equals(a, expectedValue));
+        c = a / b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        b = 18;
+        d = b / a;
+        assert(Is_mpz_class_Equals(d, expectedValue));
+        b = 2;
+        a /= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(6), c, d;
+        const char *expectedValue = "3";
+        signed long int b = 2;
+
+        c = a / b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        b = 18;
+        d = b / a;
+        assert(Is_mpz_class_Equals(d, expectedValue));
+        b = 2;
+        a /= b;
+        std::cout << "a " << a << std::endl;
+
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(6), c, d;
+        const char *expectedValue = "-3";
+        signed long int b = -2;
+
+        c = a / b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        b = -18;
+        d = b / a;
+        assert(Is_mpz_class_Equals(d, expectedValue));
+        b = -2;
+        a /= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
     std::cout << "test_mpz_class_division passed." << std::endl;
 }
 void test_mpz_class_modulus() {
