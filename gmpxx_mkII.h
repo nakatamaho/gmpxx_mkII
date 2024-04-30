@@ -500,7 +500,10 @@ inline mpz_class &operator*=(mpz_class &lhs, const signed long int rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const signed long int rhs) {
-    if (rhs >= 0)
+    if (rhs == 0) {
+        throw std::invalid_argument("Division by zero is undefined");
+    }
+    if (rhs > 0)
         mpz_div_ui(lhs.value, lhs.value, (unsigned long int)rhs);
     else {
         unsigned long int _rhs = -rhs;
@@ -509,7 +512,14 @@ inline mpz_class &operator/=(mpz_class &lhs, const signed long int rhs) {
     }
     return lhs;
 }
-inline mpz_class &operator%=(mpz_class &lhs, const signed long int rhs) {}
+inline mpz_class &operator%=(mpz_class &lhs, const signed long int rhs) {
+    if (rhs == 0) {
+        throw std::invalid_argument("Modulo by zero is undefined");
+    }
+    unsigned long int abs_rhs = (rhs > 0) ? static_cast<unsigned long int>(rhs) : static_cast<unsigned long int>(-rhs);
+    mpz_mod_ui(lhs.value, lhs.value, abs_rhs);
+    return lhs;
+}
 inline mpz_class operator+(const mpz_class &op1, const signed long int op2) {
     mpz_class result(op1);
     result += op2;
@@ -559,9 +569,22 @@ inline mpz_class operator/(const signed long int op1, const mpz_class &op2) {
 
     return result;
 }
-inline mpz_class operator%(const mpz_class &op1, const signed long int op2) {}
-inline mpz_class operator%(const signed long int op1, const mpz_class &op2) {}
-
+inline mpz_class operator%(const mpz_class &op1, const signed long int op2) {
+    if (op2 == 0) {
+        throw std::invalid_argument("Modulo by zero is undefined");
+    }
+    mpz_class result(op1);
+    result %= op2;
+    return result;
+}
+inline mpz_class operator%(const signed long int op1, const mpz_class &op2) {
+    if (mpz_sgn(op2.value) == 0) {
+        throw std::invalid_argument("Modulo by zero is undefined");
+    }
+    mpz_class lhs(op1);
+    lhs %= op2;
+    return lhs;
+}
 inline mpz_class &operator+=(mpz_class &lhs, const signed int rhs) {
     if (rhs >= 0)
         mpz_add_ui(lhs.value, lhs.value, (unsigned int)rhs);
@@ -591,7 +614,10 @@ inline mpz_class &operator*=(mpz_class &lhs, const signed int rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const signed int rhs) {
-    if (rhs >= 0)
+    if (rhs == 0) {
+        throw std::invalid_argument("Division by zero is undefined");
+    }
+    if (rhs > 0)
         mpz_div_ui(lhs.value, lhs.value, (unsigned long int)rhs);
     else {
         unsigned long int _rhs = -rhs;
@@ -600,7 +626,14 @@ inline mpz_class &operator/=(mpz_class &lhs, const signed int rhs) {
     }
     return lhs;
 }
-inline mpz_class &operator%=(mpz_class &lhs, const signed int rhs) {}
+inline mpz_class &operator%=(mpz_class &lhs, const signed int rhs) {
+    if (rhs == 0) {
+        throw std::invalid_argument("Modulo by zero is undefined");
+    }
+    unsigned long int abs_rhs = (rhs > 0) ? static_cast<unsigned long int>(rhs) : static_cast<unsigned long int>(-rhs);
+    mpz_mod_ui(lhs.value, lhs.value, abs_rhs);
+    return lhs;
+}
 inline mpz_class operator+(const mpz_class &op1, const signed int op2) {
     mpz_class result(op1);
     result += op2;
@@ -650,9 +683,22 @@ inline mpz_class operator/(const signed int op1, const mpz_class &op2) {
 
     return result;
 }
-inline mpz_class operator%(const mpz_class &op1, const signed int op2) {}
-inline mpz_class operator%(const signed int op1, const mpz_class &op2) {}
-
+inline mpz_class operator%(const mpz_class &op1, const signed int op2) {
+    if (op2 == 0) {
+        throw std::invalid_argument("Modulo by zero is undefined");
+    }
+    mpz_class result(op1);
+    result %= op2;
+    return result;
+}
+inline mpz_class operator%(const signed int op1, const mpz_class &op2) {
+    if (mpz_sgn(op2.value) == 0) {
+        throw std::invalid_argument("Modulo by zero is undefined");
+    }
+    mpz_class lhs(op1);
+    lhs %= op2;
+    return lhs;
+}
 inline mpz_class &operator+=(mpz_class &lhs, const double rhs) {
     mpz_class temp(rhs);
     mpz_add(lhs.value, lhs.value, temp.value);
@@ -669,6 +715,9 @@ inline mpz_class &operator*=(mpz_class &lhs, const double rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const double rhs) {
+    if (rhs == 0.0) {
+        throw std::invalid_argument("Division by zero is undefined");
+    }
     mpz_class temp(rhs);
     mpz_tdiv_q(lhs.value, lhs.value, temp.value);
     return lhs;
