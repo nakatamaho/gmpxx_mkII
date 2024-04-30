@@ -971,6 +971,16 @@ class mpq_class {
         mpq_init(value);
         mpq_set_f(value, op);
     }
+    mpq_class(const mpz_class &op1, const mpz_class &op2) {
+        mpq_init(value);
+        mpq_set_num(value, op1.get_mpz_t());
+        mpq_set_den(value, op2.get_mpz_t());
+        if (op2 == 0) {
+            mpq_clear(value);
+            throw std::invalid_argument("Denominator cannot be zero in a rational number.");
+        }
+        mpq_canonicalize(value);
+    }
     mpq_class(unsigned long int op1, unsigned long int op2) {
         mpq_init(value);
         mpq_set_ui(value, op1, op2);
@@ -1616,6 +1626,8 @@ class mpf_class {
     inline friend mpf_class operator*(const mpf_class &op1, const mpf_class &op2);
     inline friend mpf_class operator/(const mpf_class &op1, const mpf_class &op2);
 
+    inline friend mpf_class operator>>(const mpf_class &op1, const unsigned int op2);
+
     inline friend bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     inline friend bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
     inline friend bool operator<(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) < 0; }
@@ -1820,6 +1832,11 @@ inline mpf_class operator/(const mpf_class &op1, const mpf_class &op2) {
     mpf_init2(result.value, prec);
     mpf_div(result.value, op1.value, op2.value);
 #endif
+    return result;
+}
+inline mpf_class operator>>(const mpf_class &op1, const unsigned int op2) {
+    mpf_class result;
+    mpf_div_2exp(result.value, op1.value, op2);
     return result;
 }
 inline mpf_class operator+(const mpf_class &op) {
@@ -2100,7 +2117,7 @@ inline mpf_class operator-(const mpf_class &op1, const mpz_class &op2) {
     return _op1;
 }
 inline mpf_class operator-(const mpz_class &op1, const mpf_class &op2) {
-    mpf_class _op1(op2); // preserve precision, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class _op2(op2);
     _op1 = op1;
     _op1 -= _op2;
@@ -2113,7 +2130,7 @@ inline mpf_class operator*(const mpf_class &op1, const mpz_class &op2) {
     return _op1;
 }
 inline mpf_class operator*(const mpz_class &op1, const mpf_class &op2) {
-    mpf_class _op1(op2); // preserve precision, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class _op2(op2);
     _op1 = op1;
     _op1 *= _op2;
@@ -2126,7 +2143,79 @@ inline mpf_class operator/(const mpf_class &op1, const mpz_class &op2) {
     return _op1;
 }
 inline mpf_class operator/(const mpz_class &op1, const mpf_class &op2) {
-    mpf_class _op1(op2); // preserve precision, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 /= _op2;
+    return _op1;
+}
+inline mpf_class &operator+=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs += temp;
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs -= temp;
+    return lhs;
+}
+
+inline mpf_class &operator*=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs *= temp;
+    return lhs;
+}
+
+inline mpf_class &operator/=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs /= temp;
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+
+inline mpf_class operator+(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class result(op2);
+    result += op1;
+    return result;
+}
+
+inline mpf_class operator-(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator-(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 -= _op2;
+    return _op1;
+}
+inline mpf_class operator*(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 *= _op2;
+    return _op1;
+}
+inline mpf_class operator*(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 *= _op2;
+    return _op1;
+}
+inline mpf_class operator/(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 /= _op2;
+    return _op1;
+}
+inline mpf_class operator/(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class _op2(op2);
     _op1 = op1;
     _op1 /= _op2;
