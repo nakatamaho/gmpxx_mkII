@@ -2074,10 +2074,11 @@ inline mpf_class operator-(const mpf_class &op1, const mpz_class &op2) {
     return _op1;
 }
 inline mpf_class operator-(const mpz_class &op1, const mpf_class &op2) {
-    mpf_class _op1(op2); // preserve precision
-    mpf_class _op2(op1);
-    _op2 -= _op1;
-    return _op2;
+    mpf_class _op1(op2); // preserve precision, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 -= _op2;
+    return _op1;
 }
 inline mpf_class operator*(const mpf_class &op1, const mpz_class &op2) {
     mpf_class _op1(op1);
@@ -2086,10 +2087,11 @@ inline mpf_class operator*(const mpf_class &op1, const mpz_class &op2) {
     return _op1;
 }
 inline mpf_class operator*(const mpz_class &op1, const mpf_class &op2) {
-    mpf_class _op1(op2);
-    mpf_class _op2(op1);
-    _op2 *= _op1; // to preserve precision
-    return _op2;
+    mpf_class _op1(op2); // preserve precision, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 *= _op2;
+    return _op1;
 }
 inline mpf_class operator/(const mpf_class &op1, const mpz_class &op2) {
     mpf_class _op1(op1);
@@ -2098,10 +2100,11 @@ inline mpf_class operator/(const mpf_class &op1, const mpz_class &op2) {
     return _op1;
 }
 inline mpf_class operator/(const mpz_class &op1, const mpf_class &op2) {
-    mpf_class _op1(op2);
-    mpf_class _op2(op1); // to preserve precision
-    _op2 /= _op1;
-    return _op2;
+    mpf_class _op1(op2); // preserve precision, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 /= _op2;
+    return _op1;
 }
 inline mpf_class &operator+=(mpf_class &lhs, signed int rhs) {
     mpf_t temp;

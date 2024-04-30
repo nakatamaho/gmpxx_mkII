@@ -2491,11 +2491,32 @@ void test_precisions_mixed() {
     }
     {
         mpf_class a(10);
-        mpz_class b("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        mpz_class b(5);
         mpf_class c(3, 1024);
         assert(a.get_prec() == 512);
         a = c + b;
+        assert(a == 8);
         assert((c + b).get_prec() == 1024);
+        assert(a.get_prec() == 512);
+    }
+    {
+        mpf_class a(10);
+        mpz_class b(3);
+        mpf_class c(3, 1024);
+        assert(a.get_prec() == 512);
+        a = b - c;
+        assert(a == 0);
+        assert((b - c).get_prec() == 1024);
+        assert(a.get_prec() == 512);
+    }
+    {
+        mpf_class a(10);
+        mpz_class b(5);
+        mpf_class c(3, 1024);
+        assert(a.get_prec() == 512);
+        a = c - b;
+        assert(a == -2);
+        assert((c - b).get_prec() == 1024);
         assert(a.get_prec() == 512);
     }
     std::cout << "test_precisions_mixed passed." << std::endl;
