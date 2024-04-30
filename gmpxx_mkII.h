@@ -590,7 +590,16 @@ inline mpz_class &operator*=(mpz_class &lhs, const signed int rhs) {
     }
     return lhs;
 }
-inline mpz_class &operator/=(mpz_class &lhs, const signed int rhs) {}
+inline mpz_class &operator/=(mpz_class &lhs, const signed int rhs) {
+    if (rhs >= 0)
+        mpz_div_ui(lhs.value, lhs.value, (unsigned long int)rhs);
+    else {
+        unsigned long int _rhs = -rhs;
+        mpz_div_ui(lhs.value, lhs.value, _rhs);
+        mpz_neg(lhs.value, lhs.value);
+    }
+    return lhs;
+}
 inline mpz_class &operator%=(mpz_class &lhs, const signed int rhs) {}
 inline mpz_class operator+(const mpz_class &op1, const signed int op2) {
     mpz_class result(op1);
@@ -619,10 +628,28 @@ inline mpz_class operator-(const signed int op1, const mpz_class &op2) {
     }
     return result;
 }
-inline mpz_class operator*(const mpz_class &op1, const signed int op2) {}
-inline mpz_class operator*(const signed int op1, const mpz_class &op2) {}
-inline mpz_class operator/(const mpz_class &op1, const signed int op2) {}
-inline mpz_class operator/(const signed int op1, const mpz_class &op2) {}
+inline mpz_class operator*(const mpz_class &op1, const signed int op2) {
+    mpz_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpz_class operator*(const signed int op1, const mpz_class &op2) { return op2 * op1; }
+inline mpz_class operator/(const mpz_class &op1, const signed int op2) {
+    mpz_class result = op1;
+    result /= op2;
+    return result;
+}
+inline mpz_class operator/(const signed int op1, const mpz_class &op2) {
+    mpz_class lhs(op1);
+    mpz_class result;
+
+    if (mpz_sgn(op2.value) == 0) {
+        throw std::domain_error("Division by zero");
+    }
+    mpz_tdiv_q(result.value, lhs.value, op2.value);
+
+    return result;
+}
 inline mpz_class operator%(const mpz_class &op1, const signed int op2) {}
 inline mpz_class operator%(const signed int op1, const mpz_class &op2) {}
 
@@ -643,7 +670,7 @@ inline mpz_class &operator*=(mpz_class &lhs, const double rhs) {
 }
 inline mpz_class &operator/=(mpz_class &lhs, const double rhs) {
     mpz_class temp(rhs);
-    mpz_div(lhs.value, lhs.value, temp.value);
+    mpz_tdiv_q(lhs.value, lhs.value, temp.value);
     return lhs;
 }
 inline mpz_class operator+(const mpz_class &op1, const double op2) {
@@ -668,11 +695,21 @@ inline mpz_class operator*(const mpz_class &op1, const double op2) {
     return result;
 }
 inline mpz_class operator*(const double op1, const mpz_class &op2) { return op2 * op1; }
-
-inline mpz_class operator/(const mpz_class &op1, const double op2) {}
-inline mpz_class operator/(const double op1, const mpz_class &op2) {
+inline mpz_class operator/(const mpz_class &op1, const double op2) {
+    if (op2 == 0.0) {
+        throw std::domain_error("Division by zero");
+    }
     mpz_class result(op1);
     result /= op2;
+    return result;
+}
+inline mpz_class operator/(const double op1, const mpz_class &op2) {
+    if (mpz_sgn(op2.value) == 0) {
+        throw std::domain_error("Division by zero");
+    }
+    mpz_class lhs(op1);
+    mpz_class result;
+    mpz_tdiv_q(result.value, lhs.value, op2.value);
     return result;
 }
 inline mpz_class &operator+=(mpz_class &op1, const mpz_class &op2) {
