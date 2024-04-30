@@ -1583,7 +1583,6 @@ void test_mpz_class_division() {
         assert(Is_mpz_class_Equals(d, expectedValue));
         b = 2;
         a /= b;
-        std::cout << "a " << a << std::endl;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
     {
@@ -1660,18 +1659,36 @@ void test_mpz_class_division() {
     std::cout << "test_mpz_class_division passed." << std::endl;
 }
 void test_mpz_class_modulus() {
-    mpz_class a(5), c, d;
-    const char *expectedValue = "1";
-    unsigned long int b = 2;
+    {
+        mpz_class a(5), c, d;
+        const char *expectedValue = "1";
+        mpz_class b(2);
 
-    c = a % b;
-    assert(Is_mpz_class_Equals(c, expectedValue));
-    b = 11;
-    d = b % a;
-    assert(Is_mpz_class_Equals(d, expectedValue));
-    b = 2;
-    a %= b;
-    assert(Is_mpz_class_Equals(a, expectedValue));
+        c = a % b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        b = 11;
+        d = b % a;
+        assert(Is_mpz_class_Equals(d, expectedValue));
+        b = 2;
+        a %= b;
+        assert(Is_mpz_class_Equals(a, expectedValue));
+    }
+    {
+        mpz_class a(11), c, d;
+        const char *expectedValue = "2";
+        const char *expectedValue1 = "7";
+        const char *expectedValue2 = "1";
+        mpz_class b(-3);
+
+        c = a % b;
+        assert(Is_mpz_class_Equals(c, expectedValue));
+        b = 7;
+        d = b % a;
+        assert(Is_mpz_class_Equals(d, expectedValue1));
+        b = -2;
+        a %= b;
+        assert(Is_mpz_class_Equals(a, expectedValue2));
+    }
     std::cout << "test_mpz_class_modulus passed." << std::endl;
 }
 void testDefaultConstructor_mpq_class() {
