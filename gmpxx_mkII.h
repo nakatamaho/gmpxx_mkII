@@ -336,10 +336,6 @@ class mpz_class {
 
     friend std::ostream &operator<<(std::ostream &os, const mpz_class &m);
 
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
-    mpz_class &operator=(const mpf_class &) = delete;
-#endif
-
     operator mpf_class() const;
     operator mpq_class() const;
     mpz_srcptr get_mpz_t() const { return value; }
@@ -1584,7 +1580,12 @@ class mpf_class {
     mpf_class &operator=(mpf_class &&op) noexcept { // The rule 5 of 5 move assignment operator
         // std::cout << "The rule 5 of 5 move assignment operator\n" ;
         if (this != &op) {
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
+            mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
+            mpf_set(value, op.value);
+#else
             mpf_swap(value, op.value);
+#endif
         }
         return *this;
     }
@@ -1698,11 +1699,17 @@ class mpf_class {
     static void reset_log10_cache();
     static void reset_log2_cache();
 
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
-    mpf_class &operator=(const mpz_class &) = delete;
-#endif
     operator mpq_class() const;
     operator mpz_class() const;
+    mpf_class &operator=(const mpz_class &other) {
+        mpf_set_z(this->value, other.get_mpz_t());
+        return *this;
+    }
+    mpf_class &operator=(const mpq_class &other) {
+        mpf_set_q(this->value, other.get_mpq_t());
+        return *this;
+    }
+
     mpf_srcptr get_mpf_t() const { return value; }
 
   private:
@@ -2027,6 +2034,74 @@ inline mpf_class operator/(const signed long int op1, const mpf_class &op2) {
     mpf_class result(op1);
     result /= op2;
     return result;
+}
+inline mpf_class &operator+=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs += temp;
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs -= temp;
+    return lhs;
+}
+inline mpf_class &operator*=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs *= temp;
+    return lhs;
+}
+inline mpf_class &operator/=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs /= temp;
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 += _op2;
+    return _op1;
+}
+inline mpf_class operator+(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op2 += _op1;
+    return _op2;
+}
+inline mpf_class operator-(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 -= _op2;
+    return _op1;
+}
+inline mpf_class operator-(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // preserve precision
+    mpf_class _op2(op1);
+    _op2 -= _op1;
+    return _op2;
+}
+inline mpf_class operator*(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 *= _op2;
+    return _op1;
+}
+inline mpf_class operator*(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2);
+    mpf_class _op2(op1);
+    _op2 *= _op1; // to preserve precision
+    return _op2;
+}
+inline mpf_class operator/(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 /= _op2;
+    return _op1;
+}
+inline mpf_class operator/(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2);
+    mpf_class _op2(op1); // to preserve precision
+    _op2 /= _op1;
+    return _op2;
 }
 inline mpf_class &operator+=(mpf_class &lhs, signed int rhs) {
     mpf_t temp;

@@ -2469,6 +2469,37 @@ void test_casts() {
 
     std::cout << "test_casts passed." << std::endl;
 }
+void test_precisions_mixed() {
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
+    {
+        mp_exp_t _exp = 1024;
+        ;
+        mpf_class a(10, _exp);
+        mpz_class b("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        a = b;
+        assert(a.get_prec() == 1024);
+    }
+    {
+        mpf_class a(10);
+        mpz_class b("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        mpf_class c(3, 1024);
+        assert(a.get_prec() == 512);
+        a = b + c;
+        assert((b + c).get_prec() == 1024);
+        assert(a.get_prec() == 512);
+    }
+    {
+        mpf_class a(10);
+        mpz_class b("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+        mpf_class c(3, 1024);
+        assert(a.get_prec() == 512);
+        a = c + b;
+        assert((c + b).get_prec() == 1024);
+        assert(a.get_prec() == 512);
+    }
+    std::cout << "test_precisions_mixed passed." << std::endl;
+#endif
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -2569,6 +2600,8 @@ int main() {
     // mpf_class, mpz_class, mpq_class cast
     test_casts();
 
+    // misc tests
+    test_precisions_mixed();
     std::cout << "All tests passed." << std::endl;
 
     return 0;
