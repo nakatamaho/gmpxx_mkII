@@ -1367,12 +1367,24 @@ inline mpq_class operator-(const mpq_class &op1, const signed long int op2) {
     return result;
 }
 inline mpq_class operator-(const signed long int op1, const mpq_class &op2) { return -(op2 - op1); }
+inline mpq_class operator-(const mpq_class &op1, const signed int op2) {
+    mpq_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpq_class operator-(const signed int op1, const mpq_class &op2) { return -(op2 - op1); }
 inline mpq_class operator*(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result *= op2;
     return result;
 }
 inline mpq_class operator*(const signed long int op1, const mpq_class &op2) { return op2 * op1; }
+inline mpq_class operator*(const mpq_class &op1, const signed int op2) {
+    mpq_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpq_class operator*(const signed int op1, const mpq_class &op2) { return op2 * op1; }
 inline mpq_class operator/(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result /= op2;
