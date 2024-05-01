@@ -1038,6 +1038,8 @@ class mpq_class {
     inline mpq_class &operator=(const char op);
     inline mpq_class &operator=(const float op);
     inline mpq_class &operator=(const double op);
+    inline mpq_class &operator=(const char *op);
+    inline mpq_class &operator=(const std::string &op);
 
     inline mpq_class operator<<(const mp_bitcnt_t shift) const {
         mpq_class result;
@@ -1361,6 +1363,18 @@ inline mpq_class &mpq_class::operator=(float op) {
 }
 inline mpq_class &mpq_class::operator=(double op) {
     mpq_set_d(this->value, op);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(const char *op) {
+    if (mpq_set_str(value, op, 10) != 0) {
+        throw std::invalid_argument("Invalid string format for mpq_class");
+    }
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(const std::string &op) {
+    if (mpq_set_str(value, op.c_str(), 10) != 0) {
+        throw std::invalid_argument("Invalid string format for mpq_class");
+    }
     return *this;
 }
 inline mpq_class &operator+=(mpq_class &lhs, const mpz_class &rhs) {
