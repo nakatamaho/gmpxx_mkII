@@ -2522,6 +2522,25 @@ void test_precisions_mixed() {
     std::cout << "test_precisions_mixed passed." << std::endl;
 #endif
 }
+void test_misc() {
+    {
+        mpz_class a(5), b(-4);
+        signed int c = 3;
+        mpz_class d;
+        d = (a * b) >> c;
+        assert(d == -3);
+    }
+    {
+        mpq_class a(1, 2);
+        signed int b = 3;
+        mpq_class c(a - b);
+        std::cout << "a " << a << std::endl;
+        std::cout << "b " << b << std::endl;
+        std::cout << "a-b " << a - b << std::endl;
+        std::cout << "c " << c << std::endl;
+        assert(c == -2.5);
+    }
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -2624,6 +2643,7 @@ int main() {
 
     // misc tests
     test_precisions_mixed();
+    test_misc();
     std::cout << "All tests passed." << std::endl;
 
     return 0;

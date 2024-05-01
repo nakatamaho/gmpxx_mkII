@@ -176,7 +176,12 @@ class mpz_class {
     }
     friend mpz_class operator>>(const mpz_class &op1, const unsigned int op2) {
         mpz_class result;
-        mpz_tdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
+        mpz_fdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
+        return result;
+    }
+    friend mpz_class operator>>(const mpz_class &op1, const signed int op2) {
+        mpz_class result;
+        mpz_fdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
         return result;
     }
 
@@ -1361,7 +1366,7 @@ inline mpq_class operator+(const mpq_class &lhs, const signed long int rhs) {
     return result;
 }
 inline mpq_class operator+(const signed long int op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator+(const mpq_class &op1, const signed int op2) {
+inline mpq_class operator+(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result += (signed long int)op2;
     return result;
@@ -1373,7 +1378,7 @@ inline mpq_class operator-(const mpq_class &op1, const signed long int op2) {
     return result;
 }
 inline mpq_class operator-(const signed long int op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator-(const mpq_class &op1, const signed int op2) {
+inline mpq_class operator-(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result -= op2;
     return result;
@@ -1385,7 +1390,7 @@ inline mpq_class operator*(const mpq_class &op1, const signed long int op2) {
     return result;
 }
 inline mpq_class operator*(const signed long int op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator*(const mpq_class &op1, const signed int op2) {
+inline mpq_class operator*(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result *= op2;
     return result;
