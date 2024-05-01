@@ -2534,11 +2534,13 @@ void test_misc() {
         mpq_class a(1, 2);
         signed int b = 3;
         mpq_class c(a - b);
-        std::cout << "a " << a << std::endl;
-        std::cout << "b " << b << std::endl;
-        std::cout << "a-b " << a - b << std::endl;
-        std::cout << "c " << c << std::endl;
         assert(c == -2.5);
+    }
+    {
+        mpq_class a(2, 3);
+        mpz_class b(4);
+        mpq_class c(b / a);
+        assert(c == 6);
     }
 }
 int main() {

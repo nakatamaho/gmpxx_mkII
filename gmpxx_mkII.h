@@ -1074,6 +1074,19 @@ class mpq_class {
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpq_class &op1, mpq_class &op2) { mpq_swap(op1.value, op2.value); }
 #endif
+    inline friend mpq_class &operator+=(mpq_class &lhs, const unsigned long int rhs);
+    inline friend mpq_class &operator-=(mpq_class &lhs, const unsigned long int rhs);
+    inline friend mpq_class &operator*=(mpq_class &lhs, const unsigned long int rhs);
+    inline friend mpq_class &operator/=(mpq_class &lhs, const unsigned long int rhs);
+    inline friend mpq_class operator+(const mpq_class &op1, const unsigned long int op2);
+    inline friend mpq_class operator+(const unsigned long int op1, const mpq_class &op2);
+    inline friend mpq_class operator-(const mpq_class &op1, const unsigned long int op2);
+    inline friend mpq_class operator-(const unsigned long int op1, const mpq_class &op2);
+    inline friend mpq_class operator*(const mpq_class &op1, const unsigned long int op2);
+    inline friend mpq_class operator*(const unsigned long int op1, const mpq_class &op2);
+    inline friend mpq_class operator/(const mpq_class &op1, unsigned long int op2);
+    inline friend mpq_class operator/(const unsigned long int op1, const mpq_class &op2);
+
     inline friend mpq_class &operator+=(mpq_class &lhs, const signed long int rhs);
     inline friend mpq_class &operator-=(mpq_class &lhs, const signed long int rhs);
     inline friend mpq_class &operator*=(mpq_class &lhs, const signed long int rhs);
@@ -1086,6 +1099,32 @@ class mpq_class {
     inline friend mpq_class operator*(const signed long int op1, const mpq_class &op2);
     inline friend mpq_class operator/(const mpq_class &op1, signed long int op2);
     inline friend mpq_class operator/(const signed long int op1, const mpq_class &op2);
+
+    inline friend mpq_class &operator+=(mpq_class &lhs, const unsigned int rhs);
+    inline friend mpq_class &operator-=(mpq_class &lhs, const unsigned int rhs);
+    inline friend mpq_class &operator*=(mpq_class &lhs, const unsigned int rhs);
+    inline friend mpq_class &operator/=(mpq_class &lhs, const unsigned int rhs);
+    inline friend mpq_class operator+(const mpq_class &op1, const unsigned int op2);
+    inline friend mpq_class operator+(const unsigned int op1, const mpq_class &op2);
+    inline friend mpq_class operator-(const mpq_class &op1, const unsigned int op2);
+    inline friend mpq_class operator-(const unsigned int op1, const mpq_class &op2);
+    inline friend mpq_class operator*(const mpq_class &op1, const unsigned int op2);
+    inline friend mpq_class operator*(const unsigned int op1, const mpq_class &op2);
+    inline friend mpq_class operator/(const mpq_class &op1, unsigned int op2);
+    inline friend mpq_class operator/(const unsigned int op1, const mpq_class &op2);
+
+    inline friend mpq_class &operator+=(mpq_class &lhs, const signed int rhs);
+    inline friend mpq_class &operator-=(mpq_class &lhs, const signed int rhs);
+    inline friend mpq_class &operator*=(mpq_class &lhs, const signed int rhs);
+    inline friend mpq_class &operator/=(mpq_class &lhs, const signed int rhs);
+    inline friend mpq_class operator+(const mpq_class &op1, const signed int op2);
+    inline friend mpq_class operator+(const signed int op1, const mpq_class &op2);
+    inline friend mpq_class operator-(const mpq_class &op1, const signed int op2);
+    inline friend mpq_class operator-(const signed int op1, const mpq_class &op2);
+    inline friend mpq_class operator*(const mpq_class &op1, const signed int op2);
+    inline friend mpq_class operator*(const signed int op1, const mpq_class &op2);
+    inline friend mpq_class operator/(const mpq_class &op1, signed int op2);
+    inline friend mpq_class operator/(const signed int op1, const mpq_class &op2);
 
     inline friend mpq_class operator+(const mpq_class &op1, const mpz_class &op2);
     inline friend mpq_class operator+(const mpz_class &op1, const mpq_class &op2);
@@ -1338,64 +1377,96 @@ inline mpq_class &mpq_class::operator=(double op) {
     mpq_set_d(this->value, op);
     return *this;
 }
+inline mpq_class &operator+=(mpq_class &lhs, const unsigned long int rhs) {
+    mpq_class result(rhs, (unsigned long int)1);
+    mpq_add(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator-=(mpq_class &lhs, const unsigned long int rhs) {
+    mpq_class result(rhs, (unsigned long int)1);
+    mpq_sub(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator*=(mpq_class &lhs, const unsigned long int rhs) {
+    mpq_class result(rhs, (unsigned long int)1);
+    mpq_mul(result.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator/=(mpq_class &lhs, const unsigned long int rhs) {
+    if (rhs == 0)
+        throw std::runtime_error("Division by zero");
+    mpq_class result(rhs, (unsigned long int)1);
+    mpq_mul(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class operator+(const mpq_class &op1, const unsigned long int op2) {
+    mpq_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpq_class operator+(const unsigned long int op1, const mpq_class &op2) { return op2 + op1; }
+inline mpq_class operator-(const mpq_class &op1, const unsigned long int op2) {
+    mpq_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpq_class operator-(const unsigned long int op1, const mpq_class &op2) { return -(op2 - op1); }
+inline mpq_class operator*(const mpq_class &op1, const unsigned long int op2) {
+    mpq_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpq_class operator*(const unsigned long int op1, const mpq_class &op2) { return op2 * op1; }
+inline mpq_class operator/(const mpq_class &op1, const unsigned long int op2) {
+    mpq_class result(op1);
+    result /= op2;
+    return result;
+}
+inline mpq_class operator/(const unsigned long int op1, const mpq_class &op2) {
+    mpq_class result(op1, (unsigned long int)1);
+    result /= op2;
+    return result;
+}
 inline mpq_class &operator+=(mpq_class &lhs, const signed long int rhs) {
     mpq_class result(rhs, (signed long int)1);
-    mpq_add(result.value, lhs.value, result.value);
+    mpq_add(lhs.value, lhs.value, result.value);
     return lhs;
 }
 inline mpq_class &operator-=(mpq_class &lhs, const signed long int rhs) {
     mpq_class result(rhs, (signed long int)1);
-    mpq_sub(result.value, lhs.value, result.value);
+    mpq_sub(lhs.value, lhs.value, result.value);
     return lhs;
 }
 inline mpq_class &operator*=(mpq_class &lhs, const signed long int rhs) {
     mpq_class result(rhs, (signed long int)1);
-    mpq_mul(result.value, lhs.value, result.value);
+    mpq_mul(lhs.value, lhs.value, result.value);
     return lhs;
 }
 inline mpq_class &operator/=(mpq_class &lhs, const signed long int rhs) {
     if (rhs == 0)
         throw std::runtime_error("Division by zero");
     mpq_class result(rhs, (signed long int)1);
-    mpq_mul(result.value, lhs.value, result.value);
+    mpq_mul(lhs.value, lhs.value, result.value);
     return lhs;
 }
-inline mpq_class operator+(const mpq_class &lhs, const signed long int rhs) {
-    mpq_class result(lhs);
-    result += rhs;
+inline mpq_class operator+(const mpq_class &op1, const signed long int op2) {
+    mpq_class result(op1);
+    result += op2;
     return result;
 }
 inline mpq_class operator+(const signed long int op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator+(const mpq_class &op1, const signed long int op2) {
-    mpq_class result(op1);
-    result += (signed long int)op2;
-    return result;
-}
-inline mpq_class operator+(const signed int op1, const mpq_class &op2) { return op2 + op1; }
 inline mpq_class operator-(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result -= op2;
     return result;
 }
 inline mpq_class operator-(const signed long int op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator-(const mpq_class &op1, const signed long int op2) {
-    mpq_class result(op1);
-    result -= op2;
-    return result;
-}
-inline mpq_class operator-(const signed int op1, const mpq_class &op2) { return -(op2 - op1); }
 inline mpq_class operator*(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result *= op2;
     return result;
 }
 inline mpq_class operator*(const signed long int op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator*(const mpq_class &op1, const signed long int op2) {
-    mpq_class result(op1);
-    result *= op2;
-    return result;
-}
-inline mpq_class operator*(const signed int op1, const mpq_class &op2) { return op2 * op1; }
 inline mpq_class operator/(const mpq_class &op1, const signed long int op2) {
     mpq_class result(op1);
     result /= op2;
@@ -1406,13 +1477,103 @@ inline mpq_class operator/(const signed long int op1, const mpq_class &op2) {
     result /= op2;
     return result;
 }
+inline mpq_class &operator+=(mpq_class &lhs, const unsigned int rhs) {
+    mpq_class result(rhs, (unsigned int)1);
+    mpq_add(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator-=(mpq_class &lhs, const unsigned int rhs) {
+    mpq_class result(rhs, (unsigned int)1);
+    mpq_sub(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator*=(mpq_class &lhs, const unsigned int rhs) {
+    mpq_class result(rhs, (unsigned int)1);
+    mpq_mul(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator/=(mpq_class &lhs, const unsigned int rhs) {
+    if (rhs == 0)
+        throw std::runtime_error("Division by zero");
+    mpq_class result(rhs, (unsigned int)1);
+    mpq_mul(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class operator+(const mpq_class &op1, const unsigned int op2) {
+    mpq_class result(op1);
+    result += op2;
+    return result;
+}
+inline mpq_class operator+(const unsigned int op1, const mpq_class &op2) { return op2 + op1; }
+inline mpq_class operator-(const mpq_class &op1, const unsigned int op2) {
+    mpq_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpq_class operator-(const unsigned int op1, const mpq_class &op2) { return -(op2 - op1); }
+inline mpq_class operator*(const mpq_class &op1, const unsigned int op2) {
+    mpq_class result(op1);
+    result *= op2;
+    return result;
+}
+inline mpq_class operator*(const unsigned int op1, const mpq_class &op2) { return op2 * op1; }
+inline mpq_class operator/(const mpq_class &op1, const unsigned int op2) {
+    mpq_class result(op1);
+    result /= op2;
+    return result;
+}
+inline mpq_class operator/(const unsigned int op1, const mpq_class &op2) {
+    mpq_class result(op1, (unsigned int)1);
+    result /= op2;
+    return result;
+}
+inline mpq_class &operator+=(mpq_class &lhs, const signed int rhs) {
+    mpq_class result(rhs, (signed int)1);
+    mpq_add(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator-=(mpq_class &lhs, const signed int rhs) {
+    mpq_class result(rhs, (signed int)1);
+    mpq_sub(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator*=(mpq_class &lhs, const signed int rhs) {
+    mpq_class result(rhs, (signed int)1);
+    mpq_mul(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class &operator/=(mpq_class &lhs, const signed int rhs) {
+    if (rhs == 0)
+        throw std::runtime_error("Division by zero");
+    mpq_class result(rhs, (signed int)1);
+    mpq_mul(lhs.value, lhs.value, result.value);
+    return lhs;
+}
+inline mpq_class operator+(const mpq_class &op1, const signed int op2) {
+    mpq_class result(op1);
+    result += (signed int)op2;
+    return result;
+}
+inline mpq_class operator+(const signed int op1, const mpq_class &op2) { return op2 + op1; }
+inline mpq_class operator-(const mpq_class &op1, const signed int op2) {
+    mpq_class result(op1);
+    result -= (signed int)op2;
+    return result;
+}
+inline mpq_class operator-(const signed int op1, const mpq_class &op2) { return -(op2 - op1); }
+inline mpq_class operator*(const mpq_class &op1, const signed int op2) {
+    mpq_class result(op1);
+    result *= (signed int)op2;
+    return result;
+}
+inline mpq_class operator*(const signed int op1, const mpq_class &op2) { return op2 * op1; }
 inline mpq_class operator/(const mpq_class &op1, const signed int op2) {
     mpq_class result(op1);
-    result /= (signed long int)op2;
+    result /= (signed int)op2;
     return result;
 }
 inline mpq_class operator/(const signed int op1, const mpq_class &op2) {
-    mpq_class result((signed long int)op1, (signed long int)1);
+    mpq_class result(op1, (signed int)1);
     result /= op2;
     return result;
 }
