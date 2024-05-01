@@ -2542,6 +2542,23 @@ void test_misc() {
         mpq_class c(b / a);
         assert(c == 6);
     }
+    {
+        mpq_class a(2, 3);
+        mpz_class b(1);
+        double c = 2.0;
+        mpq_class d;
+        d = a * (b + c);
+        assert(d == 2);
+        d = d * (b + c);
+        assert(d == 6);
+    }
+    {
+        mpq_class a(1, 2), b(1, 4);
+        double c = 6.0;
+        mpq_class d;
+        d = c / (a + b);
+        assert(d == 8);
+    }
 }
 int main() {
 #if !defined GMPXX_MKII
