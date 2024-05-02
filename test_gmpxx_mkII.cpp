@@ -2525,9 +2525,16 @@ void test_precisions_mixed() {
 void test_misc() {
     {
         mpz_class a(-11);
-        long b(3);
-        mpq_class c;
-        c = a / b;
+        mpz_class b(3);
+        mpz_class c;
+        c = a % b;
+        std::cout << c << std::endl;
+    }
+    {
+        int a = -11;
+        int b = 3;
+        int c;
+        c = a % b;
         std::cout << c << std::endl;
     }
 }

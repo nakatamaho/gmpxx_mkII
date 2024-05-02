@@ -532,11 +532,13 @@ inline mpz_class &operator*=(mpz_class &lhs, const unsigned long int rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const unsigned long int rhs) {
-    mpz_div_ui(lhs.value, lhs.value, rhs);
+    mpz_class _rhs(rhs);
+    mpz_tdiv_q(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class &operator%=(mpz_class &lhs, const unsigned long int rhs) {
-    mpz_mod_ui(lhs.value, lhs.value, rhs);
+    mpz_class _rhs(rhs);
+    mpz_tdiv_r(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class &operator&=(mpz_class &lhs, const unsigned long int rhs) {
@@ -577,8 +579,8 @@ inline mpz_class operator*(const mpz_class &op1, const unsigned long int op2) {
 }
 inline mpz_class operator*(const unsigned long int op1, const mpz_class &op2) { return op2 * op1; }
 inline mpz_class operator/(const mpz_class &op1, const unsigned long int op2) {
-    mpz_class result;
-    mpz_div_ui(result.value, op1.value, op2);
+    mpz_class result(op2);
+    mpz_tdiv_q(result.value, op1.value, result.value);
     return result;
 }
 inline mpz_class operator/(const unsigned long int op1, const mpz_class &op2) {
@@ -587,8 +589,8 @@ inline mpz_class operator/(const unsigned long int op1, const mpz_class &op2) {
     return result;
 }
 inline mpz_class operator%(const mpz_class &op1, const unsigned long int op2) {
-    mpz_class result;
-    mpz_mod_ui(result.value, op1.value, op2);
+    mpz_class result(op2);
+    mpz_tdiv_r(result.value, op1.value, result.value);
     return result;
 }
 inline mpz_class operator%(const unsigned long int op1, const mpz_class &op2) {
@@ -639,11 +641,13 @@ inline mpz_class &operator*=(mpz_class &lhs, const unsigned int rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const unsigned int rhs) {
-    mpz_div_ui(lhs.value, lhs.value, (unsigned long int)rhs);
+    mpz_class _rhs(rhs);
+    mpz_tdiv_q(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class &operator%=(mpz_class &lhs, const unsigned int rhs) {
-    mpz_mod_ui(lhs.value, lhs.value, (unsigned long int)rhs);
+    mpz_class _rhs(rhs);
+    mpz_tdiv_r(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class &operator&=(mpz_class &lhs, const unsigned int rhs) {
@@ -684,8 +688,8 @@ inline mpz_class operator*(const mpz_class &op1, const unsigned int op2) {
 }
 inline mpz_class operator*(const unsigned int op1, const mpz_class &op2) { return op2 * op1; }
 inline mpz_class operator/(const mpz_class &op1, const unsigned int op2) {
-    mpz_class result;
-    mpz_div_ui(result.value, op1.value, op2);
+    mpz_class result(op2);
+    mpz_tdiv_q(result.value, op1.value, result.value);
     return result;
 }
 inline mpz_class operator/(const unsigned int op1, const mpz_class &op2) {
@@ -694,8 +698,8 @@ inline mpz_class operator/(const unsigned int op1, const mpz_class &op2) {
     return result;
 }
 inline mpz_class operator%(const mpz_class &op1, const unsigned int op2) {
-    mpz_class result;
-    mpz_mod_ui(result.value, op1.value, op2);
+    mpz_class result(op2);
+    mpz_tdiv_r(result.value, op1.value, result.value);
     return result;
 }
 inline mpz_class operator%(const unsigned int op1, const mpz_class &op2) {
@@ -762,24 +766,13 @@ inline mpz_class &operator*=(mpz_class &lhs, const signed long int rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const signed long int rhs) {
-    if (rhs == 0) {
-        throw std::invalid_argument("Division by zero is undefined");
-    }
-    if (rhs > 0)
-        mpz_div_ui(lhs.value, lhs.value, (unsigned long int)rhs);
-    else {
-        unsigned long int _rhs = -rhs;
-        mpz_div_ui(lhs.value, lhs.value, _rhs);
-        mpz_neg(lhs.value, lhs.value);
-    }
+    mpz_class _rhs(rhs);
+    mpz_tdiv_q(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class &operator%=(mpz_class &lhs, const signed long int rhs) {
-    if (rhs == 0) {
-        throw std::invalid_argument("Modulo by zero is undefined");
-    }
-    unsigned long int abs_rhs = (rhs > 0) ? static_cast<unsigned long int>(rhs) : static_cast<unsigned long int>(-rhs);
-    mpz_mod_ui(lhs.value, lhs.value, abs_rhs);
+    mpz_class _rhs(rhs);
+    mpz_tdiv_r(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class operator+(const mpz_class &op1, const signed long int op2) {
@@ -847,17 +840,11 @@ inline mpz_class operator/(const signed long int op1, const mpz_class &op2) {
     return result;
 }
 inline mpz_class operator%(const mpz_class &op1, const signed long int op2) {
-    if (op2 == 0) {
-        throw std::invalid_argument("Modulo by zero is undefined");
-    }
     mpz_class result(op1);
     result %= op2;
     return result;
 }
 inline mpz_class operator%(const signed long int op1, const mpz_class &op2) {
-    if (mpz_sgn(op2.value) == 0) {
-        throw std::invalid_argument("Modulo by zero is undefined");
-    }
     mpz_class lhs(op1);
     lhs %= op2;
     return lhs;
@@ -921,24 +908,13 @@ inline mpz_class &operator*=(mpz_class &lhs, const signed int rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const signed int rhs) {
-    if (rhs == 0) {
-        throw std::invalid_argument("Division by zero is undefined");
-    }
-    if (rhs > 0)
-        mpz_div_ui(lhs.value, lhs.value, (unsigned long int)rhs);
-    else {
-        unsigned long int _rhs = -rhs;
-        mpz_div_ui(lhs.value, lhs.value, _rhs);
-        mpz_neg(lhs.value, lhs.value);
-    }
+    mpz_class _rhs(rhs);
+    mpz_tdiv_q(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class &operator%=(mpz_class &lhs, const signed int rhs) {
-    if (rhs == 0) {
-        throw std::invalid_argument("Modulo by zero is undefined");
-    }
-    unsigned long int abs_rhs = (rhs > 0) ? (unsigned long int)rhs : (unsigned long int)(-rhs);
-    mpz_mod_ui(lhs.value, lhs.value, abs_rhs);
+    mpz_class _rhs(rhs);
+    mpz_tdiv_r(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 inline mpz_class &operator&=(mpz_class &lhs, const signed int rhs) {
@@ -1006,17 +982,11 @@ inline mpz_class operator/(const signed int op1, const mpz_class &op2) {
     return result;
 }
 inline mpz_class operator%(const mpz_class &op1, const signed int op2) {
-    if (op2 == 0) {
-        throw std::invalid_argument("Modulo by zero is undefined");
-    }
     mpz_class result(op1);
     result %= op2;
     return result;
 }
 inline mpz_class operator%(const signed int op1, const mpz_class &op2) {
-    if (mpz_sgn(op2.value) == 0) {
-        throw std::invalid_argument("Modulo by zero is undefined");
-    }
     mpz_class lhs(op1);
     lhs %= op2;
     return lhs;
@@ -1067,9 +1037,6 @@ inline mpz_class &operator*=(mpz_class &lhs, const double rhs) {
     return lhs;
 }
 inline mpz_class &operator/=(mpz_class &lhs, const double rhs) {
-    if (rhs == 0.0) {
-        throw std::invalid_argument("Division by zero is undefined");
-    }
     mpz_class temp(rhs);
     mpz_tdiv_q(lhs.value, lhs.value, temp.value);
     return lhs;
@@ -1131,12 +1098,12 @@ inline mpz_class operator/(const double op1, const mpz_class &op2) {
 inline mpz_class operator%(const mpz_class &op1, const double op2) {
     mpz_class result;
     mpz_class _op2(op2);
-    mpz_mod(_op2.value, op1.value, _op2.value);
+    mpz_tdiv_r(_op2.value, op1.value, _op2.value);
     return _op2;
 }
 inline mpz_class operator%(const double op1, const mpz_class &op2) {
     mpz_class _op1(op1);
-    mpz_mod(_op1.value, _op1.value, op2.value);
+    mpz_tdiv_r(_op1.value, _op1.value, op2.value);
     return _op1;
 }
 inline mpz_class operator&(const mpz_class &op1, double op2) {
@@ -1198,7 +1165,7 @@ inline mpz_class &operator^=(mpz_class &lhs, const mpz_class &rhs) {
     return lhs;
 }
 inline mpz_class &operator%=(mpz_class &op1, const mpz_class &op2) {
-    mpz_mod(op1.value, op1.value, op2.value);
+    mpz_tdiv_r(op1.value, op1.value, op2.value);
     return op1;
 }
 inline mpz_class operator+(const mpz_class &op) { return op; }
@@ -1229,7 +1196,7 @@ inline mpz_class operator/(const mpz_class &op1, const mpz_class &op2) {
 }
 inline mpz_class operator%(const mpz_class &op1, const mpz_class &op2) {
     mpz_class result;
-    mpz_mod(result.value, op1.value, op2.value);
+    mpz_tdiv_r(result.value, op1.value, op2.value);
     return result;
 }
 inline mpz_class operator&(const mpz_class &op1, const mpz_class &op2) {
