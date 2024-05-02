@@ -2522,7 +2522,15 @@ void test_precisions_mixed() {
     std::cout << "test_precisions_mixed passed." << std::endl;
 #endif
 }
-void test_misc() {}
+void test_misc() {
+    {
+        mpz_class a(-11);
+        long b(3);
+        mpq_class c;
+        c = a / b;
+        std::cout << c << std::endl;
+    }
+}
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);

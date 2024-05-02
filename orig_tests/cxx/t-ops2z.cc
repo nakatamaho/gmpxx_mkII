@@ -123,8 +123,6 @@ void checkz (){
 int
 main (void)
 {
-  tests_start();
   checkz();
-  tests_end();
   return 0;
 }
