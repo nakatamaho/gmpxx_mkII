@@ -139,6 +139,24 @@ class mpz_class {
         mpz_com(result.value, value);
         return result;
     }
+    mpz_class &operator++() {
+        mpz_add_ui(value, value, 1);
+        return *this;
+    }
+    mpz_class operator++(int) {
+        mpz_class original = *this;
+        ++(*this);
+        return original;
+    }
+    mpz_class &operator--() {
+        mpz_sub_ui(value, value, 1);
+        return *this;
+    }
+    mpz_class operator--(int) {
+        mpz_class original = *this;
+        --(*this);
+        return original;
+    }
     // mpz_class operator/ (mpz_class a, mpz_class d)
     // mpz_class operator% (mpz_class a, mpz_class d)
     inline friend mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
