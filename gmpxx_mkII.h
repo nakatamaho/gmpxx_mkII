@@ -134,6 +134,11 @@ class mpz_class {
         }
         return *this;
     }
+    mpz_class operator~() const {
+        mpz_class result;
+        mpz_com(result.value, value);
+        return result;
+    }
     // mpz_class operator/ (mpz_class a, mpz_class d)
     // mpz_class operator% (mpz_class a, mpz_class d)
     inline friend mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
