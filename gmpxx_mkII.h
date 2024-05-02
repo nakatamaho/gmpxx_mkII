@@ -307,6 +307,10 @@ class mpz_class {
         mpz_fdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
         return result;
     }
+    inline mpz_class &operator<<=(int n) {
+        mpz_mul_2exp(value, value, n);
+        return *this;
+    }
 
     // mpz_class abs (mpz_class op)
     inline friend mpz_class abs(const mpz_class &op);
@@ -1361,10 +1365,6 @@ class mpq_class {
         mpq_init(value);
         mpq_set_f(value, op);
     }
-    mpq_class(const mpz_class &op) {
-        mpq_init(value);
-        mpq_set_z(value, op.get_mpz_t());
-    }
     mpq_class(const mpz_class &op1, const mpz_class &op2) {
         mpq_init(value);
         mpq_set_num(value, op1.get_mpz_t());
@@ -1375,6 +1375,10 @@ class mpq_class {
         }
         mpq_canonicalize(value);
     }
+    mpq_class(const mpz_class &op) {
+        mpq_init(value);
+        mpq_set_z(value, op.get_mpz_t());
+    }
     mpq_class(unsigned long int op1, unsigned long int op2) {
         mpq_init(value);
         mpq_set_ui(value, op1, op2);
@@ -1383,13 +1387,29 @@ class mpq_class {
         mpq_init(value);
         mpq_set_si(value, op1, op2);
     }
+    mpq_class(unsigned int op1, unsigned int op2) {
+        mpq_init(value);
+        mpq_set_ui(value, (unsigned long int)op1, (unsigned long int)op2);
+    }
     mpq_class(int op1, int op2) {
         mpq_init(value);
         mpq_set_si(value, (signed long int)op1, (signed long int)op2);
     }
-    mpq_class(unsigned int op1, unsigned int op2) {
+    mpq_class(unsigned long int op) {
         mpq_init(value);
-        mpq_set_ui(value, (unsigned long int)op1, (unsigned long int)op2);
+        mpq_set_ui(value, op, (unsigned long int)1);
+    }
+    mpq_class(signed long int op) {
+        mpq_init(value);
+        mpq_set_si(value, op, (unsigned long int)1);
+    }
+    mpq_class(unsigned int op) {
+        mpq_init(value);
+        mpq_set_ui(value, (unsigned long int)op, (unsigned long int)1);
+    }
+    mpq_class(int op) {
+        mpq_init(value);
+        mpq_set_si(value, (signed long int)op, (signed long int)1);
     }
     mpq_class(double op) {
         mpq_init(value);
@@ -2479,41 +2499,66 @@ inline bool operator==(unsigned int lhs, const mpf_class &rhs) { return rhs == l
 inline bool operator==(const mpf_class &lhs, double rhs) { return lhs.get_d() == rhs; }
 inline bool operator==(double lhs, const mpf_class &rhs) { return rhs == lhs; }
 
-// int cmp (mpf_class op1, type op2)
-// int cmp (type op1, mpf_class op2)
-template <typename T> int cmp(const mpf_class &op1, const T &op2) {
-    mpf_class temp(op2);
-    return mpf_cmp(op1.get_mpf_t(), temp.get_mpf_t());
+int cmp(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.get_mpf_t(), op2.get_mpf_t()); }
+int cmp(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t());
 }
-template <typename T> int cmp(const T &op1, const mpf_class &op2) {
-    mpf_class temp(op1);
-    return mpf_cmp(temp.get_mpf_t(), op2.get_mpf_t());
+int cmp(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t());
 }
-template <typename T> int cmp(const mpz_class &op1, const T &op2) {
-    mpz_class temp(op2);
-    return mpz_cmp(op1.get_mpz_t(), temp.get_mpz_t());
+int cmp(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t());
 }
-template <typename T> int cmp(const T &op1, const mpz_class &op2) {
-    mpz_class temp(op1);
-    return mpz_cmp(temp.get_mpz_t(), op2.get_mpz_t());
+int cmp(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t());
 }
-// int cmp (mpq_class op1, type op2)
-// int cmp (type op1, mpq_class op2)
-template <typename T> int cmp(const mpq_class &op1, const T &op2) {
-    mpq_class temp(op2);
-    return mpq_cmp(op1.get_mpq_t(), temp.get_mpq_t());
-}
-template <typename T> int cmp(const T &op1, const mpq_class &op2) {
-    mpq_class temp(op1);
-    return mpq_cmp(temp.get_mpq_t(), op2.get_mpq_t());
-}
+int cmp(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.get_mpz_t(), op2.get_mpz_t()); }
+int cmp(const mpz_class &op1, const mpq_class &op2) { return -mpq_cmp_z(op2.get_mpq_t(), op1.get_mpz_t()); }
+int cmp(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.get_mpq_t(), op2.get_mpz_t()); }
 inline int cmp(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.get_mpq_t(), op2.get_mpq_t()); }
-template <> int cmp<double>(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
-template <> int cmp<double>(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
-template <> int cmp<unsigned long int>(const mpf_class &op1, const unsigned long int &op2) { return mpf_cmp_ui(op1.get_mpf_t(), op2); }
-template <> int cmp<unsigned long int>(const unsigned long int &op1, const mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), op1); }
-template <> int cmp<signed long int>(const mpf_class &op1, const signed long int &op2) { return mpf_cmp_si(op1.get_mpf_t(), op2); }
-template <> int cmp<signed long int>(const signed long int &op1, const mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), op1); }
+
+inline int cmp(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
+inline int cmp(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
+inline int cmp(const mpf_class &op1, const unsigned long int &op2) { return mpf_cmp_ui(op1.get_mpf_t(), op2); }
+inline int cmp(const unsigned long int &op1, const mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), op1); }
+inline int cmp(const mpf_class &op1, const signed long int &op2) { return mpf_cmp_si(op1.get_mpf_t(), op2); }
+inline int cmp(const signed long int &op1, const mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), op1); }
+
+inline int cmp(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.get_mpz_t(), op2); }
+inline int cmp(const double &op1, const mpz_class &op2) { return -mpz_cmp_d(op2.get_mpz_t(), op1); }
+inline int cmp(const mpz_class &op1, const unsigned long int &op2) { return mpz_cmp_ui(op1.get_mpz_t(), op2); }
+inline int cmp(const unsigned long int &op1, const mpz_class &op2) { return -mpz_cmp_ui(op2.get_mpz_t(), op1); }
+inline int cmp(const mpz_class &op1, const signed long int &op2) { return mpz_cmp_si(op1.get_mpz_t(), op2); }
+inline int cmp(const signed long int &op1, const mpz_class &op2) { return -mpz_cmp_si(op2.get_mpz_t(), op1); }
+
+inline int cmp(const mpq_class &op1, const double &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t());
+}
+inline int cmp(const double &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t());
+}
+inline int cmp(const mpq_class &op1, const unsigned long int &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t());
+}
+inline int cmp(const unsigned long int &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t());
+}
+inline int cmp(const mpq_class &op1, const signed long int &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t());
+}
+inline int cmp(const signed long int &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t());
+}
 
 inline mpf_class trunc(const mpf_class &op) {
     mpf_class rop(op);

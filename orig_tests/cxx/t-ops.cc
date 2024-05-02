@@ -742,12 +742,10 @@ check_mpf (void)
 int
 main (void)
 {
-  tests_start();
 
   check_mpz();
   check_mpq();
   check_mpf();
 
-  tests_end();
   return 0;
 }
