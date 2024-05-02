@@ -76,12 +76,10 @@ void checkf (){
 int
 main (void)
 {
-  tests_start();
 
   // Enough precision for 1 + denorm_min
   mpf_set_default_prec(DBL_MANT_DIG-DBL_MIN_EXP+42);
   checkf();
 
-  tests_end();
   return 0;
 }

@@ -207,10 +207,8 @@ check_mpf (void)
 int
 main (void)
 {
-  tests_start();
 
   check_mpf();
 
-  tests_end();
   return 0;
 }
