@@ -96,11 +96,7 @@ checko ()
 int
 main (int argc, char *argv[])
 {
-  tests_start ();
-
   checki ();
   checko ();
-
-  tests_end ();
   return 0;
 }

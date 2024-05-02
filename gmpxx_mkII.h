@@ -339,7 +339,8 @@ class mpz_class {
     inline friend mpz_class operator/(const mpz_class &op1, double op2);
     inline friend mpz_class operator/(const double op1, const mpz_class &op2);
 
-    friend std::ostream &operator<<(std::ostream &os, const mpz_class &m);
+    friend std::ostream &operator<<(std::ostream &os, const mpz_class &op);
+    friend std::istream &operator>>(std::istream &in, mpz_class &op);
 
     operator mpf_class() const;
     operator mpq_class() const;
@@ -902,26 +903,33 @@ inline mpz_class fibonacci(const mpz_class &op) {
     mpz_fib_ui(result.value, op.get_ui());
     return result;
 }
-std::ostream &operator<<(std::ostream &os, const mpz_class &m) {
+std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
     std::ios_base::fmtflags flags = os.flags();
 
     char *str = nullptr;
     if (flags & std::ios::oct) { // Output in octal
-        gmp_asprintf(&str, "%Zo", m.get_mpz_t());
+        gmp_asprintf(&str, "%Zo", op.get_mpz_t());
     } else if (flags & std::ios::hex) { // Output in hexadecimal
         if (flags & std::ios::uppercase) {
-            gmp_asprintf(&str, "%ZX", m.get_mpz_t());
+            gmp_asprintf(&str, "%ZX", op.get_mpz_t());
         } else {
-            gmp_asprintf(&str, "%Zx", m.get_mpz_t());
+            gmp_asprintf(&str, "%Zx", op.get_mpz_t());
         }
     } else { // Default output (decimal)
-        gmp_asprintf(&str, "%Zd", m.get_mpz_t());
+        gmp_asprintf(&str, "%Zd", op.get_mpz_t());
     }
     os << str;
     free(str);
     return os;
 }
-
+std::istream &operator>>(std::istream &in, mpz_class &op) {
+    std::string input;
+    in >> input;
+    if (mpz_set_str(op.value, input.c_str(), 10) != 0) {
+        in.setstate(std::ios::failbit);
+    }
+    return in;
+}
 class mpq_class {
   public:
     // constructor
@@ -1701,7 +1709,7 @@ class mpf_class {
         mpf_init2(value, prec);
         mpf_set_si(value, (signed long)op);
     }
-    ___MPF_CLASS_EXPLICIT___ mpf_class(double op, mp_bitcnt_t prec = gmpxx_defaults::get_default_prec()) noexcept {
+    mpf_class(double op, mp_bitcnt_t prec = gmpxx_defaults::get_default_prec()) noexcept {
         mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
@@ -1967,6 +1975,9 @@ class mpf_class {
     static void reset_e_cache();
     static void reset_log10_cache();
     static void reset_log2_cache();
+
+    friend std::ostream &operator<<(std::ostream &os, const mpf_class &op);
+    friend std::istream &operator>>(std::istream &stream, mpf_class &op);
 
     operator mpq_class() const;
     operator mpz_class() const;
@@ -2672,7 +2683,14 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
     free(str);
     return os;
 }
-
+std::istream &operator>>(std::istream &stream, mpf_class &op) {
+    std::string input;
+    stream >> input;
+    if (mpf_set_str(op.value, input.c_str(), 10) != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    return stream;
+}
 mpf_class pi_cached;
 mpf_class const_pi() {
     static bool calculated = false;
