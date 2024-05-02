@@ -691,7 +691,6 @@ check_mpf (void)
 int
 main (void)
 {
-  tests_start();
 
   check_mpz_1 ();
   check_mpz_2 ();
@@ -729,6 +728,5 @@ main (void)
   check_mpq();
   check_mpf();
 
-  tests_end();
   return 0;
 }
