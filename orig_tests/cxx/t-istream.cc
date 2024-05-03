@@ -18,22 +18,16 @@ You should have received a copy of the GNU General Public License along with
 the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cstring>
 
 #include "gmpxx_mkII.h"
+#include "gmp-impl.h"
+#include "tests.h"
 
 using std::string;
 using std::invalid_argument;
-
-void assert_always(bool condition, const char* message, int line) {
-  if (!condition) {
-    std::cerr << "Assertion failed at line " << line << ": " << message << std::endl;
-    std::abort();
-  }
-}
-
-#define ASSERT_ALWAYS(cond) assert_always((cond), #cond, __LINE__)
 
 using namespace std;
 

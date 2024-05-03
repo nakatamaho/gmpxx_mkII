@@ -445,12 +445,9 @@ main (int argc, char *argv[])
   if (argc > 1 && strcmp (argv[1], "-s") == 0)
     option_check_standard = true;
 
-  tests_start ();
-
   check_mpz ();
   check_mpq ();
   check_mpf ();
 
-  tests_end ();
   return 0;
 }
