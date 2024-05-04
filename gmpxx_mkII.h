@@ -515,7 +515,10 @@ class mpz_class {
     inline friend mpz_class operator^(const double op1, const mpz_class &op2);
 
     friend std::ostream &operator<<(std::ostream &os, const mpz_class &op);
-    friend std::istream &operator>>(std::istream &in, mpz_class &op);
+    friend std::ostream &operator<<(std::ostream &os, const mpz_t op);
+
+    friend std::istream &operator>>(std::istream &stream, mpz_class &op);
+    friend std::istream &operator>>(std::istream &stream, mpz_t op);
 
     operator mpf_class() const;
     operator mpq_class() const;
@@ -1305,13 +1308,40 @@ std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
     free(str);
     return os;
 }
-std::istream &operator>>(std::istream &in, mpz_class &op) {
-    std::string input;
-    in >> input;
-    if (mpz_set_str(op.value, input.c_str(), 10) != 0) {
-        in.setstate(std::ios::failbit);
+std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
+    std::ios_base::fmtflags flags = os.flags();
+
+    char *str = nullptr;
+    if (flags & std::ios::oct) { // Output in octal
+        gmp_asprintf(&str, "%Zo", op);
+    } else if (flags & std::ios::hex) { // Output in hexadecimal
+        if (flags & std::ios::uppercase) {
+            gmp_asprintf(&str, "%ZX", op);
+        } else {
+            gmp_asprintf(&str, "%Zx", op);
+        }
+    } else { // Default output (decimal)
+        gmp_asprintf(&str, "%Zd", op);
     }
-    return in;
+    os << str;
+    free(str);
+    return os;
+}
+std::istream &operator>>(std::istream &stream, mpz_class &op) {
+    std::string input;
+    stream >> input;
+    if (mpz_set_str(op.value, input.c_str(), 10) != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    return stream;
+}
+std::istream &operator>>(std::istream &stream, mpz_t op) {
+    std::string input;
+    stream >> input;
+    if (mpz_set_str(op, input.c_str(), 10) != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    return stream;
 }
 class mpq_class {
   public:
@@ -1597,8 +1627,11 @@ class mpq_class {
     mpz_ptr get_den_mpz_t() { return mpq_denref(value); }
 
     // istream& operator>> (istream& stream, mpq_class& rop)
-    friend std::ostream &operator<<(std::ostream &os, const mpq_class &m);
-    friend std::istream &operator>>(std::istream &stream, mpq_class &rop);
+    friend std::ostream &operator<<(std::ostream &os, const mpq_class &op);
+    friend std::ostream &operator<<(std::ostream &os, const mpq_t op);
+
+    friend std::istream &operator>>(std::istream &stream, mpq_class &op);
+    friend std::istream &operator>>(std::istream &stream, mpq_t op);
 
     operator mpf_class() const;
     operator mpz_class() const;
@@ -1608,20 +1641,39 @@ class mpq_class {
   private:
     mpq_t value;
 };
-std::ostream &operator<<(std::ostream &os, const mpq_class &m) {
+std::ostream &operator<<(std::ostream &os, const mpq_class &op) {
     std::ios_base::fmtflags flags = os.flags();
 
     char *str = nullptr;
     if (flags & std::ios::oct) { // Output in octal
-        gmp_asprintf(&str, "%Qo", m.get_mpq_t());
+        gmp_asprintf(&str, "%Qo", op.get_mpq_t());
     } else if (flags & std::ios::hex) { // Output in hexadecimal
         if (flags & std::ios::uppercase) {
-            gmp_asprintf(&str, "%QX", m.get_mpq_t());
+            gmp_asprintf(&str, "%QX", op.get_mpq_t());
         } else {
-            gmp_asprintf(&str, "%Qx", m.get_mpq_t());
+            gmp_asprintf(&str, "%Qx", op.get_mpq_t());
         }
     } else { // Default output (decimal)
-        gmp_asprintf(&str, "%Qd", m.get_mpq_t());
+        gmp_asprintf(&str, "%Qd", op.get_mpq_t());
+    }
+    os << str;
+    free(str);
+    return os;
+}
+std::ostream &operator<<(std::ostream &os, const mpq_t &op) {
+    std::ios_base::fmtflags flags = os.flags();
+
+    char *str = nullptr;
+    if (flags & std::ios::oct) { // Output in octal
+        gmp_asprintf(&str, "%Qo", op);
+    } else if (flags & std::ios::hex) { // Output in hexadecimal
+        if (flags & std::ios::uppercase) {
+            gmp_asprintf(&str, "%QX", op);
+        } else {
+            gmp_asprintf(&str, "%Qx", op);
+        }
+    } else { // Default output (decimal)
+        gmp_asprintf(&str, "%Qd", op);
     }
     os << str;
     free(str);
@@ -1631,6 +1683,14 @@ std::istream &operator>>(std::istream &stream, mpq_class &rop) {
     std::string input;
     std::getline(stream, input);
     if (input.empty() || rop.set_str(input, 10) != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    return stream;
+}
+std::istream &operator>>(std::istream &stream, mpq_t op) {
+    std::string input;
+    stream >> input;
+    if (mpq_set_str(op, input.c_str(), 10) != 0) {
         stream.setstate(std::ios::failbit);
     }
     return stream;
@@ -2509,8 +2569,6 @@ class mpf_class {
     inline friend mpf_class operator/(const mpf_class &op1, const unsigned int op2);
     inline friend mpf_class operator/(const unsigned int op1, const mpf_class &op2);
 
-    friend std::ostream &operator<<(std::ostream &os, const mpf_class &m);
-
     static mpf_class const_pi();
     static mpf_class const_e();
     static mpf_class const_log10();
@@ -3238,17 +3296,17 @@ inline mpf_class operator/(const unsigned int op1, const mpf_class &op2) {
     result /= op2;
     return result;
 }
-std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
+std::ostream &operator<<(std::ostream &os, const mpf_class &op) {
     std::streamsize prec = os.precision();
     std::ios_base::fmtflags flags = os.flags();
 
     char *str = nullptr;
     if (flags & std::ios::scientific) {
-        gmp_asprintf(&str, "%.*Fe", static_cast<int>(prec), m.value);
+        gmp_asprintf(&str, "%.*Fe", static_cast<int>(prec), op.value);
     } else if (flags & std::ios::fixed) {
-        gmp_asprintf(&str, "%.*Ff", static_cast<int>(prec), m.value);
+        gmp_asprintf(&str, "%.*Ff", static_cast<int>(prec), op.value);
     } else {
-        gmp_asprintf(&str, "%.*Fg", static_cast<int>(prec), m.value);
+        gmp_asprintf(&str, "%.*Fg", static_cast<int>(prec), op.value);
     }
     os << str;
     free(str);
