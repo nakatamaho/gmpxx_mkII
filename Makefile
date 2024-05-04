@@ -58,7 +58,7 @@ $(OBJECTS_MKIISR): $(SOURCES) $(HEADERS)
 $(ORIG_TESTS): $(ORIG_TESTS_DIR)/t-% : $(ORIG_TESTS_DIR)/t-%.cc
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
 
-$(ORIG_TESTS_DIR)/t-istream: $(ORIG_TESTS_DIR)/t-istream.cc $(ORIG_TESTS_DIR)/trace.c
+$(ORIG_TESTS_DIR)/t-istream: $(ORIG_TESTS_DIR)/t-istream.cc $(ORIG_TESTS_DIR)/trace.c $(ORIG_TESTS_DIR)/testutils.c
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $^ $(LDFLAGS)
 
 $(BENCHMARKS_DIR)/%: $(BENCHMARKS_DIR)/%.cpp $(HEADERS)

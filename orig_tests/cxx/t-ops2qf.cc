@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License along with
 the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include "t-ops2.h"
+#include <cfloat>
 
 template<class T>
 void checkqf (){
