@@ -35,6 +35,7 @@
 #include <utility>
 #include <cassert>
 #include <cstring>
+#include <sstream>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -2520,7 +2521,10 @@ class mpf_class {
     static void reset_log2_cache();
 
     friend std::ostream &operator<<(std::ostream &os, const mpf_class &op);
+    friend std::ostream &operator<<(std::ostream &os, const mpf_t op);
+
     friend std::istream &operator>>(std::istream &stream, mpf_class &op);
+    friend std::istream &operator>>(std::istream &stream, mpf_t op);
 
     operator mpq_class() const;
     operator mpz_class() const;
@@ -3250,10 +3254,34 @@ std::ostream &operator<<(std::ostream &os, const mpf_class &m) {
     free(str);
     return os;
 }
+std::ostream &operator<<(std::ostream &os, const mpf_t op) {
+    std::streamsize prec = os.precision();
+    std::ios_base::fmtflags flags = os.flags();
+
+    char *str = nullptr;
+    if (flags & std::ios::scientific) {
+        gmp_asprintf(&str, "%.*Fe", static_cast<int>(prec), op);
+    } else if (flags & std::ios::fixed) {
+        gmp_asprintf(&str, "%.*Ff", static_cast<int>(prec), op);
+    } else {
+        gmp_asprintf(&str, "%.*Fg", static_cast<int>(prec), op);
+    }
+    os << str;
+    free(str);
+    return os;
+}
 std::istream &operator>>(std::istream &stream, mpf_class &op) {
     std::string input;
     stream >> input;
     if (mpf_set_str(op.value, input.c_str(), 10) != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    return stream;
+}
+std::istream &operator>>(std::istream &stream, mpf_t op) {
+    std::string input;
+    stream >> input;
+    if (mpf_set_str(op, input.c_str(), 10) != 0) {
         stream.setstate(std::ios::failbit);
     }
     return stream;
