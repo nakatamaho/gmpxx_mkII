@@ -519,6 +519,7 @@ class mpz_class {
     operator mpf_class() const;
     operator mpq_class() const;
     mpz_srcptr get_mpz_t() const { return value; }
+    mpz_ptr get_mpz_t() { return value; }
 
   private:
     mpz_t value;
@@ -1589,6 +1590,8 @@ class mpq_class {
         mpz_class den(mpq_denref(value));
         return den;
     }
+    mpz_srcptr get_num_mpz_t() const { return mpq_numref(value); }
+    mpz_srcptr get_den_mpz_t() const { return mpq_denref(value); }
     mpz_ptr get_num_mpz_t() { return mpq_numref(value); }
     mpz_ptr get_den_mpz_t() { return mpq_denref(value); }
 
@@ -1599,6 +1602,7 @@ class mpq_class {
     operator mpf_class() const;
     operator mpz_class() const;
     mpq_srcptr get_mpq_t() const { return value; }
+    mpq_ptr get_mpq_t() { return value; }
 
   private:
     mpq_t value;
@@ -2239,6 +2243,22 @@ class mpf_class {
         mpf_set_d(value, d);
         return *this;
     }
+    mpf_class &operator=(unsigned long int d) noexcept {
+        mpf_set_ui(value, d);
+        return *this;
+    }
+    mpf_class &operator=(signed long int d) noexcept {
+        mpf_set_si(value, d);
+        return *this;
+    }
+    mpf_class &operator=(unsigned int d) noexcept {
+        mpf_set_ui(value, (unsigned long int)d);
+        return *this;
+    }
+    mpf_class &operator=(signed int d) noexcept {
+        mpf_set_si(value, (signed long int)d);
+        return *this;
+    }
     mpf_class &operator=(const char *str) {
         if (mpf_set_str(value, str, gmpxx_defaults::base) != 0) {
             throw std::invalid_argument("");
@@ -2251,6 +2271,7 @@ class mpf_class {
         }
         return *this;
     }
+
     inline friend mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
     inline friend mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
     inline friend mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
@@ -2270,6 +2291,131 @@ class mpf_class {
     inline friend bool operator>(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) > 0; }
     inline friend bool operator<=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) >= 0; }
+    inline mpf_class &operator++() {
+        mpf_add_ui(value, value, 1);
+        return *this;
+    }
+    inline mpf_class &operator--() {
+        mpf_sub_ui(value, value, 1);
+        return *this;
+    }
+    inline mpf_class operator++(int) {
+        mpf_add_ui(value, value, 1);
+        return *this;
+    }
+    inline mpf_class operator--(int) {
+        mpf_sub_ui(value, value, 1);
+        return *this;
+    }
+    inline friend bool operator==(const mpf_class &op1, const mpq_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.value, _op2.value) == 0;
+    }
+    inline friend bool operator==(const mpq_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.value, op2.value) == 0;
+    }
+    inline friend bool operator!=(const mpf_class &op1, const mpq_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) != 0;
+    }
+    inline friend bool operator!=(const mpq_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) != 0;
+    }
+    inline friend bool operator<(const mpf_class &op1, const mpq_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) < 0;
+    }
+    inline friend bool operator<(const mpq_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) < 0;
+    }
+    inline friend bool operator>(const mpf_class &op1, const mpq_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) > 0;
+    }
+    inline friend bool operator>(const mpq_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) > 0;
+    }
+    inline friend bool operator<=(const mpf_class &op1, const mpq_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) <= 0;
+    }
+    inline friend bool operator<=(const mpq_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) <= 0;
+    }
+    inline friend bool operator>=(const mpf_class &op1, const mpq_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) >= 0;
+    }
+    inline friend bool operator>=(const mpq_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) >= 0;
+    }
+
+    inline friend bool operator==(const mpf_class &op1, const mpz_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) == 0;
+    }
+    inline friend bool operator==(const mpz_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) == 0;
+    }
+    inline friend bool operator!=(const mpf_class &op1, const mpz_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) != 0;
+    }
+    inline friend bool operator!=(const mpz_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) != 0;
+    }
+    inline friend bool operator<(const mpf_class &op1, const mpz_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) < 0;
+    }
+    inline friend bool operator<(const mpz_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) < 0;
+    }
+    inline friend bool operator>(const mpf_class &op1, const mpz_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) > 0;
+    }
+    inline friend bool operator>(const mpz_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) > 0;
+    }
+    inline friend bool operator<=(const mpf_class &op1, const mpz_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) <= 0;
+    }
+    inline friend bool operator<=(const mpz_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) <= 0;
+    }
+    inline friend bool operator>=(const mpf_class &op1, const mpz_class &op2) {
+        mpf_class _op2(op2);
+        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) >= 0;
+    }
+    inline friend bool operator>=(const mpz_class &op1, const mpf_class &op2) {
+        mpf_class _op1(op1);
+        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) >= 0;
+    }
+    inline friend bool operator==(const mpf_class &lhs, double rhs) { return lhs.get_d() == rhs; }
+    inline friend bool operator==(double lhs, const mpf_class &rhs) { return rhs.get_d() == lhs; }
+    inline friend bool operator!=(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) != 0; }
+    inline friend bool operator!=(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1) != 0; }
+    inline friend bool operator<(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) < 0; }
+    inline friend bool operator<(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1) > 0; }
+    inline friend bool operator>(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) > 0; }
+    inline friend bool operator>(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1) < 0; }
+    inline friend bool operator<=(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) <= 0; }
+    inline friend bool operator<=(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1) >= 0; }
+    inline friend bool operator>=(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) >= 0; }
+    inline friend bool operator>=(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1) <= 0; }
 
     inline friend mpf_class &operator+=(mpf_class &lhs, const mpz_class &rhs);
     inline friend mpf_class &operator-=(mpf_class &lhs, const mpz_class &rhs);
@@ -2388,6 +2534,7 @@ class mpf_class {
     }
 
     mpf_srcptr get_mpf_t() const { return value; }
+    mpf_ptr get_mpf_t() { return value; }
 
   private:
     mpf_t value;
@@ -2496,8 +2643,6 @@ inline bool operator==(const mpf_class &lhs, signed int rhs) { return lhs.get_si
 inline bool operator==(signed int lhs, const mpf_class &rhs) { return rhs == lhs; }
 inline bool operator==(const mpf_class &lhs, unsigned int rhs) { return lhs.get_ui() == (unsigned long int)rhs; }
 inline bool operator==(unsigned int lhs, const mpf_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpf_class &lhs, double rhs) { return lhs.get_d() == rhs; }
-inline bool operator==(double lhs, const mpf_class &rhs) { return rhs == lhs; }
 
 int cmp(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.get_mpf_t(), op2.get_mpf_t()); }
 int cmp(const mpf_class &op1, const mpz_class &op2) {
