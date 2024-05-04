@@ -268,48 +268,41 @@ class mpz_class {
     inline mpz_class &operator=(const unsigned char op);
     inline mpz_class &operator=(const char op);
 
-    inline friend mpz_class operator<<(const mpz_class &op1, const unsigned long int op2) {
-        mpz_class result;
-        mpz_mul_2exp(result.value, op1.get_mpz_t(), op2);
-        return result;
-    }
     inline friend mpz_class operator<<(const mpz_class &op1, const unsigned int op2) {
-        mpz_class result;
-        mpz_mul_2exp(result.value, op1.get_mpz_t(), op2);
-        return result;
-    }
-    inline friend mpz_class operator<<(const mpz_class &op1, const signed long int op2) {
-        mpz_class result;
-        mpz_mul_2exp(result.value, op1.get_mpz_t(), op2);
-        return result;
-    }
-    inline friend mpz_class operator<<(const mpz_class &op1, const signed int op2) {
-        mpz_class result;
-        mpz_mul_2exp(result.value, op1.get_mpz_t(), op2);
-        return result;
-    }
-    inline friend mpz_class operator>>(const mpz_class &op1, const unsigned long int op2) {
-        mpz_class result;
-        mpz_fdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
+        mpz_class result(op1);
+        mpz_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
         return result;
     }
     inline friend mpz_class operator>>(const mpz_class &op1, const unsigned int op2) {
-        mpz_class result;
-        mpz_fdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
+        mpz_class result(op1);
+        mpz_fdiv_q_2exp(result.value, result.value, (mp_bitcnt_t)op2);
         return result;
     }
-    inline friend mpz_class operator>>(const mpz_class &op1, const signed long int op2) {
-        mpz_class result;
-        mpz_fdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
+    inline mpz_class &operator<<=(const unsigned int n) {
+        mpz_mul_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+    inline mpz_class &operator>>=(const unsigned int n) {
+        mpz_tdiv_q_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+
+    inline friend mpz_class operator<<(const mpz_class &op1, const int op2) {
+        mpz_class result(op1);
+        mpz_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
         return result;
     }
-    inline friend mpz_class operator>>(const mpz_class &op1, const signed int op2) {
-        mpz_class result;
-        mpz_fdiv_q_2exp(result.value, op1.get_mpz_t(), op2);
+    inline friend mpz_class operator>>(const mpz_class &op1, const int op2) {
+        mpz_class result(op1);
+        mpz_fdiv_q_2exp(result.value, result.value, (mp_bitcnt_t)op2);
         return result;
     }
-    inline mpz_class &operator<<=(int n) {
-        mpz_mul_2exp(value, value, n);
+    inline mpz_class &operator<<=(const int n) {
+        mpz_mul_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+    inline mpz_class &operator>>=(const int n) {
+        mpz_tdiv_q_2exp(value, value, (mp_bitcnt_t)n);
         return *this;
     }
 
@@ -1478,10 +1471,42 @@ class mpq_class {
     inline mpq_class &operator=(const char *op);
     inline mpq_class &operator=(const std::string &op);
 
-    inline mpq_class operator<<(const mp_bitcnt_t shift) const {
-        mpq_class result;
-        mpq_mul_2exp(result.value, value, shift);
+    inline friend mpq_class operator<<(const mpq_class &op1, const unsigned int op2) {
+        mpq_class result(op1);
+        mpq_mul_2exp(result.get_mpq_t(), op1.get_mpq_t(), (mp_bitcnt_t)op2);
         return result;
+    }
+    inline friend mpq_class operator>>(const mpq_class &op1, const unsigned int op2) {
+        mpq_class result(op1);
+        mpq_div_2exp(result.get_mpq_t(), op1.get_mpq_t(), (mp_bitcnt_t)op2);
+        return result;
+    }
+    inline mpq_class &operator<<=(const unsigned int n) {
+        mpq_mul_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+    inline mpq_class &operator>>=(const unsigned int n) {
+        mpq_div_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+
+    inline mpq_class friend operator<<(const mpq_class &op1, const int op2) {
+        mpq_class result(op1);
+        mpq_mul_2exp(result.get_mpq_t(), op1.get_mpq_t(), (mp_bitcnt_t)op2);
+        return result;
+    }
+    inline mpq_class friend operator>>(const mpq_class &op1, const int op2) {
+        mpq_class result(op1);
+        mpq_div_2exp(result.get_mpq_t(), op1.get_mpq_t(), (mp_bitcnt_t)op2);
+        return result;
+    }
+    inline mpq_class &operator<<=(const int n) {
+        mpq_mul_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+    inline mpq_class &operator>>=(const int n) {
+        mpq_div_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
     }
     // void mpq_class::canonicalize ()
     // mpq_class abs (mpq_class op)
@@ -1737,7 +1762,6 @@ inline mpq_class operator/(const mpq_class &op1, const mpq_class &op2) {
     mpq_div(result.value, op1.value, op2.value);
     return result;
 }
-
 inline mpq_class abs(const mpq_class &op) {
     mpq_class rop(op);
     mpq_abs(rop.value, op.get_mpq_t());
@@ -2333,6 +2357,44 @@ class mpf_class {
         return *this;
     }
 
+    inline friend mpf_class operator<<(const mpf_class &op1, const unsigned int op2) {
+        mpf_class result(op1);
+        mpf_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
+        return result;
+    }
+    inline friend mpf_class operator>>(const mpf_class &op1, const unsigned int op2) {
+        mpf_class result(op1);
+        mpf_div_2exp(result.value, result.value, (mp_bitcnt_t)op2);
+        return result;
+    }
+    inline mpf_class &operator<<=(const unsigned int n) {
+        mpf_mul_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+    inline mpf_class &operator>>=(const unsigned int n) {
+        mpf_div_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+
+    inline friend mpf_class operator<<(const mpf_class &op1, const int op2) {
+        mpf_class result(op1);
+        mpf_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
+        return result;
+    }
+    inline friend mpf_class operator>>(const mpf_class &op1, const int op2) {
+        mpf_class result(op1);
+        mpf_div_2exp(result.value, result.value, (mp_bitcnt_t)op2);
+        return result;
+    }
+    inline mpf_class &operator<<=(const int n) {
+        mpf_mul_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+    inline mpf_class &operator>>=(const int n) {
+        mpf_div_2exp(value, value, (mp_bitcnt_t)n);
+        return *this;
+    }
+
     inline friend mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
     inline friend mpf_class &operator-=(mpf_class &lhs, const mpf_class &rhs);
     inline friend mpf_class &operator*=(mpf_class &lhs, const mpf_class &rhs);
@@ -2343,8 +2405,6 @@ class mpf_class {
     inline friend mpf_class operator-(const mpf_class &op1, const mpf_class &op2);
     inline friend mpf_class operator*(const mpf_class &op1, const mpf_class &op2);
     inline friend mpf_class operator/(const mpf_class &op1, const mpf_class &op2);
-
-    inline friend mpf_class operator>>(const mpf_class &op1, const unsigned int op2);
 
     inline friend bool operator==(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) == 0; }
     inline friend bool operator!=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) != 0; }
@@ -2465,6 +2525,7 @@ class mpf_class {
         mpf_class _op1(op1);
         return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) >= 0;
     }
+
     inline friend bool operator==(const mpf_class &lhs, double rhs) { return lhs.get_d() == rhs; }
     inline friend bool operator==(double lhs, const mpf_class &rhs) { return rhs.get_d() == lhs; }
     inline friend bool operator!=(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) != 0; }
@@ -2682,11 +2743,7 @@ inline mpf_class operator/(const mpf_class &op1, const mpf_class &op2) {
 #endif
     return result;
 }
-inline mpf_class operator>>(const mpf_class &op1, const unsigned int op2) {
-    mpf_class result;
-    mpf_div_2exp(result.value, op1.value, op2);
-    return result;
-}
+
 inline mpf_class operator+(const mpf_class &op) {
     mpf_class result(op.value);
     return result;
