@@ -295,6 +295,13 @@ class mpz_class {
     template <typename T> inline friend typename std::enable_if<std::is_arithmetic<T>::value && !std::is_unsigned<T>::value && !std::is_signed<T>::value, mpz_class>::type operator%(const mpz_class &op1, const T op2);
     template <typename T> inline friend typename std::enable_if<std::is_arithmetic<T>::value && !std::is_unsigned<T>::value && !std::is_signed<T>::value, mpz_class>::type operator%(const T op1, const mpz_class &op2);
 
+    template <typename T> friend mpz_class operator&(const mpz_class &op1, const T op2);
+    template <typename T> friend mpz_class operator&(const T op1, const mpz_class &op2);
+    template <typename T> friend mpz_class operator|(const mpz_class &op1, const T op2);
+    template <typename T> friend mpz_class operator|(const T op1, const mpz_class &op2);
+    template <typename T> friend mpz_class operator^(const mpz_class &op1, const T op2);
+    template <typename T> friend mpz_class operator^(const T op1, const mpz_class &op2);
+
     inline mpz_class &operator=(const signed long int op);
     inline mpz_class &operator=(const unsigned long int op);
     inline mpz_class &operator=(const signed int op);
@@ -724,6 +731,39 @@ template <typename T> inline typename std::enable_if<std::is_arithmetic<T>::valu
 template <typename T> inline typename std::enable_if<std::is_arithmetic<T>::value && !std::is_unsigned<T>::value && !std::is_signed<T>::value, mpz_class>::type operator%(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_tdiv_r(result.value, result.value, op2.value);
+    return result;
+}
+// &
+template <typename T> inline mpz_class operator&(const mpz_class &op1, const T op2) {
+    mpz_class result(op2);
+    mpz_and(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline mpz_class operator&(const T op1, const mpz_class &op2) {
+    mpz_class result(op1);
+    mpz_and(result.value, result.value, op2.value);
+    return result;
+}
+// |
+template <typename T> inline mpz_class operator|(const mpz_class &op1, const T op2) {
+    mpz_class result(op2);
+    mpz_ior(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline mpz_class operator|(const T op1, const mpz_class &op2) {
+    mpz_class result(op1);
+    mpz_ior(result.value, result.value, op2.value);
+    return result;
+}
+// ^
+template <typename T> inline mpz_class operator^(const mpz_class &op1, const T op2) {
+    mpz_class result(op2);
+    mpz_xor(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline mpz_class operator^(const T op1, const mpz_class &op2) {
+    mpz_class result(op1);
+    mpz_xor(result.value, result.value, op2.value);
     return result;
 }
 
