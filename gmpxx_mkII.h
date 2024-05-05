@@ -697,14 +697,14 @@ template <typename T> inline typename std::enable_if<std::is_unsigned<T>::value,
     return result;
 }
 template <typename T> inline typename std::enable_if<std::is_unsigned<T>::value, mpz_class>::type operator%(const T op1, const mpz_class &op2) {
-    mpz_class result(op2);
-    mpz_tdiv_r_ui(result.value, result.value, static_cast<unsigned long int>(op1));
+    mpz_class result(op1);
+    mpz_tdiv_r(result.value, result.value, op2.value);
     return result;
 }
 template <typename T> inline typename std::enable_if<std::is_signed<T>::value, mpz_class>::type operator%(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     if (op2 >= 0)
-        mpz_tdiv_r_ui(result.value, result.value, static_cast<signed long int>(op2));
+        mpz_tdiv_r_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     else {
         unsigned long int _op2 = -static_cast<unsigned long int>(op2);
         mpz_tdiv_r_ui(result.value, result.value, static_cast<signed long int>(_op2));
