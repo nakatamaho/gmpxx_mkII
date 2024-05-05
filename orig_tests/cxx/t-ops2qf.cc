@@ -78,13 +78,11 @@ void checkqf (){
 int
 main (void)
 {
-  tests_start();
 
   // Enough precision for 1 + denorm_min
   mpf_set_default_prec(DBL_MANT_DIG-DBL_MIN_EXP+42);
   checkqf<mpq_class>();
   checkqf<mpf_class>();
 
-  tests_end();
   return 0;
 }

@@ -521,6 +521,8 @@ class mpz_class {
   private:
     mpz_t value;
 };
+
+// the following part should be rewritten using template
 inline mpz_class &operator+=(mpz_class &lhs, const unsigned long int rhs) {
     mpz_add_ui(lhs.value, lhs.value, rhs);
     return lhs;
@@ -1440,6 +1442,26 @@ class mpq_class {
         mpq_init(value);
         mpq_set_d(value, op);
     }
+    mpq_class &operator++() {
+        mpq_class one = 1;
+        mpq_add(value, value, one.value);
+        return *this;
+    }
+    mpq_class operator++(int) {
+        mpq_class original = *this;
+        ++(*this);
+        return original;
+    }
+    mpq_class &operator--() {
+        mpq_class one = 1;
+        mpq_sub(value, value, one.value);
+        return *this;
+    }
+    mpq_class operator--(int) {
+        mpq_class original = *this;
+        --(*this);
+        return original;
+    }
     inline friend mpq_class &operator+=(mpq_class &lhs, const mpq_class &rhs);
     inline friend mpq_class &operator-=(mpq_class &lhs, const mpq_class &rhs);
     inline friend mpq_class &operator*=(mpq_class &lhs, const mpq_class &rhs);
@@ -1781,6 +1803,55 @@ inline bool operator==(const mpq_class &lhs, signed char rhs) { return mpq_cmp_s
 inline bool operator==(signed char lhs, const mpq_class &rhs) { return rhs == lhs; }
 inline bool operator==(const mpq_class &lhs, unsigned char rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), (unsigned long int)rhs, (unsigned long int)1) == 0; }
 inline bool operator==(unsigned char lhs, const mpq_class &rhs) { return rhs == lhs; }
+
+template <typename T> bool operator==(const mpq_class &op1, const T &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) == 0;
+}
+template <typename T> bool operator==(const T &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) == 0;
+}
+template <typename T> bool operator!=(const mpq_class &op1, const T &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) != 0;
+}
+template <typename T> bool operator!=(const T &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) != 0;
+}
+template <typename T> bool operator>(const mpq_class &op1, const T &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) > 0;
+}
+template <typename T> bool operator>(const T &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) > 0;
+}
+template <typename T> bool operator<(const mpq_class &op1, const T &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) < 0;
+}
+template <typename T> bool operator<(const T &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) < 0;
+}
+template <typename T> bool operator>=(const mpq_class &op1, const T &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) >= 0;
+}
+template <typename T> bool operator>=(const T &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) >= 0;
+}
+template <typename T> bool operator<=(const mpq_class &op1, const T &op2) {
+    mpq_class _op2(op2);
+    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) <= 0;
+}
+template <typename T> bool operator<=(const T &op1, const mpq_class &op2) {
+    mpq_class _op1(op1);
+    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) <= 0;
+}
 
 inline mpq_class &mpq_class::operator=(const mpz_class &op) {
     mpq_set_z(this->value, op.get_mpz_t());
@@ -2357,41 +2428,28 @@ class mpf_class {
         return *this;
     }
 
-    inline friend mpf_class operator<<(const mpf_class &op1, const unsigned int op2) {
-        mpf_class result(op1);
-        mpf_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
+    template <typename T> mpf_class operator<<(T op2) const {
+        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
+        mpf_class result(*this);
+        mpf_mul_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
     }
-    inline friend mpf_class operator>>(const mpf_class &op1, const unsigned int op2) {
-        mpf_class result(op1);
-        mpf_div_2exp(result.value, result.value, (mp_bitcnt_t)op2);
+    template <typename T> mpf_class operator>>(T op2) const {
+        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
+        mpf_class result(*this);
+        mpf_div_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
     }
-    inline mpf_class &operator<<=(const unsigned int n) {
-        mpf_mul_2exp(value, value, (mp_bitcnt_t)n);
-        return *this;
-    }
-    inline mpf_class &operator>>=(const unsigned int n) {
-        mpf_div_2exp(value, value, (mp_bitcnt_t)n);
+
+    template <typename T> mpf_class &operator<<=(T op2) {
+        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
+        mpf_mul_2exp(value, value, static_cast<mp_bitcnt_t>(op2));
         return *this;
     }
 
-    inline friend mpf_class operator<<(const mpf_class &op1, const int op2) {
-        mpf_class result(op1);
-        mpf_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
-        return result;
-    }
-    inline friend mpf_class operator>>(const mpf_class &op1, const int op2) {
-        mpf_class result(op1);
-        mpf_div_2exp(result.value, result.value, (mp_bitcnt_t)op2);
-        return result;
-    }
-    inline mpf_class &operator<<=(const int n) {
-        mpf_mul_2exp(value, value, (mp_bitcnt_t)n);
-        return *this;
-    }
-    inline mpf_class &operator>>=(const int n) {
-        mpf_div_2exp(value, value, (mp_bitcnt_t)n);
+    template <typename T> mpf_class &operator>>=(T op2) {
+        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
+        mpf_div_2exp(value, value, static_cast<mp_bitcnt_t>(op2));
         return *this;
     }
 
@@ -2428,106 +2486,19 @@ class mpf_class {
         mpf_sub_ui(value, value, 1);
         return *this;
     }
-    inline friend bool operator==(const mpf_class &op1, const mpq_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.value, _op2.value) == 0;
-    }
-    inline friend bool operator==(const mpq_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.value, op2.value) == 0;
-    }
-    inline friend bool operator!=(const mpf_class &op1, const mpq_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) != 0;
-    }
-    inline friend bool operator!=(const mpq_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) != 0;
-    }
-    inline friend bool operator<(const mpf_class &op1, const mpq_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) < 0;
-    }
-    inline friend bool operator<(const mpq_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) < 0;
-    }
-    inline friend bool operator>(const mpf_class &op1, const mpq_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) > 0;
-    }
-    inline friend bool operator>(const mpq_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) > 0;
-    }
-    inline friend bool operator<=(const mpf_class &op1, const mpq_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) <= 0;
-    }
-    inline friend bool operator<=(const mpq_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) <= 0;
-    }
-    inline friend bool operator>=(const mpf_class &op1, const mpq_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) >= 0;
-    }
-    inline friend bool operator>=(const mpq_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) >= 0;
-    }
 
-    inline friend bool operator==(const mpf_class &op1, const mpz_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) == 0;
-    }
-    inline friend bool operator==(const mpz_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) == 0;
-    }
-    inline friend bool operator!=(const mpf_class &op1, const mpz_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) != 0;
-    }
-    inline friend bool operator!=(const mpz_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) != 0;
-    }
-    inline friend bool operator<(const mpf_class &op1, const mpz_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) < 0;
-    }
-    inline friend bool operator<(const mpz_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) < 0;
-    }
-    inline friend bool operator>(const mpf_class &op1, const mpz_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) > 0;
-    }
-    inline friend bool operator>(const mpz_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) > 0;
-    }
-    inline friend bool operator<=(const mpf_class &op1, const mpz_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) <= 0;
-    }
-    inline friend bool operator<=(const mpz_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) <= 0;
-    }
-    inline friend bool operator>=(const mpf_class &op1, const mpz_class &op2) {
-        mpf_class _op2(op2);
-        return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) >= 0;
-    }
-    inline friend bool operator>=(const mpz_class &op1, const mpf_class &op2) {
-        mpf_class _op1(op1);
-        return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) >= 0;
-    }
+    inline friend bool operator==(const mpf_class &lhs, signed long int rhs) { return lhs.get_si() == rhs; }
+    inline friend bool operator==(signed long int lhs, const mpf_class &rhs) { return rhs == lhs; }
+    inline friend bool operator==(const mpf_class &lhs, unsigned long int rhs) { return lhs.get_ui() == rhs; }
+    inline friend bool operator==(unsigned long int lhs, const mpf_class &rhs) { return rhs == lhs; }
+    inline friend bool operator==(const mpf_class &lhs, signed int rhs) { return lhs.get_si() == (signed long int)rhs; }
+    inline friend bool operator==(signed int lhs, const mpf_class &rhs) { return rhs == lhs; }
+    inline friend bool operator==(const mpf_class &lhs, unsigned int rhs) { return lhs.get_ui() == (unsigned long int)rhs; }
+    inline friend bool operator==(unsigned int lhs, const mpf_class &rhs) { return rhs == lhs; }
 
     inline friend bool operator==(const mpf_class &lhs, double rhs) { return lhs.get_d() == rhs; }
     inline friend bool operator==(double lhs, const mpf_class &rhs) { return rhs.get_d() == lhs; }
+
     inline friend bool operator!=(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) != 0; }
     inline friend bool operator!=(const double &op1, const mpf_class &op2) { return mpf_cmp_d(op2.get_mpf_t(), op1) != 0; }
     inline friend bool operator<(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2) < 0; }
@@ -2754,32 +2725,88 @@ inline mpf_class operator-(const mpf_class &op) {
     return result;
 }
 
-inline bool operator==(const mpf_class &lhs, signed long int rhs) { return lhs.get_si() == rhs; }
-inline bool operator==(signed long int lhs, const mpf_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpf_class &lhs, unsigned long int rhs) { return lhs.get_ui() == rhs; }
-inline bool operator==(unsigned long int lhs, const mpf_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpf_class &lhs, signed int rhs) { return lhs.get_si() == (signed long int)rhs; }
-inline bool operator==(signed int lhs, const mpf_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpf_class &lhs, unsigned int rhs) { return lhs.get_ui() == (unsigned long int)rhs; }
-inline bool operator==(unsigned int lhs, const mpf_class &rhs) { return rhs == lhs; }
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator==(const mpf_class &op1, const T &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) == 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator==(const T &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) == 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator!=(const mpf_class &op1, const T &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) != 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator!=(const T &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) != 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator<(const mpf_class &op1, const T &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) < 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator<(const T &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) < 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator>(const mpf_class &op1, const T &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) > 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator>(const T &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) > 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator<=(const mpf_class &op1, const T &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) <= 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator<=(const T &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) <= 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator>=(const mpf_class &op1, const T &op2) {
+    mpf_class _op2(op2);
+    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t()) >= 0;
+}
+template <typename T> inline typename std::enable_if<std::is_same<T, mpz_class>::value || std::is_same<T, mpq_class>::value, bool>::type operator>=(const T &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t()) >= 0;
+}
 
-int cmp(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.get_mpf_t(), op2.get_mpf_t()); }
-int cmp(const mpf_class &op1, const mpz_class &op2) {
-    mpf_class _op2(op2);
-    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t());
-}
-int cmp(const mpz_class &op1, const mpf_class &op2) {
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator==(const mpf_class &op1, const T &op2) { return mpf_cmp_ui(op1.get_mpf_t(), static_cast<unsigned long int>(op2)) == 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator==(const T &op1, const mpf_class &op2) { return mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)) == 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator!=(const mpf_class &op1, const T &op2) { return mpf_cmp_ui(op1.get_mpf_t(), static_cast<unsigned long int>(op2)) != 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator!=(const T &op1, const mpf_class &op2) { return mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)) != 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator<(const mpf_class &op1, const T &op2) { return mpf_cmp_ui(op1.get_mpf_t(), static_cast<unsigned long int>(op2)) < 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator<(const T &op1, const mpf_class &op2) { return mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)) > 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator>(const mpf_class &op1, const T &op2) { return mpf_cmp_ui(op1.get_mpf_t(), static_cast<unsigned long int>(op2)) > 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator>(const T &op1, const mpf_class &op2) { return mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)) < 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator<=(const mpf_class &op1, const T &op2) { return mpf_cmp_ui(op1.get_mpf_t(), static_cast<unsigned long int>(op2)) <= 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator<=(const T &op1, const mpf_class &op2) { return mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)) >= 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator>=(const mpf_class &op1, const T &op2) { return mpf_cmp_ui(op1.get_mpf_t(), static_cast<unsigned long int>(op2)) >= 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, unsigned long int>::value || std::is_same<T, unsigned int>::value, bool>::type operator>=(const T &op1, const mpf_class &op2) { return mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)) >= 0; }
+
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator==(const mpf_class &op1, const T &op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)) == 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator==(const T &op1, const mpf_class &op2) { return mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)) == 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator!=(const mpf_class &op1, const T &op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)) != 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator!=(const T &op1, const mpf_class &op2) { return mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)) != 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator<(const mpf_class &op1, const T &op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)) < 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator<(const T &op1, const mpf_class &op2) { return mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)) > 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator>(const mpf_class &op1, const T &op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)) > 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator>(const T &op1, const mpf_class &op2) { return mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)) < 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator<=(const mpf_class &op1, const T &op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)) <= 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator<=(const T &op1, const mpf_class &op2) { return mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)) >= 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator>=(const mpf_class &op1, const T &op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)) >= 0; }
+template <typename T> inline typename std::enable_if<std::is_same<T, signed long int>::value || std::is_same<T, signed int>::value, bool>::type operator>=(const T &op1, const mpf_class &op2) { return mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)) >= 0; }
+
+template <typename T, typename U> int cmp(const T &op1, const U &op2) {
     mpf_class _op1(op1);
-    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t());
-}
-int cmp(const mpf_class &op1, const mpq_class &op2) {
     mpf_class _op2(op2);
-    return mpf_cmp(op1.get_mpf_t(), _op2.get_mpf_t());
+    return mpf_cmp(_op1.get_mpf_t(), _op2.get_mpf_t());
 }
-int cmp(const mpq_class &op1, const mpf_class &op2) {
-    mpf_class _op1(op1);
-    return mpf_cmp(_op1.get_mpf_t(), op2.get_mpf_t());
-}
+template <> int cmp<mpf_class, mpf_class>(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.get_mpf_t(), op2.get_mpf_t()); }
+
 int cmp(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.get_mpz_t(), op2.get_mpz_t()); }
 int cmp(const mpz_class &op1, const mpq_class &op2) { return -mpq_cmp_z(op2.get_mpq_t(), op1.get_mpz_t()); }
 int cmp(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.get_mpq_t(), op2.get_mpz_t()); }
