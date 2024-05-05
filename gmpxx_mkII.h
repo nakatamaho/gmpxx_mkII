@@ -1785,51 +1785,51 @@ inline bool operator==(signed char lhs, const mpq_class &rhs) { return rhs == lh
 inline bool operator==(const mpq_class &lhs, unsigned char rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), (unsigned long int)rhs, (unsigned long int)1) == 0; }
 inline bool operator==(unsigned char lhs, const mpq_class &rhs) { return rhs == lhs; }
 
-template <typename T> bool operator==(const mpq_class &op1, const T &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator==(const mpq_class &op1, const T &op2) {
     mpq_class _op2(op2);
     return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) == 0;
 }
-template <typename T> bool operator==(const T &op1, const mpq_class &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator==(const T &op1, const mpq_class &op2) {
     mpq_class _op1(op1);
     return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) == 0;
 }
-template <typename T> bool operator!=(const mpq_class &op1, const T &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator!=(const mpq_class &op1, const T &op2) {
     mpq_class _op2(op2);
     return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) != 0;
 }
-template <typename T> bool operator!=(const T &op1, const mpq_class &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator!=(const T &op1, const mpq_class &op2) {
     mpq_class _op1(op1);
     return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) != 0;
 }
-template <typename T> bool operator>(const mpq_class &op1, const T &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>(const mpq_class &op1, const T &op2) {
     mpq_class _op2(op2);
     return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) > 0;
 }
-template <typename T> bool operator>(const T &op1, const mpq_class &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>(const T &op1, const mpq_class &op2) {
     mpq_class _op1(op1);
     return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) > 0;
 }
-template <typename T> bool operator<(const mpq_class &op1, const T &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<(const mpq_class &op1, const T &op2) {
     mpq_class _op2(op2);
     return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) < 0;
 }
-template <typename T> bool operator<(const T &op1, const mpq_class &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<(const T &op1, const mpq_class &op2) {
     mpq_class _op1(op1);
     return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) < 0;
 }
-template <typename T> bool operator>=(const mpq_class &op1, const T &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>=(const mpq_class &op1, const T &op2) {
     mpq_class _op2(op2);
     return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) >= 0;
 }
-template <typename T> bool operator>=(const T &op1, const mpq_class &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>=(const T &op1, const mpq_class &op2) {
     mpq_class _op1(op1);
     return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) >= 0;
 }
-template <typename T> bool operator<=(const mpq_class &op1, const T &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<=(const mpq_class &op1, const T &op2) {
     mpq_class _op2(op2);
     return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) <= 0;
 }
-template <typename T> bool operator<=(const T &op1, const mpq_class &op2) {
+template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<=(const T &op1, const mpq_class &op2) {
     mpq_class _op1(op1);
     return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) <= 0;
 }

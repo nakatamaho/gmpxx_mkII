@@ -31,6 +31,41 @@ using std::invalid_argument;
 
 using namespace std;
 
+void
+mpz_set_str_or_abort (mpz_ptr z, const char *str, int base)
+{
+  if (mpz_set_str (z, str, base) != 0)
+      {
+      fprintf (stderr, "ERROR: mpz_set_str failed\n");
+      fprintf (stderr, "   str  = \"%s\"\n", str);
+      fprintf (stderr, "   base = %d\n", base);
+      abort();
+      }
+}
+
+void
+mpq_set_str_or_abort (mpq_ptr q, const char *str, int base)
+{
+  if (mpq_set_str (q, str, base) != 0)
+      {
+      fprintf (stderr, "ERROR: mpq_set_str failed\n");
+      fprintf (stderr, "   str  = \"%s\"\n", str);
+      fprintf (stderr, "   base = %d\n", base);
+      abort();
+      }
+}
+
+void
+mpf_set_str_or_abort (mpf_ptr f, const char *str, int base)
+{
+  if (mpf_set_str (f, str, base) != 0)
+      {
+      fprintf (stderr, "ERROR mpf_set_str failed\n");
+      fprintf (stderr, "   str  = \"%s\"\n", str);
+      fprintf (stderr, "   base = %d\n", base);
+      abort();
+      }
+}
 
 // Under option_check_standard, the various test cases for mpz operator>>
 // are put through the standard operator>> for long, and likewise mpf
