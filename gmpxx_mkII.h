@@ -160,6 +160,25 @@ class mpz_class {
         --(*this);
         return original;
     }
+    template <typename T> typename std::enable_if<std::is_integral<T>::value, mpz_class &>::type operator<<=(T n) {
+        mpz_mul_2exp(value, value, static_cast<mp_bitcnt_t>(n));
+        return *this;
+    }
+    template <typename T> typename std::enable_if<std::is_integral<T>::value, mpz_class &>::type operator>>=(T n) {
+        mpz_tdiv_q_2exp(value, value, static_cast<mp_bitcnt_t>(n));
+        return *this;
+    }
+    template <typename T> friend typename std::enable_if<std::is_integral<T>::value, mpz_class>::type operator<<(const mpz_class &op1, T op2) {
+        mpz_class result(op1);
+        mpz_mul_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
+        return result;
+    }
+    template <typename T> friend typename std::enable_if<std::is_integral<T>::value, mpz_class>::type operator>>(const mpz_class &op1, T op2) {
+        mpz_class result(op1);
+        mpz_fdiv_q_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
+        return result;
+    }
+
     // mpz_class operator/ (mpz_class a, mpz_class d)
     // mpz_class operator% (mpz_class a, mpz_class d)
     inline friend mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
@@ -267,44 +286,6 @@ class mpz_class {
     inline mpz_class &operator=(const signed char op);
     inline mpz_class &operator=(const unsigned char op);
     inline mpz_class &operator=(const char op);
-
-    inline friend mpz_class operator<<(const mpz_class &op1, const unsigned int op2) {
-        mpz_class result(op1);
-        mpz_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
-        return result;
-    }
-    inline friend mpz_class operator>>(const mpz_class &op1, const unsigned int op2) {
-        mpz_class result(op1);
-        mpz_fdiv_q_2exp(result.value, result.value, (mp_bitcnt_t)op2);
-        return result;
-    }
-    inline mpz_class &operator<<=(const unsigned int n) {
-        mpz_mul_2exp(value, value, (mp_bitcnt_t)n);
-        return *this;
-    }
-    inline mpz_class &operator>>=(const unsigned int n) {
-        mpz_tdiv_q_2exp(value, value, (mp_bitcnt_t)n);
-        return *this;
-    }
-
-    inline friend mpz_class operator<<(const mpz_class &op1, const int op2) {
-        mpz_class result(op1);
-        mpz_mul_2exp(result.value, result.value, (mp_bitcnt_t)op2);
-        return result;
-    }
-    inline friend mpz_class operator>>(const mpz_class &op1, const int op2) {
-        mpz_class result(op1);
-        mpz_fdiv_q_2exp(result.value, result.value, (mp_bitcnt_t)op2);
-        return result;
-    }
-    inline mpz_class &operator<<=(const int n) {
-        mpz_mul_2exp(value, value, (mp_bitcnt_t)n);
-        return *this;
-    }
-    inline mpz_class &operator>>=(const int n) {
-        mpz_tdiv_q_2exp(value, value, (mp_bitcnt_t)n);
-        return *this;
-    }
 
     // mpz_class abs (mpz_class op)
     inline friend mpz_class abs(const mpz_class &op);
