@@ -61,22 +61,38 @@ class mpz_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // 12.2 C++ Interface Integers
     ////////////////////////////////////////////////////////////////////////////////////////
-    // constructor
-    mpz_class() { mpz_init(value); }   // default constructor
-    ~mpz_class() { mpz_clear(value); } // The rule 3 of 5 default deconstructor
+    // constructors and destructors
+    mpz_class() { mpz_init(value); }
+    // The rule 1 of 5 copy constructor
+    mpz_class(const mpz_class &op) {
+        mpz_init(value);
+        mpz_set(value, op.value);
+    }
+    // The rule 2 of 5 copy assignment operator
+    mpz_class &operator=(const mpz_class &op) noexcept {
+        if (this != &op) {
+            mpz_set(value, op.value);
+        }
+        return *this;
+    }
+    // The rule 3 of 5 default deconstructor
+    ~mpz_class() { mpz_clear(value); }
+    // The rule 4 of 5 move constructor
+    mpz_class(mpz_class &&op) noexcept {
+        mpz_init(value);
+        mpz_swap(value, op.value);
+    }
+    // The rule 5 of 5 move assignment operator
+    mpz_class &operator=(mpz_class &&op) noexcept {
+        if (this != &op) {
+            mpz_swap(value, op.value);
+        }
+        return *this;
+    }
     explicit mpz_class(const mpz_t z) {
         mpz_init(value);
         mpz_set(value, z);
     }
-    operator unsigned long int() const { return mpz_get_ui(this->value); }
-    operator signed long int() const { return mpz_get_si(this->value); }
-    operator unsigned int() const { return (unsigned int)mpz_get_ui(this->value); }
-    operator signed int() const { return (signed int)mpz_get_si(this->value); }
-    mpz_class(unsigned long int op) { mpz_init_set_ui(value, op); }
-    mpz_class(signed long int op) { mpz_init_set_si(value, op); }
-    mpz_class(double op) { mpz_init_set_d(value, op); }
-    mpz_class(unsigned int op) { mpz_init_set_ui(value, (unsigned long int)op); }
-    mpz_class(signed int op) { mpz_init_set_si(value, (signed long int)op); }
     mpz_class(const mpq_t op) {
         mpz_init(value);
         mpz_set_q(value, op);
@@ -84,16 +100,6 @@ class mpz_class {
     mpz_class(const mpf_t op) {
         mpz_init(value);
         mpz_set_f(value, op);
-    }
-    mpz_class(const mpz_class &op) { // The rule 1 of 5 copy constructor
-                                     // std::cout << "The rule 1 of 5 copy constructor\n" ;
-        mpz_init(value);
-        mpz_set(value, op.value);
-    }
-    mpz_class(mpz_class &&op) noexcept { // The rule 4 of 5 move constructor
-                                         // std::cout << "The rule 4 of 5 move constructor\n" ;
-        mpz_init(value);
-        mpz_swap(value, op.value);
     }
     mpz_class(const char *str, int base = 0) {
         mpz_init(value);
@@ -107,21 +113,12 @@ class mpz_class {
             throw std::invalid_argument("");
         }
     }
-    // mpz_class& mpz_class::operator= (type op)
-    mpz_class &operator=(const mpz_class &op) noexcept { // The rule 2 of 5 copy assignment operator
-        // std::cout << "The rule 2 of 5 copy assignment operator\n" ;
-        if (this != &op) {
-            mpz_set(value, op.value);
-        }
-        return *this;
-    }
-    mpz_class &operator=(mpz_class &&op) noexcept { // The rule 5 of 5 move assignment operator
-        // std::cout << "The rule 5 of 5 move assignment operator\n" ;
-        if (this != &op) {
-            mpz_swap(value, op.value);
-        }
-        return *this;
-    }
+    mpz_class(unsigned long int op) { mpz_init_set_ui(value, op); }
+    mpz_class(signed long int op) { mpz_init_set_si(value, op); }
+    mpz_class(double op) { mpz_init_set_d(value, op); }
+    mpz_class(unsigned int op) { mpz_init_set_ui(value, (unsigned long int)op); }
+    mpz_class(signed int op) { mpz_init_set_si(value, (signed long int)op); }
+    // assignments from other objects
     mpz_class &operator=(double d) noexcept {
         mpz_set_d(value, d);
         return *this;
@@ -138,6 +135,14 @@ class mpz_class {
         }
         return *this;
     }
+    mpz_class &operator=(const signed long int op);
+    mpz_class &operator=(const unsigned long int op);
+    mpz_class &operator=(const signed int op);
+    mpz_class &operator=(const unsigned int op);
+    mpz_class &operator=(const signed char op);
+    mpz_class &operator=(const unsigned char op);
+    mpz_class &operator=(const char op);
+    // operators
     mpz_class operator~() const {
         mpz_class result;
         mpz_com(result.value, value);
@@ -180,8 +185,7 @@ class mpz_class {
         return result;
     }
 
-    // mpz_class operator/ (mpz_class a, mpz_class d)
-    // mpz_class operator% (mpz_class a, mpz_class d)
+    // mpz_class arithmetic operators
     inline friend mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
     inline friend mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs);
     inline friend mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs);
@@ -201,8 +205,7 @@ class mpz_class {
     inline friend mpz_class operator|(const mpz_class &op1, const mpz_class &op2);
     inline friend mpz_class operator^(const mpz_class &op1, const mpz_class &op2);
 
-    // int cmp (mpz_class op1, type op2)
-    // int cmp (type op1, mpz_class op2)
+    // mpz_class comparison operators
     inline friend bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
     inline friend bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
     inline friend bool operator<(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) < 0; }
@@ -224,32 +227,7 @@ class mpz_class {
     inline friend bool operator<=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) >= 0; }
     inline friend bool operator>=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
 
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator==(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator!=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator==(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator!=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
-
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator==(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) == 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator!=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) != 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) < 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) > 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) <= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) >= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator==(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) == 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator!=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) != 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) > 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) < 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
-
+    // mpz_class arithmetic operators (template version)
     template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, mpz_class &>::type operator+=(mpz_class &lhs, const T rhs);
     template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, mpz_class &>::type operator+=(mpz_class &lhs, const T rhs);
     template <typename T> inline friend typename std::enable_if<std::is_arithmetic<T>::value && !std::is_unsigned<T>::value && !std::is_signed<T>::value, mpz_class>::type operator+=(mpz_class &lhs, const T rhs);
@@ -304,13 +282,32 @@ class mpz_class {
     template <typename T> friend mpz_class operator^(const mpz_class &op1, const T op2);
     template <typename T> friend mpz_class operator^(const T op1, const mpz_class &op2);
 
-    inline mpz_class &operator=(const signed long int op);
-    inline mpz_class &operator=(const unsigned long int op);
-    inline mpz_class &operator=(const signed int op);
-    inline mpz_class &operator=(const unsigned int op);
-    inline mpz_class &operator=(const signed char op);
-    inline mpz_class &operator=(const unsigned char op);
-    inline mpz_class &operator=(const char op);
+    // mpz_class comparison operators (template version)
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator==(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator!=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator==(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator!=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator<=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator>=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
+
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator==(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) == 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator!=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) != 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) < 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) > 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) <= 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) >= 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator==(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) == 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator!=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) != 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) > 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) < 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
+    template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
 
     // mpz_class abs (mpz_class op)
     inline friend mpz_class abs(const mpz_class &op);
@@ -394,8 +391,14 @@ class mpz_class {
     friend std::istream &operator>>(std::istream &stream, mpz_class &op);
     friend std::istream &operator>>(std::istream &stream, mpz_t op);
 
+    // casts
     operator mpf_class() const;
     operator mpq_class() const;
+    operator unsigned long int() const { return mpz_get_ui(this->value); }
+    operator signed long int() const { return mpz_get_si(this->value); }
+    operator unsigned int() const { return (unsigned int)mpz_get_ui(this->value); }
+    operator signed int() const { return (signed int)mpz_get_si(this->value); }
+
     mpz_srcptr get_mpz_t() const { return value; }
     mpz_ptr get_mpz_t() { return value; }
 
