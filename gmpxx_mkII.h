@@ -209,18 +209,19 @@ class mpz_class {
     inline friend bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
 
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator==(const mpz_class &op1, T op2) { return mpz_cmp_d(op1.value, static_cast<double>(op2)) == 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator!=(const mpz_class &op1, T op2) { return mpz_cmp_d(op1.value, static_cast<double>(op2)) != 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator<(const mpz_class &op1, T op2) { return mpz_cmp_d(op1.value, static_cast<double>(op2)) < 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator>(const mpz_class &op1, T op2) { return mpz_cmp_d(op1.value, static_cast<double>(op2)) > 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator<=(const mpz_class &op1, T op2) { return mpz_cmp_d(op1.value, static_cast<double>(op2)) <= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator>=(const mpz_class &op1, T op2) { return mpz_cmp_d(op1.value, static_cast<double>(op2)) >= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator==(T op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, static_cast<double>(op1)) == 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator!=(T op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, static_cast<double>(op1)) != 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator<(T op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, static_cast<double>(op1)) > 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator>(T op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, static_cast<double>(op1)) < 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator<=(T op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, static_cast<double>(op1)) >= 0; }
-    template <typename T> inline friend typename std::enable_if<std::is_floating_point<T>::value, bool>::type operator>=(T op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, static_cast<double>(op1)) <= 0; }
+    inline friend bool operator==(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) == 0; }
+    inline friend bool operator!=(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) != 0; }
+    inline friend bool operator<(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) < 0; }
+    inline friend bool operator>(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) > 0; }
+    inline friend bool operator<=(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) <= 0; }
+    inline friend bool operator>=(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) >= 0; }
+
+    inline friend bool operator==(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) == 0; }
+    inline friend bool operator!=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) != 0; }
+    inline friend bool operator<(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) > 0; }
+    inline friend bool operator>(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) < 0; }
+    inline friend bool operator<=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) >= 0; }
+    inline friend bool operator>=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
 
     template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator==(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
     template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, bool>::type operator!=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
