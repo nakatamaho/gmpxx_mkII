@@ -385,13 +385,11 @@ check_limits (void)
 int
 main (void)
 {
-  tests_start();
 
   check_mpz();
   check_mpq();
   check_mpf();
   check_limits();
 
-  tests_end();
   return 0;
 }
