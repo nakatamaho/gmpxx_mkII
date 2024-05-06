@@ -52,6 +52,7 @@ class gmpxx_defaults {
     static inline mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
     static inline void set_default_base(const int _base) { base = _base; }
 };
+
 class mpz_class;
 class mpq_class;
 class mpf_class;
@@ -227,7 +228,7 @@ class mpz_class {
     inline friend bool operator<=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) >= 0; }
     inline friend bool operator>=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
 
-    // mpz_class arithmetic operators (template version)
+    // mpz_class arithmetic and logical operators (template version)
     template <typename T> inline friend typename std::enable_if<std::is_unsigned<T>::value, mpz_class &>::type operator+=(mpz_class &lhs, const T rhs);
     template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, mpz_class &>::type operator+=(mpz_class &lhs, const T rhs);
     template <typename T> inline friend typename std::enable_if<std::is_arithmetic<T>::value && !std::is_unsigned<T>::value && !std::is_signed<T>::value, mpz_class>::type operator+=(mpz_class &lhs, const T rhs);
@@ -275,6 +276,9 @@ class mpz_class {
     template <typename T> inline friend typename std::enable_if<std::is_arithmetic<T>::value && !std::is_unsigned<T>::value && !std::is_signed<T>::value, mpz_class>::type operator%(const mpz_class &op1, const T op2);
     template <typename T> inline friend typename std::enable_if<std::is_arithmetic<T>::value && !std::is_unsigned<T>::value && !std::is_signed<T>::value, mpz_class>::type operator%(const T op1, const mpz_class &op2);
 
+    template <typename T> friend mpz_class &operator&=(mpz_class &lhs, const T &rhs); // XXX not yet
+    template <typename T> friend mpz_class &operator|=(mpz_class &lhs, const T &rhs); // XXX not yet
+    template <typename T> friend mpz_class &operator^=(mpz_class &lhs, const T &rhs); // XXX not yet
     template <typename T> friend mpz_class operator&(const mpz_class &op1, const T op2);
     template <typename T> friend mpz_class operator&(const T op1, const mpz_class &op2);
     template <typename T> friend mpz_class operator|(const mpz_class &op1, const T op2);
@@ -308,6 +312,19 @@ class mpz_class {
     template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) < 0; }
     template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator<=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
     template <typename T> inline friend typename std::enable_if<std::is_signed<T>::value, bool>::type operator>=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
+
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; } // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; } // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator<(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) < 0; }   // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator>(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) > 0; }   // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator<=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) <= 0; } // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator>=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) >= 0; } // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator==(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) == 0; } // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator!=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) != 0; } // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator<(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) > 0; }   // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator>(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) < 0; }   // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator<=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) >= 0; } // XXX not checked
+    template <typename T> inline friend typename std::enable_if<!std::is_signed<T>::value && !std::is_unsigned<T>::value, bool>::type operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; } // XXX not checked
 
     // mpz_class abs (mpz_class op)
     inline friend mpz_class abs(const mpz_class &op);
