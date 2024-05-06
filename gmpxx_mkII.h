@@ -3352,7 +3352,7 @@ void swap(mpq_class &op1, mpq_class &op2) noexcept { op1.swap(op2); }
 void swap(mpf_class &op1, mpf_class &op2) noexcept { op1.swap(op2); }
 #endif
 
-namespace std {
+namespace std { // namespace std for numerical limits
 template <>
 #if defined ___GMPXX_STRICT_COMPATIBILITY___
 class numeric_limits<mpz_class> {
@@ -3398,6 +3398,100 @@ class numeric_limits<gmp::mpz_class> {
     static gmp::mpz_class quiet_NaN() noexcept { return gmp::mpz_class(0); }
     static gmp::mpz_class signaling_NaN() noexcept { return gmp::mpz_class(0); }
     static gmp::mpz_class denorm_min() noexcept { return gmp::mpz_class(0); }
+#endif
+};
+template <>
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+class numeric_limits<mpq_class> {
+#else
+class numeric_limits<gmp::mpq_class> {
+#endif
+  public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = false;
+    static constexpr bool is_exact = true;
+    static constexpr bool has_infinity = false;
+    static constexpr bool has_quiet_NaN = false;
+    static constexpr bool has_signaling_NaN = false;
+    static constexpr float_denorm_style has_denorm = denorm_absent;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = false;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+    static constexpr float_round_style round_style = round_toward_zero;
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+    static mpq_class min() noexcept { return mpq_class(0); }
+    static mpq_class max() noexcept { return mpq_class(0); }
+    static mpq_class lowest() noexcept { return mpq_class(0); }
+    static mpq_class epsilon() noexcept { return mpq_class(0); }
+    static mpq_class round_error() noexcept { return mpq_class(0); }
+    static mpq_class infinity() noexcept { return mpq_class(0); }
+    static mpq_class quiet_NaN() noexcept { return mpq_class(0); }
+    static mpq_class signaling_NaN() noexcept { return mpq_class(0); }
+    static mpq_class denorm_min() noexcept { return mpq_class(0); }
+#else
+    static gmp::mpq_class min() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class max() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class lowest() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class epsilon() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class round_error() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class infinity() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class quiet_NaN() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class signaling_NaN() noexcept { return gmp::mpq_class(0); }
+    static gmp::mpq_class denorm_min() noexcept { return gmp::mpq_class(0); }
+#endif
+};
+template <>
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+class numeric_limits<mpf_class> {
+#else
+class numeric_limits<gmp::mpf_class> {
+#endif
+  public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = false;
+    static constexpr bool is_exact = false;
+    static constexpr bool has_infinity = true;
+    static constexpr bool has_quiet_NaN = true;
+    static constexpr bool has_signaling_NaN = true;
+    static constexpr float_denorm_style has_denorm = denorm_present;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = true;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+    static constexpr float_round_style round_style = round_toward_zero;
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+    static mpf_class min() noexcept { return mpf_class(0); }
+    static mpf_class max() noexcept { return mpf_class(0); }
+    static mpf_class lowest() noexcept { return mpf_class(0); }
+    static mpf_class epsilon() noexcept { return mpf_class(0); }
+    static mpf_class round_error() noexcept { return mpf_class(0); }
+    static mpf_class infinity() noexcept { return mpf_class(0); }
+    static mpf_class quiet_NaN() noexcept { return mpf_class(0); }
+    static mpf_class signaling_NaN() noexcept { return mpf_class(0); }
+    static mpf_class denorm_min() noexcept { return mpf_class(0); }
+#else
+    static gmp::mpf_class min() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class max() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class lowest() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class epsilon() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class round_error() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class infinity() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class quiet_NaN() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class signaling_NaN() noexcept { return gmp::mpf_class(0); }
+    static gmp::mpf_class denorm_min() noexcept { return gmp::mpf_class(0); }
 #endif
 };
 } // namespace std
