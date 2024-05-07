@@ -44,6 +44,7 @@
 #define UNSIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, X>::type
 #define SIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, X>::type
 #define NON_INT_COND(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
+#define NON_MPF_CLASS_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type
 
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
 namespace gmp {
@@ -125,8 +126,8 @@ class mpz_class {
     mpz_class(unsigned long int op) { mpz_init_set_ui(value, op); }
     mpz_class(signed long int op) { mpz_init_set_si(value, op); }
     mpz_class(double op) { mpz_init_set_d(value, op); }
-    mpz_class(unsigned int op) { mpz_init_set_ui(value, (unsigned long int)op); }
-    mpz_class(signed int op) { mpz_init_set_si(value, (signed long int)op); }
+    mpz_class(unsigned int op) { mpz_init_set_ui(value, static_cast<unsigned long int>(op)); }
+    mpz_class(signed int op) { mpz_init_set_si(value, static_cast<signed long int>(op)); }
     // assignments from other objects
     mpz_class &operator=(double d) noexcept {
         mpz_set_d(value, d);
@@ -324,18 +325,18 @@ class mpz_class {
     template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
     template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
 
-    template <typename T> inline friend NON_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) < 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) > 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) <= 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) >= 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) == 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) != 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) > 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) < 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) >= 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) < 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) > 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) <= 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) >= 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) == 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) != 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) > 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) < 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) >= 0; }
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; }
 
     // mpz_class abs (mpz_class op)
     inline friend mpz_class abs(const mpz_class &op);
@@ -424,8 +425,8 @@ class mpz_class {
     operator mpq_class() const;
     operator unsigned long int() const { return mpz_get_ui(this->value); }
     operator signed long int() const { return mpz_get_si(this->value); }
-    operator unsigned int() const { return (unsigned int)mpz_get_ui(this->value); }
-    operator signed int() const { return (signed int)mpz_get_si(this->value); }
+    operator unsigned int() const { return static_cast<unsigned int>(mpz_get_ui(this->value)); }
+    operator signed int() const { return static_cast<signed int>(mpz_get_si(this->value)); }
 
     mpz_srcptr get_mpz_t() const { return value; }
     mpz_ptr get_mpz_t() { return value; }
@@ -602,9 +603,9 @@ template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator-(const T o
 template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     if (op2 >= 0)
-        mpz_sub_ui(result.value, op1.value, (unsigned long int)op2);
+        mpz_sub_ui(result.value, op1.value, static_cast<unsigned long int>(op2));
     else {
-        unsigned long int _op2 = (unsigned long int)(-op2);
+        unsigned long int _op2 = static_cast<unsigned long int>(-op2);
         mpz_add_ui(result.value, op1.value, _op2);
     }
     return result;
@@ -612,9 +613,9 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const mpz_c
 template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
     mpz_class result;
     if (op1 >= 0) {
-        mpz_ui_sub(result.value, (unsigned long int)op1, op2.value);
+        mpz_ui_sub(result.value, static_cast<unsigned long int>(op1), op2.value);
     } else {
-        unsigned long int _op1 = (unsigned long int)(-op1);
+        unsigned long int _op1 = static_cast<unsigned long int>(-op1);
         mpz_add_ui(result.value, op2.value, _op1);
         mpz_neg(result.value, result.value);
     }
@@ -829,19 +830,19 @@ inline mpz_class &mpz_class::operator=(const unsigned long int op) {
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const signed int op) {
-    mpz_set_si(this->value, (signed long int)op);
+    mpz_set_si(this->value, static_cast<signed long int>(op));
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const unsigned int op) {
-    mpz_set_ui(this->value, (unsigned long int)op);
+    mpz_set_ui(this->value, static_cast<unsigned long int>(op));
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const signed char op) {
-    mpz_set_si(this->value, (signed long int)op);
+    mpz_set_si(this->value, static_cast<signed long int>(op));
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const unsigned char op) {
-    mpz_set_ui(this->value, (unsigned long int)op);
+    mpz_set_ui(this->value, static_cast<unsigned long int>(op));
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const char op) {
@@ -1024,27 +1025,27 @@ class mpq_class {
     }
     mpq_class(unsigned int op1, unsigned int op2) {
         mpq_init(value);
-        mpq_set_ui(value, (unsigned long int)op1, (unsigned long int)op2);
+        mpq_set_ui(value, static_cast<unsigned long int>(op1), static_cast<unsigned long int>(op2));
     }
     mpq_class(int op1, int op2) {
         mpq_init(value);
-        mpq_set_si(value, (signed long int)op1, (signed long int)op2);
+        mpq_set_si(value, static_cast<signed long int>(op1), static_cast<signed long int>(op2));
     }
     mpq_class(unsigned long int op) {
         mpq_init(value);
-        mpq_set_ui(value, op, (unsigned long int)1);
+        mpq_set_ui(value, op, static_cast<unsigned long int>(1));
     }
     mpq_class(signed long int op) {
         mpq_init(value);
-        mpq_set_si(value, op, (unsigned long int)1);
+        mpq_set_si(value, op, static_cast<unsigned long int>(1));
     }
     mpq_class(unsigned int op) {
         mpq_init(value);
-        mpq_set_ui(value, (unsigned long int)op, (unsigned long int)1);
+        mpq_set_ui(value, static_cast<unsigned long int>(op), static_cast<unsigned long int>(1));
     }
     mpq_class(int op) {
         mpq_init(value);
-        mpq_set_si(value, (signed long int)op, (signed long int)1);
+        mpq_set_si(value, static_cast<signed long int>(op), static_cast<signed long int>(1));
     }
     mpq_class(double op) {
         mpq_init(value);
@@ -1125,6 +1126,34 @@ class mpq_class {
     inline friend bool operator<=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) >= 0; }
 
+    // mpq_class arithmetic and logical operators (template version)
+    template <typename T> inline friend mpq_class &operator+=(mpq_class &lhs, const T rhs);
+    template <typename T> inline friend mpq_class operator+(const mpq_class &op1, const T op2);
+    template <typename T> inline friend mpq_class operator+(const T op1, const mpq_class &op2);
+    template <typename T> inline friend mpq_class &operator-=(mpq_class &lhs, const T rhs);
+    template <typename T> inline friend mpq_class operator-(const mpq_class &op1, const T op2);
+    template <typename T> inline friend mpq_class operator-(const T op1, const mpq_class &op2);
+    template <typename T> inline friend mpq_class &operator*=(mpq_class &lhs, const T rhs);
+    template <typename T> inline friend mpq_class operator*(const mpq_class &op1, const T op2);
+    template <typename T> inline friend mpq_class operator*(const T op1, const mpq_class &op2);
+    template <typename T> inline friend mpq_class &operator/=(mpq_class &lhs, const T rhs);
+    template <typename T> inline friend mpq_class operator/(const mpq_class &op1, const T op2);
+    template <typename T> inline friend mpq_class operator/(const T op1, const mpq_class &op2);
+
+    // mpq_class comparison operators (template version)
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator==(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) == 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator!=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) != 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) < 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) > 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) <= 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) >= 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator==(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) == 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator!=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) != 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) > 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) < 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) >= 0; }
+    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) <= 0; }
+
     // void mpq_class::canonicalize ()
     // mpq_class abs (mpq_class op)
     // double mpq_class::get_d (void)
@@ -1150,7 +1179,6 @@ class mpq_class {
         }
         return ret;
     }
-
     int set_str(const std::string &str, int base = 10) { return set_str(str.c_str(), base); }
     // int sgn (mpq_class op)
     // void mpq_class::swap (mpq_class& op)
@@ -1160,96 +1188,6 @@ class mpq_class {
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpq_class &op1, mpq_class &op2) { mpq_swap(op1.value, op2.value); }
 #endif
-    inline friend mpq_class &operator+=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class &operator-=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class &operator*=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class &operator/=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class operator+(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator+(const unsigned long int op1, const mpq_class &op2);
-    inline friend mpq_class operator-(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator-(const unsigned long int op1, const mpq_class &op2);
-    inline friend mpq_class operator*(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator*(const unsigned long int op1, const mpq_class &op2);
-    inline friend mpq_class operator/(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator/(const unsigned long int op1, const mpq_class &op2);
-
-    inline friend mpq_class &operator+=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class &operator-=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class &operator*=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class &operator/=(mpq_class &lhs, const unsigned long int rhs);
-    inline friend mpq_class operator+(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator+(const unsigned long int op1, const mpq_class &op2);
-    inline friend mpq_class operator-(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator-(const unsigned long int op1, const mpq_class &op2);
-    inline friend mpq_class operator*(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator*(const unsigned long int op1, const mpq_class &op2);
-    inline friend mpq_class operator/(const mpq_class &op1, const unsigned long int op2);
-    inline friend mpq_class operator/(const unsigned long int op1, const mpq_class &op2);
-
-    inline friend mpq_class &operator+=(mpq_class &lhs, const signed long int rhs);
-    inline friend mpq_class &operator-=(mpq_class &lhs, const signed long int rhs);
-    inline friend mpq_class &operator*=(mpq_class &lhs, const signed long int rhs);
-    inline friend mpq_class &operator/=(mpq_class &lhs, const signed long int rhs);
-    inline friend mpq_class operator+(const mpq_class &op1, const signed long int op2);
-    inline friend mpq_class operator+(const signed long int op1, const mpq_class &op2);
-    inline friend mpq_class operator-(const mpq_class &op1, const signed long int op2);
-    inline friend mpq_class operator-(const signed long int op1, const mpq_class &op2);
-    inline friend mpq_class operator*(const mpq_class &op1, const signed long int op2);
-    inline friend mpq_class operator*(const signed long int op1, const mpq_class &op2);
-    inline friend mpq_class operator/(const mpq_class &op1, const signed long int op2);
-    inline friend mpq_class operator/(const signed long int op1, const mpq_class &op2);
-
-    inline friend mpq_class &operator+=(mpq_class &lhs, const unsigned int rhs);
-    inline friend mpq_class &operator-=(mpq_class &lhs, const unsigned int rhs);
-    inline friend mpq_class &operator*=(mpq_class &lhs, const unsigned int rhs);
-    inline friend mpq_class &operator/=(mpq_class &lhs, const unsigned int rhs);
-    inline friend mpq_class operator+(const mpq_class &op1, const unsigned int op2);
-    inline friend mpq_class operator+(const unsigned int op1, const mpq_class &op2);
-    inline friend mpq_class operator-(const mpq_class &op1, const unsigned int op2);
-    inline friend mpq_class operator-(const unsigned int op1, const mpq_class &op2);
-    inline friend mpq_class operator*(const mpq_class &op1, const unsigned int op2);
-    inline friend mpq_class operator*(const unsigned int op1, const mpq_class &op2);
-    inline friend mpq_class operator/(const mpq_class &op1, const unsigned int op2);
-    inline friend mpq_class operator/(const unsigned int op1, const mpq_class &op2);
-
-    inline friend mpq_class &operator+=(mpq_class &lhs, const signed int rhs);
-    inline friend mpq_class &operator-=(mpq_class &lhs, const signed int rhs);
-    inline friend mpq_class &operator*=(mpq_class &lhs, const signed int rhs);
-    inline friend mpq_class &operator/=(mpq_class &lhs, const signed int rhs);
-    inline friend mpq_class operator+(const mpq_class &op1, const signed int op2);
-    inline friend mpq_class operator+(const signed int op1, const mpq_class &op2);
-    inline friend mpq_class operator-(const mpq_class &op1, const signed int op2);
-    inline friend mpq_class operator-(const signed int op1, const mpq_class &op2);
-    inline friend mpq_class operator*(const mpq_class &op1, const signed int op2);
-    inline friend mpq_class operator*(const signed int op1, const mpq_class &op2);
-    inline friend mpq_class operator/(const mpq_class &op1, const signed int op2);
-    inline friend mpq_class operator/(const signed int op1, const mpq_class &op2);
-
-    inline friend mpq_class &operator+=(mpq_class &lhs, const mpz_class &rhs);
-    inline friend mpq_class &operator-=(mpq_class &lhs, const mpz_class &rhs);
-    inline friend mpq_class &operator*=(mpq_class &lhs, const mpz_class &rhs);
-    inline friend mpq_class &operator/=(mpq_class &lhs, const mpz_class &rhs);
-    inline friend mpq_class operator+(const mpq_class &op1, const mpz_class &op2);
-    inline friend mpq_class operator+(const mpz_class &op1, const mpq_class &op2);
-    inline friend mpq_class operator-(const mpq_class &op1, const mpz_class &op2);
-    inline friend mpq_class operator-(const mpz_class &op1, const mpq_class &op2);
-    inline friend mpq_class operator*(const mpq_class &op1, const mpz_class &op2);
-    inline friend mpq_class operator*(const mpz_class &op1, const mpq_class &op2);
-    inline friend mpq_class operator/(const mpq_class &op1, const mpz_class &op2);
-    inline friend mpq_class operator/(const mpz_class &op1, const mpq_class &op2);
-
-    inline friend mpq_class &operator+=(mpq_class &lhs, const double rhs);
-    inline friend mpq_class &operator-=(mpq_class &lhs, const double rhs);
-    inline friend mpq_class &operator*=(mpq_class &lhs, const double rhs);
-    inline friend mpq_class &operator/=(mpq_class &lhs, const double rhs);
-    inline friend mpq_class operator+(const mpq_class &op1, const double op2);
-    inline friend mpq_class operator+(const double op1, const mpq_class &op2);
-    inline friend mpq_class operator-(const mpq_class &op1, const double op2);
-    inline friend mpq_class operator-(const double op1, const mpq_class &op2);
-    inline friend mpq_class operator*(const mpq_class &op1, const double op2);
-    inline friend mpq_class operator*(const double op1, const mpq_class &op2);
-    inline friend mpq_class operator/(const mpq_class &op1, const double op2);
-    inline friend mpq_class operator/(const double op1, const mpq_class &op2);
 
     // mpz_class& mpq_class::get_num ()
     // mpz_class& mpq_class::get_den ()
@@ -1283,6 +1221,101 @@ class mpq_class {
   private:
     mpq_t value;
 };
+inline mpq_class &operator+=(mpq_class &op1, const mpq_class &op2) {
+    mpq_add(op1.value, op1.value, op2.value);
+    return op1;
+}
+inline mpq_class &operator-=(mpq_class &op1, const mpq_class &op2) {
+    mpq_sub(op1.value, op1.value, op2.value);
+    return op1;
+}
+inline mpq_class &operator/=(mpq_class &op1, const mpq_class &op2) {
+    mpq_div(op1.value, op1.value, op2.value);
+    return op1;
+}
+inline mpq_class &operator*=(mpq_class &op1, const mpq_class &op2) {
+    mpq_mul(op1.value, op1.value, op2.value);
+    return op1;
+}
+inline mpq_class operator+(const mpq_class &op) { return op; }
+inline mpq_class operator-(const mpq_class &op) {
+    mpq_class result;
+    mpq_neg(result.value, op.value);
+    return result;
+}
+inline mpq_class operator+(const mpq_class &op1, const mpq_class &op2) {
+    mpq_class result;
+    mpq_add(result.value, op1.value, op2.value);
+    return result;
+}
+inline mpq_class operator-(const mpq_class &op1, const mpq_class &op2) {
+    mpq_class result;
+    mpq_sub(result.value, op1.value, op2.value);
+    return result;
+}
+inline mpq_class operator*(const mpq_class &op1, const mpq_class &op2) {
+    mpq_class result;
+    mpq_mul(result.value, op1.value, op2.value);
+    return result;
+}
+inline mpq_class operator/(const mpq_class &op1, const mpq_class &op2) {
+    mpq_class result;
+    mpq_div(result.value, op1.value, op2.value);
+    return result;
+}
+
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator+=(mpq_class &lhs, const T rhs) {
+    mpq_class _rhs(rhs);
+    mpq_add(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator+(const mpq_class &op1, const T op2) {
+    mpq_class result(op1);
+    result += op2;
+    return result;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator+(const T op1, const mpq_class &op2) { return op2 + op1; }
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator-=(mpq_class &lhs, const T rhs) {
+    mpq_class _rhs(rhs);
+    mpq_sub(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator-(const mpq_class &op1, const T op2) {
+    mpq_class result(op2);
+    mpq_sub(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator-(const T op1, const mpq_class &op2) {
+    mpq_class result(op1);
+    mpq_sub(result.value, result.value, op2.value);
+    return result;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator*=(mpq_class &lhs, const T rhs) {
+    mpq_class _rhs(rhs);
+    mpq_mul(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator*(const T op1, const mpq_class &op2) { return op2 * op1; }
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator/=(mpq_class &lhs, const T rhs) {
+    mpq_class _rhs(rhs);
+    mpq_div(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator/(const mpq_class &op1, const T op2) {
+    mpq_class result(op2);
+    mpq_div(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator/(const T op1, const mpq_class &op2) {
+    mpq_class result(op1);
+    mpq_div(result.value, result.value, op2.value);
+    return result;
+}
+inline mpq_class abs(const mpq_class &op) {
+    mpq_class rop(op);
+    mpq_abs(rop.value, op.get_mpq_t());
+    return rop;
+}
 std::ostream &operator<<(std::ostream &os, const mpq_class &op) {
     std::ios_base::fmtflags flags = os.flags();
 
@@ -1337,472 +1370,6 @@ std::istream &operator>>(std::istream &stream, mpq_t op) {
     }
     return stream;
 }
-inline mpq_class &operator+=(mpq_class &op1, const mpq_class &op2) {
-    mpq_add(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpq_class &operator-=(mpq_class &op1, const mpq_class &op2) {
-    mpq_sub(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpq_class &operator/=(mpq_class &op1, const mpq_class &op2) {
-    mpq_div(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpq_class &operator*=(mpq_class &op1, const mpq_class &op2) {
-    mpq_mul(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpq_class operator+(const mpq_class &op) { return op; }
-inline mpq_class operator-(const mpq_class &op) {
-    mpq_class result;
-    mpq_neg(result.value, op.value);
-    return result;
-}
-inline mpq_class operator+(const mpq_class &op1, const mpq_class &op2) {
-    mpq_class result;
-    mpq_add(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpq_class operator-(const mpq_class &op1, const mpq_class &op2) {
-    mpq_class result;
-    mpq_sub(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpq_class operator*(const mpq_class &op1, const mpq_class &op2) {
-    mpq_class result;
-    mpq_mul(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpq_class operator/(const mpq_class &op1, const mpq_class &op2) {
-    mpq_class result;
-    mpq_div(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpq_class abs(const mpq_class &op) {
-    mpq_class rop(op);
-    mpq_abs(rop.value, op.get_mpq_t());
-    return rop;
-}
-inline bool operator==(const mpq_class &lhs, double rhs) { return lhs.get_d() == rhs; }
-inline bool operator==(double lhs, const mpq_class &rhs) { return lhs == rhs.get_d(); }
-inline bool operator==(const mpq_class &lhs, signed long int rhs) { return mpq_cmp_si(lhs.get_mpq_t(), rhs, (signed long int)1) == 0; }
-inline bool operator==(signed long int lhs, const mpq_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpq_class &lhs, unsigned long int rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), rhs, (unsigned long int)1) == 0; }
-inline bool operator==(unsigned long int lhs, const mpq_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpq_class &lhs, signed int rhs) { return mpq_cmp_si(lhs.get_mpq_t(), (signed long int)rhs, (signed long int)1) == 0; }
-inline bool operator==(signed int lhs, const mpq_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpq_class &lhs, unsigned int rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), (unsigned long int)rhs, (unsigned long int)1) == 0; }
-inline bool operator==(unsigned int lhs, const mpq_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpq_class &lhs, signed char rhs) { return mpq_cmp_si(lhs.get_mpq_t(), (signed long int)rhs, (signed long int)1) == 0; }
-inline bool operator==(signed char lhs, const mpq_class &rhs) { return rhs == lhs; }
-inline bool operator==(const mpq_class &lhs, unsigned char rhs) { return mpq_cmp_ui(lhs.get_mpq_t(), (unsigned long int)rhs, (unsigned long int)1) == 0; }
-inline bool operator==(unsigned char lhs, const mpq_class &rhs) { return rhs == lhs; }
-
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator==(const mpq_class &op1, const T &op2) {
-    mpq_class _op2(op2);
-    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) == 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator==(const T &op1, const mpq_class &op2) {
-    mpq_class _op1(op1);
-    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) == 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator!=(const mpq_class &op1, const T &op2) {
-    mpq_class _op2(op2);
-    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) != 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator!=(const T &op1, const mpq_class &op2) {
-    mpq_class _op1(op1);
-    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) != 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>(const mpq_class &op1, const T &op2) {
-    mpq_class _op2(op2);
-    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) > 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>(const T &op1, const mpq_class &op2) {
-    mpq_class _op1(op1);
-    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) > 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<(const mpq_class &op1, const T &op2) {
-    mpq_class _op2(op2);
-    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) < 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<(const T &op1, const mpq_class &op2) {
-    mpq_class _op1(op1);
-    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) < 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>=(const mpq_class &op1, const T &op2) {
-    mpq_class _op2(op2);
-    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) >= 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator>=(const T &op1, const mpq_class &op2) {
-    mpq_class _op1(op1);
-    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) >= 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<=(const mpq_class &op1, const T &op2) {
-    mpq_class _op2(op2);
-    return mpq_cmp(op1.get_mpq_t(), _op2.get_mpq_t()) <= 0;
-}
-template <typename T> inline typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type operator<=(const T &op1, const mpq_class &op2) {
-    mpq_class _op1(op1);
-    return mpq_cmp(_op1.get_mpq_t(), op2.get_mpq_t()) <= 0;
-}
-
-inline mpq_class &mpq_class::operator=(const mpz_class &op) {
-    mpq_set_z(this->value, op.get_mpz_t());
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(signed long int op) {
-    mpq_set_si(this->value, op, (signed long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(unsigned long int op) {
-    mpq_set_ui(this->value, op, (unsigned long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(signed int op) {
-    mpq_set_si(this->value, (signed long int)op, (signed long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(unsigned int op) {
-    mpq_set_ui(this->value, (unsigned long int)op, (unsigned long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(signed char op) {
-    mpq_set_si(this->value, (signed long int)op, (signed long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(unsigned char op) {
-    mpq_set_ui(this->value, (unsigned long int)op, (unsigned long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(char op) {
-    if (std::is_signed<char>::value)
-        return *this = static_cast<signed char>(op);
-    else
-        return *this = static_cast<unsigned char>(op);
-}
-inline mpq_class &mpq_class::operator=(float op) {
-    mpq_set_d(this->value, (double)op);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(double op) {
-    mpq_set_d(this->value, op);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(const char *op) {
-    if (mpq_set_str(value, op, 10) != 0) {
-        throw std::invalid_argument("Invalid string format for mpq_class");
-    }
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(const std::string &op) {
-    if (mpq_set_str(value, op.c_str(), 10) != 0) {
-        throw std::invalid_argument("Invalid string format for mpq_class");
-    }
-    return *this;
-}
-inline mpq_class &operator+=(mpq_class &lhs, const mpz_class &rhs) {
-    mpq_class result(rhs);
-    mpq_add(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator-=(mpq_class &lhs, const mpz_class &rhs) {
-    mpq_class result(rhs);
-    mpq_sub(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator*=(mpq_class &lhs, const mpz_class &rhs) {
-    mpq_class result(rhs);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator/=(mpq_class &lhs, const mpz_class &rhs) {
-    if (rhs == 0)
-        throw std::runtime_error("Division by zero");
-    mpq_class op(rhs);
-    mpq_div(lhs.value, lhs.value, op.value);
-    return lhs;
-}
-inline mpq_class operator+(const mpq_class &op1, const mpz_class &op2) {
-    mpq_class result(op1);
-    result += op2;
-    return result;
-}
-inline mpq_class operator+(const mpz_class &op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator-(const mpq_class &op1, const mpz_class &op2) {
-    mpq_class result(op1);
-    result -= op2;
-    return result;
-}
-inline mpq_class operator-(const mpz_class &op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator*(const mpq_class &op1, const mpz_class &op2) {
-    mpq_class result(op1);
-    result *= op2;
-    return result;
-}
-inline mpq_class operator*(const mpz_class &op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator/(const mpq_class &op1, const mpz_class &op2) {
-    mpq_class result(op1);
-    result /= op2;
-    return result;
-}
-inline mpq_class operator/(const mpz_class &op1, const mpq_class &op2) {
-    mpq_class result(op1);
-    result /= op2;
-    return result;
-}
-inline mpq_class &operator+=(mpq_class &lhs, const double rhs) {
-    mpq_class result(rhs);
-    mpq_add(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator-=(mpq_class &lhs, const double rhs) {
-    mpq_class result(rhs);
-    mpq_sub(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator*=(mpq_class &lhs, const double rhs) {
-    mpq_class result(rhs);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator/=(mpq_class &lhs, const double rhs) {
-    if (rhs == 0)
-        throw std::runtime_error("Division by zero");
-    mpq_class op(rhs);
-    mpq_div(lhs.value, lhs.value, op.value);
-    return lhs;
-}
-inline mpq_class operator+(const mpq_class &op1, const double op2) {
-    mpq_class result(op1);
-    result += op2;
-    return result;
-}
-inline mpq_class operator+(const double op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator-(const mpq_class &op1, const double op2) {
-    mpq_class result(op1);
-    result -= op2;
-    return result;
-}
-inline mpq_class operator-(const double op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator*(const mpq_class &op1, const double op2) {
-    mpq_class result(op1);
-    result *= op2;
-    return result;
-}
-inline mpq_class operator*(const double op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator/(const mpq_class &op1, const double op2) {
-    mpq_class result(op1);
-    result /= op2;
-    return result;
-}
-inline mpq_class operator/(const double op1, const mpq_class &op2) {
-    mpq_class result(op1, (unsigned long int)1);
-    result /= op2;
-    return result;
-}
-inline mpq_class &operator+=(mpq_class &lhs, const unsigned long int rhs) {
-    mpq_class result(rhs, (unsigned long int)1);
-    mpq_add(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator-=(mpq_class &lhs, const unsigned long int rhs) {
-    mpq_class result(rhs, (unsigned long int)1);
-    mpq_sub(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator*=(mpq_class &lhs, const unsigned long int rhs) {
-    mpq_class result(rhs, (unsigned long int)1);
-    mpq_mul(result.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator/=(mpq_class &lhs, const unsigned long int rhs) {
-    if (rhs == 0)
-        throw std::runtime_error("Division by zero");
-    mpq_class result(rhs, (unsigned long int)1);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class operator+(const mpq_class &op1, const unsigned long int op2) {
-    mpq_class result(op1);
-    result += op2;
-    return result;
-}
-inline mpq_class operator+(const unsigned long int op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator-(const mpq_class &op1, const unsigned long int op2) {
-    mpq_class result(op1);
-    result -= op2;
-    return result;
-}
-inline mpq_class operator-(const unsigned long int op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator*(const mpq_class &op1, const unsigned long int op2) {
-    mpq_class result(op1);
-    result *= op2;
-    return result;
-}
-inline mpq_class operator*(const unsigned long int op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator/(const mpq_class &op1, const unsigned long int op2) {
-    mpq_class result(op1);
-    result /= op2;
-    return result;
-}
-inline mpq_class operator/(const unsigned long int op1, const mpq_class &op2) {
-    mpq_class result(op1, (unsigned long int)1);
-    result /= op2;
-    return result;
-}
-inline mpq_class &operator+=(mpq_class &lhs, const signed long int rhs) {
-    mpq_class result(rhs, (signed long int)1);
-    mpq_add(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator-=(mpq_class &lhs, const signed long int rhs) {
-    mpq_class result(rhs, (signed long int)1);
-    mpq_sub(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator*=(mpq_class &lhs, const signed long int rhs) {
-    mpq_class result(rhs, (signed long int)1);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator/=(mpq_class &lhs, const signed long int rhs) {
-    if (rhs == 0)
-        throw std::runtime_error("Division by zero");
-    mpq_class result(rhs, (signed long int)1);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class operator+(const mpq_class &op1, const signed long int op2) {
-    mpq_class result(op1);
-    result += op2;
-    return result;
-}
-inline mpq_class operator+(const signed long int op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator-(const mpq_class &op1, const signed long int op2) {
-    mpq_class result(op1);
-    result -= op2;
-    return result;
-}
-inline mpq_class operator-(const signed long int op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator*(const mpq_class &op1, const signed long int op2) {
-    mpq_class result(op1);
-    result *= op2;
-    return result;
-}
-inline mpq_class operator*(const signed long int op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator/(const mpq_class &op1, const signed long int op2) {
-    mpq_class result(op1);
-    result /= op2;
-    return result;
-}
-inline mpq_class operator/(const signed long int op1, const mpq_class &op2) {
-    mpq_class result(op1, (signed long int)1);
-    result /= op2;
-    return result;
-}
-inline mpq_class &operator+=(mpq_class &lhs, const unsigned int rhs) {
-    mpq_class result(rhs, (unsigned int)1);
-    mpq_add(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator-=(mpq_class &lhs, const unsigned int rhs) {
-    mpq_class result(rhs, (unsigned int)1);
-    mpq_sub(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator*=(mpq_class &lhs, const unsigned int rhs) {
-    mpq_class result(rhs, (unsigned int)1);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator/=(mpq_class &lhs, const unsigned int rhs) {
-    if (rhs == 0)
-        throw std::runtime_error("Division by zero");
-    mpq_class result(rhs, (unsigned int)1);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class operator+(const mpq_class &op1, const unsigned int op2) {
-    mpq_class result(op1);
-    result += op2;
-    return result;
-}
-inline mpq_class operator+(const unsigned int op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator-(const mpq_class &op1, const unsigned int op2) {
-    mpq_class result(op1);
-    result -= op2;
-    return result;
-}
-inline mpq_class operator-(const unsigned int op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator*(const mpq_class &op1, const unsigned int op2) {
-    mpq_class result(op1);
-    result *= op2;
-    return result;
-}
-inline mpq_class operator*(const unsigned int op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator/(const mpq_class &op1, const unsigned int op2) {
-    mpq_class result(op1);
-    result /= op2;
-    return result;
-}
-inline mpq_class operator/(const unsigned int op1, const mpq_class &op2) {
-    mpq_class result(op1, (unsigned int)1);
-    result /= op2;
-    return result;
-}
-inline mpq_class &operator+=(mpq_class &lhs, const signed int rhs) {
-    mpq_class result(rhs, (signed int)1);
-    mpq_add(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator-=(mpq_class &lhs, const signed int rhs) {
-    mpq_class result(rhs, (signed int)1);
-    mpq_sub(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator*=(mpq_class &lhs, const signed int rhs) {
-    mpq_class result(rhs, (signed int)1);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class &operator/=(mpq_class &lhs, const signed int rhs) {
-    if (rhs == 0)
-        throw std::runtime_error("Division by zero");
-    mpq_class result(rhs, (signed int)1);
-    mpq_mul(lhs.value, lhs.value, result.value);
-    return lhs;
-}
-inline mpq_class operator+(const mpq_class &op1, const signed int op2) {
-    mpq_class result(op1);
-    result += (signed int)op2;
-    return result;
-}
-inline mpq_class operator+(const signed int op1, const mpq_class &op2) { return op2 + op1; }
-inline mpq_class operator-(const mpq_class &op1, const signed int op2) {
-    mpq_class result(op1);
-    result -= (signed int)op2;
-    return result;
-}
-inline mpq_class operator-(const signed int op1, const mpq_class &op2) { return -(op2 - op1); }
-inline mpq_class operator*(const mpq_class &op1, const signed int op2) {
-    mpq_class result(op1);
-    result *= (signed int)op2;
-    return result;
-}
-inline mpq_class operator*(const signed int op1, const mpq_class &op2) { return op2 * op1; }
-inline mpq_class operator/(const mpq_class &op1, const signed int op2) {
-    mpq_class result(op1);
-    result /= (signed int)op2;
-    return result;
-}
-inline mpq_class operator/(const signed int op1, const mpq_class &op2) {
-    mpq_class result(op1, (signed int)1);
-    result /= op2;
-    return result;
-}
-
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -2003,11 +1570,11 @@ class mpf_class {
         return *this;
     }
     mpf_class &operator=(unsigned int d) noexcept {
-        mpf_set_ui(value, (unsigned long int)d);
+        mpf_set_ui(value, static_cast<unsigned long int>(d));
         return *this;
     }
     mpf_class &operator=(signed int d) noexcept {
-        mpf_set_si(value, (signed long int)d);
+        mpf_set_si(value, static_cast<signed long int>(d));
         return *this;
     }
     mpf_class &operator=(const char *str) {
@@ -2086,9 +1653,9 @@ class mpf_class {
     inline friend bool operator==(signed long int lhs, const mpf_class &rhs) { return rhs == lhs; }
     inline friend bool operator==(const mpf_class &lhs, unsigned long int rhs) { return lhs.get_ui() == rhs; }
     inline friend bool operator==(unsigned long int lhs, const mpf_class &rhs) { return rhs == lhs; }
-    inline friend bool operator==(const mpf_class &lhs, signed int rhs) { return lhs.get_si() == (signed long int)rhs; }
+    inline friend bool operator==(const mpf_class &lhs, signed int rhs) { return lhs.get_si() == static_cast<signed long int>(rhs); }
     inline friend bool operator==(signed int lhs, const mpf_class &rhs) { return rhs == lhs; }
-    inline friend bool operator==(const mpf_class &lhs, unsigned int rhs) { return lhs.get_ui() == (unsigned long int)rhs; }
+    inline friend bool operator==(const mpf_class &lhs, unsigned int rhs) { return lhs.get_ui() == static_cast<unsigned long int>(rhs); }
     inline friend bool operator==(unsigned int lhs, const mpf_class &rhs) { return rhs == lhs; }
 
     inline friend bool operator==(const mpf_class &lhs, double rhs) { return lhs.get_d() == rhs; }
@@ -2773,28 +2340,28 @@ inline mpf_class operator/(const mpq_class &op1, const mpf_class &op2) {
 }
 inline mpf_class &operator+=(mpf_class &lhs, signed int rhs) {
     mpf_t temp;
-    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_init_set_si(temp, static_cast<signed long int>(rhs));
     mpf_add(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
 }
 inline mpf_class &operator-=(mpf_class &lhs, signed int rhs) {
     mpf_t temp;
-    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_init_set_si(temp, static_cast<signed long int>(rhs));
     mpf_sub(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
 }
 inline mpf_class &operator*=(mpf_class &lhs, signed int rhs) {
     mpf_t temp;
-    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_init_set_si(temp, static_cast<signed long int>(rhs));
     mpf_mul(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
 }
 inline mpf_class &operator/=(mpf_class &lhs, signed int rhs) {
     mpf_t temp;
-    mpf_init_set_si(temp, (signed long int)rhs);
+    mpf_init_set_si(temp, static_cast<signed long int>(rhs));
     mpf_div(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
@@ -2909,28 +2476,28 @@ inline mpf_class operator/(const unsigned long int op1, const mpf_class &op2) {
 }
 inline mpf_class &operator+=(mpf_class &lhs, unsigned int rhs) {
     mpf_t temp;
-    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_init_set_ui(temp, static_cast<unsigned long int>(rhs));
     mpf_add(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
 }
 inline mpf_class &operator-=(mpf_class &lhs, unsigned int rhs) {
     mpf_t temp;
-    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_init_set_ui(temp, static_cast<unsigned long int>(rhs));
     mpf_sub(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
 }
 inline mpf_class &operator*=(mpf_class &lhs, unsigned int rhs) {
     mpf_t temp;
-    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_init_set_ui(temp, static_cast<unsigned long int>(rhs));
     mpf_mul(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
 }
 inline mpf_class &operator/=(mpf_class &lhs, unsigned int rhs) {
     mpf_t temp;
-    mpf_init_set_ui(temp, (unsigned long int)rhs);
+    mpf_init_set_ui(temp, static_cast<unsigned long int>(rhs));
     mpf_div(lhs.value, lhs.value, temp);
     mpf_clear(temp);
     return lhs;
