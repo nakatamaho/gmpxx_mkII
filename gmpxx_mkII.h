@@ -1572,81 +1572,6 @@ class mpf_class {
         mpf_div_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
     }
-
-    // mpf_class arithmetic operators
-
-    // mpf_class abs (mpf_class op)
-    // mpf_class ceil (mpf_class op)
-    friend mpf_class abs(const mpf_class &op);
-    friend mpf_class ceil(const mpf_class &op);
-
-    // bool mpf_class::fits_sint_p (void)
-    // bool mpf_class::fits_slong_p (void)
-    // bool mpf_class::fits_sshort_p (void)
-    // bool mpf_class::fits_uint_p (void)
-    // bool mpf_class::fits_ulong_p (void)
-    // bool mpf_class::fits_ushort_p (void)
-    bool fits_sint_p() const { return mpf_fits_sint_p(value); }
-    bool fits_slong_p() const { return mpf_fits_slong_p(value); }
-    bool fits_sshort_p() const { return mpf_fits_sshort_p(value); }
-    bool fits_uint_p() const { return mpf_fits_uint_p(value); }
-    bool fits_ulong_p() const { return mpf_fits_ulong_p(value); }
-    bool fits_ushort_p() const { return mpf_fits_ushort_p(value); }
-
-    // mpf_class floor (mpf_class op)
-    // mpf_class hypot (mpf_class op1, mpf_class op2)
-    friend mpf_class floor(const mpf_class &op);
-    friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
-
-    // double mpf_class::get_d (void)
-    // long mpf_class::get_si (void)
-    // unsigned long mpf_class::get_ui (void)
-    // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
-    double get_d() const { return mpf_get_d(value); }
-    unsigned long get_ui() const { return mpf_get_ui(value); }
-    long get_si() const { return mpf_get_si(value); }
-    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
-        char *temp = mpf_get_str(nullptr, &exp, base, digits, value);
-        std::string result = temp;
-        void (*freefunc)(void *, size_t);
-        mp_get_memory_functions(nullptr, nullptr, &freefunc);
-        freefunc(temp, std::strlen(temp) + 1);
-        return result;
-    }
-    void div_2exp(mp_bitcnt_t exp) {
-        mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
-        mpf_div_2exp(non_const_ptr, this->get_mpf_t(), exp);
-    }
-    void mul_2exp(mp_bitcnt_t exp) {
-        mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
-        mpf_mul_2exp(non_const_ptr, this->get_mpf_t(), exp);
-    }
-    // int mpf_class::set_str (const char *str, int base)
-    // int mpf_class::set_str (const string& str, int base)
-    int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
-    int set_str(const std::string &str, int base) { return mpf_set_str(value, str.c_str(), base); }
-
-    // int sgn (mpf_class op)
-    // mpf_class sqrt (mpf_class op)
-    // void mpf_class::swap (mpf_class& op)
-    // void swap (mpf_class& op1, mpf_class& op2)
-    // mpf_class trunc (mpf_class op)
-    friend int sgn(const mpf_class &op);
-    friend mpf_class sqrt(const mpf_class &op);
-    friend mpf_class neg(const mpf_class &op);
-    void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
-    friend void swap(mpf_class &op1, mpf_class &op2) { mpf_swap(op1.value, op2.value); }
-#endif
-    friend mpf_class trunc(const mpf_class &op);
-
-    // mp_bitcnt_t mpf_class::get_prec()
-    // void mpf_class::set_prec (mp_bitcnt_t prec)
-    // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
-    mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
-    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
-    void set_prec_raw(mp_bitcnt_t prec) { mpf_set_prec_raw(value, prec); }
-
     template <typename T> mpf_class operator<<(T op2) const {
         static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
         mpf_class result(*this);
@@ -1787,6 +1712,85 @@ class mpf_class {
     template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
     template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
 
+    // mpf_class abs (mpf_class op)
+    // mpf_class ceil (mpf_class op)
+    friend mpf_class abs(const mpf_class &op);
+    friend mpf_class ceil(const mpf_class &op);
+
+    // bool mpf_class::fits_sint_p (void)
+    // bool mpf_class::fits_slong_p (void)
+    // bool mpf_class::fits_sshort_p (void)
+    // bool mpf_class::fits_uint_p (void)
+    // bool mpf_class::fits_ulong_p (void)
+    // bool mpf_class::fits_ushort_p (void)
+    bool fits_sint_p() const { return mpf_fits_sint_p(value); }
+    bool fits_slong_p() const { return mpf_fits_slong_p(value); }
+    bool fits_sshort_p() const { return mpf_fits_sshort_p(value); }
+    bool fits_uint_p() const { return mpf_fits_uint_p(value); }
+    bool fits_ulong_p() const { return mpf_fits_ulong_p(value); }
+    bool fits_ushort_p() const { return mpf_fits_ushort_p(value); }
+
+    // mpf_class floor (mpf_class op)
+    // mpf_class hypot (mpf_class op1, mpf_class op2)
+    friend mpf_class floor(const mpf_class &op);
+    friend mpf_class hypot(const mpf_class &op1, const mpf_class &op2);
+
+    // double mpf_class::get_d (void)
+    // long mpf_class::get_si (void)
+    // unsigned long mpf_class::get_ui (void)
+    // string mpf_class::get_str (mp_exp_t& exp, int base = 10, size_t digits = 0)
+    double get_d() const { return mpf_get_d(value); }
+    unsigned long get_ui() const { return mpf_get_ui(value); }
+    long get_si() const { return mpf_get_si(value); }
+    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
+        char *temp = mpf_get_str(nullptr, &exp, base, digits, value);
+        std::string result = temp;
+        void (*freefunc)(void *, size_t);
+        mp_get_memory_functions(nullptr, nullptr, &freefunc);
+        freefunc(temp, std::strlen(temp) + 1);
+        return result;
+    }
+    void div_2exp(mp_bitcnt_t exp) {
+        mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
+        mpf_div_2exp(non_const_ptr, this->get_mpf_t(), exp);
+    }
+    void mul_2exp(mp_bitcnt_t exp) {
+        mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
+        mpf_mul_2exp(non_const_ptr, this->get_mpf_t(), exp);
+    }
+    // int mpf_class::set_str (const char *str, int base)
+    // int mpf_class::set_str (const string& str, int base)
+    int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
+    int set_str(const std::string &str, int base) { return mpf_set_str(value, str.c_str(), base); }
+
+    // int sgn (mpf_class op)
+    // mpf_class sqrt (mpf_class op)
+    // void mpf_class::swap (mpf_class& op)
+    // void swap (mpf_class& op1, mpf_class& op2)
+    // mpf_class trunc (mpf_class op)
+    friend int sgn(const mpf_class &op);
+    friend mpf_class sqrt(const mpf_class &op);
+    friend mpf_class neg(const mpf_class &op);
+    void swap(mpf_class &op) { mpf_swap(this->value, op.value); }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    friend void swap(mpf_class &op1, mpf_class &op2) { mpf_swap(op1.value, op2.value); }
+#endif
+    friend mpf_class trunc(const mpf_class &op);
+
+    // mp_bitcnt_t mpf_class::get_prec()
+    // void mpf_class::set_prec (mp_bitcnt_t prec)
+    // void mpf_class::set_prec_raw (mp_bitcnt_t prec)
+    mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
+    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
+    void set_prec_raw(mp_bitcnt_t prec) { mpf_set_prec_raw(value, prec); }
+
+    friend std::ostream &operator<<(std::ostream &os, const mpf_class &op);
+    friend std::ostream &operator<<(std::ostream &os, const mpf_t op);
+
+    friend std::istream &operator>>(std::istream &stream, mpf_class &op);
+    friend std::istream &operator>>(std::istream &stream, mpf_t op);
+
+    // gmpxx_mkII extension
     static mpf_class const_pi();
     static mpf_class const_e();
     static mpf_class const_log10();
@@ -1795,12 +1799,6 @@ class mpf_class {
     static void reset_e_cache();
     static void reset_log10_cache();
     static void reset_log2_cache();
-
-    friend std::ostream &operator<<(std::ostream &os, const mpf_class &op);
-    friend std::ostream &operator<<(std::ostream &os, const mpf_t op);
-
-    friend std::istream &operator>>(std::istream &stream, mpf_class &op);
-    friend std::istream &operator>>(std::istream &stream, mpf_t op);
 
     operator mpq_class() const;
     operator mpz_class() const;
@@ -1907,6 +1905,83 @@ inline mpf_class operator+(const mpf_class &op) {
 inline mpf_class operator-(const mpf_class &op) {
     mpf_class result(op.value);
     mpf_neg(result.value, op.value);
+    return result;
+}
+
+// mpz_class cmp
+inline int cmp(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.get_mpz_t(), op2.get_mpz_t()); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpz_class &op2) { return -mpz_cmp_ui(op2.get_mpz_t(), static_cast<unsigned long int>(op1)); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpz_class &op2) { return -mpz_cmp_si(op2.get_mpz_t(), static_cast<signed long int>(op1)); }
+
+// mpq_class cmp
+inline int cmp(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.get_mpq_t(), op2.get_mpq_t()); }
+inline int cmp(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.get_mpq_t(), op2.get_mpz_t()); }
+inline int cmp(const mpz_class &op1, const mpq_class &op2) { return -mpq_cmp_z(op2.get_mpq_t(), op1.get_mpz_t()); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpq_class &op1, T op2) { return mpq_cmp(op1.get_mpq_t(), mpq_class(op2).get_mpq_t()); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpq_class &op2) { return -mpq_cmp(op2.get_mpq_t(), mpq_class(op1).get_mpq_t()); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpq_class &op1, T op2) { return mpq_cmp(op1.get_mpq_t(), mpq_class(op2).get_mpq_t()); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpq_class &op2) { return -mpq_cmp(op2.get_mpq_t(), mpq_class(op1).get_mpq_t()); }
+
+// mpf_class cmp
+inline int cmp(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.get_mpf_t(), op2.get_mpf_t()); }
+inline int cmp(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.get_mpf_t(), mpf_class(op2).get_mpf_t()); }
+inline int cmp(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(mpf_class(op1).get_mpf_t(), op2.get_mpf_t()); }
+inline int cmp(const mpf_class &op1, const mpz_class &op2) { return mpf_cmp_z(op1.get_mpf_t(), op2.get_mpz_t()); }
+inline int cmp(const mpz_class &op1, const mpf_class &op2) { return -mpf_cmp_z(op2.get_mpf_t(), op1.get_mpz_t()); }
+inline int cmp(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
+inline int cmp(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)); }
+
+template <typename T> inline mpf_class &operator+=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_add(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline mpf_class operator+(const mpf_class &op1, const T op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+template <typename T> inline mpf_class operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
+template <typename T> inline mpf_class &operator-=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_sub(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline mpf_class operator-(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_sub(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline mpf_class operator-(const T op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    mpf_sub(result.value, result.value, op2.value);
+    return result;
+}
+template <typename T> inline mpf_class &operator*=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_mul(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline mpf_class operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
+template <typename T> inline mpf_class &operator/=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_div(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline mpf_class operator/(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_div(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline mpf_class operator/(const T op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    mpf_div(result.value, result.value, op2.value);
     return result;
 }
 
