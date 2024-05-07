@@ -1392,6 +1392,62 @@ class mpq_class {
   private:
     mpq_t value;
 };
+
+inline mpq_class &mpq_class::operator=(const mpz_class &op) {
+    mpq_set_z(this->value, op.get_mpz_t());
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(signed long int op) {
+    mpq_set_si(this->value, op, (signed long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(unsigned long int op) {
+    mpq_set_ui(this->value, op, (unsigned long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(signed int op) {
+    mpq_set_si(this->value, (signed long int)op, (signed long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(unsigned int op) {
+    mpq_set_ui(this->value, (unsigned long int)op, (unsigned long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(signed char op) {
+    mpq_set_si(this->value, (signed long int)op, (signed long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(unsigned char op) {
+    mpq_set_ui(this->value, (unsigned long int)op, (unsigned long int)1);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(char op) {
+    if (std::is_signed<char>::value)
+        return *this = static_cast<signed char>(op);
+    else
+        return *this = static_cast<unsigned char>(op);
+}
+inline mpq_class &mpq_class::operator=(float op) {
+    mpq_set_d(this->value, (double)op);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(double op) {
+    mpq_set_d(this->value, op);
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(const char *op) {
+    if (mpq_set_str(value, op, 10) != 0) {
+        throw std::invalid_argument("Invalid string format for mpq_class");
+    }
+    return *this;
+}
+inline mpq_class &mpq_class::operator=(const std::string &op) {
+    if (mpq_set_str(value, op.c_str(), 10) != 0) {
+        throw std::invalid_argument("Invalid string format for mpq_class");
+    }
+    return *this;
+}
+
 inline mpq_class &operator+=(mpq_class &op1, const mpq_class &op2) {
     mpq_add(op1.value, op1.value, op2.value);
     return op1;
