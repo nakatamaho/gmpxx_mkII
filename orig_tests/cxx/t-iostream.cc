@@ -94,7 +94,7 @@ checko ()
 }
 
 int
-main (int argc, char *argv[])
+main ()
 {
   checki ();
   checko ();

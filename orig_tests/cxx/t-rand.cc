@@ -137,12 +137,10 @@ check_mpf (void)
 int
 main (void)
 {
-  tests_start();
 
   check_randinit();
   check_mpz();
   check_mpf();
 
-  tests_end();
   return 0;
 }
