@@ -1256,7 +1256,17 @@ class mpq_class {
     inline friend bool operator>=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) >= 0; }
 
     inline friend bool operator==(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.value, op2.get_mpz_t()) == 0; }
+    inline friend bool operator!=(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.value, op2.get_mpz_t()) != 0; }
+    inline friend bool operator<(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.value, op2.get_mpz_t()) < 0; }
+    inline friend bool operator>(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.value, op2.get_mpz_t()) > 0; }
+    inline friend bool operator<=(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.value, op2.get_mpz_t()) <= 0; }
+    inline friend bool operator>=(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.value, op2.get_mpz_t()) >= 0; }
     inline friend bool operator==(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) == 0; }
+    inline friend bool operator!=(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) != 0; }
+    inline friend bool operator<(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) > 0; }
+    inline friend bool operator>(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) < 0; }
+    inline friend bool operator<=(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) >= 0; }
+    inline friend bool operator>=(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) <= 0; }
 
     // mpq_class comparison operators (template version)
     template <typename T> inline friend NON_GMP_COND(T, bool) operator==(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) == 0; }
@@ -2107,6 +2117,8 @@ template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpz_class &op1,
 template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpz_class &op2) { return -mpz_cmp_ui(op2.get_mpz_t(), static_cast<unsigned long int>(op1)); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.get_mpz_t(), static_cast<signed long int>(op2)); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpz_class &op2) { return -mpz_cmp_si(op2.get_mpz_t(), static_cast<signed long int>(op1)); }
+template <typename T> inline NON_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp(op1.get_mpz_t(), mpz_class(op2).get_mpz_t()); }
+template <typename T> inline NON_INT_COND(T, int) cmp(const T op1, mpz_class &op2) { return -mpz_cmp(op2.get_mpz_t(), mpz_class(op1).get_mpz_t()); }
 
 // mpq_class cmp
 inline int cmp(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.get_mpq_t(), op2.get_mpq_t()); }
@@ -2116,6 +2128,8 @@ template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpq_class &op1,
 template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpq_class &op2) { return -mpq_cmp(op2.get_mpq_t(), mpq_class(op1).get_mpq_t()); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpq_class &op1, T op2) { return mpq_cmp(op1.get_mpq_t(), mpq_class(op2).get_mpq_t()); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpq_class &op2) { return -mpq_cmp(op2.get_mpq_t(), mpq_class(op1).get_mpq_t()); }
+template <typename T> inline NON_INT_COND(T, int) cmp(const mpq_class &op1, T op2) { return mpq_cmp(op1.get_mpq_t(), mpq_class(op2).get_mpq_t()); }
+template <typename T> inline NON_INT_COND(T, int) cmp(const T op1, mpq_class &op2) { return -mpq_cmp(op2.get_mpq_t(), mpq_class(op1).get_mpq_t()); }
 
 // mpf_class cmp
 inline int cmp(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.get_mpf_t(), op2.get_mpf_t()); }
@@ -2129,6 +2143,8 @@ template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpf_class &op1,
 template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)); }
+template <typename T> inline NON_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp(op1.get_mpf_t(), mpf_class(op2).get_mpf_t()); }
+template <typename T> inline NON_INT_COND(T, int) cmp(const T op1, mpf_class &op2) { return -mpf_cmp(op2.get_mpf_t(), mpf_class(op1).get_mpf_t()); }
 
 // implimentation of mpf_class operators
 // improvements can be done using mpf_XXX_ui (note that they are not _si)
