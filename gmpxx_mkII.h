@@ -45,8 +45,7 @@
 #define UNSIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, X>::type
 #define SIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, X>::type
 #define NON_INT_COND(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
-#define NON_MPF_CLASS_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value, bool>::type
-
+#define NON_GMP_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value && !std::is_same<T, mpq_class>::value && !std::is_same<T, mpz_class>::value, X>::type
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
 namespace gmp {
 #endif
@@ -224,19 +223,19 @@ class mpz_class {
     inline friend bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
 
-    inline friend bool operator==(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) == 0; }
-    inline friend bool operator!=(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) != 0; }
-    inline friend bool operator<(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) < 0; }
-    inline friend bool operator>(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) > 0; }
-    inline friend bool operator<=(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) <= 0; }
-    inline friend bool operator>=(const mpz_class &op1, double op2) { return mpz_cmp_d(op1.value, op2) >= 0; }
+    inline friend bool operator==(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) == 0; }
+    inline friend bool operator!=(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) != 0; }
+    inline friend bool operator<(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) < 0; }
+    inline friend bool operator>(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) > 0; }
+    inline friend bool operator<=(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) <= 0; }
+    inline friend bool operator>=(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) >= 0; }
 
-    inline friend bool operator==(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) == 0; }
-    inline friend bool operator!=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) != 0; }
-    inline friend bool operator<(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) > 0; }
-    inline friend bool operator>(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) < 0; }
-    inline friend bool operator<=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) >= 0; }
-    inline friend bool operator>=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
+    inline friend bool operator==(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) == 0; }
+    inline friend bool operator!=(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) != 0; }
+    inline friend bool operator<(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) > 0; }
+    inline friend bool operator>(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) < 0; }
+    inline friend bool operator<=(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) >= 0; }
+    inline friend bool operator>=(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
 
     // mpz_class comparison operators (template version)
     template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
@@ -329,9 +328,9 @@ class mpz_class {
     template <typename T> inline friend NON_INT_COND(T, mpz_class) operator%(const mpz_class &op1, const T op2);
     template <typename T> inline friend NON_INT_COND(T, mpz_class) operator%(const T op1, const mpz_class &op2);
 
-    template <typename T> friend mpz_class &operator&=(mpz_class &lhs, const T &rhs);
-    template <typename T> friend mpz_class &operator|=(mpz_class &lhs, const T &rhs);
-    template <typename T> friend mpz_class &operator^=(mpz_class &lhs, const T &rhs);
+    template <typename T> friend mpz_class &operator&=(mpz_class &lhs, const T rhs);
+    template <typename T> friend mpz_class &operator|=(mpz_class &lhs, const T rhs);
+    template <typename T> friend mpz_class &operator^=(mpz_class &lhs, const T rhs);
     template <typename T> friend mpz_class operator&(const mpz_class &op1, const T op2);
     template <typename T> friend mpz_class operator&(const T op1, const mpz_class &op2);
     template <typename T> friend mpz_class operator|(const mpz_class &op1, const T op2);
@@ -1131,18 +1130,18 @@ class mpq_class {
     inline friend bool operator==(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) == 0; }
 
     // mpq_class comparison operators (template version)
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator==(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) == 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator!=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) != 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) < 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) > 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) <= 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) >= 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator==(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) == 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator!=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) != 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) > 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) < 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator<=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) >= 0; }
-    template <typename T> inline friend NON_MPF_CLASS_COND(T, bool) operator>=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) <= 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator==(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) == 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator!=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) != 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator<(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) < 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator>(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) > 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator<=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) <= 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator>=(const mpq_class &op1, T op2) { return mpq_cmp(op1.value, mpq_class(op2).get_mpq_t()) >= 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator==(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) == 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator!=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) != 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator<(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) > 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator>(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) < 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator<=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) >= 0; }
+    template <typename T> inline friend NON_GMP_COND(T, bool) operator>=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) <= 0; }
 
     // mpq_class arithmetic and logical operators (template version)
     template <typename T> inline friend mpq_class &operator+=(mpq_class &lhs, const T rhs);
@@ -1373,6 +1372,7 @@ std::istream &operator>>(std::istream &stream, mpq_t op) {
     }
     return stream;
 }
+
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -1432,7 +1432,7 @@ class mpf_class {
         mpf_init2(value, mpf_get_prec(op));
         mpf_set(value, op);
 #else
-        mpf_init_set(value, op.value);
+        mpf_init_set(value, op);
 #endif
     }
     mpf_class(const mpz_t op) {
@@ -1572,30 +1572,6 @@ class mpf_class {
         mpf_div_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
     }
-    template <typename T> mpf_class operator<<(T op2) const {
-        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
-        mpf_class result(*this);
-        mpf_mul_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
-        return result;
-    }
-    template <typename T> mpf_class operator>>(T op2) const {
-        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
-        mpf_class result(*this);
-        mpf_div_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
-        return result;
-    }
-
-    template <typename T> mpf_class &operator<<=(T op2) {
-        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
-        mpf_mul_2exp(value, value, static_cast<mp_bitcnt_t>(op2));
-        return *this;
-    }
-
-    template <typename T> mpf_class &operator>>=(T op2) {
-        static_assert(std::is_integral<T>::value, "Shift amount must be an integral type.");
-        mpf_div_2exp(value, value, static_cast<mp_bitcnt_t>(op2));
-        return *this;
-    }
 
     // mpf_class arithmetic operators
     inline friend mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs);
@@ -1608,6 +1584,32 @@ class mpf_class {
     inline friend mpf_class operator-(const mpf_class &op1, const mpf_class &op2);
     inline friend mpf_class operator*(const mpf_class &op1, const mpf_class &op2);
     inline friend mpf_class operator/(const mpf_class &op1, const mpf_class &op2);
+
+    inline friend mpf_class &operator+=(mpf_class &lhs, const mpz_class &rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const mpz_class &rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const mpz_class &rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const mpz_class &rhs);
+    inline friend mpf_class operator+(const mpf_class &op1, const mpz_class &op2);
+    inline friend mpf_class operator+(const mpz_class &op1, const mpf_class &op2);
+    inline friend mpf_class operator-(const mpf_class &op1, const mpz_class &op2);
+    inline friend mpf_class operator-(const mpz_class &op1, const mpf_class &op2);
+    inline friend mpf_class operator*(const mpf_class &op1, const mpz_class &op2);
+    inline friend mpf_class operator*(const mpz_class &op1, const mpf_class &op2);
+    inline friend mpf_class operator/(const mpf_class &op1, const mpz_class &op2);
+    inline friend mpf_class operator/(const mpz_class &op1, const mpf_class &op2);
+
+    inline friend mpf_class &operator+=(mpf_class &lhs, const mpq_class &rhs);
+    inline friend mpf_class &operator-=(mpf_class &lhs, const mpq_class &rhs);
+    inline friend mpf_class &operator*=(mpf_class &lhs, const mpq_class &rhs);
+    inline friend mpf_class &operator/=(mpf_class &lhs, const mpq_class &rhs);
+    inline friend mpf_class operator+(const mpf_class &op1, const mpq_class &op2);
+    inline friend mpf_class operator+(const mpq_class &op1, const mpf_class &op2);
+    inline friend mpf_class operator-(const mpf_class &op1, const mpq_class &op2);
+    inline friend mpf_class operator-(const mpq_class &op1, const mpf_class &op2);
+    inline friend mpf_class operator*(const mpf_class &op1, const mpq_class &op2);
+    inline friend mpf_class operator*(const mpq_class &op1, const mpf_class &op2);
+    inline friend mpf_class operator/(const mpf_class &op1, const mpq_class &op2);
+    inline friend mpf_class operator/(const mpq_class &op1, const mpf_class &op2);
 
     template <typename T> inline friend UNSIGNED_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs);
     template <typename T> inline friend SIGNED_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs);
@@ -1657,20 +1659,6 @@ class mpf_class {
     inline friend bool operator<=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpf_class &op1, const mpf_class &op2) { return mpf_cmp(op1.value, op2.value) >= 0; }
 
-    inline friend bool operator==(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) == 0; }
-    inline friend bool operator!=(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) != 0; }
-    inline friend bool operator<(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) < 0; }
-    inline friend bool operator>(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) > 0; }
-    inline friend bool operator<=(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) <= 0; }
-    inline friend bool operator>=(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) >= 0; }
-
-    inline friend bool operator==(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) == 0; }
-    inline friend bool operator!=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) != 0; }
-    inline friend bool operator<(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) > 0; }
-    inline friend bool operator>(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) < 0; }
-    inline friend bool operator<=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) >= 0; }
-    inline friend bool operator>=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) <= 0; }
-
     inline friend bool operator==(const mpf_class &op1, const mpz_class &op2) { return mpf_cmp_z(op1.value, op2.get_mpz_t()) == 0; }
     inline friend bool operator!=(const mpf_class &op1, const mpz_class &op2) { return mpf_cmp_z(op1.value, op2.get_mpz_t()) != 0; }
     inline friend bool operator<(const mpf_class &op1, const mpz_class &op2) { return mpf_cmp_z(op1.value, op2.get_mpz_t()) < 0; }
@@ -1684,6 +1672,34 @@ class mpf_class {
     inline friend bool operator>(const mpz_class &op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, op1.get_mpz_t()) < 0; }
     inline friend bool operator<=(const mpz_class &op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, op1.get_mpz_t()) >= 0; }
     inline friend bool operator>=(const mpz_class &op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, op1.get_mpz_t()) <= 0; }
+
+    inline friend bool operator==(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.value, mpf_class(op2).value) == 0; }
+    inline friend bool operator!=(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.value, mpf_class(op2).value) != 0; }
+    inline friend bool operator<(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.value, mpf_class(op2).value) < 0; }
+    inline friend bool operator>(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.value, mpf_class(op2).value) > 0; }
+    inline friend bool operator<=(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.value, mpf_class(op2).value) <= 0; }
+    inline friend bool operator>=(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.value, mpf_class(op2).value) >= 0; }
+
+    inline friend bool operator==(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(op2.value, mpf_class(op1).value) == 0; }
+    inline friend bool operator!=(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(op2.value, mpf_class(op1).value) != 0; }
+    inline friend bool operator<(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(op2.value, mpf_class(op1).value) > 0; }
+    inline friend bool operator>(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(op2.value, mpf_class(op1).value) < 0; }
+    inline friend bool operator<=(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(op2.value, mpf_class(op1).value) >= 0; }
+    inline friend bool operator>=(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(op2.value, mpf_class(op1).value) <= 0; }
+
+    inline friend bool operator==(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) == 0; }
+    inline friend bool operator!=(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) != 0; }
+    inline friend bool operator<(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) < 0; }
+    inline friend bool operator>(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) > 0; }
+    inline friend bool operator<=(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) <= 0; }
+    inline friend bool operator>=(const mpf_class &op1, double op2) { return mpf_cmp_d(op1.value, op2) >= 0; }
+
+    inline friend bool operator==(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) == 0; }
+    inline friend bool operator!=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) != 0; }
+    inline friend bool operator<(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) > 0; }
+    inline friend bool operator>(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) < 0; }
+    inline friend bool operator<=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) >= 0; }
+    inline friend bool operator>=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) <= 0; }
 
     // mpf_class comparison operators (template version)
     template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
@@ -1910,9 +1926,9 @@ inline mpf_class operator-(const mpf_class &op) {
 
 // mpz_class cmp
 inline int cmp(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.get_mpz_t(), op2.get_mpz_t()); }
-template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.get_mpz_t(), static_cast<unsigned long int>(op2)); }
 template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpz_class &op2) { return -mpz_cmp_ui(op2.get_mpz_t(), static_cast<unsigned long int>(op1)); }
-template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.get_mpz_t(), static_cast<signed long int>(op2)); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpz_class &op2) { return -mpz_cmp_si(op2.get_mpz_t(), static_cast<signed long int>(op1)); }
 
 // mpq_class cmp
@@ -1930,61 +1946,317 @@ inline int cmp(const mpf_class &op1, const mpq_class &op2) { return mpf_cmp(op1.
 inline int cmp(const mpq_class &op1, const mpf_class &op2) { return mpf_cmp(mpf_class(op1).get_mpf_t(), op2.get_mpf_t()); }
 inline int cmp(const mpf_class &op1, const mpz_class &op2) { return mpf_cmp_z(op1.get_mpf_t(), op2.get_mpz_t()); }
 inline int cmp(const mpz_class &op1, const mpf_class &op2) { return -mpf_cmp_z(op2.get_mpf_t(), op1.get_mpz_t()); }
-inline int cmp(const mpf_class &op1, const double &op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
-inline int cmp(const double &op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
-template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)); }
+inline int cmp(const mpf_class &op1, const double op2) { return mpf_cmp_d(op1.get_mpf_t(), op2); }
+inline int cmp(const double op1, const mpf_class &op2) { return -mpf_cmp_d(op2.get_mpf_t(), op1); }
+template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.get_mpf_t(), static_cast<unsigned long int>(op2)); }
 template <typename T> inline UNSIGNED_INT_COND(T, int) cmp(const T op1, mpf_class &op2) { return -mpf_cmp_ui(op2.get_mpf_t(), static_cast<unsigned long int>(op1)); }
-template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)); }
+template <typename T> inline SIGNED_INT_COND(T, int) cmp(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.get_mpf_t(), static_cast<signed long int>(op2)); }
 template <typename T> inline SIGNED_INT_COND(T, int) cmp(const T op1, mpf_class &op2) { return -mpf_cmp_si(op2.get_mpf_t(), static_cast<signed long int>(op1)); }
 
-template <typename T> inline mpf_class &operator+=(mpf_class &lhs, const T rhs) {
+// implimentation of mpf_class operators
+// improvements can be done using mpf_XXX_ui (note that they are not _si)
+template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs) {
     mpf_class _rhs(rhs);
     mpf_add(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline mpf_class operator+(const mpf_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator+(const mpf_class &op1, const T op2) {
     mpf_class result(op1);
     result += op2;
     return result;
 }
-template <typename T> inline mpf_class operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
-template <typename T> inline mpf_class &operator-=(mpf_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
+template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator-=(mpf_class &lhs, const T rhs) {
     mpf_class _rhs(rhs);
     mpf_sub(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline mpf_class operator-(const mpf_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator-(const mpf_class &op1, const T op2) {
     mpf_class result(op2);
     mpf_sub(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline mpf_class operator-(const T op1, const mpf_class &op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator-(const T op1, const mpf_class &op2) {
     mpf_class result(op1);
     mpf_sub(result.value, result.value, op2.value);
     return result;
 }
-template <typename T> inline mpf_class &operator*=(mpf_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator*=(mpf_class &lhs, const T rhs) {
     mpf_class _rhs(rhs);
     mpf_mul(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline mpf_class operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
-template <typename T> inline mpf_class &operator/=(mpf_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_mul(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
+template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator/=(mpf_class &lhs, const T rhs) {
     mpf_class _rhs(rhs);
     mpf_div(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline mpf_class operator/(const mpf_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator/(const mpf_class &op1, const T op2) {
     mpf_class result(op2);
     mpf_div(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline mpf_class operator/(const T op1, const mpf_class &op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator/(const T op1, const mpf_class &op2) {
     mpf_class result(op1);
     mpf_div(result.value, result.value, op2.value);
     return result;
 }
+// improvements can be done using mpf_XXX_ui
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_add(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator+(const mpf_class &op1, const T op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator-=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_sub(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator-(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_sub(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator-(const T op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    mpf_sub(result.value, result.value, op2.value);
+    return result;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator*=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_mul(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator*(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_mul(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator/=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_div(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator/(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_div(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator/(const T op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    mpf_div(result.value, result.value, op2.value);
+    return result;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_add(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator+(const mpf_class &op1, const T op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
+template <typename T> inline NON_INT_COND(T, mpf_class &) operator-=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_sub(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator-(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_sub(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator-(const T op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    mpf_sub(result.value, result.value, op2.value);
+    return result;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class &) operator*=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_mul(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator*(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_mul(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
+template <typename T> inline NON_INT_COND(T, mpf_class &) operator/=(mpf_class &lhs, const T rhs) {
+    mpf_class _rhs(rhs);
+    mpf_div(lhs.value, lhs.value, _rhs.value);
+    return lhs;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator/(const mpf_class &op1, const T op2) {
+    mpf_class result(op2);
+    mpf_div(result.value, op1.value, result.value);
+    return result;
+}
+template <typename T> inline NON_INT_COND(T, mpf_class) operator/(const T op1, const mpf_class &op2) {
+    mpf_class result(op1);
+    mpf_div(result.value, result.value, op2.value);
+    return result;
+}
+inline mpf_class &operator+=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs += temp;
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs -= temp;
+    return lhs;
+}
+inline mpf_class &operator*=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs *= temp;
+    return lhs;
+}
+inline mpf_class &operator/=(mpf_class &lhs, const mpz_class &rhs) {
+    mpf_class temp = mpf_class(rhs);
+    lhs /= temp;
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 += _op2;
+    return _op1;
+}
+inline mpf_class operator+(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op2 += _op1;
+    return _op2;
+}
+inline mpf_class operator-(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 -= _op2;
+    return _op1;
+}
+inline mpf_class operator-(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 -= _op2;
+    return _op1;
+}
+inline mpf_class operator*(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 *= _op2;
+    return _op1;
+}
+inline mpf_class operator*(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 *= _op2;
+    return _op1;
+}
+inline mpf_class operator/(const mpf_class &op1, const mpz_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 /= _op2;
+    return _op1;
+}
+inline mpf_class operator/(const mpz_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 /= _op2;
+    return _op1;
+}
+inline mpf_class &operator+=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs += temp;
+    return lhs;
+}
+inline mpf_class &operator-=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs -= temp;
+    return lhs;
+}
 
+inline mpf_class &operator*=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs *= temp;
+    return lhs;
+}
+
+inline mpf_class &operator/=(mpf_class &lhs, const mpq_class &rhs) {
+    mpf_class temp(rhs);
+    lhs /= temp;
+    return lhs;
+}
+inline mpf_class operator+(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class result(op1);
+    result += op2;
+    return result;
+}
+
+inline mpf_class operator+(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class result(op2);
+    result += op1;
+    return result;
+}
+
+inline mpf_class operator-(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class result(op1);
+    result -= op2;
+    return result;
+}
+inline mpf_class operator-(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 -= _op2;
+    return _op1;
+}
+inline mpf_class operator*(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 *= _op2;
+    return _op1;
+}
+inline mpf_class operator*(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 *= _op2;
+    return _op1;
+}
+inline mpf_class operator/(const mpf_class &op1, const mpq_class &op2) {
+    mpf_class _op1(op1);
+    mpf_class _op2(op2);
+    _op1 /= _op2;
+    return _op1;
+}
+inline mpf_class operator/(const mpq_class &op1, const mpf_class &op2) {
+    mpf_class _op1(op2); // 'op2' is used for correct precision initialization, furthur optimization may be possible for ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class _op2(op2);
+    _op1 = op1;
+    _op1 /= _op2;
+    return _op1;
+}
+
+// elementary functions
 inline mpf_class trunc(const mpf_class &op) {
     mpf_class rop(op);
     mpf_trunc(rop.value, op.get_mpf_t());
