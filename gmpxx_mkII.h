@@ -562,7 +562,11 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator+(const T op1
     }
     return result;
 }
-template <typename T> inline NON_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) { return op2 + op1; }
+template <typename T> inline NON_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
+    mpz_class result(op1);
+    result += op2;
+    return result;
+}
 template <typename T> inline NON_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2) { return op2 + op1; }
 
 // -=
@@ -636,7 +640,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator*=(mpz_clas
     mpz_mul_si(lhs.value, lhs.value, static_cast<signed long int>(rhs));
     return lhs;
 }
-template <typename T> inline NON_INT_COND(T, mpz_class&) operator*=(mpz_class &lhs, const T rhs) {
+template <typename T> inline NON_INT_COND(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs) {
     mpz_class _rhs(rhs);
     mpz_mul(lhs.value, lhs.value, _rhs.value);
     return lhs;
@@ -667,11 +671,7 @@ template <typename T> inline NON_INT_COND(T, mpz_class) operator*(const mpz_clas
     mpz_mul(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline NON_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2) {
-    mpz_class result(op1);
-    mpz_mul(result.value, result.value, op2.value);
-    return result;
-}
+template <typename T> inline NON_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2) { return op2 * op1; }
 
 // /=
 template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs) {
