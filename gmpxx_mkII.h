@@ -40,10 +40,10 @@
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
-#define INT_CONDITION(T, X) typename std::enable_if<std::is_integral<T>::value, X>::type
-#define UNSIGNED_INT_CONDITION(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, X>::type
-#define SIGNED_INT_CONDITION(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, X>::type
-#define NON_INT_CONDITION(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
+#define INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value, X>::type
+#define UNSIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, X>::type
+#define SIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, X>::type
+#define NON_INT_COND(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
 
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
 namespace gmp {
@@ -175,20 +175,20 @@ class mpz_class {
         --(*this);
         return original;
     }
-    template <typename T> INT_CONDITION(T, mpz_class &) operator<<=(T n) {
+    template <typename T> INT_COND(T, mpz_class &) operator<<=(T n) {
         mpz_mul_2exp(value, value, static_cast<mp_bitcnt_t>(n));
         return *this;
     }
-    template <typename T> INT_CONDITION(T, mpz_class &) operator>>=(T n) {
+    template <typename T> INT_COND(T, mpz_class &) operator>>=(T n) {
         mpz_tdiv_q_2exp(value, value, static_cast<mp_bitcnt_t>(n));
         return *this;
     }
-    template <typename T> friend INT_CONDITION(T, mpz_class) operator<<(const mpz_class &op1, T op2) {
+    template <typename T> friend INT_COND(T, mpz_class) operator<<(const mpz_class &op1, T op2) {
         mpz_class result(op1);
         mpz_mul_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
     }
-    template <typename T> friend INT_CONDITION(T, mpz_class) operator>>(const mpz_class &op1, T op2) {
+    template <typename T> friend INT_COND(T, mpz_class) operator>>(const mpz_class &op1, T op2) {
         mpz_class result(op1);
         mpz_fdiv_q_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
@@ -237,55 +237,55 @@ class mpz_class {
     inline friend bool operator>=(double op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
 
     // mpz_class arithmetic and logical operators (template version)
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator+(const mpz_class &op1, const T op2);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator+(const T op1, const mpz_class &op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator+(const mpz_class &op1, const T op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator+(const T op1, const mpz_class &op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator+(const mpz_class &op1, const T op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator+(const T op1, const mpz_class &op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2);
 
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator-(const mpz_class &op1, const T op2);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator-(const T op1, const mpz_class &op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator-(const mpz_class &op1, const T op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator-(const T op1, const mpz_class &op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator-(const mpz_class &op1, const T op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator-(const T op1, const mpz_class &op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator-(const mpz_class &op1, const T op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator-(const mpz_class &op1, const T op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator-(const mpz_class &op1, const T op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2);
 
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator*(const mpz_class &op1, const T op2);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator*(const T op1, const mpz_class &op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator*(const mpz_class &op1, const T op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator*(const T op1, const mpz_class &op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator*(const mpz_class &op1, const T op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator*(const T op1, const mpz_class &op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator*(const mpz_class &op1, const T op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator*(const mpz_class &op1, const T op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator*(const mpz_class &op1, const T op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2);
 
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator/(const mpz_class &op1, const T op2);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator/(const T op1, const mpz_class &op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator/(const mpz_class &op1, const T op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator/(const T op1, const mpz_class &op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator/(const mpz_class &op1, const T op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator/(const T op1, const mpz_class &op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator/(const mpz_class &op1, const T op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator/(const T op1, const mpz_class &op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator/(const mpz_class &op1, const T op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator/(const T op1, const mpz_class &op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator/(const mpz_class &op1, const T op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator/(const T op1, const mpz_class &op2);
 
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator%(const mpz_class &op1, const T op2);
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, mpz_class) operator%(const T op1, const mpz_class &op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator%(const mpz_class &op1, const T op2);
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, mpz_class) operator%(const T op1, const mpz_class &op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator%(const mpz_class &op1, const T op2);
-    template <typename T> inline friend NON_INT_CONDITION(T, mpz_class) operator%(const T op1, const mpz_class &op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator%(const mpz_class &op1, const T op2);
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator%(const T op1, const mpz_class &op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator%(const mpz_class &op1, const T op2);
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator%(const T op1, const mpz_class &op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator%(const mpz_class &op1, const T op2);
+    template <typename T> inline friend NON_INT_COND(T, mpz_class) operator%(const T op1, const mpz_class &op2);
 
     template <typename T> friend mpz_class &operator&=(mpz_class &lhs, const T &rhs); // XXX not implimented
     template <typename T> friend mpz_class &operator|=(mpz_class &lhs, const T &rhs); // XXX not implimented
@@ -298,44 +298,44 @@ class mpz_class {
     template <typename T> friend mpz_class operator^(const T op1, const mpz_class &op2);
 
     // mpz_class comparison operators (template version)
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
-    template <typename T> inline friend UNSIGNED_INT_CONDITION(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
 
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) == 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) != 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) < 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) > 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) <= 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) >= 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) == 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) != 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) > 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) < 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
-    template <typename T> inline friend SIGNED_INT_CONDITION(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) == 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) != 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) < 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) > 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) <= 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) >= 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) == 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) != 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) > 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) < 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
+    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
 
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) < 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) > 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) <= 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) >= 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) == 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) != 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) > 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) < 0; }   // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) >= 0; } // XXX not checked
-    template <typename T> inline friend NON_INT_CONDITION(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) < 0; }   // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) > 0; }   // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) <= 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) >= 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) == 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) != 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) > 0; }   // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) < 0; }   // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) >= 0; } // XXX not checked
+    template <typename T> inline friend NON_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; } // XXX not checked
 
     // mpz_class abs (mpz_class op)
     inline friend mpz_class abs(const mpz_class &op);
@@ -513,11 +513,11 @@ inline mpz_class operator^(const mpz_class &op1, const mpz_class &op2) {
 }
 
 // +=
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
     mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     return lhs;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
     if (rhs >= 0)
         mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
@@ -526,23 +526,23 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator+=(mpz
     }
     return lhs;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
+template <typename T> inline NON_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
     mpz_class _rhs(rhs);
     mpz_add(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 // +
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     return result;
 }
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator+(const T op1, const mpz_class &op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2) {
     mpz_class result(op2);
     mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op1));
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     if (op2 >= 0)
         mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op2));
@@ -552,7 +552,7 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator+(const 
     }
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator+(const T op1, const mpz_class &op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2) {
     mpz_class result(op2);
     if (op1 >= 0)
         mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op1));
@@ -562,15 +562,15 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator+(const 
     }
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator+(const mpz_class &op1, const T op2) { return op2 + op1; }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator+(const T op1, const mpz_class &op2) { return op2 + op1; }
+template <typename T> inline NON_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) { return op2 + op1; }
+template <typename T> inline NON_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2) { return op2 + op1; }
 
 // -=
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs) {
     mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     return lhs;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs) {
     if (rhs >= 0)
         mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
@@ -579,23 +579,23 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator-=(mpz
     }
     return lhs;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs) {
+template <typename T> inline NON_INT_COND(T, mpz_class &) operator-=(mpz_class &lhs, const T rhs) {
     mpz_class _rhs(rhs);
     mpz_sub(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 // -
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator-(const mpz_class &op1, const T op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator-(const mpz_class &op1, const T op2) {
     mpz_class result;
     mpz_sub_ui(result.value, op1.value, op2);
     return result;
 }
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_ui_sub(result.value, op1, op2.value);
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator-(const mpz_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     if (op2 >= 0)
         mpz_sub_ui(result.value, op1.value, (unsigned long int)op2);
@@ -605,7 +605,7 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator-(const 
     }
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
     mpz_class result;
     if (op1 >= 0) {
         mpz_ui_sub(result.value, (unsigned long int)op1, op2.value);
@@ -616,69 +616,69 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator-(const 
     }
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator-(const mpz_class &op1, const T op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator-(const mpz_class &op1, const T op2) {
     mpz_class result(op2);
     mpz_sub(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_sub(result.value, result.value, op2.value);
     return result;
 }
 
 // *=
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs) {
     mpz_mul_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     return lhs;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator*=(mpz_class &lhs, const T rhs) {
     mpz_mul_si(lhs.value, lhs.value, static_cast<signed long int>(rhs));
     return lhs;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class&) operator*=(mpz_class &lhs, const T rhs) {
+template <typename T> inline NON_INT_COND(T, mpz_class&) operator*=(mpz_class &lhs, const T rhs) {
     mpz_class _rhs(rhs);
     mpz_mul(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 // *
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator*(const mpz_class &op1, const T op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator*(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     mpz_mul_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     return result;
 }
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator*(const T op1, const mpz_class &op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2) {
     mpz_class result(op2);
     mpz_mul_ui(result.value, result.value, static_cast<unsigned long int>(op1));
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator*(const mpz_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator*(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     mpz_mul_si(result.value, result.value, static_cast<signed long int>(op2));
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator*(const T op1, const mpz_class &op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2) {
     mpz_class result(op2);
     mpz_mul_si(result.value, result.value, static_cast<signed long int>(op1));
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator*(const mpz_class &op1, const T op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator*(const mpz_class &op1, const T op2) {
     mpz_class result(op2);
     mpz_mul(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator*(const T op1, const mpz_class &op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator*(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_mul(result.value, result.value, op2.value);
     return result;
 }
 
 // /=
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs) {
     mpz_tdiv_q_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     return lhs;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs) {
     if (rhs >= 0)
         mpz_tdiv_q_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
@@ -688,23 +688,23 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator/=(mpz
     }
     return lhs;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs) {
+template <typename T> inline NON_INT_COND(T, mpz_class &) operator/=(mpz_class &lhs, const T rhs) {
     mpz_class _rhs(rhs);
     mpz_tdiv_q(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 // /
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator/(const mpz_class &op1, const T op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator/(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     mpz_tdiv_q_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     return result;
 }
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator/(const T op1, const mpz_class &op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator/(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_tdiv_q(result.value, result.value, op2.value);
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator/(const mpz_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator/(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     if (op2 >= 0)
         mpz_tdiv_q_ui(result.value, result.value, static_cast<signed long int>(op2));
@@ -715,27 +715,27 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator/(const 
     }
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator/(const T op1, const mpz_class &op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator/(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_tdiv_q(result.value, result.value, op2.value);
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator/(const mpz_class &op1, const T op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator/(const mpz_class &op1, const T op2) {
     mpz_class result(op2);
     mpz_tdiv_q(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator/(const T op1, const mpz_class &op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator/(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_tdiv_q(result.value, result.value, op2.value);
     return result;
 }
 // %=
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs) {
     mpz_tdiv_r_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     return lhs;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs) {
     if (rhs >= 0)
         mpz_tdiv_r_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
@@ -744,23 +744,23 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class &) operator%=(mpz
     }
     return lhs;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator%=(mpz_class &lhs, const T rhs) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator%=(mpz_class &lhs, const T rhs) {
     mpz_class _rhs(rhs);
     mpz_tdiv_r(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
 // %
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator%(const mpz_class &op1, const T op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator%(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     mpz_tdiv_r_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     return result;
 }
-template <typename T> inline UNSIGNED_INT_CONDITION(T, mpz_class) operator%(const T op1, const mpz_class &op2) {
+template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator%(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_tdiv_r(result.value, result.value, op2.value);
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator%(const mpz_class &op1, const T op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator%(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     if (op2 >= 0)
         mpz_tdiv_r_ui(result.value, result.value, static_cast<unsigned long int>(op2));
@@ -770,17 +770,17 @@ template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator%(const 
     }
     return result;
 }
-template <typename T> inline SIGNED_INT_CONDITION(T, mpz_class) operator%(const T op1, const mpz_class &op2) {
+template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator%(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_tdiv_r(result.value, result.value, op2.value);
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator%(const mpz_class &op1, const T op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator%(const mpz_class &op1, const T op2) {
     mpz_class result(op2);
     mpz_tdiv_r(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline NON_INT_CONDITION(T, mpz_class) operator%(const T op1, const mpz_class &op2) {
+template <typename T> inline NON_INT_COND(T, mpz_class) operator%(const T op1, const mpz_class &op2) {
     mpz_class result(op1);
     mpz_tdiv_r(result.value, result.value, op2.value);
     return result;
@@ -1086,20 +1086,20 @@ class mpq_class {
         --(*this);
         return original;
     }
-    template <typename T> INT_CONDITION(T, mpq_class &) operator<<=(T n) {
+    template <typename T> INT_COND(T, mpq_class &) operator<<=(T n) {
         mpq_mul_2exp(value, value, static_cast<mp_bitcnt_t>(n));
         return *this;
     }
-    template <typename T> INT_CONDITION(T, mpq_class &) operator>>=(T n) {
+    template <typename T> INT_COND(T, mpq_class &) operator>>=(T n) {
         mpq_div_2exp(value, value, static_cast<mp_bitcnt_t>(n));
         return *this;
     }
-    template <typename T> friend INT_CONDITION(T, mpq_class) operator<<(const mpq_class &op1, T op2) {
+    template <typename T> friend INT_COND(T, mpq_class) operator<<(const mpq_class &op1, T op2) {
         mpq_class result(op1);
         mpq_mul_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
     }
-    template <typename T> friend INT_CONDITION(T, mpq_class) operator>>(const mpq_class &op1, T op2) {
+    template <typename T> friend INT_COND(T, mpq_class) operator>>(const mpq_class &op1, T op2) {
         mpq_class result(op1);
         mpq_div_2exp(result.value, result.value, static_cast<mp_bitcnt_t>(op2));
         return result;
