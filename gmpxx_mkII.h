@@ -1267,49 +1267,49 @@ inline mpq_class operator/(const mpq_class &op1, const mpq_class &op2) {
     return result;
 }
 
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator+=(mpq_class &lhs, const T rhs) {
+template <typename T> inline mpq_class &operator+=(mpq_class &lhs, const T rhs) {
     mpq_class _rhs(rhs);
     mpq_add(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator+(const mpq_class &op1, const T op2) {
+template <typename T> inline mpq_class operator+(const mpq_class &op1, const T op2) {
     mpq_class result(op1);
     result += op2;
     return result;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator+(const T op1, const mpq_class &op2) { return op2 + op1; }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator-=(mpq_class &lhs, const T rhs) {
+template <typename T> inline mpq_class operator+(const T op1, const mpq_class &op2) { return op2 + op1; }
+template <typename T> inline mpq_class &operator-=(mpq_class &lhs, const T rhs) {
     mpq_class _rhs(rhs);
     mpq_sub(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator-(const mpq_class &op1, const T op2) {
+template <typename T> inline mpq_class operator-(const mpq_class &op1, const T op2) {
     mpq_class result(op2);
     mpq_sub(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator-(const T op1, const mpq_class &op2) {
+template <typename T> inline mpq_class operator-(const T op1, const mpq_class &op2) {
     mpq_class result(op1);
     mpq_sub(result.value, result.value, op2.value);
     return result;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator*=(mpq_class &lhs, const T rhs) {
+template <typename T> inline mpq_class &operator*=(mpq_class &lhs, const T rhs) {
     mpq_class _rhs(rhs);
     mpq_mul(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator*(const T op1, const mpq_class &op2) { return op2 * op1; }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class &) operator/=(mpq_class &lhs, const T rhs) {
+template <typename T> inline mpq_class operator*(const T op1, const mpq_class &op2) { return op2 * op1; }
+template <typename T> inline mpq_class &operator/=(mpq_class &lhs, const T rhs) {
     mpq_class _rhs(rhs);
     mpq_div(lhs.value, lhs.value, _rhs.value);
     return lhs;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator/(const mpq_class &op1, const T op2) {
+template <typename T> inline mpq_class operator/(const mpq_class &op1, const T op2) {
     mpq_class result(op2);
     mpq_div(result.value, op1.value, result.value);
     return result;
 }
-template <typename T> inline NON_MPF_CLASS_COND(T, mpq_class) operator/(const T op1, const mpq_class &op2) {
+template <typename T> inline mpq_class operator/(const T op1, const mpq_class &op2) {
     mpq_class result(op1);
     mpq_div(result.value, result.value, op2.value);
     return result;
