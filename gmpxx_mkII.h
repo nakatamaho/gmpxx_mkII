@@ -1051,6 +1051,7 @@ class mpq_class {
         mpq_init(value);
         mpq_set_d(value, op);
     }
+
     // assignments from other objects
     inline mpq_class &operator=(const mpz_class &op);
     inline mpq_class &operator=(const signed long int op);
@@ -1144,19 +1145,58 @@ class mpq_class {
     template <typename T> inline friend NON_GMP_COND(T, bool) operator>=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) <= 0; }
 
     // mpq_class arithmetic operators (template version)
-    template <typename T> inline friend mpq_class &operator+=(mpq_class &lhs, const T rhs);
-    template <typename T> inline friend mpq_class operator+(const mpq_class &op1, const T op2);
-    template <typename T> inline friend mpq_class operator+(const T op1, const mpq_class &op2);
-    template <typename T> inline friend mpq_class &operator-=(mpq_class &lhs, const T rhs);
-    template <typename T> inline friend mpq_class operator-(const mpq_class &op1, const T op2);
-    template <typename T> inline friend mpq_class operator-(const T op1, const mpq_class &op2);
-    template <typename T> inline friend mpq_class &operator*=(mpq_class &lhs, const T rhs);
-    template <typename T> inline friend mpq_class operator*(const mpq_class &op1, const T op2);
-    template <typename T> inline friend mpq_class operator*(const T op1, const mpq_class &op2);
-    template <typename T> inline friend mpq_class &operator/=(mpq_class &lhs, const T rhs);
-    template <typename T> inline friend mpq_class operator/(const mpq_class &op1, const T op2);
-    template <typename T> inline friend mpq_class operator/(const T op1, const mpq_class &op2);
-
+    template <typename T> inline friend mpq_class &operator+=(mpq_class &lhs, const T rhs) {
+        mpq_class _rhs(rhs);
+        mpq_add(lhs.value, lhs.value, _rhs.value);
+        return lhs;
+    }
+    template <typename T> inline friend mpq_class operator+(const mpq_class &op1, const T op2) {
+        mpq_class result(op2);
+        mpq_add(result.value, op1.value, result.value);
+        return result;
+    }
+    template <typename T> inline friend mpq_class operator+(const T op1, const mpq_class &op2) { return op2 + op1; }
+    template <typename T> inline friend mpq_class &operator-=(mpq_class &lhs, const T rhs) {
+        mpq_class _rhs(rhs);
+        mpq_sub(lhs.value, lhs.value, _rhs.value);
+        return lhs;
+    }
+    template <typename T> inline friend mpq_class operator-(const mpq_class &op1, const T op2) {
+        mpq_class result(op2);
+        mpq_sub(result.value, op1.value, result.value);
+        return result;
+    }
+    template <typename T> inline friend mpq_class operator-(const T op1, const mpq_class &op2) {
+        mpq_class result(op1);
+        mpq_sub(result.value, result.value, op2.value);
+        return result;
+    }
+    template <typename T> inline friend mpq_class &operator*=(mpq_class &lhs, const T rhs) {
+        mpq_class _rhs(rhs);
+        mpq_mul(lhs.value, lhs.value, _rhs.value);
+        return lhs;
+    }
+    template <typename T> inline friend mpq_class operator*(const mpq_class &op1, const T op2) {
+        mpq_class result(op2);
+        mpq_mul(result.value, op1.value, result.value);
+        return result;
+    }
+    template <typename T> inline friend mpq_class operator*(const T op1, const mpq_class &op2) { return op2 * op1; }
+    template <typename T> inline friend mpq_class &operator/=(mpq_class &lhs, const T rhs) {
+        mpq_class _rhs(rhs);
+        mpq_div(lhs.value, lhs.value, _rhs.value);
+        return lhs;
+    }
+    template <typename T> inline friend mpq_class operator/(const mpq_class &op1, const T op2) {
+        mpq_class result(op2);
+        mpq_div(result.value, op1.value, result.value);
+        return result;
+    }
+    template <typename T> inline friend mpq_class operator/(const T op1, const mpq_class &op2) {
+        mpq_class result(op1);
+        mpq_div(result.value, result.value, op2.value);
+        return result;
+    }
     // void mpq_class::canonicalize ()
     // mpq_class abs (mpq_class op)
     // double mpq_class::get_d (void)
@@ -1264,53 +1304,6 @@ inline mpq_class operator*(const mpq_class &op1, const mpq_class &op2) {
 inline mpq_class operator/(const mpq_class &op1, const mpq_class &op2) {
     mpq_class result;
     mpq_div(result.value, op1.value, op2.value);
-    return result;
-}
-template <typename T> inline mpq_class &operator+=(mpq_class &lhs, const T rhs) {
-    mpq_class _rhs(rhs);
-    mpq_add(lhs.value, lhs.value, _rhs.value);
-    return lhs;
-}
-template <typename T> inline mpq_class operator+(const mpq_class &op1, const T op2) {
-    mpq_class result(op1);
-    result += op2;
-    return result;
-}
-template <typename T> inline mpq_class operator+(const T op1, const mpq_class &op2) { return op2 + op1; }
-template <typename T> inline mpq_class &operator-=(mpq_class &lhs, const T rhs) {
-    mpq_class _rhs(rhs);
-    mpq_sub(lhs.value, lhs.value, _rhs.value);
-    return lhs;
-}
-template <typename T> inline mpq_class operator-(const mpq_class &op1, const T op2) {
-    mpq_class result(op2);
-    mpq_sub(result.value, op1.value, result.value);
-    return result;
-}
-template <typename T> inline mpq_class operator-(const T op1, const mpq_class &op2) {
-    mpq_class result(op1);
-    mpq_sub(result.value, result.value, op2.value);
-    return result;
-}
-template <typename T> inline mpq_class &operator*=(mpq_class &lhs, const T rhs) {
-    mpq_class _rhs(rhs);
-    mpq_mul(lhs.value, lhs.value, _rhs.value);
-    return lhs;
-}
-template <typename T> inline mpq_class operator*(const T op1, const mpq_class &op2) { return op2 * op1; }
-template <typename T> inline mpq_class &operator/=(mpq_class &lhs, const T rhs) {
-    mpq_class _rhs(rhs);
-    mpq_div(lhs.value, lhs.value, _rhs.value);
-    return lhs;
-}
-template <typename T> inline mpq_class operator/(const mpq_class &op1, const T op2) {
-    mpq_class result(op2);
-    mpq_div(result.value, op1.value, result.value);
-    return result;
-}
-template <typename T> inline mpq_class operator/(const T op1, const mpq_class &op2) {
-    mpq_class result(op1);
-    mpq_div(result.value, result.value, op2.value);
     return result;
 }
 inline mpq_class abs(const mpq_class &op) {
