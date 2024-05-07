@@ -1126,6 +1126,9 @@ class mpq_class {
     inline friend bool operator<=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpq_class &op1, const mpq_class &op2) { return mpq_cmp(op1.value, op2.value) >= 0; }
 
+    inline friend bool operator==(const mpq_class &op1, const mpz_class &op2) { return mpq_cmp_z(op1.value, op2.get_mpz_t()) == 0; }
+    inline friend bool operator==(const mpz_class &op1, const mpq_class &op2) { return mpq_cmp_z(op2.value, op1.get_mpz_t()) == 0; }
+
     // mpq_class arithmetic and logical operators (template version)
     template <typename T> inline friend mpq_class &operator+=(mpq_class &lhs, const T rhs);
     template <typename T> inline friend mpq_class operator+(const mpq_class &op1, const T op2);
