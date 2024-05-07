@@ -745,7 +745,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator%=(mpz_clas
     }
     return lhs;
 }
-template <typename T> inline NON_INT_COND(T, mpz_class) operator%=(mpz_class &lhs, const T rhs) {
+template <typename T> inline NON_INT_COND(T, mpz_class &) operator%=(mpz_class &lhs, const T rhs) {
     mpz_class _rhs(rhs);
     mpz_tdiv_r(lhs.value, lhs.value, _rhs.value);
     return lhs;
@@ -1143,7 +1143,7 @@ class mpq_class {
     template <typename T> inline friend NON_GMP_COND(T, bool) operator<=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) >= 0; }
     template <typename T> inline friend NON_GMP_COND(T, bool) operator>=(T op1, const mpq_class &op2) { return mpq_cmp(op2.value, mpq_class(op1).get_mpq_t()) <= 0; }
 
-    // mpq_class arithmetic and logical operators (template version)
+    // mpq_class arithmetic operators (template version)
     template <typename T> inline friend mpq_class &operator+=(mpq_class &lhs, const T rhs);
     template <typename T> inline friend mpq_class operator+(const mpq_class &op1, const T op2);
     template <typename T> inline friend mpq_class operator+(const T op1, const mpq_class &op2);
