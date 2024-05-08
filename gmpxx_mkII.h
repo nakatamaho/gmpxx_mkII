@@ -2735,7 +2735,7 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     format = "%." + std::to_string(5) + "f";
                 gmp_asprintf(&str, format.c_str(), op);
             } else {
-                throw std::runtime_error("Not implemented");
+                gmp_asprintf(&str, "%.Fg", op);
             }
         } else if (flags & std::ios::hex) {
             gmp_asprintf(&str, "%FX", op);
@@ -2743,7 +2743,6 @@ void print_mpf(std::ostream &os, const mpf_t op) {
             gmp_asprintf(&str, "%Fo", op);
         }
     }
-
     std::string s(str);
     free(str);
     if (flags & std::ios::showpos && mpf_sgn(op) >= 0) {
