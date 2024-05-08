@@ -2727,7 +2727,6 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 }
                 gmp_asprintf(&str, format.c_str(), op);
             } else if (flags & std::ios::showpoint) { // showpoint only
-                std::cout << "prec " << prec << std::endl;
                 if (prec != 0)
                     format = "%." + std::to_string(static_cast<int>(prec - 1)) + "f"; // not sure
                 else
