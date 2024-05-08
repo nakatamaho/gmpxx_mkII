@@ -1110,12 +1110,21 @@ void print_mpz(std::ostream &os, const mpz_srcptr op) {
         if (flags & std::ios::oct) {
             gmp_asprintf(&str, (flags & std::ios::showbase) ? "%#Zo" : "%Zo", op);
         } else if (flags & std::ios::hex) {
-            gmp_asprintf(&str, (flags & std::ios::showbase && flags & std::ios::uppercase) ? "%#ZX" : "%#Zx", op);
+            bool show_base = flags & std::ios::showbase;
+            bool uppercase = flags & std::ios::uppercase;
+            if (show_base && uppercase) {
+                gmp_asprintf(&str, "%#ZX", op);
+            } else if (show_base && !uppercase) {
+                gmp_asprintf(&str, "%#Zx", op);
+            } else if (!show_base && uppercase) {
+                gmp_asprintf(&str, "%ZX", op);
+            } else {
+                gmp_asprintf(&str, "%Zx", op);
+            }
         } else {
             gmp_asprintf(&str, "%Zd", op);
         }
     }
-
     std::string s(str);
     free(str);
 
