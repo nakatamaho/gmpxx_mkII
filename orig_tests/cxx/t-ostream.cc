@@ -474,8 +474,8 @@ main (int argc, char *argv[])
     option_check_standard = true;
 
   check_mpz ();
-  check_mpf ();
   check_mpq ();
+  check_mpf ();
 
   return 0;
 }
