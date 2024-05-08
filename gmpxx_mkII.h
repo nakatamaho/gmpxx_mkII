@@ -1095,8 +1095,14 @@ void print_mpz(std::ostream &os, const mpz_srcptr op) {
     char *str = nullptr;
 
     if (mpz_sgn(op) == 0) {
-        if (flags & std::ios::hex && flags & std::ios::showbase) {
-            str = strdup(flags & std::ios::uppercase ? "0X0" : "0x0");
+        bool is_hex = flags & std::ios::hex;
+        bool is_oct = flags & std::ios::oct;
+        bool show_base = flags & std::ios::showbase;
+        bool uppercase = flags & std::ios::uppercase;
+        if (is_hex && show_base) {
+            str = strdup(uppercase ? "0X0" : "0x0");
+        } else if (is_oct) {
+            str = strdup("0");
         } else {
             str = strdup("0");
         }
@@ -1112,6 +1118,10 @@ void print_mpz(std::ostream &os, const mpz_srcptr op) {
 
     std::string s(str);
     free(str);
+
+    if (flags & std::ios::showpos && mpz_sgn(op) > 0) {
+        s.insert(0, "+");
+    }
 
     std::streamsize len = s.length();
     if (len < width) {
@@ -1138,7 +1148,6 @@ std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
     print_mpz(os, op.get_mpz_t());
     return os;
 }
-
 std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
     print_mpz(os, op);
     return os;
