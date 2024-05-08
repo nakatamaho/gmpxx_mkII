@@ -2736,7 +2736,7 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 gmp_asprintf(&str, "%.Fg", op);
             }
         } else if (flags & std::ios::hex) {
-            gmp_asprintf(&str, "%FX", op);
+            gmp_asprintf(&str, "%#Fa", op);
         } else if (flags & std::ios::oct) {
             gmp_asprintf(&str, "%Fo", op);
         }
