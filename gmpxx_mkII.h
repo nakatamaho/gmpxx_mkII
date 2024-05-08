@@ -2645,59 +2645,117 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     std::streamsize width = os.width();
     char fill = os.fill();
     char *str = nullptr;
+
+    std::string format;
+    // op ==0 case
     if (mpf_sgn(op) == 0) {
-        bool is_hex = flags & std::ios::hex;
-        bool is_oct = flags & std::ios::oct;
-        bool show_base = flags & std::ios::showbase;
-        bool uppercase = flags & std::ios::uppercase;
-        if (is_hex && show_base) {
-            str = strdup(uppercase ? "0X0" : "0x0");
-        } else if (is_oct && show_base) {
-            str = strdup("00");
-        } else {
-            str = strdup("0");
+        if (flags & std::ios::dec) {
+            if (flags & std::ios::fixed) {
+                if (flags & std::ios::showpoint) {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
+                    } else {
+                        format = "%.0Ff.";
+                    }
+                } else {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
+                    } else {
+                        format = "%.0Ff";
+                    }
+                }
+                gmp_asprintf(&str, format.c_str(), op);
+            } else if (flags & std::ios::scientific) {
+                if (flags & std::ios::showpoint) {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
+                    } else {
+                        format = "%.6Fe";
+                    }
+                } else {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
+                    } else {
+                        format = "%.6Fe";
+                    }
+                }
+                gmp_asprintf(&str, format.c_str(), op);
+            } else if (flags & std::ios::showpoint) { // showpoint only
+                std::cout << "prec " << prec << std::endl;
+                if (prec != 0)
+                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "f"; // not sure
+                else
+                    format = "%." + std::to_string(5) + "f";
+                gmp_asprintf(&str, format.c_str(), op);
+            } else
+                str = strdup("0");
+        } else if (flags & std::ios::hex) {
+            gmp_asprintf(&str, "%FX", op);
+        } else if (flags & std::ios::oct) {
+            gmp_asprintf(&str, "%Fo", op);
         }
     } else {
-        if (flags & std::ios::oct) {
-            gmp_asprintf(&str, (flags & std::ios::showbase) ? "%#.*Fo" : "%.*Fo", static_cast<int>(prec), op);
-        } else if (flags & std::ios::hex) {
-            if (flags & std::ios::showbase && flags & std::ios::uppercase) {
-                gmp_asprintf(&str, "%#.*FX", static_cast<int>(prec), op);
-            } else if (flags & std::ios::showbase) {
-                gmp_asprintf(&str, "%#.*Fx", static_cast<int>(prec), op);
-            } else if (flags & std::ios::uppercase) {
-                gmp_asprintf(&str, "%.*FX", static_cast<int>(prec), op);
+        // op != 0 case
+        if (flags & std::ios::dec) {
+            if (flags & std::ios::fixed) {
+                if (flags & std::ios::showpoint) {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
+                    } else {
+                        format = "%.0Ff.";
+                    }
+                } else {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
+                    } else {
+                        format = "%.0Ff";
+                    }
+                }
+                gmp_asprintf(&str, format.c_str(), op);
+            } else if (flags & std::ios::scientific) {
+                if (flags & std::ios::showpoint) {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
+                    } else {
+                        format = "%.6Fe";
+                    }
+                } else {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
+                    } else {
+                        format = "%.6Fe";
+                    }
+                }
+                gmp_asprintf(&str, format.c_str(), op);
+            } else if (flags & std::ios::showpoint) { // showpoint only
+                std::cout << "prec " << prec << std::endl;
+                if (prec != 0)
+                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "f"; // not sure
+                else
+                    format = "%." + std::to_string(5) + "f";
+                gmp_asprintf(&str, format.c_str(), op);
             } else {
-                gmp_asprintf(&str, "%.*Fx", static_cast<int>(prec), op);
+                throw std::runtime_error("Not implemented");
             }
-        } else if (flags & std::ios::scientific) {
-            gmp_asprintf(&str, "%.*Fe", static_cast<int>(prec), op);
-        } else if (flags & std::ios::fixed) {
-            gmp_asprintf(&str, "%.*Ff", static_cast<int>(prec), op);
-        } else {
-            gmp_asprintf(&str, "%F", op);
+        } else if (flags & std::ios::hex) {
+            gmp_asprintf(&str, "%FX", op);
+        } else if (flags & std::ios::oct) {
+            gmp_asprintf(&str, "%Fo", op);
         }
     }
+
     std::string s(str);
     free(str);
-
     if (flags & std::ios::showpos && mpf_sgn(op) >= 0) {
         s.insert(0, "+");
     }
-
     std::streamsize len = s.length();
     if (len < width) {
         std::streamsize padding_length = width - len;
         if (flags & std::ios::left) {
             s.append(padding_length, fill);
-        } else if (flags & std::ios::internal) {
-            size_t pos = 0;
-            if (s[0] == '-' || s[0] == '+') {
-                pos = 1;
-            }
-            if (s.length() > pos + 1 && (s[pos] == '0' && (s[pos + 1] == 'x' || s[pos + 1] == 'X'))) {
-                pos += 2;
-            }
+        } else if (flags & std::ios::internal && s[0] == '-') {
+            size_t pos = s.find_first_not_of('-');
             s.insert(pos, padding_length, fill);
         } else {
             s.insert(0, padding_length, fill);
