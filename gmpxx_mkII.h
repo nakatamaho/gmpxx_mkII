@@ -409,21 +409,57 @@ class mpz_class {
     // mpz_class fibonacci (mpz_class op)
     // mpz_class mpz_class::primorial (type op)
     // mpz_class primorial (mpz_class op)
-    static mpz_class factorial(unsigned long int n) {
+    static mpz_class factorial(const mpz_class &n) {
+        if (n < 0) {
+            throw std::domain_error("factorial(negative)");
+        }
+        double log2_n = mpz_sizeinbase(n.get_mpz_t(), 2);
+        if (log2_n > 300) {
+            throw std::bad_alloc();
+        }
         mpz_class result;
-        mpz_fac_ui(result.value, n);
+        try {
+            mpz_fac_ui(result.get_mpz_t(), n.get_ui());
+        } catch (const std::bad_alloc &) {
+            throw;
+        }
         return result;
     }
-    friend mpz_class factorial(const mpz_class &op);
-    static mpz_class primorial(unsigned long int n) {
+    static mpz_class primorial(const mpz_class &op) {
+        if (op < 0) {
+            throw std::domain_error("primorial(negative)");
+        }
+        double log2_n = mpz_sizeinbase(op.get_mpz_t(), 2);
+        if (log2_n > 300) {
+            throw std::bad_alloc();
+        }
         mpz_class result;
-        mpz_primorial_ui(result.value, n);
+        try {
+            mpz_primorial_ui(result.get_mpz_t(), op.get_ui());
+        } catch (const std::bad_alloc &) {
+            throw;
+        }
         return result;
     }
     friend mpz_class primorial(const mpz_class &op);
-    static mpz_class fibonacci(unsigned long int n) {
+    static mpz_class fibonacci(const mpz_class &op) {
+        double log2_op = mpz_sizeinbase(op.get_mpz_t(), 2);
+        if (log2_op > 300) {
+            throw std::bad_alloc();
+        }
+        mpz_class adjusted_op = op;
+        bool isNegative = op < 0;
+        if (isNegative) {
+            adjusted_op = -op;
+        }
+        unsigned long int n = adjusted_op.get_ui();
         mpz_class result;
-        mpz_fib_ui(result.value, n);
+        mpz_fib_ui(result.get_mpz_t(), n);
+        if (isNegative) {
+            if ((op + 1) % 2 != 0) {
+                result = -result;
+            }
+        }
         return result;
     }
     friend mpz_class fibonacci(const mpz_class &op);
@@ -1000,19 +1036,56 @@ inline mpz_class lcm(const mpz_class &op1, const mpz_class &op2) {
     mpz_lcm(result.value, op1.value, op2.value);
     return result;
 }
-inline mpz_class factorial(const mpz_class &op) {
+inline mpz_class factorial(const mpz_class &n) {
+    if (n < 0) {
+        throw std::domain_error("factorial(negative)");
+    }
+    double log2_n = mpz_sizeinbase(n.get_mpz_t(), 2);
+    if (log2_n > 300) {
+        throw std::bad_alloc();
+    }
     mpz_class result;
-    mpz_fac_ui(result.value, op.get_ui());
+    try {
+        mpz_fac_ui(result.get_mpz_t(), n.get_ui());
+    } catch (const std::bad_alloc &) {
+        throw;
+    }
     return result;
 }
 inline mpz_class primorial(const mpz_class &op) {
+    if (op < 0) {
+        throw std::domain_error("primorial(negative)");
+    }
+    double log2_n = mpz_sizeinbase(op.get_mpz_t(), 2);
+    if (log2_n > 300) {
+        throw std::bad_alloc();
+    }
     mpz_class result;
-    mpz_primorial_ui(result.value, op.get_ui());
+    try {
+        mpz_primorial_ui(result.get_mpz_t(), op.get_ui());
+    } catch (const std::bad_alloc &) {
+        throw;
+    }
     return result;
 }
 inline mpz_class fibonacci(const mpz_class &op) {
+    double log2_op = mpz_sizeinbase(op.get_mpz_t(), 2);
+    if (log2_op > 300) {
+        throw std::bad_alloc();
+    }
+    mpz_class adjusted_op = op;
+    bool isNegative = op < 0;
+    if (isNegative) {
+        adjusted_op = -op;
+    }
+    unsigned long int n = adjusted_op.get_ui();
     mpz_class result;
-    mpz_fib_ui(result.value, op.get_ui());
+    mpz_fib_ui(result.get_mpz_t(), n);
+    if (isNegative) {
+        if ((op + 1) % 2 != 0) {
+            result = -result;
+        }
+    }
     return result;
 }
 std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
