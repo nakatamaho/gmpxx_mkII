@@ -1088,42 +1088,58 @@ inline mpz_class fibonacci(const mpz_class &op) {
     }
     return result;
 }
-std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
+void print_mpz(std::ostream &os, const mpz_srcptr op) {
     std::ios_base::fmtflags flags = os.flags();
-
+    std::streamsize width = os.width();
+    char fill = os.fill();
     char *str = nullptr;
-    if (flags & std::ios::oct) { // Output in octal
-        gmp_asprintf(&str, "%Zo", op.get_mpz_t());
-    } else if (flags & std::ios::hex) { // Output in hexadecimal
-        if (flags & std::ios::uppercase) {
-            gmp_asprintf(&str, "%ZX", op.get_mpz_t());
+    if (mpz_sgn(op) == 0) {
+        bool is_hex = flags & std::ios::hex;
+        bool is_oct = flags & std::ios::oct;
+        bool show_base = flags & std::ios::showbase;
+        bool uppercase = flags & std::ios::uppercase;
+        if (is_hex && show_base) {
+            str = strdup(uppercase ? "0X0" : "0x0");
+        } else if (is_oct) {
+            str = strdup("0");
         } else {
-            gmp_asprintf(&str, "%Zx", op.get_mpz_t());
+            str = strdup("0");
         }
-    } else { // Default output (decimal)
-        gmp_asprintf(&str, "%Zd", op.get_mpz_t());
+    } else {
+        if (flags & std::ios::oct) {
+            gmp_asprintf(&str, (flags & std::ios::showbase) ? "%#Zo" : "%Zo", op);
+        } else if (flags & std::ios::hex) {
+            if (flags & std::ios::uppercase) {
+                gmp_asprintf(&str, (flags & std::ios::showbase) ? "%#ZX" : "%ZX", op);
+            } else {
+                gmp_asprintf(&str, (flags & std::ios::showbase) ? "%#Zx" : "%Zx", op);
+            }
+        } else {
+            gmp_asprintf(&str, "%Zd", op);
+        }
     }
-    os << str;
+    std::string s = str;
+    if (static_cast<std::streamsize>(s.length()) < width) {
+        if (flags & std::ios::left) {
+            s.append(width - s.length(), fill);
+        } else if (flags & std::ios::internal && s[0] == '-') {
+            s = s.substr(0, 1) + std::string(width - s.length(), fill) + s.substr(1);
+        } else {
+            s.insert(0, width - s.length(), fill);
+        }
+    }
+
+    os << s;
     free(str);
+    os.width(0); // Reset width as per standard stream behavior
+}
+std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
+    print_mpz(os, op.get_mpz_t());
     return os;
 }
-std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
-    std::ios_base::fmtflags flags = os.flags();
 
-    char *str = nullptr;
-    if (flags & std::ios::oct) { // Output in octal
-        gmp_asprintf(&str, "%Zo", op);
-    } else if (flags & std::ios::hex) { // Output in hexadecimal
-        if (flags & std::ios::uppercase) {
-            gmp_asprintf(&str, "%ZX", op);
-        } else {
-            gmp_asprintf(&str, "%Zx", op);
-        }
-    } else { // Default output (decimal)
-        gmp_asprintf(&str, "%Zd", op);
-    }
-    os << str;
-    free(str);
+std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
+    print_mpz(os, op);
     return os;
 }
 std::istream &operator>>(std::istream &stream, mpz_class &op) {
