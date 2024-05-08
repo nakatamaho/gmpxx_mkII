@@ -2650,7 +2650,7 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     // op ==0 case
     if (mpf_sgn(op) == 0) {
         if (flags & std::ios::dec) {
-            if (flags & std::ios::fixed) {
+            if (flags & std::ios::fixed) { // dec, fixed
                 if (flags & std::ios::showpoint) {
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
@@ -2665,8 +2665,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (flags & std::ios::scientific) {
-                if (flags & std::ios::showpoint) {
+            } else if (flags & std::ios::scientific) { // dec, fixed
+                if (flags & std::ios::showpoint) {     // dec, fixed, showpoint
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
                     } else {
@@ -2696,8 +2696,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     } else {
         // op != 0 case
         if (flags & std::ios::dec) {
-            if (flags & std::ios::fixed) {
-                if (flags & std::ios::showpoint) {
+            if (flags & std::ios::fixed) {         // dec, fixed
+                if (flags & std::ios::showpoint) { // dec, fixed, showpoint
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
                     } else {
@@ -2711,8 +2711,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (flags & std::ios::scientific) {
-                if (flags & std::ios::showpoint) {
+            } else if (flags & std::ios::scientific) { // dec, scientific
+                if (flags & std::ios::showpoint) {     // dec, scientific, showpoint
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
                     } else {
@@ -2728,9 +2728,9 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 gmp_asprintf(&str, format.c_str(), op);
             } else if (flags & std::ios::showpoint) { // showpoint only
                 if (prec != 0)
-                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "f"; // not sure
+                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "Ff"; // not sure
                 else
-                    format = "%." + std::to_string(5) + "f";
+                    format = "%.5Ff";
                 gmp_asprintf(&str, format.c_str(), op);
             } else {
                 gmp_asprintf(&str, "%.Fg", op);
