@@ -299,7 +299,7 @@ check_mpf (void)
     char           fill;
 
   } data[] = {
-
+    //0
     { "0", "0",            ios::dec },
     { "0", "+0",           ios::dec | ios::showpos },
     { "0", "0.00000",      ios::dec | ios::showpoint },
@@ -307,14 +307,14 @@ check_mpf (void)
     { "0", "0.",           ios::dec | ios::fixed | ios::showpoint },
     { "0", "0.000000e+00", ios::dec | ios::scientific },
     { "0", "0.000000e+00", ios::dec | ios::scientific | ios::showpoint },
-
+    //7
     { "0", "0",          ios::dec, 0, 4 },
     { "0", "0.000",      ios::dec | ios::showpoint, 0, 4 },
     { "0", "0.0000",     ios::dec | ios::fixed, 0, 4 },
     { "0", "0.0000",     ios::dec | ios::fixed | ios::showpoint, 0, 4 },
     { "0", "0.0000e+00", ios::dec | ios::scientific, 0, 4 },
     { "0", "0.0000e+00", ios::dec | ios::scientific | ios::showpoint, 0, 4 },
-
+    //13
     { "1", "1",       ios::dec },
     { "1", "+1",      ios::dec | ios::showpos },
     { "1", "1.00000", ios::dec | ios::showpoint },
@@ -322,16 +322,16 @@ check_mpf (void)
     { "1", "1.",      ios::dec | ios::fixed | ios::showpoint },
     { "1", "1.000000e+00",   ios::dec | ios::scientific },
     { "1", "1.000000e+00",  ios::dec | ios::scientific | ios::showpoint },
-
+    //20
     { "1", "1",          ios::dec,                   0, 4 },
     { "1", "1.000",      ios::dec | ios::showpoint,  0, 4 },
     { "1", "1.0000",     ios::dec | ios::fixed,      0, 4 },
     { "1", "1.0000",     ios::dec | ios::fixed | ios::showpoint, 0, 4 },
     { "1", "1.0000e+00", ios::dec | ios::scientific, 0, 4 },
     { "1", "1.0000e+00", ios::dec | ios::scientific | ios::showpoint, 0, 4 },
-
+    //26
     { "-1", "-1",        ios::dec | ios::showpos },
-
+    //27
     { "-1", "  -1",      ios::dec, 4 },
     { "-1", "-  1",      ios::dec | ios::internal, 4 },
     { "-1", "-1  ",      ios::dec | ios::left, 4 },
@@ -339,7 +339,7 @@ check_mpf (void)
     { "-1", "  -0x1",    ios::hex | ios::showbase, 6 },
     { "-1", "-0x  1",    ios::hex | ios::showbase | ios::internal, 6 },
     { "-1", "-0x1  ",    ios::hex | ios::showbase | ios::left, 6 },
-
+    //33
     {    "1", "*********1", ios::dec, 10, 4, '*' },
     { "1234", "******1234", ios::dec, 10, 4, '*' },
     { "1234", "*****1234.", ios::dec | ios::showpoint, 10, 4, '*' },
@@ -353,17 +353,17 @@ check_mpf (void)
     { "1.0001",       "1",     ios::dec, 0, 4 },
     { "1.0004",       "1",     ios::dec, 0, 4 },
     { "1.000555",     "1.001", ios::dec, 0, 4 },
-
+    //43
     { "1.0002",       "1.000", ios::dec | ios::fixed, 0, 3 },
     { "1.0008",       "1.001", ios::dec | ios::fixed, 0, 3 },
-
+    //45
     { "0", "0", ios::hex },
     { "0", "0x0", ios::hex | ios::showbase },
     { "0", "0X0", ios::hex | ios::showbase | ios::uppercase },
     { "123",   "7b", ios::hex },
     { "123", "0x7b", ios::hex | ios::showbase },
     { "123", "0X7B", ios::hex | ios::showbase | ios::uppercase },
-
+    //51
     { "0", "0.000@+00", ios::hex | ios::scientific, 0, 3 },
     { "256", "1.000@+02", ios::hex | ios::scientific, 0, 3 },
 

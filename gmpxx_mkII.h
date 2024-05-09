@@ -2821,50 +2821,59 @@ std::string to_hex_string_scientific(const mpf_t value, int flags, int width, in
     char *hex_cstr = mpf_get_str(nullptr, &exp, 16, effective_prec + 1, value);
     std::string hex_str(hex_cstr);
     free(hex_cstr);
-    std::stringstream formatted_hex;
+
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_uppercase = flags & std::ios::uppercase;
+    std::string formatted_hex;
     if (mpf_sgn(value) == 0) {
-        formatted_hex << "0." << std::string(effective_prec, '0');
+        formatted_hex += "0." + std::string(effective_prec, '0');
         exp = 1;
     } else {
         if (hex_str[0] == '-') {
             hex_str.erase(0, 1);
-            formatted_hex << "-";
+            formatted_hex += "-";
         }
-        formatted_hex << hex_str[0];
+        formatted_hex += hex_str[0];
         if (hex_str.length() > 1) {
-            formatted_hex << "." << hex_str.substr(1, effective_prec);
+            formatted_hex += "." + hex_str.substr(1, effective_prec);
         } else {
-            formatted_hex << "." << std::string(effective_prec, '0');
+            formatted_hex += "." + std::string(effective_prec, '0');
         }
     }
-    std::string current_content = formatted_hex.str();
-    if (current_content.length() < static_cast<size_t>(effective_prec + 2)) {
-        size_t padding_length = effective_prec + 2 - current_content.length();
-        current_content.append(padding_length, '0');
-        formatted_hex.str("");
-        formatted_hex << current_content;
+    int _pad = 2;
+    if (mpf_sgn(value) < 0)
+        _pad++;
+    if (formatted_hex.length() < static_cast<size_t>(effective_prec + _pad)) {
+        size_t padding_length = effective_prec + _pad - formatted_hex.length();
+        formatted_hex.append(padding_length, '0');
     }
     int adjusted_exp = exp - 1;
-    formatted_hex << "@";
+    formatted_hex += "@";
     if (adjusted_exp >= 0) {
-        formatted_hex << "+" << std::setfill('0') << std::setw(2) << adjusted_exp;
+        formatted_hex += "+";
+        formatted_hex += (adjusted_exp < 10 ? "0" : "") + std::to_string(adjusted_exp);
     } else {
-        formatted_hex << "-";
-        formatted_hex << std::setfill('0') << std::setw(2) << -adjusted_exp;
+        formatted_hex += "-";
+        formatted_hex += (-adjusted_exp < 10 ? "0" : "") + std::to_string(-adjusted_exp);
     }
-    std::string result = formatted_hex.str();
-    if (int(result.size()) < width) {
-        int padding_length = width - result.size();
+    if (is_showbase) {
+        formatted_hex.insert(0, "0x");
+    }
+    if (static_cast<int>(formatted_hex.size()) < width) {
+        int padding_length = width - formatted_hex.size();
         if (flags & std::ios_base::left) {
-            result.append(padding_length, fill);
-        } else if (flags & std::ios_base::internal && result[0] == '-') {
-            size_t pos = result.find_first_not_of('-');
-            result.insert(pos, padding_length, fill);
+            formatted_hex.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && formatted_hex[0] == '-') {
+            size_t pos = formatted_hex.find_first_not_of('-');
+            formatted_hex.insert(pos, padding_length, fill);
         } else {
-            result.insert(0, padding_length, fill);
+            formatted_hex.insert(0, padding_length, fill);
         }
     }
-    return result;
+    if (is_uppercase) {
+        std::transform(formatted_hex.begin(), formatted_hex.end(), formatted_hex.begin(), [](unsigned char c) { return std::toupper(c); });
+    }
+    return formatted_hex;
 }
 std::string to_dec_string_default(const mpf_t value, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
