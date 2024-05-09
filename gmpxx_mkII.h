@@ -2761,8 +2761,6 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     bool is_fixed = flags & std::ios::fixed;
     bool is_scientific = flags & std::ios::scientific;
     bool is_showpoint = flags & std::ios::showpoint;
-    bool show_base = flags & std::ios::showbase;
-    bool uppercase = flags & std::ios::uppercase;
     char fill = os.fill();
     char *str = nullptr;
 
