@@ -2751,6 +2751,104 @@ inline int sgn(const mpf_class &op) {
     int flag = mpf_sgn(op.get_mpf_t());
     return flag;
 }
+std::string to_hex_string_default(const mpf_t value, int flags, int width, int prec) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 4 : prec;
+    char *hex_cstr = mpf_get_str(nullptr, &exp, 16, effective_prec, value);
+    bool is_showbase = flags & std::ios::showbase;
+    std::string hex_str(hex_cstr);
+    free(hex_cstr);
+
+    std::string formatted_hex;
+    if (mpf_sgn(value) < 0) {
+        hex_str.erase(0, 1);
+    }
+    if (exp <= 0) {
+        formatted_hex = "0.";
+        formatted_hex.append(-exp + 1, '0');
+        formatted_hex += hex_str;
+    } else if (size_t(exp) > hex_str.length()) {
+        formatted_hex = hex_str;
+        formatted_hex.append(exp - hex_str.length(), '0');
+    } else {
+        formatted_hex = hex_str.substr(0, exp);
+        if (exp < static_cast<mp_exp_t>(hex_str.size())) {
+            formatted_hex += "." + hex_str.substr(exp);
+        }
+    }
+    if (is_showbase) {
+        formatted_hex.insert(0, "0x");
+    }
+    if (mpf_sgn(value) < 0) {
+        formatted_hex.insert(0, "-");
+    }
+    // Apply width and alignment formatting
+    if (width > formatted_hex.size()) {
+        std::streamsize padding_length = width - formatted_hex.size();
+        if (flags & std::ios_base::left) {
+            formatted_hex.append(padding_length, ' ');
+        } else if (flags & std::ios_base::internal && formatted_hex.find("0x") == 0) {
+            formatted_hex.insert(2, padding_length, ' '); // Insert padding after the "0x"
+        } else if (flags & std::ios_base::internal && formatted_hex.find("-0x") == 0) {
+            formatted_hex.insert(3, padding_length, ' '); // Insert padding after the "0x"
+        } else {                                          // std::ios_base::right or default
+            formatted_hex.insert(0, padding_length, ' ');
+        }
+    }
+    if (formatted_hex.back() == '.') {
+        formatted_hex.erase(formatted_hex.size() - 1); // Remove trailing dot if it exists
+    }
+    return formatted_hex;
+}
+std::string to_dec_string_default(const mpf_t value, int flags, int width, int prec) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 6 : prec;
+    char *dec_cstr = mpf_get_str(nullptr, &exp, 10, effective_prec, value);
+    std::string dec_str(dec_cstr);
+    free(dec_cstr);
+
+    bool is_showpoint = flags & std::ios::showpoint;
+    std::string formatted_dec;
+    if (mpf_sgn(value) < 0) {
+        dec_str.erase(0, 1);
+    }
+    if (exp <= 0) {
+        formatted_dec = "0.";
+        formatted_dec.append(-exp + 1, '0');
+        formatted_dec += dec_str;
+    } else if (size_t(exp) > dec_str.length()) {
+        formatted_dec = dec_str;
+        formatted_dec.append(exp - dec_str.length(), '0');
+    } else {
+        formatted_dec = dec_str.substr(0, exp);
+        if (exp < static_cast<mp_exp_t>(dec_str.size())) {
+            formatted_dec += "." + dec_str.substr(exp);
+        }
+    }
+    if (is_showpoint && formatted_dec.find('.') == std::string::npos) {
+        formatted_dec += ".";
+        while (formatted_dec.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_dec += '0';
+        }
+    }
+    if (mpf_sgn(value) < 0) {
+        formatted_dec.insert(0, "-");
+    }
+    if (width > formatted_dec.size()) {
+        std::streamsize padding_length = width - formatted_dec.size();
+        if (flags & std::ios_base::left) {
+            formatted_dec.append(padding_length, ' ');
+        } else { // std::ios_base::right or default
+            formatted_dec.insert(0, padding_length, ' ');
+        }
+    }
+    if (!is_showpoint) {
+        if (formatted_dec.back() == '.') {
+            formatted_dec.erase(formatted_dec.size() - 1);
+        }
+    }
+    return formatted_dec;
+}
 void print_mpf(std::ostream &os, const mpf_t op) {
     std::ios_base::fmtflags flags = os.flags();
     std::streamsize prec = os.precision();
@@ -2761,6 +2859,7 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     bool is_fixed = flags & std::ios::fixed;
     bool is_scientific = flags & std::ios::scientific;
     bool is_showpoint = flags & std::ios::showpoint;
+    bool is_showbase = flags & std::ios::showbase;
     char fill = os.fill();
     char *str = nullptr;
 
@@ -2844,21 +2943,24 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (is_showpoint) { // showpoint only
-                if (prec != 0)
-                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "Ff";
-                else
-                    format = "%.5Ff";
-                gmp_asprintf(&str, format.c_str(), op);
-            } else { // prec only
-                if (prec >= 1)
-                    format = "%." + std::to_string(static_cast<int>(prec)) + "Fg";
-                else
-                    format = "%.5Fg";
-                gmp_asprintf(&str, format.c_str(), op);
+            } else { // dec, default
+                std::string dec_string = to_dec_string_default(op, flags, width, prec);
+                str = strdup(dec_string.c_str());
             }
         } else if (is_hex) {
-            gmp_asprintf(&str, "%#Fa", op);
+            if (is_fixed) { // hex, fixed
+                gmp_asprintf(&str, "%#Fa", op);
+                if (is_showpoint) { // hex, fixed, showpoint
+                    gmp_asprintf(&str, "%#Fa", op);
+                } else {
+                    gmp_asprintf(&str, "%#Fa", op);
+                }
+            } else if (is_scientific) { // hex, scientific
+                gmp_asprintf(&str, "%#Fa", op);
+            } else { // hex, default
+                std::string hex_string = to_hex_string_default(op, flags, width, prec);
+                str = strdup(hex_string.c_str());
+            }
         } else if (is_oct) {
             gmp_asprintf(&str, "%Fo", op);
         }
