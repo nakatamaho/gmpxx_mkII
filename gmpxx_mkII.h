@@ -2837,6 +2837,13 @@ std::string to_hex_string_scientific(const mpf_t value, int flags, int width, in
             formatted_hex << "." << std::string(effective_prec, '0');
         }
     }
+    std::string current_content = formatted_hex.str();
+    if (current_content.length() < static_cast<size_t>(effective_prec + 2)) {
+        size_t padding_length = effective_prec + 2 - current_content.length();
+        current_content.append(padding_length, '0');
+        formatted_hex.str("");
+        formatted_hex << current_content;
+    }
     int adjusted_exp = exp - 1;
     formatted_hex << "@";
     if (adjusted_exp >= 0) {
