@@ -1624,33 +1624,10 @@ void print_mpq(std::ostream &os, const mpq_t op) {
     bool uppercase = flags & std::ios::uppercase;
     std::string format;
 
-    std::cout << "\ncurrent flag: " << flags << std::endl;
-    if (flags & std::ios::hex) {
-        std::cout << "Hexadecimal format is set." << std::endl;
-    } else {
-        std::cout << "Hexadecimal format is not set." << std::endl;
-    }
-    if (flags & std::ios::oct) {
-        std::cout << "oct format is set." << std::endl;
-    } else {
-        std::cout << "oct format is not set." << std::endl;
-    }
-    if (flags & std::ios::showbase) {
-        std::cout << "showbase is set." << std::endl;
-    } else {
-        std::cout << "showbase is not set." << std::endl;
-    }
-    if (flags & std::ios::showpos) {
-        std::cout << "showpos is set." << std::endl;
-    } else {
-        std::cout << "showpos is not set." << std::endl;
-    }
     mpz_class den(mpq_denref(op));
     mpz_class num(mpq_numref(op));
-    std::cout << "den :" << den << std::endl;
-    std::cout << "num :" << num << std::endl;
+
     if ((num == 0 && den == 1) || (num == 0 && den == 0)) {
-        std::cout << "0/0 case " << std::endl;
         if (is_oct) {         // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
             if (width == 0) { // is_oct, width==0
                 str = strdup("0");
@@ -1683,9 +1660,7 @@ void print_mpq(std::ostream &os, const mpq_t op) {
             }
         }
     } else if (den == 0) {
-        std::cout << "m/0 case " << std::endl;
-        if (is_oct) { // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
-            gmp_printf("%Qo\n", op);
+        if (is_oct) {        // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
             if (show_base) { // is_oct, show_base
                 gmp_asprintf(&str, "%#Qo", op);
             } else { // is_oct
@@ -1705,11 +1680,14 @@ void print_mpq(std::ostream &os, const mpq_t op) {
                     gmp_asprintf(&str, "%Qx", op);
                 }
             }
-            // add 0x for zzz/0 and make it zzz/0x
+            // Add 'x0' to "/0" to make it "/0x0"
             char *slashZero = strstr(str, "/0");
             size_t newLen = strlen(str) + 2;
             char *newStr = (char *)malloc(newLen + 1);
-
+            if (!newStr) {
+                free(str);
+                throw std::bad_alloc();
+            }
             size_t offset = slashZero - str;
             strncpy(newStr, str, offset);
             newStr[offset] = '\0';
@@ -1722,9 +1700,7 @@ void print_mpq(std::ostream &os, const mpq_t op) {
             gmp_asprintf(&str, "%Qd", op);
         }
     } else if (num == 0 && den != 1 && den != 0) {
-        std::cout << "0/m case " << std::endl;
-        if (is_oct) { // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
-            gmp_printf("%Qo\n", op);
+        if (is_oct) {        // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
             if (show_base) { // is_oct, show_base
                 gmp_asprintf(&str, "%#Qo", op);
             } else { // is_oct
@@ -1737,6 +1713,23 @@ void print_mpq(std::ostream &os, const mpq_t op) {
                 } else {
                     gmp_asprintf(&str, "%#Qx", op);
                 }
+                // Add 'x0' to "0/" to make it "0x0/"
+                char *zeroSlash = strstr(str, "0/");
+                if (zeroSlash) {
+                    size_t newLen = strlen(str) + 2;
+                    char *newStr = (char *)malloc(newLen + 1);
+                    if (!newStr) {
+                        free(str);
+                        throw std::bad_alloc();
+                    }
+                    size_t offset = zeroSlash - str;
+                    strncpy(newStr, str, offset + 1);
+                    newStr[offset + 1] = '\0';
+                    strcat(newStr, uppercase ? "X0/" : "x0/");
+                    strcat(newStr, zeroSlash + 2);
+                    free(str);
+                    str = newStr;
+                }
             } else { // is_hex
                 if (uppercase) {
                     gmp_asprintf(&str, "%QX", op);
@@ -1748,9 +1741,7 @@ void print_mpq(std::ostream &os, const mpq_t op) {
             gmp_asprintf(&str, "%Qd", op);
         }
     } else {
-        std::cout << "m/n case " << std::endl;
-        if (is_oct) { // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
-            gmp_printf("%Qo\n", op);
+        if (is_oct) {        // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
             if (show_base) { // is_oct, show_base
                 gmp_asprintf(&str, "%#Qo", op);
             } else { // is_oct
