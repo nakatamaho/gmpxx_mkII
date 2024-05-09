@@ -1093,12 +1093,12 @@ void print_mpz(std::ostream &os, const mpz_t op) {
     std::streamsize width = os.width();
     char fill = os.fill();
     char *str = nullptr;
+    bool is_hex = flags & std::ios::hex;
+    bool is_oct = flags & std::ios::oct;
+    bool show_base = flags & std::ios::showbase;
+    bool uppercase = flags & std::ios::uppercase;
 
     if (mpz_sgn(op) == 0) {
-        bool is_hex = flags & std::ios::hex;
-        bool is_oct = flags & std::ios::oct;
-        bool show_base = flags & std::ios::showbase;
-        bool uppercase = flags & std::ios::uppercase;
         if (is_hex && show_base) {
             str = strdup(uppercase ? "0X0" : "0x0");
         } else if (is_oct) {
@@ -1107,11 +1107,9 @@ void print_mpz(std::ostream &os, const mpz_t op) {
             str = strdup("0");
         }
     } else {
-        if (flags & std::ios::oct) {
-            gmp_asprintf(&str, (flags & std::ios::showbase) ? "%#Zo" : "%Zo", op);
-        } else if (flags & std::ios::hex) {
-            bool show_base = flags & std::ios::showbase;
-            bool uppercase = flags & std::ios::uppercase;
+        if (is_oct) {
+            gmp_asprintf(&str, (show_base) ? "%#Zo" : "%Zo", op);
+        } else if (is_hex) {
             if (show_base && uppercase) {
                 gmp_asprintf(&str, "%#ZX", op);
             } else if (show_base && !uppercase) {
