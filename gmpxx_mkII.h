@@ -2817,8 +2817,10 @@ std::string to_dec_string_default(const mpf_t value, int flags, int width, int p
         formatted_dec.append(-exp + 1, '0');
         formatted_dec += dec_str;
     } else if (size_t(exp) > dec_str.length()) {
-        formatted_dec = dec_str;
-        formatted_dec.append(exp - dec_str.length(), '0');
+        formatted_dec = dec_str.substr(0, 1) + "." + dec_str.substr(1);
+        int adjusted_exp = exp - 1;
+        std::string exp_str = adjusted_exp < 10 && adjusted_exp > -10 ? "0" + std::to_string(adjusted_exp) : std::to_string(adjusted_exp);
+        formatted_dec += "e+" + exp_str;
     } else {
         formatted_dec = dec_str.substr(0, exp);
         if (exp < static_cast<mp_exp_t>(dec_str.size())) {
