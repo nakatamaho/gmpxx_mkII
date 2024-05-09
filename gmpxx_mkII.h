@@ -2814,7 +2814,7 @@ std::string to_dec_string_default(const mpf_t value, int flags, int width, int p
     }
     if (exp <= 0) {
         formatted_dec = "0.";
-        formatted_dec.append(-exp + 1, '0');
+        formatted_dec.append(-exp, '0');
         formatted_dec += dec_str;
     } else if (size_t(exp) > dec_str.length()) {
         formatted_dec = dec_str.substr(0, 1) + "." + dec_str.substr(1);
