@@ -42,32 +42,31 @@ using namespace gmp;
 #endif
 #endif
 
-std::string to_hex_sci(const mpf_class& val) {
-  if (val == 0) return "0.0@+00"; // Handle zero separately
+std::string to_hex_sci(const mpf_class &val) {
+    if (val == 0)
+        return "0.0@+00"; // Handle zero separately
 
-  // Get the double representation of the value
-  double d = val.get_d();
-  int exponent;
-  double fraction = frexp(d, &exponent); // fraction * 2^exponent = d
+    // Get the double representation of the value
+    double d = val.get_d();
+    int exponent;
+    double fraction = frexp(d, &exponent); // fraction * 2^exponent = d
 
-  // Adjust the exponent to base 16
-  exponent = (exponent - 1) / 4 + 1;
-  fraction *= std::pow(2, (exponent * 4 - 4)); // Adjust fraction for base 16
+    // Adjust the exponent to base 16
+    exponent = (exponent - 1) / 4 + 1;
+    fraction *= std::pow(2, (exponent * 4 - 4)); // Adjust fraction for base 16
 
-  // Construct the scientific notation string
-  char buffer[64];
-  snprintf(buffer, sizeof(buffer), "%.1f@+%02d", fraction, exponent);
+    // Construct the scientific notation string
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "%.1f@+%02d", fraction, exponent);
 
-  // Convert to a string and replace decimal point to hexadecimal point
-  std::string result = buffer;
-  size_t pos = result.find('.');
-  if (pos != std::string::npos) {
-    result[pos] = 'p'; // Use 'p' to denote hex power
-  }
-
-  return result;
+    // Convert to a string and replace decimal point to hexadecimal point
+    std::string result = buffer;
+    size_t pos = result.find('.');
+    if (pos != std::string::npos) {
+        result[pos] = 'p'; // Use 'p' to denote hex power
+    }
+    return result;
 }
-
 
 std::string insertDecimalPoint(const std::string &str, signed long int exp) {
     std::string result;
@@ -2565,21 +2564,25 @@ void test_misc() {
         std::cout << c << std::endl;
     }
     {
-        mpf_class a(-1);
-        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
-        a = -12300;
-        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
-        a = 1;
-        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
-        a = 12300;
-        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
+        mpf_class a(-0.33231);
+        std::cout << a << std::endl;
     }
     {
-      mpf_class num("123"); // Create an mpf_class with value 123
-      std::cout << std::hex << std::showbase << std::setw(6) << "a " << num << std::endl;
-
-      std::string hex_sci = to_hex_sci(num);
-      std::cout << "Hexadecimal scientific notation: " << hex_sci << std::endl;
+        mpf_class a(-0.33231);
+        std::cout << a << std::endl;
+    }
+    {
+        mpf_class a;
+        a = 0;
+        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        a = -0.00313119;
+        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        a = 1;
+        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        a = 12300.133;
+        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        a = 12300133;
+        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
     }
 }
 int main() {
