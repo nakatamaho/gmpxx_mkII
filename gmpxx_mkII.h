@@ -2783,7 +2783,7 @@ std::string to_hex_string_default(const mpf_t value, int flags, int width, int p
         formatted_hex.insert(0, "-");
     }
     // Apply width and alignment formatting
-    if (width > formatted_hex.size()) {
+    if (width > static_cast<int>(formatted_hex.size())) {
         std::streamsize padding_length = width - formatted_hex.size();
         if (flags & std::ios_base::left) {
             formatted_hex.append(padding_length, fill);
@@ -2836,7 +2836,7 @@ std::string to_dec_string_default(const mpf_t value, int flags, int width, int p
     if (mpf_sgn(value) < 0) {
         formatted_dec.insert(0, "-");
     }
-    if (width > formatted_dec.size()) {
+    if (width > static_cast<int>(formatted_dec.size())) {
         std::streamsize padding_length = width - formatted_dec.size();
         if (flags & std::ios_base::left) {
             formatted_dec.append(padding_length, fill);
@@ -2867,7 +2867,6 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     bool is_fixed = flags & std::ios::fixed;
     bool is_scientific = flags & std::ios::scientific;
     bool is_showpoint = flags & std::ios::showpoint;
-    bool is_showbase = flags & std::ios::showbase;
     char fill = os.fill();
     char *str = nullptr;
 
