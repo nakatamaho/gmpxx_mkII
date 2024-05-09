@@ -1794,7 +1794,6 @@ std::ostream &operator<<(std::ostream &os, const mpq_class &op) {
     print_mpq(os, op.get_mpq_t());
     return os;
 }
-
 std::ostream &operator<<(std::ostream &os, const mpq_t &op) {
     print_mpq(os, op);
     return os;
@@ -2760,7 +2759,7 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     char *str = nullptr;
 
     std::string format;
-    // op ==0 case
+    // op == 0 case
     if (mpf_sgn(op) == 0) {
         if (flags & std::ios::dec) {
             if (flags & std::ios::fixed) { // dec, fixed
