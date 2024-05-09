@@ -2576,7 +2576,7 @@ void test_misc() {
     }
     {
       mpf_class num("123"); // Create an mpf_class with value 123
-      std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
+      std::cout << std::hex << std::showbase << std::setw(6) << "a " << num << std::endl;
 
       std::string hex_sci = to_hex_sci(num);
       std::cout << "Hexadecimal scientific notation: " << hex_sci << std::endl;
