@@ -2593,7 +2593,7 @@ void test_misc() {
         a = -19930.9;
         std::cout << std::hex << std::scientific << std::setprecision(3) << std::setw(0) << "a " << a << std::endl;
         a = -0.00000005;
-        std::cout << std::hex << std::scientific << std::setprecision(3) << std::setw(0) << "a " << a << std::endl;
+        std::cout << std::hex << std::scientific << std::showbase << std::setprecision(3) << std::setw(0) << "a " << a << std::endl;
     }
 }
 int main() {
