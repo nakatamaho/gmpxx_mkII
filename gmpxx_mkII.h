@@ -2815,6 +2815,50 @@ std::string to_hex_string_default(const mpf_t value, int flags, int width, int p
     }
     return formatted_hex;
 }
+std::string to_hex_string_scientific(const mpf_t value, int flags, int width, int prec, char fill) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 4 : prec;
+    char *hex_cstr = mpf_get_str(nullptr, &exp, 16, effective_prec + 1, value);
+    std::string hex_str(hex_cstr);
+    free(hex_cstr);
+    std::stringstream formatted_hex;
+    if (mpf_sgn(value) == 0) {
+        formatted_hex << "0." << std::string(effective_prec, '0');
+        exp = 1;
+    } else {
+        if (hex_str[0] == '-') {
+            hex_str.erase(0, 1);
+            formatted_hex << "-";
+        }
+        formatted_hex << hex_str[0];
+        if (hex_str.length() > 1) {
+            formatted_hex << "." << hex_str.substr(1, effective_prec);
+        } else {
+            formatted_hex << "." << std::string(effective_prec, '0');
+        }
+    }
+    int adjusted_exp = exp - 1;
+    formatted_hex << "@";
+    if (adjusted_exp >= 0) {
+        formatted_hex << "+" << std::setfill('0') << std::setw(2) << adjusted_exp;
+    } else {
+        formatted_hex << "-";
+        formatted_hex << std::setfill('0') << std::setw(2) << -adjusted_exp;
+    }
+    std::string result = formatted_hex.str();
+    if (int(result.size()) < width) {
+        int padding_length = width - result.size();
+        if (flags & std::ios_base::left) {
+            result.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && result[0] == '-') {
+            size_t pos = result.find_first_not_of('-');
+            result.insert(pos, padding_length, fill);
+        } else {
+            result.insert(0, padding_length, fill);
+        }
+    }
+    return result;
+}
 std::string to_dec_string_default(const mpf_t value, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
@@ -2945,27 +2989,9 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (is_scientific) { // hex, fixed
-                if (is_showpoint) {     // hex, fixed, showpoint
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
-                    } else {
-                        format = "%.6Fx";
-                    }
-                } else {
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
-                    } else {
-                        format = "%.6Fx";
-                    }
-                }
-                gmp_asprintf(&str, format.c_str(), op);
-            } else if (is_showpoint) { // showpoint only
-                if (prec != 0)
-                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "x";
-                else
-                    format = "%." + std::to_string(5) + "x";
-                gmp_asprintf(&str, format.c_str(), op);
+            } else if (is_scientific) { // hex, scientific
+                std::string hex_string = to_hex_string_scientific(op, flags, width, prec, fill);
+                str = strdup(hex_string.c_str());
             } else {
                 if (is_showbase) {
                     if (is_uppercase) {
@@ -3026,7 +3052,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     gmp_asprintf(&str, "%#Fa", op);
                 }
             } else if (is_scientific) { // hex, scientific
-                gmp_asprintf(&str, "%#Fa", op);
+                std::string hex_string = to_hex_string_scientific(op, flags, width, prec, fill);
+                str = strdup(hex_string.c_str());
             } else { // hex, default
                 std::string hex_string = to_hex_string_default(op, flags, width, prec, fill);
                 str = strdup(hex_string.c_str());
