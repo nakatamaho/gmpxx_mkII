@@ -2838,7 +2838,13 @@ std::string to_dec_string_default(const mpf_t value, int flags, int width, int p
         std::streamsize padding_length = width - formatted_dec.size();
         if (flags & std::ios_base::left) {
             formatted_dec.append(padding_length, ' ');
-        } else { // std::ios_base::right or default
+        } else if (flags & std::ios_base::internal) {
+            size_t pos = 0;
+            if (formatted_dec[0] == '-' || formatted_dec[0] == '+') {
+                pos = 1;
+            }
+            formatted_dec.insert(pos, padding_length, ' ');
+        } else {
             formatted_dec.insert(0, padding_length, ' ');
         }
     }
