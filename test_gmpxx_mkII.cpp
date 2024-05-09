@@ -2537,6 +2537,16 @@ void test_misc() {
         c = a % b;
         std::cout << c << std::endl;
     }
+    {
+        mpf_class a(-1);
+        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
+        a = -12300;
+        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
+        a = 1;
+        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
+        a = 12300;
+        std::cout << std::hex << std::showbase << std::setw(6) << "a " << a << std::endl;
+    }
 }
 int main() {
 #if !defined GMPXX_MKII

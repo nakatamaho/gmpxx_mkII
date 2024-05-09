@@ -2755,15 +2755,23 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     std::ios_base::fmtflags flags = os.flags();
     std::streamsize prec = os.precision();
     std::streamsize width = os.width();
+    bool is_hex = flags & std::ios::hex;
+    bool is_oct = flags & std::ios::oct;
+    bool is_dec = flags & std::ios::dec;
+    bool is_fixed = flags & std::ios::fixed;
+    bool is_scientific = flags & std::ios::scientific;
+    bool is_showpoint = flags & std::ios::showpoint;
+    bool show_base = flags & std::ios::showbase;
+    bool uppercase = flags & std::ios::uppercase;
     char fill = os.fill();
     char *str = nullptr;
 
     std::string format;
     // op == 0 case
     if (mpf_sgn(op) == 0) {
-        if (flags & std::ios::dec) {
-            if (flags & std::ios::fixed) { // dec, fixed
-                if (flags & std::ios::showpoint) {
+        if (is_dec) {
+            if (is_fixed) { // dec, fixed
+                if (is_showpoint) {
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
                     } else {
@@ -2777,8 +2785,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (flags & std::ios::scientific) { // dec, fixed
-                if (flags & std::ios::showpoint) {     // dec, fixed, showpoint
+            } else if (is_scientific) { // dec, fixed
+                if (is_showpoint) {     // dec, fixed, showpoint
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
                     } else {
@@ -2792,24 +2800,24 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (flags & std::ios::showpoint) { // showpoint only
+            } else if (is_showpoint) { // showpoint only
                 if (prec != 0)
-                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "f"; // not sure
+                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "f";
                 else
                     format = "%." + std::to_string(5) + "f";
                 gmp_asprintf(&str, format.c_str(), op);
             } else
                 str = strdup("0");
-        } else if (flags & std::ios::hex) {
+        } else if (is_hex) {
             gmp_asprintf(&str, "%FX", op);
-        } else if (flags & std::ios::oct) {
+        } else if (is_oct) {
             gmp_asprintf(&str, "%Fo", op);
         }
     } else {
         // op != 0 case
-        if (flags & std::ios::dec) {
-            if (flags & std::ios::fixed) {         // dec, fixed
-                if (flags & std::ios::showpoint) { // dec, fixed, showpoint
+        if (is_dec) {
+            if (is_fixed) {         // dec, fixed
+                if (is_showpoint) { // dec, fixed, showpoint
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
                     } else {
@@ -2823,8 +2831,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (flags & std::ios::scientific) { // dec, scientific
-                if (flags & std::ios::showpoint) {     // dec, scientific, showpoint
+            } else if (is_scientific) { // dec, scientific
+                if (is_showpoint) {     // dec, scientific, showpoint
                     if (prec != 0) {
                         format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
                     } else {
@@ -2838,18 +2846,22 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     }
                 }
                 gmp_asprintf(&str, format.c_str(), op);
-            } else if (flags & std::ios::showpoint) { // showpoint only
+            } else if (is_showpoint) { // showpoint only
                 if (prec != 0)
-                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "Ff"; // not sure
+                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "Ff";
                 else
                     format = "%.5Ff";
                 gmp_asprintf(&str, format.c_str(), op);
-            } else {
-                gmp_asprintf(&str, "%.Fg", op);
+            } else { // prec only
+                if (prec >= 1)
+                    format = "%." + std::to_string(static_cast<int>(prec)) + "Fg";
+                else
+                    format = "%.5Fg";
+                gmp_asprintf(&str, format.c_str(), op);
             }
-        } else if (flags & std::ios::hex) {
+        } else if (is_hex) {
             gmp_asprintf(&str, "%#Fa", op);
-        } else if (flags & std::ios::oct) {
+        } else if (is_oct) {
             gmp_asprintf(&str, "%Fo", op);
         }
     }
