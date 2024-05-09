@@ -2574,15 +2574,26 @@ void test_misc() {
     {
         mpf_class a;
         a = 0;
-        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        std::cout << std::hex << std::scientific << "a " << a << std::endl;
         a = -0.00313119;
-        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        std::cout << std::hex << std::scientific << "a " << a << std::endl;
         a = 1;
-        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        std::cout << std::hex << std::scientific << "a " << a << std::endl;
         a = 12300.133;
-        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        std::cout << std::hex << std::scientific << "a " << a << std::endl;
         a = 12300133;
-        std::cout << std::hex << std::ios::scientific << "a " << a << std::endl;
+        std::cout << std::hex << std::scientific << "a " << a << std::endl;
+    }
+    {
+        mpf_class a;
+        a = 0;
+        std::cout << std::hex << std::scientific << std::setprecision(3) << std::setw(0) << "a " << a << std::endl;
+        a = 3.14159;
+        std::cout << std::hex << std::scientific << std::setprecision(3) << std::setw(0) << "a " << a << std::endl;
+        a = -19930.9;
+        std::cout << std::hex << std::scientific << std::setprecision(3) << std::setw(0) << "a " << a << std::endl;
+        a = -0.00000005;
+        std::cout << std::hex << std::scientific << std::setprecision(3) << std::setw(0) << "a " << a << std::endl;
     }
 }
 int main() {
