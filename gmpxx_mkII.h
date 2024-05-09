@@ -1618,35 +1618,66 @@ void print_mpq(std::ostream &os, const mpq_t op) {
     std::streamsize width = os.width();
     char fill = os.fill();
     char *str = nullptr;
+    bool is_hex = flags & std::ios::hex;
+    bool is_oct = flags & std::ios::oct;
+    bool show_base = flags & std::ios::showbase;
+    bool uppercase = flags & std::ios::uppercase;
+    std::string format;
 
-    if (mpq_sgn(op) == 0) {
-        bool is_hex = flags & std::ios::hex;
-        bool is_oct = flags & std::ios::oct;
-        bool show_base = flags & std::ios::showbase;
-        bool uppercase = flags & std::ios::uppercase;
-        if (is_hex && show_base) {
-            str = strdup(uppercase ? "0X0" : "0x0");
-        } else if (is_oct) {
-            str = strdup("0");
-        } else {
-            str = strdup("0");
+    if (mpq_cmp_ui(op, static_cast<unsigned long int>(0), static_cast<unsigned long int>(0)) == 0) {
+        if (is_oct) {         // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
+            if (width == 0) { // is_oct, width==0
+                str = strdup("0");
+            } else { // is_oct, width!=0
+                str = strdup("0/0");
+            }
+        } else if (is_hex) {
+            if (show_base) {      // is_hex, show_base
+                if (width == 0) { // is_hex, show_base, width==0
+                    str = strdup(uppercase ? "0X0" : "0x0");
+                } else {
+                    if (uppercase) {
+                        str = strdup("0X0/0X0");
+                    } else {
+                        str = strdup("0x0/0x0");
+                    }
+                }
+            } else {              // is_hex
+                if (width == 0) { // is_hex, width==0
+                    str = strdup("0");
+                } else { // is_hex, width!=0
+                    str = strdup("0/0");
+                }
+            }
+        } else {              // is_dec
+            if (width == 0) { // is_dec, width==0
+                str = strdup("0");
+            } else { // is_dec, width!=0
+                str = strdup("0/0");
+            }
         }
     } else {
-        if (flags & std::ios::oct) {
-            gmp_asprintf(&str, (flags & std::ios::showbase) ? "%#Qo" : "%Qo", op);
-        } else if (flags & std::ios::hex) {
-            bool show_base = flags & std::ios::showbase;
-            bool uppercase = flags & std::ios::uppercase;
-            if (show_base && uppercase) {
-                gmp_asprintf(&str, "%#QX", op);
-            } else if (show_base && !uppercase) {
-                gmp_asprintf(&str, "%#Qx", op);
-            } else if (!show_base && uppercase) {
-                gmp_asprintf(&str, "%QX", op);
-            } else {
-                gmp_asprintf(&str, "%Qx", op);
+        if (is_oct) {        // is_oct, (show_base can be ignored since octal 0 = 0 or 00, and we use 0).
+            if (show_base) { // is_oct, show_base
+                gmp_asprintf(&str, "%#Qo", op);
+            } else { // is_oct
+                gmp_asprintf(&str, "%Qo", op);
             }
-        } else {
+        } else if (is_hex) {
+            if (show_base) { // is_hex, show_base
+                if (uppercase) {
+                    gmp_asprintf(&str, "%#QX", op);
+                } else {
+                    gmp_asprintf(&str, "%#Qx", op);
+                }
+            } else { // is_hex
+                if (uppercase) {
+                    gmp_asprintf(&str, "%QX", op);
+                } else {
+                    gmp_asprintf(&str, "%Qx", op);
+                }
+            }
+        } else { // is_dec
             gmp_asprintf(&str, "%Qd", op);
         }
     }
