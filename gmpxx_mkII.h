@@ -2860,7 +2860,7 @@ std::string to_hex_string_scientific(const mpf_t value, int flags, int width, in
         if (mpf_sgn(value) < 0)
             formatted_hex.insert(1, "0x");
         else
-            formatted_hex.insert(1, "0x");
+            formatted_hex.insert(0, "0x");
     }
     if (static_cast<int>(formatted_hex.size()) < width) {
         int padding_length = width - formatted_hex.size();
