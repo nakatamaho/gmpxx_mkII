@@ -37,6 +37,7 @@
 #include <cassert>
 #include <cstring>
 #include <sstream>
+#include <algorithm>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -2753,23 +2754,27 @@ inline int sgn(const mpf_class &op) {
 }
 std::string to_hex_string_default(const mpf_t value, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
-    int effective_prec = (prec == 0) ? 4 : prec;
+    int effective_prec = (prec == 0) ? 6 : prec;
     char *hex_cstr = mpf_get_str(nullptr, &exp, 16, effective_prec, value);
-    bool is_showbase = flags & std::ios::showbase;
     std::string hex_str(hex_cstr);
     free(hex_cstr);
 
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_showpoint = flags & std::ios::showpoint;
+    bool is_uppercase = flags & std::ios::uppercase;
     std::string formatted_hex;
     if (mpf_sgn(value) < 0) {
         hex_str.erase(0, 1);
     }
     if (exp <= 0) {
         formatted_hex = "0.";
-        formatted_hex.append(-exp + 1, '0');
+        formatted_hex.append(-exp, '0');
         formatted_hex += hex_str;
     } else if (size_t(exp) > hex_str.length()) {
-        formatted_hex = hex_str;
-        formatted_hex.append(exp - hex_str.length(), '0');
+        formatted_hex = hex_str.substr(0, 1) + "." + hex_str.substr(1);
+        int adjusted_exp = exp - 1;
+        std::string exp_str = adjusted_exp < 16 && adjusted_exp > -16 ? "0" + std::to_string(adjusted_exp) : std::to_string(adjusted_exp);
+        formatted_hex += "e+" + exp_str;
     } else {
         formatted_hex = hex_str.substr(0, exp);
         if (exp < static_cast<mp_exp_t>(hex_str.size())) {
@@ -2779,10 +2784,15 @@ std::string to_hex_string_default(const mpf_t value, int flags, int width, int p
     if (is_showbase) {
         formatted_hex.insert(0, "0x");
     }
+    if (is_showpoint && formatted_hex.find('.') == std::string::npos) {
+        formatted_hex += ".";
+        while (formatted_hex.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_hex += '0';
+        }
+    }
     if (mpf_sgn(value) < 0) {
         formatted_hex.insert(0, "-");
     }
-    // Apply width and alignment formatting
     if (width > static_cast<int>(formatted_hex.size())) {
         std::streamsize padding_length = width - formatted_hex.size();
         if (flags & std::ios_base::left) {
@@ -2790,13 +2800,18 @@ std::string to_hex_string_default(const mpf_t value, int flags, int width, int p
         } else if (flags & std::ios_base::internal && formatted_hex.find("0x") == 0) {
             formatted_hex.insert(2, padding_length, fill); // Insert padding after the "0x"
         } else if (flags & std::ios_base::internal && formatted_hex.find("-0x") == 0) {
-            formatted_hex.insert(3, padding_length, fill); // Insert padding after the "0x"
-        } else {                                           // std::ios_base::right or default
+            formatted_hex.insert(3, padding_length, fill); // Insert padding after the "-0x"
+        } else {
             formatted_hex.insert(0, padding_length, fill);
         }
     }
-    if (formatted_hex.back() == '.') {
-        formatted_hex.erase(formatted_hex.size() - 1); // Remove trailing dot if it exists
+    if (!is_showpoint) {
+        if (formatted_hex.back() == '.') {
+            formatted_hex.erase(formatted_hex.size() - 1);
+        }
+    }
+    if (is_uppercase) {
+        std::transform(formatted_hex.begin(), formatted_hex.end(), formatted_hex.begin(), [](unsigned char c) { return std::toupper(c); });
     }
     return formatted_hex;
 }
@@ -2867,6 +2882,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     bool is_fixed = flags & std::ios::fixed;
     bool is_scientific = flags & std::ios::scientific;
     bool is_showpoint = flags & std::ios::showpoint;
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_uppercase = flags & std::ios::uppercase;
     char fill = os.fill();
     char *str = nullptr;
 
@@ -2913,7 +2930,53 @@ void print_mpf(std::ostream &os, const mpf_t op) {
             } else
                 str = strdup("0");
         } else if (is_hex) {
-            gmp_asprintf(&str, "%FX", op);
+            if (is_fixed) { // hex, fixed
+                if (is_showpoint) {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
+                    } else {
+                        format = "%.0Ff.";
+                    }
+                } else {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
+                    } else {
+                        format = "%.0Ff";
+                    }
+                }
+                gmp_asprintf(&str, format.c_str(), op);
+            } else if (is_scientific) { // hex, fixed
+                if (is_showpoint) {     // hex, fixed, showpoint
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
+                    } else {
+                        format = "%.6Fx";
+                    }
+                } else {
+                    if (prec != 0) {
+                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
+                    } else {
+                        format = "%.6Fx";
+                    }
+                }
+                gmp_asprintf(&str, format.c_str(), op);
+            } else if (is_showpoint) { // showpoint only
+                if (prec != 0)
+                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "x";
+                else
+                    format = "%." + std::to_string(5) + "x";
+                gmp_asprintf(&str, format.c_str(), op);
+            } else {
+                if (is_showbase) {
+                    if (is_uppercase) {
+                        str = strdup("0X0");
+                    } else {
+                        str = strdup("0x0");
+                    }
+                } else {
+                    str = strdup("0");
+                }
+            }
         } else if (is_oct) {
             gmp_asprintf(&str, "%Fo", op);
         }
