@@ -2827,7 +2827,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
 }
 std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
-    int effective_prec = (prec == 0) ? 4 : prec;
+    int effective_prec = (prec == 0) ? 6 : prec;
     char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec + 1, value);
     std::string base_str(base_cstr);
     free(base_cstr);
@@ -2858,7 +2858,11 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
         formatted_base.append(padding_length, '0');
     }
     int adjusted_exp = exp - 1;
-    formatted_base += "@";
+    if (base == 16) {
+        formatted_base += "@";
+    } else if (base == 8 && mpf_sgn(value) != 0) {
+        formatted_base += "e";
+    }
     if (adjusted_exp >= 0) {
         formatted_base += "+";
         formatted_base += (adjusted_exp < 10 ? "0" : "") + std::to_string(adjusted_exp);
