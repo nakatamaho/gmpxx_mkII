@@ -2831,7 +2831,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
     }
     return formatted_base;
 }
-int digits_in_base(const mpf_t value, int base) {
+int integraldigits_in_base(const mpf_t value, int base) {
     mp_exp_t exp;
     mpf_get_d_2exp(&exp, value);
     if (mpf_sgn(value) == 0) {
@@ -2863,7 +2863,7 @@ std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int
     // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
-    int digits = digits_in_base(value, base);
+    int digits = integraldigits_in_base(value, base);
     char *base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
     std::string base_str(base_cstr);
     free(base_cstr);
@@ -2941,8 +2941,7 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
     // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
-    int digits = digits_in_base(value, base);
-    char *base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec + 1, value);
     std::string base_str(base_cstr);
     free(base_cstr);
     bool is_showbase = flags & std::ios::showbase;
