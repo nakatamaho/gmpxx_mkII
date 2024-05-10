@@ -2830,6 +2830,84 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
     }
     return formatted_base;
 }
+std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 6 : prec;
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec, value);
+    std::string base_str(base_cstr);
+    free(base_cstr);
+
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_showpoint = flags & std::ios::showpoint;
+    bool is_uppercase = flags & std::ios::uppercase;
+    std::string formatted_base;
+    if (mpf_sgn(value) < 0) {
+        base_str.erase(0, 1);
+    }
+    if (exp <= 0) {
+        formatted_base = "0.";
+        formatted_base.append(-exp, '0');
+        formatted_base += base_str;
+    } else if (size_t(exp) > base_str.length()) {
+        formatted_base = base_str.substr(0, 1) + "." + base_str.substr(1);
+        int adjusted_exp = exp - 1;
+        std::string exp_str = adjusted_exp < base && adjusted_exp > -base ? "0" + std::to_string(adjusted_exp) : std::to_string(adjusted_exp);
+        formatted_base += "e+" + exp_str; // can be minus?
+    } else {
+        formatted_base = base_str.substr(0, exp);
+        if (exp < static_cast<mp_exp_t>(base_str.size())) {
+            formatted_base += "." + base_str.substr(exp);
+        }
+    }
+    if (is_showbase) {
+        if (base == 16) {
+            formatted_base.insert(0, "0x");
+        } else if (base == 8 && mpf_sgn(value) != 0) {
+            formatted_base.insert(0, "0");
+        }
+    }
+    if (is_showpoint && formatted_base.find('.') == std::string::npos) {
+        formatted_base += ".";
+        while (formatted_base.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_base += '0';
+        }
+    }
+    if (is_showpoint && base == 10 && formatted_base == "0.") {
+        while (formatted_base.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_base += '0';
+        }
+    }
+    if (mpf_sgn(value) < 0) {
+        formatted_base.insert(0, "-");
+    }
+    if (width > static_cast<int>(formatted_base.size())) {
+        std::streamsize padding_length = width - formatted_base.size();
+        if (flags & std::ios_base::left) {
+            formatted_base.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '0' && formatted_base[1] == 'x') { // Insert padding after the "0x"
+            formatted_base.insert(2, padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '-' && formatted_base[1] == '0' && formatted_base[2] == 'x') { // Insert padding after the "-0x"
+            formatted_base.insert(3, padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 10) {
+            size_t pos = 0;
+            if (formatted_base[0] == '-' || formatted_base[0] == '+') {
+                pos = 1;
+            }
+            formatted_base.insert(pos, padding_length, fill);
+        } else {
+            formatted_base.insert(0, padding_length, fill);
+        }
+    }
+    if (!is_showpoint) {
+        if (formatted_base.back() == '.') {
+            formatted_base.erase(formatted_base.size() - 1);
+        }
+    }
+    if (is_uppercase) {
+        std::transform(formatted_base.begin(), formatted_base.end(), formatted_base.begin(), [](unsigned char c) { return std::toupper(c); });
+    }
+    return formatted_base;
+}
 std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
@@ -3019,12 +3097,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
             }
         } else if (is_oct) {
             if (is_fixed) { // oct, fixed
-                gmp_asprintf(&str, "%#Fa", op);
-                if (is_showpoint) { // oct, fixed, showpoint
-                    gmp_asprintf(&str, "%#Fa", op);
-                } else {
-                    gmp_asprintf(&str, "%#Fa", op);
-                }
+                std::string oct_string = mpf_to_base_string_fixed(op, 8, flags, width, prec, fill);
+                str = strdup(oct_string.c_str());
             } else if (is_scientific) { // oct, scientific
                 std::string oct_string = mpf_to_base_string_scientific(op, 8, flags, width, prec, fill);
                 str = strdup(oct_string.c_str());
