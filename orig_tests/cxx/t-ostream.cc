@@ -378,7 +378,7 @@ check_mpf (void)
       ios::hex | ios::scientific | ios::uppercase, 0, 1 },
 
     { "0.0625", "1.00@-01", ios::hex | ios::scientific, 0, 2 },
-
+    //60
     { "0", "0", ios::oct },
     { "123",  "173", ios::oct },
     { "123", "0173", ios::oct | ios::showbase },

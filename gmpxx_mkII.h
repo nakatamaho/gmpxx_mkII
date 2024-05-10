@@ -2752,7 +2752,7 @@ inline int sgn(const mpf_class &op) {
     int flag = mpf_sgn(op.get_mpf_t());
     return flag;
 }
-std::string to_hex_string_default(const mpf_t value, int flags, int width, int prec, char fill) {
+std::string mpf_to_hex_string_default(const mpf_t value, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
     char *hex_cstr = mpf_get_str(nullptr, &exp, 16, effective_prec, value);
@@ -2815,7 +2815,133 @@ std::string to_hex_string_default(const mpf_t value, int flags, int width, int p
     }
     return formatted_hex;
 }
-std::string to_hex_string_scientific(const mpf_t value, int flags, int width, int prec, char fill) {
+std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 6 : prec;
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec, value);
+    std::string base_str(base_cstr);
+    free(base_cstr);
+
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_showpoint = flags & std::ios::showpoint;
+    bool is_uppercase = flags & std::ios::uppercase;
+    std::string formatted_base;
+    if (mpf_sgn(value) < 0) {
+        base_str.erase(0, 1);
+    }
+    if (exp <= 0) {
+        formatted_base = "0.";
+        formatted_base.append(-exp, '0');
+        formatted_base += base_str;
+    } else if (size_t(exp) > base_str.length()) {
+        formatted_base = base_str.substr(0, 1) + "." + base_str.substr(1);
+        int adjusted_exp = exp - 1;
+        std::string exp_str = adjusted_exp < 16 && adjusted_exp > -16 ? "0" + std::to_string(adjusted_exp) : std::to_string(adjusted_exp);
+        formatted_base += "e+" + exp_str;
+    } else {
+        formatted_base = base_str.substr(0, exp);
+        if (exp < static_cast<mp_exp_t>(base_str.size())) {
+            formatted_base += "." + base_str.substr(exp);
+        }
+    }
+    if (is_showbase) {
+        formatted_base.insert(0, "0x");
+    }
+    if (is_showpoint && formatted_base.find('.') == std::string::npos) {
+        formatted_base += ".";
+        while (formatted_base.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_base += '0';
+        }
+    }
+    if (mpf_sgn(value) < 0) {
+        formatted_base.insert(0, "-");
+    }
+    if (width > static_cast<int>(formatted_base.size())) {
+        std::streamsize padding_length = width - formatted_base.size();
+        if (flags & std::ios_base::left) {
+            formatted_base.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && formatted_base.find("0x") == 0) {
+            formatted_base.insert(2, padding_length, fill); // Insert padding after the "0x"
+        } else if (flags & std::ios_base::internal && formatted_base.find("-0x") == 0) {
+            formatted_base.insert(3, padding_length, fill); // Insert padding after the "-0x"
+        } else {
+            formatted_base.insert(0, padding_length, fill);
+        }
+    }
+    if (!is_showpoint) {
+        if (formatted_base.back() == '.') {
+            formatted_base.erase(formatted_base.size() - 1);
+        }
+    }
+    if (is_uppercase) {
+        std::transform(formatted_base.begin(), formatted_base.end(), formatted_base.begin(), [](unsigned char c) { return std::toupper(c); });
+    }
+    return formatted_base;
+}
+std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 4 : prec;
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec + 1, value);
+    std::string base_str(base_cstr);
+    free(base_cstr);
+
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_uppercase = flags & std::ios::uppercase;
+    std::string formatted_base;
+    if (mpf_sgn(value) == 0) {
+        formatted_base += "0." + std::string(effective_prec, '0');
+        exp = 1;
+    } else {
+        if (base_str[0] == '-') {
+            base_str.erase(0, 1);
+            formatted_base += "-";
+        }
+        formatted_base += base_str[0];
+        if (base_str.length() > 1) {
+            formatted_base += "." + base_str.substr(1, effective_prec);
+        } else {
+            formatted_base += "." + std::string(effective_prec, '0');
+        }
+    }
+    int _pad = 2;
+    if (mpf_sgn(value) < 0)
+        _pad++;
+    if (formatted_base.length() < static_cast<size_t>(effective_prec + _pad)) {
+        size_t padding_length = effective_prec + _pad - formatted_base.length();
+        formatted_base.append(padding_length, '0');
+    }
+    int adjusted_exp = exp - 1;
+    formatted_base += "@";
+    if (adjusted_exp >= 0) {
+        formatted_base += "+";
+        formatted_base += (adjusted_exp < 10 ? "0" : "") + std::to_string(adjusted_exp);
+    } else {
+        formatted_base += "-";
+        formatted_base += (-adjusted_exp < 10 ? "0" : "") + std::to_string(-adjusted_exp);
+    }
+    if (is_showbase) {
+        if (mpf_sgn(value) < 0)
+            formatted_base.insert(1, "0x");
+        else
+            formatted_base.insert(0, "0x");
+    }
+    if (static_cast<int>(formatted_base.size()) < width) {
+        int padding_length = width - formatted_base.size();
+        if (flags & std::ios_base::left) {
+            formatted_base.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && formatted_base[0] == '-') {
+            size_t pos = formatted_base.find_first_not_of('-');
+            formatted_base.insert(pos, padding_length, fill);
+        } else {
+            formatted_base.insert(0, padding_length, fill);
+        }
+    }
+    if (is_uppercase) {
+        std::transform(formatted_base.begin(), formatted_base.end(), formatted_base.begin(), [](unsigned char c) { return std::toupper(c); });
+    }
+    return formatted_base;
+}
+std::string mpf_to_base_string_scientific(const mpf_t value, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 4 : prec;
     char *hex_cstr = mpf_get_str(nullptr, &exp, 16, effective_prec + 1, value);
@@ -2878,7 +3004,7 @@ std::string to_hex_string_scientific(const mpf_t value, int flags, int width, in
     }
     return formatted_hex;
 }
-std::string to_dec_string_default(const mpf_t value, int flags, int width, int prec, char fill) {
+std::string mpf_to_dec_string_default(const mpf_t value, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
     char *dec_cstr = mpf_get_str(nullptr, &exp, 10, effective_prec, value);
@@ -3009,7 +3135,7 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 }
                 gmp_asprintf(&str, format.c_str(), op);
             } else if (is_scientific) { // hex, scientific
-                std::string hex_string = to_hex_string_scientific(op, flags, width, prec, fill);
+                std::string hex_string = mpf_to_base_string_scientific(op, 16, flags, width, prec, fill);
                 str = strdup(hex_string.c_str());
             } else {
                 if (is_showbase) {
@@ -3023,7 +3149,13 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 }
             }
         } else if (is_oct) {
-            gmp_asprintf(&str, "%Fo", op);
+            if (is_scientific) { // oct, scientific
+                std::string oct_string = mpf_to_base_string_scientific(op, 8, flags, width, prec, fill);
+                str = strdup(oct_string.c_str());
+            } else { // oct, default
+                std::string oct_string = mpf_to_base_string_default(op, 8, flags, width, prec, fill);
+                str = strdup(oct_string.c_str());
+            }
         }
     } else {
         // op != 0 case
@@ -3059,7 +3191,7 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 }
                 gmp_asprintf(&str, format.c_str(), op);
             } else { // dec, default
-                std::string dec_string = to_dec_string_default(op, flags, width, prec, fill);
+                std::string dec_string = mpf_to_dec_string_default(op, flags, width, prec, fill);
                 str = strdup(dec_string.c_str());
             }
         } else if (is_hex) {
@@ -3071,10 +3203,10 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                     gmp_asprintf(&str, "%#Fa", op);
                 }
             } else if (is_scientific) { // hex, scientific
-                std::string hex_string = to_hex_string_scientific(op, flags, width, prec, fill);
+                std::string hex_string = mpf_to_base_string_scientific(op, 16, flags, width, prec, fill);
                 str = strdup(hex_string.c_str());
             } else { // hex, default
-                std::string hex_string = to_hex_string_default(op, flags, width, prec, fill);
+                std::string hex_string = mpf_to_base_string_default(op, 16, flags, width, prec, fill);
                 str = strdup(hex_string.c_str());
             }
         } else if (is_oct) {
