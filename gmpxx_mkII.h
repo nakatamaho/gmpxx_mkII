@@ -2860,7 +2860,7 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
     int adjusted_exp = exp - 1;
     if (base == 16) {
         formatted_base += "@";
-    } else if (base == 8) {
+    } else if (base == 8 || base == 10) {
         formatted_base += "e";
     }
     if (adjusted_exp >= 0) {
@@ -3012,20 +3012,8 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 }
                 gmp_asprintf(&str, format.c_str(), op);
             } else if (is_scientific) { // dec, scientific
-                if (is_showpoint) {     // dec, scientific, showpoint
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
-                    } else {
-                        format = "%.6Fe";
-                    }
-                } else {
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
-                    } else {
-                        format = "%.6Fe";
-                    }
-                }
-                gmp_asprintf(&str, format.c_str(), op);
+                std::string dec_string = mpf_to_base_string_scientific(op, 10, flags, width, prec, fill);
+                str = strdup(dec_string.c_str());
             } else { // dec, default
                 std::string dec_string = mpf_to_base_string_default(op, 10, flags, width, prec, fill);
                 str = strdup(dec_string.c_str());
