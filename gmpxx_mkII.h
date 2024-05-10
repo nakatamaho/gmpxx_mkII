@@ -2833,7 +2833,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
 }
 int digits_in_base(const mpf_t value, int base) {
     mp_exp_t exp;
-    double mantissa = mpf_get_d_2exp(&exp, value);
+    mpf_get_d_2exp(&exp, value);
     if (mpf_sgn(value) == 0) {
         return 1;
     }
@@ -2849,7 +2849,7 @@ int digits_in_base(const mpf_t value, int base) {
         digits = (exp + 2) / 3;
         break;
     case 10:
-        digits = static_cast<int>(std::floor(exp * 0.302) + 1); // the number of digits is sometimes larger than the actual digits
+        digits = static_cast<int>(std::floor(exp * 1.0 / std::log2(10)) + 1); // the number of digits can sometimes be larger than the actual digits
         break;
     case 2:
         digits = exp;
@@ -2863,15 +2863,10 @@ std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int
     // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
-
-    std::cout << "\neffective_prec :" << effective_prec << std::endl;
     int digits = digits_in_base(value, base);
     char *base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
     std::string base_str(base_cstr);
     free(base_cstr);
-    std::cout << "base: " << base << std::endl;
-    std::cout << "base_str: " << base_str << std::endl;
-
     bool is_showbase = flags & std::ios::showbase;
     bool is_showpoint = flags & std::ios::showpoint;
     bool is_uppercase = flags & std::ios::uppercase;
@@ -2888,13 +2883,6 @@ std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int
             formatted_base += std::string(effective_prec, '0');
         }
     } else {
-        if (is_showbase) {
-            if (base == 16) {
-                formatted_base.insert(0, "0x");
-            } else if (base == 8 && mpf_sgn(value) != 0) {
-                formatted_base.insert(0, "0");
-            }
-        }
         if (exp > 0) {
             formatted_base += base_str.substr(0, exp); // integer part
             if (effective_prec > 0 || is_showpoint) {
@@ -2906,8 +2894,13 @@ std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int
             std::string tobe_added = std::string(-exp, '0') + base_str;
             formatted_base += tobe_added.substr(0, effective_prec); // 0.000XXXX
         }
-        std::cout << "formatted_base: " << formatted_base << std::endl;
-
+        if (is_showbase) {
+            if (base == 16) {
+                formatted_base.insert(0, "0x");
+            } else if (base == 8 && formatted_base != "0.0") {
+                formatted_base.insert(0, "0");
+            }
+        }
         if (prec != 0 && (!formatted_base.empty() && formatted_base.back() == '.')) {
             formatted_base += std::string(effective_prec, '0');
         }
@@ -2941,17 +2934,18 @@ std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int
     return formatted_base;
 }
 std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+    // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
-    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec, value);
+    int digits = digits_in_base(value, base);
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
     std::string base_str(base_cstr);
     free(base_cstr);
-
     bool is_showbase = flags & std::ios::showbase;
     bool is_uppercase = flags & std::ios::uppercase;
     std::string formatted_base;
     if (mpf_sgn(value) == 0) {
-        formatted_base += "0." + std::string(effective_prec, '0');
+        formatted_base = "0." + std::string(effective_prec, '0');
         exp = 1;
     } else {
         if (base_str[0] == '-') {
