@@ -2875,12 +2875,16 @@ std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int
     if (mpf_sgn(value) == 0) {
         if (base == 16) {
             formatted_base.insert(0, "0x0");
+        } else if (base == 10) {
+            formatted_base.insert(0, "0");
+            if (is_showpoint && prec == 0) {
+                formatted_base += ".";
+            } else if (!prec == 0) {
+                formatted_base += ".";
+                formatted_base += std::string(effective_prec, '0');
+            }
         } else {
             formatted_base.insert(0, "0");
-        }
-        if (effective_prec > 0 || is_showpoint) {
-            formatted_base += ".";
-            formatted_base += std::string(effective_prec, '0');
         }
     } else {
         if (exp > 0) {
@@ -3019,105 +3023,27 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     bool is_dec = flags & std::ios::dec;
     bool is_fixed = flags & std::ios::fixed;
     bool is_scientific = flags & std::ios::scientific;
-    bool is_showpoint = flags & std::ios::showpoint;
     char fill = os.fill();
     char *str = nullptr;
 
-    std::string format;
-    // op == 0 case
-    if (mpf_sgn(op) == 0) {
-        if (is_dec) {
-            if (is_fixed) { // dec, fixed
-                if (is_showpoint) {
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
-                    } else {
-                        format = "%.0Ff.";
-                    }
-                } else {
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Ff";
-                    } else {
-                        format = "%.0Ff";
-                    }
-                }
-                gmp_asprintf(&str, format.c_str(), op);
-            } else if (is_scientific) { // dec, fixed
-                std::string dec_string = mpf_to_base_string_scientific(op, 10, flags, width, prec, fill);
-                str = strdup(dec_string.c_str());
-            } else {
-                std::string dec_string = mpf_to_base_string_default(op, 10, flags, width, prec, fill);
-                str = strdup(dec_string.c_str());
-            }
-        } else if (is_hex) {
-            if (is_fixed) { // hex, fixed
-                if (is_showpoint) {
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
-                    } else {
-                        format = "%.0Ff.";
-                    }
-                } else {
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fx";
-                    } else {
-                        format = "%.0Ff";
-                    }
-                }
-                gmp_asprintf(&str, format.c_str(), op);
-            } else if (is_scientific) { // hex, scientific
-                std::string hex_string = mpf_to_base_string_scientific(op, 16, flags, width, prec, fill);
-                str = strdup(hex_string.c_str());
-            } else { // hex, default
-                std::string hex_string = mpf_to_base_string_default(op, 16, flags, width, prec, fill);
-                str = strdup(hex_string.c_str());
-            }
-        } else if (is_oct) {
-            if (is_scientific) { // oct, scientific
-                std::string oct_string = mpf_to_base_string_scientific(op, 8, flags, width, prec, fill);
-                str = strdup(oct_string.c_str());
-            } else { // oct, default
-                std::string oct_string = mpf_to_base_string_default(op, 8, flags, width, prec, fill);
-                str = strdup(oct_string.c_str());
-            }
-        }
-    } else {
-        // op != 0 case
-        if (is_dec) {
-            if (is_fixed) { // dec, fixed
-                std::string dec_string = mpf_to_base_string_fixed(op, 10, flags, width, prec, fill);
-                str = strdup(dec_string.c_str());
-            } else if (is_scientific) { // dec, scientific
-                std::string dec_string = mpf_to_base_string_scientific(op, 10, flags, width, prec, fill);
-                str = strdup(dec_string.c_str());
-            } else { // dec, default
-                std::string dec_string = mpf_to_base_string_default(op, 10, flags, width, prec, fill);
-                str = strdup(dec_string.c_str());
-            }
-        } else if (is_hex) {
-            if (is_fixed) { // hex, fixed
-                std::string hex_string = mpf_to_base_string_fixed(op, 16, flags, width, prec, fill);
-                str = strdup(hex_string.c_str());
-            } else if (is_scientific) { // hex, scientific
-                std::string hex_string = mpf_to_base_string_scientific(op, 16, flags, width, prec, fill);
-                str = strdup(hex_string.c_str());
-            } else { // hex, default
-                std::string hex_string = mpf_to_base_string_default(op, 16, flags, width, prec, fill);
-                str = strdup(hex_string.c_str());
-            }
-        } else if (is_oct) {
-            if (is_fixed) { // oct, fixed
-                std::string oct_string = mpf_to_base_string_fixed(op, 8, flags, width, prec, fill);
-                str = strdup(oct_string.c_str());
-            } else if (is_scientific) { // oct, scientific
-                std::string oct_string = mpf_to_base_string_scientific(op, 8, flags, width, prec, fill);
-                str = strdup(oct_string.c_str());
-            } else { // oct, default
-                std::string oct_string = mpf_to_base_string_default(op, 8, flags, width, prec, fill);
-                str = strdup(oct_string.c_str());
-            }
-        }
+    int base = 10;
+    if (is_hex) {
+        base = 16;
+    } else if (is_dec) {
+        base = 10;
+    } else if (is_oct) {
+        base = 8;
     }
+    std::string format;
+    std::string base_string;
+    if (is_fixed) {
+        base_string = mpf_to_base_string_fixed(op, base, flags, width, prec, fill);
+    } else if (is_scientific) {
+        base_string = mpf_to_base_string_scientific(op, base, flags, width, prec, fill);
+    } else {
+        base_string = mpf_to_base_string_default(op, base, flags, width, prec, fill);
+    }
+    str = strdup(base_string.c_str());
     std::string s(str);
     free(str);
     if (flags & std::ios::showpos && mpf_sgn(op) >= 0) {
