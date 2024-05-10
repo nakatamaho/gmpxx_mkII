@@ -2774,7 +2774,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
         formatted_base = base_str.substr(0, 1) + "." + base_str.substr(1);
         int adjusted_exp = exp - 1;
         std::string exp_str = adjusted_exp < base && adjusted_exp > -base ? "0" + std::to_string(adjusted_exp) : std::to_string(adjusted_exp);
-        formatted_base += "e+" + exp_str;
+        formatted_base += "e+" + exp_str; // can be minus?
     } else {
         formatted_base = base_str.substr(0, exp);
         if (exp < static_cast<mp_exp_t>(base_str.size())) {
@@ -2790,6 +2790,11 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
     }
     if (is_showpoint && formatted_base.find('.') == std::string::npos) {
         formatted_base += ".";
+        while (formatted_base.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_base += '0';
+        }
+    }
+    if (is_showpoint && base == 10 && formatted_base == "0.") {
         while (formatted_base.length() < static_cast<size_t>(effective_prec + 1)) {
             formatted_base += '0';
         }
@@ -2875,7 +2880,7 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
             if (formatted_base[0] == '-' || formatted_base[0] == '+') {
                 formatted_base.insert(1, "0x");
             } else {
-                formatted_base.insert(0, "0");
+                formatted_base.insert(0, "0x");
             }
         } else if (base == 8) {
             if (formatted_base[0] == '-' || formatted_base[0] == '+') {
@@ -2934,28 +2939,12 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 }
                 gmp_asprintf(&str, format.c_str(), op);
             } else if (is_scientific) { // dec, fixed
-                if (is_showpoint) {     // dec, fixed, showpoint
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
-                    } else {
-                        format = "%.6Fe";
-                    }
-                } else {
-                    if (prec != 0) {
-                        format = "%." + std::to_string(static_cast<int>(prec)) + "Fe";
-                    } else {
-                        format = "%.6Fe";
-                    }
-                }
-                gmp_asprintf(&str, format.c_str(), op);
-            } else if (is_showpoint) { // showpoint only
-                if (prec != 0)
-                    format = "%." + std::to_string(static_cast<int>(prec - 1)) + "f";
-                else
-                    format = "%." + std::to_string(5) + "f";
-                gmp_asprintf(&str, format.c_str(), op);
-            } else
-                str = strdup("0");
+                std::string dec_string = mpf_to_base_string_scientific(op, 10, flags, width, prec, fill);
+                str = strdup(dec_string.c_str());
+            } else {
+                std::string dec_string = mpf_to_base_string_default(op, 10, flags, width, prec, fill);
+                str = strdup(dec_string.c_str());
+            }
         } else if (is_hex) {
             if (is_fixed) { // hex, fixed
                 if (is_showpoint) {
