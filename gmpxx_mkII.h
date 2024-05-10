@@ -2860,7 +2860,7 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
     int adjusted_exp = exp - 1;
     if (base == 16) {
         formatted_base += "@";
-    } else if (base == 8 && mpf_sgn(value) != 0) {
+    } else if (base == 8) {
         formatted_base += "e";
     }
     if (adjusted_exp >= 0) {
@@ -2871,10 +2871,15 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
         formatted_base += (-adjusted_exp < 10 ? "0" : "") + std::to_string(-adjusted_exp);
     }
     if (is_showbase) {
-        if (mpf_sgn(value) < 0)
-            formatted_base.insert(1, "0x");
-        else
+        if (base == 16) {
             formatted_base.insert(0, "0x");
+        } else if (base == 8) {
+            if (formatted_base[0] == '-' || formatted_base[0] == '+') {
+                formatted_base.insert(1, "0");
+            } else {
+                formatted_base.insert(0, "0");
+            }
+        }
     }
     if (static_cast<int>(formatted_base.size()) < width) {
         int padding_length = width - formatted_base.size();
