@@ -2784,7 +2784,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
     if (is_showbase) {
         if (base == 16) {
             formatted_base.insert(0, "0x");
-        } else if (base == 8) {
+        } else if (base == 8 && mpf_sgn(value) != 0) {
             formatted_base.insert(0, "0");
         }
     }
@@ -2803,7 +2803,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
             formatted_base.append(padding_length, fill);
         } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '0' && formatted_base[1] == 'x') { // Insert padding after the "0x"
             formatted_base.insert(2, padding_length, fill);
-        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '1' && formatted_base[1] == '0' && formatted_base[2] == 'x') { // Insert padding after the "-0x"
+        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '-' && formatted_base[1] == '0' && formatted_base[2] == 'x') { // Insert padding after the "-0x"
             formatted_base.insert(3, padding_length, fill);
         } else if (flags & std::ios_base::internal && base == 10) {
             size_t pos = 0;
@@ -3037,7 +3037,20 @@ void print_mpf(std::ostream &os, const mpf_t op) {
                 str = strdup(hex_string.c_str());
             }
         } else if (is_oct) {
-            gmp_asprintf(&str, "%Fo", op);
+            if (is_fixed) { // oct, fixed
+                gmp_asprintf(&str, "%#Fa", op);
+                if (is_showpoint) { // oct, fixed, showpoint
+                    gmp_asprintf(&str, "%#Fa", op);
+                } else {
+                    gmp_asprintf(&str, "%#Fa", op);
+                }
+            } else if (is_scientific) { // oct, scientific
+                std::string oct_string = mpf_to_base_string_scientific(op, 8, flags, width, prec, fill);
+                str = strdup(oct_string.c_str());
+            } else { // oct, default
+                std::string oct_string = mpf_to_base_string_default(op, 8, flags, width, prec, fill);
+                str = strdup(oct_string.c_str());
+            }
         }
     }
     std::string s(str);
