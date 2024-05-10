@@ -88,8 +88,11 @@ $(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp_compat: $(BENCHMARKS_DIR)/i
 $(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp_mkIISR: $(BENCHMARKS_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
-check:
+check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG_TESTS)
 	./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR)
+	for test in $^ ; do \
+		echo "./$$test"; ./$$test ; \
+	done
 
 clean:
 	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_COMPAT) $(OBJECTS_MKIISR) $(BENCHMARKS0) $(BENCHMARKS1) $(TARGETS_TESTS) $(ORIG_TESTS)*~

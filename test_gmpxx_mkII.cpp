@@ -2605,6 +2605,11 @@ void test_misc() {
         a = 0.0000000599999;
         std::cout << std::dec << std::scientific << std::setprecision(8) << std::setw(0) << "a " << a << std::endl;
     }
+    {
+        mpf_class a;
+        std::cout << std::hex << std::scientific << "a " << a << std::endl;
+        a = 12300.133;
+    }
 }
 int main() {
 #if !defined GMPXX_MKII
