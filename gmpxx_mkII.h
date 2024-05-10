@@ -2872,7 +2872,11 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
     }
     if (is_showbase) {
         if (base == 16) {
-            formatted_base.insert(0, "0x");
+            if (formatted_base[0] == '-' || formatted_base[0] == '+') {
+                formatted_base.insert(1, "0x");
+            } else {
+                formatted_base.insert(0, "0");
+            }
         } else if (base == 8) {
             if (formatted_base[0] == '-' || formatted_base[0] == '+') {
                 formatted_base.insert(1, "0");
@@ -2907,8 +2911,6 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     bool is_fixed = flags & std::ios::fixed;
     bool is_scientific = flags & std::ios::scientific;
     bool is_showpoint = flags & std::ios::showpoint;
-    bool is_showbase = flags & std::ios::showbase;
-    bool is_uppercase = flags & std::ios::uppercase;
     char fill = os.fill();
     char *str = nullptr;
 
@@ -2973,16 +2975,9 @@ void print_mpf(std::ostream &os, const mpf_t op) {
             } else if (is_scientific) { // hex, scientific
                 std::string hex_string = mpf_to_base_string_scientific(op, 16, flags, width, prec, fill);
                 str = strdup(hex_string.c_str());
-            } else {
-                if (is_showbase) {
-                    if (is_uppercase) {
-                        str = strdup("0X0");
-                    } else {
-                        str = strdup("0x0");
-                    }
-                } else {
-                    str = strdup("0");
-                }
+            } else { // hex, default
+                std::string hex_string = mpf_to_base_string_default(op, 16, flags, width, prec, fill);
+                str = strdup(hex_string.c_str());
             }
         } else if (is_oct) {
             if (is_scientific) { // oct, scientific
