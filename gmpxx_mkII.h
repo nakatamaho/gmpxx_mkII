@@ -580,8 +580,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator+=(mpz_clas
     if (rhs >= 0)
         mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
-        unsigned long int _rhs = -rhs;
-        mpz_sub_ui(lhs.value, lhs.value, _rhs);
+        mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
     }
     return lhs;
 }
@@ -606,8 +605,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator+(const mpz_c
     if (op2 >= 0)
         mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     else {
-        unsigned long int _op2 = -op2;
-        mpz_sub_ui(result.value, result.value, static_cast<unsigned long int>(_op2));
+        mpz_sub_ui(result.value, result.value, static_cast<unsigned long int>(-op2));
     }
     return result;
 }
@@ -615,10 +613,8 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator+(const T op1
     mpz_class result(op2);
     if (op1 >= 0)
         mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op1));
-    else {
-        unsigned long int _op1 = -op1;
-        mpz_sub_ui(result.value, result.value, static_cast<unsigned long int>(_op1));
-    }
+    else
+        mpz_sub_ui(result.value, result.value, static_cast<unsigned long int>(-op1));
     return result;
 }
 template <typename T> inline NON_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
@@ -637,8 +633,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator-=(mpz_clas
     if (rhs >= 0)
         mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
-        unsigned long int _rhs = -rhs;
-        mpz_add_ui(lhs.value, lhs.value, _rhs);
+        mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
     }
     return lhs;
 }
@@ -662,10 +657,9 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const mpz_c
     mpz_class result(op1);
     if (op2 >= 0)
         mpz_sub_ui(result.value, op1.value, static_cast<unsigned long int>(op2));
-    else {
-        unsigned long int _op2 = static_cast<unsigned long int>(-op2);
-        mpz_add_ui(result.value, op1.value, _op2);
-    }
+    else
+        mpz_add_ui(result.value, op1.value, static_cast<unsigned long int>(-op2));
+
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const T op1, const mpz_class &op2) {
@@ -673,8 +667,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator-(const T op1
     if (op1 >= 0) {
         mpz_ui_sub(result.value, static_cast<unsigned long int>(op1), op2.value);
     } else {
-        unsigned long int _op1 = static_cast<unsigned long int>(-op1);
-        mpz_add_ui(result.value, op2.value, _op1);
+        mpz_add_ui(result.value, op2.value, static_cast<unsigned long int>(-op1));
         mpz_neg(result.value, result.value);
     }
     return result;
@@ -741,8 +734,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator/=(mpz_clas
     if (rhs >= 0)
         mpz_tdiv_q_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
-        unsigned long int _rhs = -static_cast<unsigned long int>(rhs);
-        mpz_tdiv_q_ui(lhs.value, lhs.value, static_cast<unsigned long int>(_rhs));
+        mpz_tdiv_q_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
         mpz_neg(lhs.value, lhs.value);
     }
     return lhs;
@@ -768,8 +760,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator/(const mpz_c
     if (op2 >= 0)
         mpz_tdiv_q_ui(result.value, result.value, static_cast<signed long int>(op2));
     else {
-        unsigned long int _op2 = -static_cast<unsigned long int>(op2);
-        mpz_tdiv_q_ui(result.value, result.value, static_cast<signed long int>(_op2));
+        mpz_tdiv_q_ui(result.value, result.value, static_cast<unsigned long int>(-op2));
         mpz_neg(result.value, result.value);
     }
     return result;
@@ -798,8 +789,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator%=(mpz_clas
     if (rhs >= 0)
         mpz_tdiv_r_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     else {
-        unsigned long int _rhs = -static_cast<unsigned long int>(rhs);
-        mpz_tdiv_r_ui(lhs.value, lhs.value, static_cast<unsigned long int>(_rhs));
+        mpz_tdiv_r_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
     }
     return lhs;
 }
@@ -824,8 +814,7 @@ template <typename T> inline SIGNED_INT_COND(T, mpz_class) operator%(const mpz_c
     if (op2 >= 0)
         mpz_tdiv_r_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     else {
-        unsigned long int _op2 = -static_cast<unsigned long int>(op2);
-        mpz_tdiv_r_ui(result.value, result.value, static_cast<signed long int>(_op2));
+        mpz_tdiv_r_ui(result.value, result.value, static_cast<signed long int>(-op2));
     }
     return result;
 }
@@ -2408,9 +2397,9 @@ template <typename T> inline NON_INT_COND(T, int) cmp(const T op1, mpf_class &op
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs) {
     mpf_class _rhs(rhs);
     if (rhs >= 0) {
-        mpf_add_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     } else {
-        mpf_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
     }
     return lhs;
 }
@@ -2422,77 +2411,79 @@ template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator+(const mpf_c
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator-=(mpf_class &lhs, const T rhs) {
     if (rhs >= 0) {
-        mpf_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     } else {
-        mpf_add_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
     }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator-(const mpf_class &op1, const T op2) {
     mpf_class result(op1);
-    if (rhs >= 0) {
-        mpf_sub_ui(result.value, result.value, static_cast<unsigned long int> op2);
+    if (op2 >= 0) {
+        mpf_sub_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     } else {
-        mpf_add_ui(result.value, result.value, static_cast<unsigned long int> op2);
+        mpf_add_ui(result.value, result.value, static_cast<unsigned long int>(-op2));
     }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator-(const T op1, const mpf_class &op2) {
     mpf_class result(op2);
     if (op1 >= 0) {
-        mpf_ui_sub(result.value, static_cast<unsigned long int> op1, op2.value);
+        mpf_ui_sub(result.value, static_cast<unsigned long int>(op1), op2.value);
     } else {
-        mpf_add_ui(result.value, op2.value, static_cast<unsigned long int> op1);
-        mpf_neg(result.value);
+        mpf_add_ui(result.value, op2.value, static_cast<unsigned long int>(-op1));
+        mpf_neg(result.value, result.value);
     }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator*=(mpf_class &lhs, const T rhs) {
     if (rhs >= 0) {
-        mpf_mul_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_mul_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     } else {
-        mpf_mul_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
-        mpf_neg(lhs.value);
+        mpf_mul_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
+        mpf_neg(lhs.value, lhs.value);
     }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const mpf_class &op1, const T op2) {
     mpf_class result(op1);
     if (op2 >= 0) {
-        mpf_mul_ui(result.value, result.value, static_cast<unsigned long int> op2);
+        mpf_mul_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     } else {
-        mpf_mul_ui(result.value, result.value, static_cast<unsigned long int> op2);
-        mpf_neg(result.value);
+        mpf_mul_ui(result.value, result.value, static_cast<unsigned long int>(-op2));
+        mpf_neg(result.value, result.value);
     }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator/=(mpf_class &lhs, const T rhs) {
+    mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     if (rhs >= 0) {
-        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     } else {
-        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
-        mpf_neg(result.value);
+        mpf_div_ui(lhs.value, lhs.value, -static_cast<unsigned long int>(-rhs));
+        mpf_neg(lhs.value, lhs.value);
     }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator/(const mpf_class &op1, const T op2) {
     mpf_class result(op1);
-    if (rhs >= 0) {
-        mpf_div_uil(result.value, result.value, static_cast<unsigned long int> op2);
+    mpf_div_ui(result.value, result.value, static_cast<unsigned long int>(op2));
+    if (op2 >= 0) {
+        mpf_div_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     } else {
-        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
-        mpf_neg(result.value);
+        mpf_div_ui(result.value, result.value, static_cast<unsigned long int>(-op2));
+        mpf_neg(result.value, result.value);
     }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator/(const T op1, const mpf_class &op2) {
     mpf_class result(op2);
     if (op1 >= 0) {
-        mpf_ui_div(result.value, static_cast<unsigned long int> op1, result.value);
+        mpf_ui_div(result.value, static_cast<unsigned long int>(op1), result.value);
     } else {
-        mpf_ui_div(result.value, static_cast<unsigned long int> op1, result.value);
-        mpf_neg(result.value);
+        mpf_ui_div(result.value, static_cast<unsigned long int>(-op1), result.value);
+        mpf_neg(result.value, result.value);
     }
     return result;
 }
@@ -2517,7 +2508,7 @@ template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator-(const mpf
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator-(const T op1, const mpf_class &op2) {
     mpf_class result(op2);
-    mpf_ui_sub(result.value, op2, result.value);
+    mpf_ui_sub(result.value, op1, result.value);
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator*=(mpf_class &lhs, const T rhs) {
@@ -2540,6 +2531,7 @@ template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator/(const mpf
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator/(const T op1, const mpf_class &op2) {
+    mpf_class result(op2);
     mpf_ui_div(result.value, op1, result.value);
     return result;
 }
