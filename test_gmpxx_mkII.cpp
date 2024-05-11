@@ -2610,6 +2610,21 @@ void test_misc() {
         a = 12300.133;
         std::cout << std::dec << std::scientific << std::setprecision(8) << std::setw(0) << "a " << a << std::endl;
     }
+    {
+        const int small_prec = 64, medium_prec = 128, large_prec = 192, very_large_prec = 256;
+        mpf_set_default_prec(medium_prec);
+        mpf_class f(3.0, small_prec);
+        mpf_class g(1 / f, very_large_prec);
+        mpf_class h(1.0, medium_prec);
+        mpf_class i(1.0, large_prec);
+
+        h = 1 / f;
+        i = 1 / f;
+        gmp_printf("%.78Ff\n", f.get_mpf_t());
+        gmp_printf("%.78Ff\n", g.get_mpf_t());
+        gmp_printf("%.78Ff\n", h.get_mpf_t());
+        gmp_printf("%.78Ff\n", i.get_mpf_t());
+    }
 }
 int main() {
 #if !defined GMPXX_MKII

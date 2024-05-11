@@ -2407,7 +2407,11 @@ template <typename T> inline NON_INT_COND(T, int) cmp(const T op1, mpf_class &op
 // improvements can be done using mpf_XXX_ui (note that they are not _si)
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs) {
     mpf_class _rhs(rhs);
-    mpf_add(lhs.value, lhs.value, _rhs.value);
+    if (rhs >= 0) {
+        mpf_add_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+    } else {
+        mpf_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+    }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator+(const mpf_class &op1, const T op2) {
@@ -2417,97 +2421,126 @@ template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator+(const mpf_c
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator-=(mpf_class &lhs, const T rhs) {
-    mpf_class _rhs(rhs);
-    mpf_sub(lhs.value, lhs.value, _rhs.value);
+    if (rhs >= 0) {
+        mpf_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+    } else {
+        mpf_add_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+    }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator-(const mpf_class &op1, const T op2) {
-    mpf_class result(op2);
-    mpf_sub(result.value, op1.value, result.value);
+    mpf_class result(op1);
+    if (rhs >= 0) {
+        mpf_sub_ui(result.value, result.value, static_cast<unsigned long int> op2);
+    } else {
+        mpf_add_ui(result.value, result.value, static_cast<unsigned long int> op2);
+    }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator-(const T op1, const mpf_class &op2) {
-    mpf_class result(op1);
-    mpf_sub(result.value, result.value, op2.value);
+    mpf_class result(op2);
+    if (op1 >= 0) {
+        mpf_ui_sub(result.value, static_cast<unsigned long int> op1, op2.value);
+    } else {
+        mpf_add_ui(result.value, op2.value, static_cast<unsigned long int> op1);
+        mpf_neg(result.value);
+    }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator*=(mpf_class &lhs, const T rhs) {
-    mpf_class _rhs(rhs);
-    mpf_mul(lhs.value, lhs.value, _rhs.value);
+    if (rhs >= 0) {
+        mpf_mul_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+    } else {
+        mpf_mul_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_neg(lhs.value);
+    }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const mpf_class &op1, const T op2) {
-    mpf_class result(op2);
-    mpf_mul(result.value, op1.value, result.value);
+    mpf_class result(op1);
+    if (op2 >= 0) {
+        mpf_mul_ui(result.value, result.value, static_cast<unsigned long int> op2);
+    } else {
+        mpf_mul_ui(result.value, result.value, static_cast<unsigned long int> op2);
+        mpf_neg(result.value);
+    }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator/=(mpf_class &lhs, const T rhs) {
-    mpf_class _rhs(rhs);
-    mpf_div(lhs.value, lhs.value, _rhs.value);
+    if (rhs >= 0) {
+        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+    } else {
+        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_neg(result.value);
+    }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator/(const mpf_class &op1, const T op2) {
-    mpf_class result(op2);
-    mpf_div(result.value, op1.value, result.value);
+    mpf_class result(op1);
+    if (rhs >= 0) {
+        mpf_div_uil(result.value, result.value, static_cast<unsigned long int> op2);
+    } else {
+        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int> rhs);
+        mpf_neg(result.value);
+    }
     return result;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator/(const T op1, const mpf_class &op2) {
-    mpf_class result(op1);
-    mpf_div(result.value, result.value, op2.value);
+    mpf_class result(op2);
+    if (op1 >= 0) {
+        mpf_ui_div(result.value, static_cast<unsigned long int> op1, result.value);
+    } else {
+        mpf_ui_div(result.value, static_cast<unsigned long int> op1, result.value);
+        mpf_neg(result.value);
+    }
     return result;
 }
-// improvements can be done using mpf_XXX_ui
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs) {
-    mpf_class _rhs(rhs);
-    mpf_add(lhs.value, lhs.value, _rhs.value);
+    mpf_add_ui(lhs.value, lhs.value, rhs);
     return lhs;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator+(const mpf_class &op1, const T op2) {
     mpf_class result(op1);
-    result += op2;
+    mpf_add_ui(op1.value, op1.value, op2);
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator-=(mpf_class &lhs, const T rhs) {
-    mpf_class _rhs(rhs);
-    mpf_sub(lhs.value, lhs.value, _rhs.value);
+    mpf_sub_ui(lhs.value, lhs.value, rhs);
     return lhs;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator-(const mpf_class &op1, const T op2) {
-    mpf_class result(op2);
-    mpf_sub(result.value, op1.value, result.value);
+    mpf_class result(op1);
+    mpf_sub_ui(result.value, result.value, op2);
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator-(const T op1, const mpf_class &op2) {
-    mpf_class result(op1);
-    mpf_sub(result.value, result.value, op2.value);
+    mpf_class result(op2);
+    mpf_ui_sub(result.value, op2, result.value);
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator*=(mpf_class &lhs, const T rhs) {
-    mpf_class _rhs(rhs);
-    mpf_mul(lhs.value, lhs.value, _rhs.value);
+    mpf_mul_ui(lhs.value, lhs.value, rhs);
     return lhs;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator*(const mpf_class &op1, const T op2) {
-    mpf_class result(op2);
-    mpf_mul(result.value, op1.value, result.value);
+    mpf_class result(op1);
+    mpf_mul_ui(result.value, result.value, op2);
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator/=(mpf_class &lhs, const T rhs) {
-    mpf_class _rhs(rhs);
-    mpf_div(lhs.value, lhs.value, _rhs.value);
+    mpf_div_ui(lhs.value, lhs.value, rhs);
     return lhs;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator/(const mpf_class &op1, const T op2) {
-    mpf_class result(op2);
-    mpf_div(result.value, op1.value, result.value);
+    mpf_class result(op1);
+    mpf_div_ui(result.value, op1.value, op2);
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator/(const T op1, const mpf_class &op2) {
-    mpf_class result(op1);
-    mpf_div(result.value, result.value, op2.value);
+    mpf_ui_div(result.value, op1, result.value);
     return result;
 }
 template <typename T> inline NON_INT_COND(T, mpf_class &) operator+=(mpf_class &lhs, const T rhs) {
@@ -2831,7 +2864,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
     }
     return formatted_base;
 }
-int integraldigits_in_base(const mpf_t value, int base) {
+mp_exp_t integraldigits_in_base(const mpf_t value, int base) {
     mp_exp_t exp;
     mpf_get_d_2exp(&exp, value);
     if (mpf_sgn(value) == 0) {
@@ -2860,10 +2893,9 @@ int integraldigits_in_base(const mpf_t value, int base) {
     return digits;
 }
 std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int width, int prec, char fill) {
-    // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
-    int digits = integraldigits_in_base(value, base);
+    mp_exp_t digits = integraldigits_in_base(value, base);
     char *base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
     std::string base_str(base_cstr);
     free(base_cstr);
