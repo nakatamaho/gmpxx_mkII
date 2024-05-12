@@ -2630,7 +2630,7 @@ void test_misc() {
         std::cout << "Using gmp_randinit_default:" << std::endl;
         for (int i = 0; i < 5; i++) {
             mpf_class f(0, 512);
-            f = r1.get_f();
+            f = r1.get_f(512);
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
@@ -2641,7 +2641,7 @@ void test_misc() {
         std::cout << "\nUsing gmp_randinit_lc_2exp:" << std::endl;
         for (int i = 0; i < 5; i++) {
             mpf_class f(0, 512);
-            f = r2.get_f();
+            f = r2.get_f(512);
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
@@ -2651,7 +2651,7 @@ void test_misc() {
         std::cout << "\nUsing gmp_randinit_lc_2exp_size:" << std::endl;
         for (int i = 0; i < 5; i++) {
             mpf_class f(0, 512);
-            f = r3.get_f();
+            f = r3.get_f(512);
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
@@ -2661,7 +2661,7 @@ void test_misc() {
         std::cout << "Using gmp_randinit_mt:" << std::endl;
         for (int i = 0; i < 10; i++) {
             mpf_class f(0, 512);
-            f = r1.get_f();
+            f = r1.get_f(512);
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }

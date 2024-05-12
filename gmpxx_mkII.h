@@ -1152,22 +1152,53 @@ std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
     print_mpz(os, op);
     return os;
 }
-std::istream &operator>>(std::istream &stream, mpz_class &op) {
+std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
     std::string input;
     stream >> input;
-    if (mpz_set_str(op.value, input.c_str(), 10) != 0) {
+    int base = 10;
+    if (input.length() >= 2) {
+        if (input[0] == '0') {
+            if (input[1] == 'x' || input[1] == 'X') {
+                base = 16;
+                input.erase(0, 2);
+            } else {
+                base = 8;
+            }
+        }
+    }
+    bool negative = false;
+    if (input[0] == '-' || input[0] == '+') {
+        negative = (input[0] == '-');
+        input.erase(0, 1);
+    }
+    if (mpz_set_str(op, input.c_str(), base) != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    if (negative) {
+        mpz_neg(op, op);
+    }
+    return stream;
+}
+std::istream &read_mpz_from_stream(std::istream &stream, mpz_t op) {
+    std::ios_base::fmtflags current_flags = stream.flags();
+    if (current_flags == std::ios_base::fmtflags(0)) {
+        return read_nofmtflags_mpz_from_stream(stream, op);
+    }
+    std::string input;
+    stream >> input;
+    int base = 10;
+    if (current_flags & std::ios::oct) {
+        base = 8;
+    } else if (current_flags & std::ios::hex) {
+        base = 16;
+    }
+    if (mpz_set_str(op, input.c_str(), base) != 0) {
         stream.setstate(std::ios::failbit);
     }
     return stream;
 }
-std::istream &operator>>(std::istream &stream, mpz_t op) {
-    std::string input;
-    stream >> input;
-    if (mpz_set_str(op, input.c_str(), 10) != 0) {
-        stream.setstate(std::ios::failbit);
-    }
-    return stream;
-}
+std::istream &operator>>(std::istream &stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
+std::istream &operator>>(std::istream &stream, mpz_class &op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
 class mpq_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -3486,21 +3517,20 @@ class gmp_randclass {
         mpz_urandomm(result.get_mpz_t(), state, n.get_mpz_t());
         return result;
     }
-#if defined ___GMPXX_MKII_NOPRECCHANGE___
-    mpf_class get_f(void) {
-        mpf_class result;
-        mpf_urandomb(result.get_mpf_t(), state, mpf_get_default_prec());
-        return result;
-    }
-#endif
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
     mpf_class get_f(const mpf_class &op) {
         mpf_class result;
         mpf_urandomb(result.get_mpf_t(), state, op.get_prec());
         return result;
     }
+    mpf_class get_f(mp_bitcnt_t prec = 0) {
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+        if (prec == 0)
+            prec = mpf_get_default_prec();
+#else
+        if (prec == 0) {
+            throw std::runtime_error("Prec must be specified.");
+        }
 #endif
-    mpf_class get_f(mp_bitcnt_t prec) {
         mpf_class result(0, prec);
         mpf_urandomb(result.get_mpf_t(), state, prec);
         return result;
