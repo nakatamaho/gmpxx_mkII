@@ -3457,9 +3457,19 @@ mpf_class exp(const mpf_class &x) {
 class gmp_randclass {
   public:
     explicit gmp_randclass(void (*init_function)(gmp_randstate_t)) { init_function(state); }
+    // gmp_randinit_lc_2exp
     gmp_randclass(void (*init_function)(gmp_randstate_t, mpz_srcptr, unsigned long, mp_bitcnt_t), mpz_class a, unsigned long c, mp_bitcnt_t m2exp) { init_function(state, a.get_mpz_t(), c, m2exp); }
-    gmp_randclass(int (*init_function)(gmp_randstate_t, mp_bitcnt_t), mp_bitcnt_t m2exp) { init_function(state, m2exp); }
-    template <typename... Args> gmp_randclass(gmp_randalg_t alg, Args... args) { initialize(alg, args...); }
+    // gmp_randinit_lc_2exp_size
+    gmp_randclass(int (*init_function)(gmp_randstate_t, mp_bitcnt_t), mp_bitcnt_t m2exp) {
+        if (m2exp > 128) {
+            throw std::length_error("m2exp parameter is too large");
+        }
+        if (init_function(state, m2exp) == 0) {
+            throw std::runtime_error("Initialization failed");
+        }
+    }
+    // gmp_randinit_set, only
+    gmp_randclass(gmp_randalg_t alg, mp_bitcnt_t size) { __initialize(alg, size); }
     gmp_randclass(const gmp_randclass &) = delete;
     gmp_randclass &operator=(const gmp_randclass &) = delete;
     ~gmp_randclass() { gmp_randclear(state); }
@@ -3488,16 +3498,13 @@ class gmp_randclass {
 
   private:
     gmp_randstate_t state;
-
-    template <typename... Args> void initialize(gmp_randalg_t alg, Args... args) { // obslated cf. https://gmplib.org/manual/Random-State-Initialization
+    // obslated and equivalent to gmp_randinit_lc_2exp_size
+    // cf. https://gmplib.org/manual/Random-State-Initialization
+    void __initialize(gmp_randalg_t alg, mp_bitcnt_t size) {
         switch (alg) {
         case GMP_RAND_ALG_LC: // GMP_RAND_ALG_DEFAULT and 0 are the same as GMP_RAND_ALG_LC.
-            if constexpr (sizeof...(args) == 3) {
-                auto arg_tuple = std::make_tuple(args...);
-                gmp_randinit_lc_2exp_size(state, std::get<0>(arg_tuple), std::get<1>(arg_tuple), std::get<2>(arg_tuple));
-            } else {
-                gmp_errno |= GMP_ERROR_INVALID_ARGUMENT;
-                throw std::invalid_argument("Invalid number of arguments for GMP_RAND_ALG_LC");
+            if (gmp_randinit_lc_2exp_size(state, size) == 0) {
+                throw std::runtime_error("Initialization failed");
             }
             break;
         default:
