@@ -39,6 +39,8 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <cstdarg>
+#include <tuple>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -2493,7 +2495,7 @@ template <typename T> inline UNSIGNED_INT_COND(T, mpf_class &) operator+=(mpf_cl
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator+(const mpf_class &op1, const T op2) {
     mpf_class result(op1);
-    mpf_add_ui(op1.value, op1.value, op2);
+    mpf_add_ui(result.value, result.value, op2);
     return result;
 }
 template <typename T> inline UNSIGNED_INT_COND(T, mpf_class) operator+(const T op1, const mpf_class &op2) { return op2 + op1; }
@@ -3452,6 +3454,58 @@ mpf_class exp(const mpf_class &x) {
         _exp = one / _exp; // avoid cancellation of significant digits
     return _exp;
 }
+class gmp_randclass {
+  public:
+    explicit gmp_randclass(void (*init_function)(gmp_randstate_t)) { init_function(state); }
+    gmp_randclass(void (*init_function)(gmp_randstate_t, mpz_srcptr, unsigned long, mp_bitcnt_t), mpz_class a, unsigned long c, mp_bitcnt_t m2exp) { init_function(state, a.get_mpz_t(), c, m2exp); }
+    gmp_randclass(int (*init_function)(gmp_randstate_t, mp_bitcnt_t), mp_bitcnt_t m2exp) { init_function(state, m2exp); }
+    template <typename... Args> gmp_randclass(gmp_randalg_t alg, Args... args) { initialize(alg, args...); }
+    gmp_randclass(const gmp_randclass &) = delete;
+    gmp_randclass &operator=(const gmp_randclass &) = delete;
+    ~gmp_randclass() { gmp_randclear(state); }
+    void seed(unsigned long int s) { gmp_randseed_ui(state, s); }
+    void seed(const mpz_class &s) { gmp_randseed(state, s.get_mpz_t()); }
+    mpz_class get_z_bits(mp_bitcnt_t bits) {
+        mpz_class result;
+        mpz_urandomb(result.get_mpz_t(), state, bits);
+        return result;
+    }
+    mpz_class get_z_range(const mpz_class &n) {
+        mpz_class result;
+        mpz_urandomm(result.get_mpz_t(), state, n.get_mpz_t());
+        return result;
+    }
+    mpf_class get_f() {
+        mpf_class result;
+        mpf_urandomb(result.get_mpf_t(), state, mpf_get_prec(result.get_mpf_t()));
+        return result;
+    }
+    mpf_class get_f(mp_bitcnt_t prec) {
+        mpf_class result(0, prec);
+        mpf_urandomb(result.get_mpf_t(), state, prec);
+        return result;
+    }
+
+  private:
+    gmp_randstate_t state;
+
+    template <typename... Args> void initialize(gmp_randalg_t alg, Args... args) { // obslated cf. https://gmplib.org/manual/Random-State-Initialization
+        switch (alg) {
+        case GMP_RAND_ALG_LC: // GMP_RAND_ALG_DEFAULT and 0 are the same as GMP_RAND_ALG_LC.
+            if constexpr (sizeof...(args) == 3) {
+                auto arg_tuple = std::make_tuple(args...);
+                gmp_randinit_lc_2exp_size(state, std::get<0>(arg_tuple), std::get<1>(arg_tuple), std::get<2>(arg_tuple));
+            } else {
+                gmp_errno |= GMP_ERROR_INVALID_ARGUMENT;
+                throw std::invalid_argument("Invalid number of arguments for GMP_RAND_ALG_LC");
+            }
+            break;
+        default:
+            gmp_errno |= GMP_ERROR_UNSUPPORTED_ARGUMENT;
+            throw std::invalid_argument("Unsupported random algorithm");
+        }
+    }
+}; // gmp_randclass
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
 } // namespace gmp
 #endif
