@@ -3456,6 +3456,7 @@ mpf_class exp(const mpf_class &x) {
 }
 class gmp_randclass {
   public:
+    // gmp_randinit_default, gmp_randinit_mt
     explicit gmp_randclass(void (*init_function)(gmp_randstate_t)) { init_function(state); }
     // gmp_randinit_lc_2exp
     gmp_randclass(void (*init_function)(gmp_randstate_t, mpz_srcptr, unsigned long, mp_bitcnt_t), mpz_class a, unsigned long c, mp_bitcnt_t m2exp) { init_function(state, a.get_mpz_t(), c, m2exp); }
@@ -3485,11 +3486,20 @@ class gmp_randclass {
         mpz_urandomm(result.get_mpz_t(), state, n.get_mpz_t());
         return result;
     }
-    mpf_class get_f() {
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    mpf_class get_f(void) {
         mpf_class result;
-        mpf_urandomb(result.get_mpf_t(), state, mpf_get_prec(result.get_mpf_t()));
+        mpf_urandomb(result.get_mpf_t(), state, mpf_get_default_prec());
         return result;
     }
+#endif
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    mpf_class get_f(const mpf_class &op) {
+        mpf_class result;
+        mpf_urandomb(result.get_mpf_t(), state, op.get_prec());
+        return result;
+    }
+#endif
     mpf_class get_f(mp_bitcnt_t prec) {
         mpf_class result(0, prec);
         mpf_urandomb(result.get_mpf_t(), state, prec);
