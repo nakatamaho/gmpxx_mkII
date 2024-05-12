@@ -2625,6 +2625,69 @@ void test_misc() {
         gmp_printf("%.78Ff\n", h.get_mpf_t());
         gmp_printf("%.78Ff\n", i.get_mpf_t());
     }
+    {
+        gmp_randclass r1(gmp_randinit_default);
+        std::cout << "Using gmp_randinit_default:" << std::endl;
+        for (int i = 0; i < 5; i++) {
+            mpf_class f(0, 512);
+            f = r1.get_f();
+            gmp_printf("%.78Ff\n", f.get_mpf_t());
+        }
+    }
+    {
+        mpz_class a(0);
+        unsigned long c = 0, m2exp = 8;
+        gmp_randclass r2(gmp_randinit_lc_2exp, a, c, m2exp);
+        std::cout << "\nUsing gmp_randinit_lc_2exp:" << std::endl;
+        for (int i = 0; i < 5; i++) {
+            mpf_class f(0, 512);
+            f = r2.get_f();
+            gmp_printf("%.78Ff\n", f.get_mpf_t());
+        }
+    }
+    {
+        unsigned long m2exp_size = 64;
+        gmp_randclass r3(gmp_randinit_lc_2exp_size, m2exp_size);
+        std::cout << "\nUsing gmp_randinit_lc_2exp_size:" << std::endl;
+        for (int i = 0; i < 5; i++) {
+            mpf_class f(0, 512);
+            f = r3.get_f();
+            gmp_printf("%.78Ff\n", f.get_mpf_t());
+        }
+    }
+    {
+        gmp_randclass r1(gmp_randinit_mt);
+        r1.seed(1);
+        std::cout << "Using gmp_randinit_mt:" << std::endl;
+        for (int i = 0; i < 10; i++) {
+            mpf_class f(0, 512);
+            f = r1.get_f();
+            gmp_printf("%.78Ff\n", f.get_mpf_t());
+        }
+    }
+    {
+        gmp_randclass randGen(gmp_randinit_default);
+        mpz_class seedValue(123);
+        randGen.seed(seedValue);
+        std::cout << "Random mpz_class numbers with 256 bits:" << std::endl;
+        for (int i = 0; i < 5; i++) {
+            mpz_class randomNum;
+            randomNum = randGen.get_z_bits(256);
+            gmp_printf("%Zd\n", randomNum.get_mpz_t());
+        }
+    }
+    {
+        gmp_randclass randGen(gmp_randinit_default);
+        mpz_class seedValue(123);
+        randGen.seed(seedValue);
+        mpz_class range(256);
+        std::cout << "Random mpz_class numbers in the range 0 to 255:" << std::endl;
+        for (int i = 0; i < 5; i++) {
+            mpz_class randomNum;
+            randomNum = randGen.get_z_range(range);
+            gmp_printf("%Zd\n", randomNum.get_mpz_t());
+        }
+    }
 }
 int main() {
 #if !defined GMPXX_MKII
