@@ -1152,7 +1152,7 @@ std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
     print_mpz(os, op);
     return os;
 }
-std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op, bool is_mpq = false) {
+std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
     char ch;
     std::string number;
     bool negative = false;
@@ -1182,12 +1182,11 @@ std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op, bo
             stream.get(ch);
         } else if (isdigit(ch) && ch != '8' && ch != '9') {
             base = 8;
-        } else if (ch == '/' && is_mpq) {
+        } else {
+            // retake zero again
             stream.unget();
             stream.unget();
             stream.get(ch);
-        } else {
-            stream.unget();
         }
     }
     while (isdigit(ch) || (base == 16 && isxdigit(ch))) {
@@ -1195,8 +1194,11 @@ std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op, bo
         if (!stream.get(ch))
             break;
     }
+    if (!stream.eof())
+        stream.unget();
     int ret = mpz_set_str(op, number.c_str(), base);
     if (ret != 0) {
+        stream.setstate(stream.rdstate() & ~std::ios::goodbit);
         stream.setstate(std::ios::failbit);
     } else {
         stream.clear(stream.rdstate() & ~std::ios::failbit);
@@ -1897,10 +1899,6 @@ std::ostream &operator<<(std::ostream &os, const mpq_t &op) {
 std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base = 10) {
     char ch;
     std::string number;
-    bool negative = false;
-    bool is_space = false;
-    int counter = 0;
-    std::ios_base::fmtflags current_flags = stream.flags();
     mpz_ptr _numerator = mpq_numref(op);
     mpz_ptr _denominator = mpq_denref(op);
     mpq_class result;
@@ -1932,33 +1930,20 @@ std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base
 std::istream &read_nofmtflags_mpq_from_stream(std::istream &stream, mpq_t op) {
     char ch;
     std::string number;
-    bool negative = false;
-    bool is_space = false;
-    int base = 10;
-    int counter = 0;
-    std::ios_base::fmtflags current_flags = stream.flags();
     mpz_ptr _numerator = mpq_numref(op);
     mpz_ptr _denominator = mpq_denref(op);
     mpq_class result;
-    bool is_slash = false;
-
-    read_nofmtflags_mpz_from_stream(stream, _numerator, true);
+    bool has_slash = false;
+    read_nofmtflags_mpz_from_stream(stream, _numerator);
     if (!stream.eof()) {
-        while (true) {
-            if (stream.get(ch)) {
-                if (ch == '/') {
-                    is_slash = true;
-                    break;
-                } else {
-                    stream.unget();
-                    break;
-                }
-            } else {
-                break;
-            }
+        stream.get(ch);
+        if (ch == '/') {
+            has_slash = true;
+        } else {
+            stream.unget();
         }
     }
-    if (is_slash) {
+    if (has_slash) {
         read_nofmtflags_mpz_from_stream(stream, _denominator);
     } else {
         mpz_set_ui(_denominator, 1UL);
