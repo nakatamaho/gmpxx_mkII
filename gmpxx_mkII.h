@@ -1195,8 +1195,6 @@ std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op, bo
         if (!stream.get(ch))
             break;
     }
-    if (stream)
-        stream.unget();
     int ret = mpz_set_str(op, number.c_str(), base);
     if (ret != 0) {
         stream.setstate(std::ios::failbit);
