@@ -2638,7 +2638,7 @@ void test_misc() {
         mpz_class a(0);
         unsigned long c = 0, m2exp = 8;
         gmp_randclass r2(gmp_randinit_lc_2exp, a, c, m2exp);
-        std::cout << "\nUsing gmp_randinit_lc_2exp:" << std::endl;
+        std::cout << "Using gmp_randinit_lc_2exp:" << std::endl;
         for (int i = 0; i < 5; i++) {
             mpf_class f(0, 512);
             f = r2.get_f(512);
@@ -2648,7 +2648,7 @@ void test_misc() {
     {
         unsigned long m2exp_size = 64;
         gmp_randclass r3(gmp_randinit_lc_2exp_size, m2exp_size);
-        std::cout << "\nUsing gmp_randinit_lc_2exp_size:" << std::endl;
+        std::cout << "Using gmp_randinit_lc_2exp_size:" << std::endl;
         for (int i = 0; i < 5; i++) {
             mpf_class f(0, 512);
             f = r3.get_f(512);
@@ -2689,7 +2689,8 @@ void test_misc() {
         }
     }
     ////
-    { // A clear difference between the original macro-based implementation and my C++17 implementation
+    {
+        // A clear difference between the original macro-based implementation and my C++17 implementation
         // the original implementation behaves like 1/f (or 1/3) is evaluated in the infinite precision!
         // whereas ours evaluate 1/f in small_prec then we substitute to g in the very_large_prec.
         std::cout << "A clear example of the difference between the original gmpxx and my new implementation 1:" << std::endl;
@@ -2701,18 +2702,18 @@ void test_misc() {
         gmp_printf("%.78Ff\n", g.get_mpf_t());
     }
 #if defined ___GMPXX_MKII_NOPRECCHANGE___ || defined USE_ORIGINAL_GMPXX
-    { // Another clear difference between the original macro-based implementation and my C++17 implementation
+    {
+        // Another clear difference between the original macro-based implementation and my C++17 implementation
         // r2.get_f() knows the precision of f in the original implementation, whereas my implementation does not.
+        // we disable the xx.get_f() form, use xx.get_f(prec) instead and please explicitly state the precision.
         std::cout << "A clear example of the difference between the original gmpxx and my new implementation 2:" << std::endl;
         const int medium_prec = 128, large_prec = 512;
         mpf_set_default_prec(medium_prec);
-        mpz_class a(0);
-        unsigned long c = 0, m2exp = 8;
-        gmp_randclass r2(gmp_randinit_lc_2exp, a, c, m2exp);
-        std::cout << "\nUsing gmp_randinit_lc_2exp:" << std::endl;
+        gmp_randclass r1(gmp_randinit_default);
+        std::cout << "Using gmp_randinit_default:" << std::endl;
         for (int i = 0; i < 5; i++) {
             mpf_class f(0, large_prec);
-            f = r2.get_f();
+            f = r1.get_f();
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
