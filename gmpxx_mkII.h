@@ -1153,36 +1153,63 @@ std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
     return os;
 }
 std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
-    std::string input;
-    stream >> input;
-    int base = 10;
+    char ch;
+    std::string number;
     bool negative = false;
-    if (!input.empty() && (input[0] == '-' || input[0] == '+')) {
-        negative = (input[0] == '-');
-        input.erase(0, 1);
+    bool is_space = false;
+    int base = 10;
+
+    std::ios_base::fmtflags current_flags = stream.flags();
+    int counter = 0;
+    while (stream >> ch && isspace(ch)) {
+        is_space = true;
+        counter++;
     }
-    if (input.length() >= 1 && input[0] == '0') {
-        if (input.length() >= 2 && (input[1] == 'x' || input[1] == 'X')) {
+    if (!(current_flags & std::ios::skipws) && is_space == true) {
+        for (int i = 0; i <= counter; i++)
+            stream.unget();
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    if (ch == '+' || ch == '-') {
+        negative = (ch == '-');
+        stream.get(ch);
+    }
+    if (ch == '0') {
+        stream.get(ch);
+        if (ch == 'x' || ch == 'X') {
             base = 16;
-            input.erase(0, 2);
-        } else {
+            stream.get(ch);
+        } else if (isdigit(ch) && ch != '8' && ch != '9') {
             base = 8;
+        } else {
+            stream.unget();
         }
     }
-    if (mpz_set_str(op, input.c_str(), base) != 0) {
+    while (isdigit(ch) || (base == 16 && isxdigit(ch))) {
+        number += ch;
+        if (!stream.get(ch))
+            break;
+    }
+    if (stream)
+        stream.unget();
+    int ret = mpz_set_str(op, number.c_str(), base);
+    if (ret != 0) {
         stream.setstate(std::ios::failbit);
+    } else {
+        stream.clear(stream.rdstate() & ~std::ios::failbit);
+        stream.setstate(std::ios::goodbit);
     }
     if (negative) {
         mpz_neg(op, op);
     }
     return stream;
 }
-std::istream &read_dec_mpz_from_stream(std::istream &stream, mpz_t op) {
+std::istream &read_base_mpz_from_stream(std::istream &stream, mpz_t op, int base = 10) {
     char ch;
     std::string number;
     bool negative = false;
     bool number_started = false;
-    int base = 10;
     while (stream >> ch && isspace(ch))
         ;
     if (!stream) {
@@ -1193,13 +1220,16 @@ std::istream &read_dec_mpz_from_stream(std::istream &stream, mpz_t op) {
         negative = (ch == '-');
         stream.get(ch);
     }
-    while (isdigit(ch)) {
+    while ((base <= 10 && isdigit(ch) && ch < '0' + base) || (base == 16 && isxdigit(ch))) {
+        if (base == 16 && isalpha(ch)) {
+            ch = tolower(ch);
+        }
         number += ch;
         number_started = true;
         if (!stream.get(ch))
             break;
     }
-    if (!isdigit(ch) && number_started) {
+    if (number_started && (ch < '0' || (ch > '9' && base <= 10) || (ch > 'f' && base == 16))) {
         stream.unget();
     }
     if (negative && !number.empty())
@@ -1214,15 +1244,6 @@ std::istream &read_dec_mpz_from_stream(std::istream &stream, mpz_t op) {
         stream.clear(stream.rdstate() & ~std::ios::failbit);
         stream.setstate(std::ios::goodbit);
     }
-    return stream;
-}
-std::istream &read_oct_mpz_from_stream(std::istream &stream, mpz_t op) {
-    std::string input;
-    int base = 8;
-    if (mpz_set_str(op, input.c_str(), base) != 0) {
-        stream.setstate(std::ios::failbit);
-    }
-    stream >> input;
     return stream;
 }
 std::istream &read_hex_mpz_from_stream(std::istream &stream, mpz_t op) {
@@ -1240,11 +1261,11 @@ std::istream &read_mpz_from_stream(std::istream &stream, mpz_t op) {
         return read_nofmtflags_mpz_from_stream(stream, op);
     }
     if (current_flags & std::ios::oct) {
-        return read_oct_mpz_from_stream(stream, op);
+        return read_base_mpz_from_stream(stream, op, 8);
     } else if (current_flags & std::ios::hex) {
-        return read_hex_mpz_from_stream(stream, op);
+        return read_base_mpz_from_stream(stream, op, 16);
     }
-    return read_dec_mpz_from_stream(stream, op);
+    return read_base_mpz_from_stream(stream, op);
 }
 std::istream &operator>>(std::istream &stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
 std::istream &operator>>(std::istream &stream, mpz_class &op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
