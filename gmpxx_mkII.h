@@ -1893,14 +1893,14 @@ std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base
     mpz_ptr _numerator = mpq_numref(op);
     mpz_ptr _denominator = mpq_denref(op);
     mpq_class result;
-    bool is_slash = false;
+    bool has_slash = false;
 
     read_base_mpz_from_stream(stream, _numerator, base);
     if (!stream.eof()) {
         while (true) {
             if (stream.get(ch)) {
                 if (ch == '/') {
-                    is_slash = true;
+                    has_slash = true;
                     break;
                 } else {
                     stream.unget();
@@ -1911,8 +1911,13 @@ std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base
             }
         }
     }
-    if (is_slash) {
-        read_base_mpz_from_stream(stream, _denominator, base);
+    if (has_slash) {
+        char _ch = stream.peek();
+        if (isxdigit(_ch)) {
+            read_base_mpz_from_stream(stream, _denominator, base);
+        } else {
+            stream.setstate(std::ios::failbit);
+        }
     } else {
         mpz_set_ui(_denominator, 1UL);
     }
@@ -1935,10 +1940,14 @@ std::istream &read_nofmtflags_mpq_from_stream(std::istream &stream, mpq_t op) {
         }
     }
     if (has_slash) {
-        read_nofmtflags_mpz_from_stream(stream, _denominator);
-    } else {
+        char _ch = stream.peek();
+        if (isxdigit(_ch)) {
+            read_nofmtflags_mpz_from_stream(stream, _denominator);
+        } else {
+            stream.setstate(std::ios::failbit);
+        }
+    } else
         mpz_set_ui(_denominator, 1UL);
-    }
     return stream;
 }
 std::istream &read_mpq_from_stream(std::istream &stream, mpq_t op) {
