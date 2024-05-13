@@ -1178,31 +1178,41 @@ std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
     return stream;
 }
 std::istream &read_dec_mpz_from_stream(std::istream &stream, mpz_t op) {
-    std::string input;
-    stream >> input;
-    size_t i = 0, start = 0;
-    bool valid_input = false, negative = false;
-    if (!input.empty() && (input[0] == '+' || input[0] == '-')) {
-        negative = (input[0] == '-');
-        start = 1;
+    char ch;
+    std::string number;
+    bool negative = false;
+    bool number_started = false;
+    int base = 10;
+    while (stream >> ch && isspace(ch))
+        ;
+    if (!stream) {
+        stream.setstate(std::ios::failbit);
+        return stream;
     }
-    for (i = start; i < input.length(); ++i) {
-        if (input[i] < '0' || input[i] > '9')
+    if (ch == '+' || ch == '-') {
+        negative = (ch == '-');
+        stream.get(ch);
+    }
+    while (isdigit(ch)) {
+        number += ch;
+        number_started = true;
+        if (!stream.get(ch))
             break;
     }
-    std::string number = input.substr(start, i - start);
-    if (negative)
+    if (!isdigit(ch) && number_started) {
+        stream.unget();
+    }
+    if (negative && !number.empty())
         number = "-" + number;
-    int base = 10;
     if (number.empty()) {
         stream.setstate(std::ios::failbit);
     }
     int ret = mpz_set_str(op, number.c_str(), base);
     if (ret != 0) {
         stream.setstate(std::ios::failbit);
-    }
-    if (i < input.length()) {
-        stream.clear(stream.rdstate() & ~std::ios::eofbit);
+    } else {
+        stream.clear(stream.rdstate() & ~std::ios::failbit);
+        stream.setstate(std::ios::goodbit);
     }
     return stream;
 }
