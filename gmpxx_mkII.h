@@ -1152,7 +1152,7 @@ std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
     print_mpz(os, op);
     return os;
 }
-std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
+std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op, bool is_mpq = false) {
     char ch;
     std::string number;
     bool negative = false;
@@ -1182,6 +1182,10 @@ std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
             stream.get(ch);
         } else if (isdigit(ch) && ch != '8' && ch != '9') {
             base = 8;
+        } else if (ch == '/' && is_mpq) {
+            stream.unget();
+            stream.unget();
+            stream.get(ch);
         } else {
             stream.unget();
         }
@@ -1892,23 +1896,91 @@ std::ostream &operator<<(std::ostream &os, const mpq_t &op) {
     print_mpq(os, op);
     return os;
 }
-std::istream &operator>>(std::istream &stream, mpq_class &rop) {
-    std::string input;
-    std::getline(stream, input);
-    if (input.empty() || rop.set_str(input, 10) != 0) {
-        stream.setstate(std::ios::failbit);
-    }
-    return stream;
-}
-std::istream &operator>>(std::istream &stream, mpq_t op) {
-    std::string input;
-    stream >> input;
-    if (mpq_set_str(op, input.c_str(), 10) != 0) {
-        stream.setstate(std::ios::failbit);
-    }
-    return stream;
-}
+std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base = 10) {
+    char ch;
+    std::string number;
+    bool negative = false;
+    bool is_space = false;
+    int counter = 0;
+    std::ios_base::fmtflags current_flags = stream.flags();
+    mpz_ptr _numerator = mpq_numref(op);
+    mpz_ptr _denominator = mpq_denref(op);
+    mpq_class result;
+    bool is_slash = false;
 
+    read_base_mpz_from_stream(stream, _numerator, base);
+    if (!stream.eof()) {
+        while (true) {
+            if (stream.get(ch)) {
+                if (ch == '/') {
+                    is_slash = true;
+                    break;
+                } else {
+                    stream.unget();
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+    if (is_slash) {
+        read_base_mpz_from_stream(stream, _denominator, base);
+    } else {
+        mpz_set_ui(_denominator, 1UL);
+    }
+    return stream;
+}
+std::istream &read_nofmtflags_mpq_from_stream(std::istream &stream, mpq_t op) {
+    char ch;
+    std::string number;
+    bool negative = false;
+    bool is_space = false;
+    int base = 10;
+    int counter = 0;
+    std::ios_base::fmtflags current_flags = stream.flags();
+    mpz_ptr _numerator = mpq_numref(op);
+    mpz_ptr _denominator = mpq_denref(op);
+    mpq_class result;
+    bool is_slash = false;
+
+    read_nofmtflags_mpz_from_stream(stream, _numerator, true);
+    if (!stream.eof()) {
+        while (true) {
+            if (stream.get(ch)) {
+                if (ch == '/') {
+                    is_slash = true;
+                    break;
+                } else {
+                    stream.unget();
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+    if (is_slash) {
+        read_nofmtflags_mpz_from_stream(stream, _denominator);
+    } else {
+        mpz_set_ui(_denominator, 1UL);
+    }
+    return stream;
+}
+std::istream &read_mpq_from_stream(std::istream &stream, mpq_t op) {
+    std::ios_base::fmtflags current_flags = stream.flags();
+    if (current_flags == std::ios_base::fmtflags(0)) {
+        return read_nofmtflags_mpq_from_stream(stream, op);
+    }
+    if (current_flags & std::ios::oct) {
+        return read_base_mpq_from_stream(stream, op, 8);
+    } else if (current_flags & std::ios::hex) {
+        return read_base_mpq_from_stream(stream, op, 16);
+    }
+    return read_base_mpq_from_stream(stream, op);
+}
+std::istream &operator>>(std::istream &stream, mpq_t op) { return read_mpq_from_stream(stream, op); }
+std::istream &operator>>(std::istream &stream, mpq_class &op) { return read_mpq_from_stream(stream, op.get_mpq_t()); }
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
