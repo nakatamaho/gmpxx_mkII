@@ -1250,15 +1250,6 @@ std::istream &read_base_mpz_from_stream(std::istream &stream, mpz_t op, int base
     }
     return stream;
 }
-std::istream &read_hex_mpz_from_stream(std::istream &stream, mpz_t op) {
-    std::string input;
-    int base = 16;
-    if (mpz_set_str(op, input.c_str(), base) != 0) {
-        stream.setstate(std::ios::failbit);
-    }
-    stream >> input;
-    return stream;
-}
 std::istream &read_mpz_from_stream(std::istream &stream, mpz_t op) {
     std::ios_base::fmtflags current_flags = stream.flags();
     if (current_flags == std::ios_base::fmtflags(0)) {
