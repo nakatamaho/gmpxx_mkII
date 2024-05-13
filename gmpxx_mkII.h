@@ -1180,17 +1180,29 @@ std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
 std::istream &read_dec_mpz_from_stream(std::istream &stream, mpz_t op) {
     std::string input;
     stream >> input;
-    int base = 10;
-    bool negative = false;
-    if (!input.empty() && (input[0] == '-' || input[0] == '+')) {
+    size_t i = 0, start = 0;
+    bool valid_input = false, negative = false;
+    if (!input.empty() && (input[0] == '+' || input[0] == '-')) {
         negative = (input[0] == '-');
-        input.erase(0, 1);
+        start = 1;
     }
-    if (mpz_set_str(op, input.c_str(), base) != 0) {
+    for (i = start; i < input.length(); ++i) {
+        if (input[i] < '0' || input[i] > '9')
+            break;
+    }
+    std::string number = input.substr(start, i - start);
+    if (negative)
+        number = "-" + number;
+    int base = 10;
+    if (number.empty()) {
         stream.setstate(std::ios::failbit);
     }
-    if (negative) {
-        mpz_neg(op, op);
+    int ret = mpz_set_str(op, number.c_str(), base);
+    if (ret != 0) {
+        stream.setstate(std::ios::failbit);
+    }
+    if (i < input.length()) {
+        stream.clear(stream.rdstate() & ~std::ios::eofbit);
     }
     return stream;
 }
@@ -1218,9 +1230,9 @@ std::istream &read_mpz_from_stream(std::istream &stream, mpz_t op) {
         return read_nofmtflags_mpz_from_stream(stream, op);
     }
     if (current_flags & std::ios::oct) {
-        read_oct_mpz_from_stream(stream, op);
+        return read_oct_mpz_from_stream(stream, op);
     } else if (current_flags & std::ios::hex) {
-        read_hex_mpz_from_stream(stream, op);
+        return read_hex_mpz_from_stream(stream, op);
     }
     return read_dec_mpz_from_stream(stream, op);
 }
