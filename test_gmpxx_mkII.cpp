@@ -2635,8 +2635,8 @@ void test_misc() {
         }
     }
     {
-        mpz_class a(0);
-        unsigned long c = 0, m2exp = 8;
+        mpz_class a(2862933555777941757);
+        unsigned long c = 0, m2exp = 32;
         gmp_randclass r2(gmp_randinit_lc_2exp, a, c, m2exp);
         std::cout << "Using gmp_randinit_lc_2exp:" << std::endl;
         for (int i = 0; i < 5; i++) {
