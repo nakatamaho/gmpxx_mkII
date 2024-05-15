@@ -3253,22 +3253,109 @@ std::ostream &operator<<(std::ostream &os, const mpf_t &op) {
     print_mpf(os, op);
     return os;
 }
-std::istream &operator>>(std::istream &stream, mpf_class &op) {
-    std::string input;
-    stream >> input;
-    if (mpf_set_str(op.value, input.c_str(), 10) != 0) {
+bool is_valid_number_char(char ch) { return std::isxdigit(ch) || ch == '.' || ch == 'p' || ch == 'P' || ch == '-' || ch == '+'; }
+std::istream &read_nofmtflags_mpf_from_stream(std::istream &stream, mpf_t op) {
+    char ch;
+    std::string number;
+    bool negative = false;
+    bool is_space = false;
+    int base = 10;
+    std::ios_base::fmtflags current_flags = stream.flags();
+    int counter = 0;
+    while (stream >> ch && isspace(ch)) {
+        is_space = true;
+        counter++;
+    }
+    if (!(current_flags & std::ios::skipws) && is_space == true) {
+        for (int i = 0; i <= counter; i++)
+            stream.unget();
         stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    if (ch == '+' || ch == '-') {
+        negative = (ch == '-');
+        if (!stream.get(ch)) {
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+        if (ch == '+' || ch == '-') {
+            stream.unget();
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+    }
+    if (ch == '.') {
+        if (!stream.get(ch)) {
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+        if (ch == 'e' || ch == 'E') {
+            stream.unget();
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+    }
+    if (ch == 'e' || ch == 'E') {
+        stream.unget();
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    if (!std::isdigit(ch) && ch != '.') {
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    while (is_valid_number_char(ch)) {
+        number += ch;
+        if (!stream.get(ch))
+            break;
+    }
+    // folloing code detects invalid +-, -+, --, ++
+    std::size_t pos_plus_minus = number.find("+-");
+    std::size_t pos_minus_plus = number.find("-+");
+    std::size_t pos_minus_minus = number.find("--");
+    std::size_t pos_plus_plus = number.find("++");
+    std::size_t invalid_pos = std::string::npos;
+    if (pos_plus_minus != std::string::npos) {
+        invalid_pos = pos_plus_minus;
+    } else if (pos_minus_plus != std::string::npos) {
+        invalid_pos = pos_minus_plus;
+    } else if (pos_minus_minus != std::string::npos) {
+        invalid_pos = pos_minus_minus;
+    } else if (pos_plus_plus != std::string::npos) {
+        invalid_pos = pos_plus_plus;
+    }
+    if (invalid_pos != std::string::npos) {
+        if (stream.eof())
+            stream.clear();
+        for (std::size_t i = number.size(); i > invalid_pos + 1; --i) {
+            stream.unget();
+        }
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    int ret = mpf_set_str(op, number.c_str(), base);
+    if (ret != 0) {
+        stream.setstate(stream.rdstate() & ~std::ios::goodbit);
+        stream.setstate(std::ios::failbit);
+    } else {
+        stream.clear(stream.rdstate() & ~std::ios::failbit);
+        stream.setstate(std::ios::goodbit);
+    }
+    if (negative) {
+        mpf_neg(op, op);
     }
     return stream;
 }
-std::istream &operator>>(std::istream &stream, mpf_t op) {
-    std::string input;
-    stream >> input;
-    if (mpf_set_str(op, input.c_str(), 10) != 0) {
-        stream.setstate(std::ios::failbit);
+std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
+    std::ios_base::fmtflags current_flags = stream.flags();
+    if (current_flags == std::ios_base::fmtflags(0)) {
+        return read_nofmtflags_mpf_from_stream(stream, op);
+    } else {
+        throw std::runtime_error("Invalid stream format flags");
     }
-    return stream;
 }
+std::istream &operator>>(std::istream &stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
+std::istream &operator>>(std::istream &stream, mpf_class &op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
 mpf_class pi_cached;
 mpf_class const_pi() {
     static bool calculated = false;
