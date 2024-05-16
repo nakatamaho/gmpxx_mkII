@@ -32,6 +32,7 @@
 #include <string>
 #include <iomanip>
 #include <cmath>
+#include <vector>
 
 #if defined USE_ORIGINAL_GMPXX
 #include <gmpxx.h>
@@ -2624,6 +2625,7 @@ void test_misc() {
         gmp_printf("%.78Ff\n", g.get_mpf_t());
         gmp_printf("%.78Ff\n", h.get_mpf_t());
         gmp_printf("%.78Ff\n", i.get_mpf_t());
+        mpf_set_default_prec(512);
     }
     {
         gmp_randclass r1(gmp_randinit_default);
@@ -2700,6 +2702,7 @@ void test_misc() {
         mpf_class g(1 / f, very_large_prec);
         gmp_printf("%.78Ff\n", f.get_mpf_t());
         gmp_printf("%.78Ff\n", g.get_mpf_t());
+        mpf_set_default_prec(512);
     }
 #if defined ___GMPXX_MKII_NOPRECCHANGE___ || defined USE_ORIGINAL_GMPXX
     {
@@ -2716,9 +2719,34 @@ void test_misc() {
             f = r1.get_f();
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
+        mpf_set_default_prec(512);
     }
 #endif
 }
+void test_reminder() {
+#if !defined USE_ORIGINAL_GMPXX
+    std::vector<mpf_class> x_values = {mpf_class("10.5"), mpf_class("23.7"), mpf_class("5.3"), mpf_class("-15.8"), mpf_class("-7.6")};
+    std::vector<mpf_class> y_values = {mpf_class("3.2"), mpf_class("4.5"), mpf_class("2.1"), mpf_class("6.1"), mpf_class("2.3")};
+    mpf_class epsilon;
+    epsilon.set_epsilon();
+
+    for (int i = 0; i < 5; ++i) {
+        mpf_class x = x_values[i];
+        mpf_class y = y_values[i];
+        if (y == 0) {
+            std::cerr << "Error: Division by zero is not allowed for pair (" << x << ", " << y << ")" << std::endl;
+            continue;
+        }
+        mpz_class quotient;
+        mpf_class remainder = gmp_remainder(x, y, &quotient);
+        mpf_class reconstructed_x = quotient * y + remainder;
+        std::cout << "gmp_remainder(" << x << ", " << y << ") = " << remainder << ", quotient = " << quotient << ", remainder = " << remainder << ", reconstructed x = " << reconstructed_x << std::endl;
+        assert(abs(x - reconstructed_x) < epsilon * 2.0 && "Check failed: reconstructed_x does not match original x");
+    }
+    std::cout << "test_reminder passed." << std::endl;
+#endif
+}
+
 int main() {
 #if !defined GMPXX_MKII
     mpf_set_default_prec(512);
@@ -2822,6 +2850,9 @@ int main() {
     // misc tests
     test_precisions_mixed();
     test_misc();
+
+    //
+    test_reminder();
     std::cout << "All tests passed." << std::endl;
 
     return 0;

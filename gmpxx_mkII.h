@@ -2365,6 +2365,11 @@ class mpf_class {
         mpf_ptr non_const_ptr = const_cast<mpf_ptr>(this->get_mpf_t());
         mpf_mul_2exp(non_const_ptr, this->get_mpf_t(), exp);
     }
+    void set_epsilon() {
+        mp_bitcnt_t bits = get_prec();
+        mpf_set_ui(this->get_mpf_t(), 1);                             // epsilon = 1
+        mpf_div_2exp(this->get_mpf_t(), this->get_mpf_t(), bits - 1); // epsilon = 1 / 2^(bits-1)
+    }
     // int mpf_class::set_str (const char *str, int base)
     // int mpf_class::set_str (const string& str, int base)
     int set_str(const char *str, int base) { return mpf_set_str(value, str, base); }
@@ -3696,6 +3701,14 @@ mpf_class exp(const mpf_class &x) {
     if (x < zero)
         _exp = one / _exp; // avoid cancellation of significant digits
     return _exp;
+}
+mpf_class gmp_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quotient_out = nullptr) {
+    mpf_class quotient = x / y;
+    mpz_class int_quotient(quotient);
+    if (quotient_out) {
+        *quotient_out = int_quotient;
+    }
+    return x - int_quotient * y;
 }
 class gmp_randclass {
   public:
