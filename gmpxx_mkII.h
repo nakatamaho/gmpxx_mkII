@@ -3823,6 +3823,10 @@ mpf_class sin_taylor(const mpf_class &x) {
         x_reduced = three * two_pi - x_reduced;
         symm_sign *= -1;
     }
+    if ((three * two_pi < x_reduced) && (x_reduced <= two_pi)) {
+        x_reduced = two_pi - x_reduced;
+        symm_sign *= -1;
+    }
     // Calculate sin(x) using Taylor series
     term = x_reduced;
     sinx = zero;
