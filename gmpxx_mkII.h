@@ -3702,7 +3702,7 @@ mpf_class exp(const mpf_class &x) {
         _exp = one / _exp; // avoid cancellation of significant digits
     return _exp;
 }
-mpf_class gmp_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quotient_out = nullptr) {
+mpf_class mpf_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quotient_out = nullptr) {
     mpf_class quotient = x / y;
     mpz_class int_quotient(quotient);
     if (quotient_out) {
@@ -3710,6 +3710,63 @@ mpf_class gmp_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quoti
     }
     return x - int_quotient * y;
 }
+mpf_class cos_taylor(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    // Constants and variables
+    mpf_class _PI(0.0, req_precision);
+    mpf_class two_pi(0.0, req_precision);
+    mpf_class pi_over_4(0.0, req_precision);
+    mpf_class term(0.0, req_precision);
+    mpf_class cosx(0.0, req_precision);
+    mpf_class x_squared(0.0, req_precision);
+    mpf_class x_reduced(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class three(2.0, req_precision);
+    mpf_class four(4.0, req_precision);
+    mpf_class five(5.0, req_precision);
+    mpf_class seven(7.0, req_precision);
+    mpf_class n(0.0, req_precision);
+
+    // constants
+    _PI = const_pi(req_precision);
+    two_pi = two * _PI;
+    pi_over_4 = _PI / four;
+
+    // cos(-x) = cos(x)
+    x_reduced = x;
+    if (x_reduced < 0) {
+        x_reduced = -x_reduced;
+    }
+    // Reduce x to [0, 2*pi)
+    x_reduced = mpf_remainder(x_reduced, two_pi);
+    // Further reduce x to [0, pi/4]
+    if (x_reduced > pi_over_4 && x_reduced <= three * pi_over_4) {
+        x_reduced = _PI / two - x_reduced;
+    } else if (x_reduced > three * pi_over_4 && x_reduced <= five * pi_over_4) {
+        x_reduced = x_reduced - _PI;
+    } else if (x_reduced > five * pi_over_4 && x_reduced <= seven * pi_over_4) {
+        x_reduced = three * _PI / two - x_reduced;
+    } else if (x_reduced > seven * pi_over_4) {
+        x_reduced = x_reduced - two * _PI;
+    }
+    // Calculate cos(x) using Taylor series
+    x_squared = x_reduced * x_reduced;
+    term = one;
+    cosx = one;
+    int sign = -1;
+    for (int _n = 1; _n <= 10; ++_n) {
+        n = mpf_class(_n, req_precision);
+        term *= x_reduced * x_reduced / (two * n * (two * n - one));
+        cosx += sign * term;
+        sign *= -1;
+    }
+    return cosx;
+}
+mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
 class gmp_randclass {
   public:
     // gmp_randinit_default, gmp_randinit_mt

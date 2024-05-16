@@ -2738,12 +2738,29 @@ void test_reminder() {
             continue;
         }
         mpz_class quotient;
-        mpf_class remainder = gmp_remainder(x, y, &quotient);
+        mpf_class remainder = mpf_remainder(x, y, &quotient);
         mpf_class reconstructed_x = quotient * y + remainder;
         std::cout << "gmp_remainder(" << x << ", " << y << ") = " << remainder << ", quotient = " << quotient << ", remainder = " << remainder << ", reconstructed x = " << reconstructed_x << std::endl;
         assert(abs(x - reconstructed_x) < epsilon * 2.0 && "Check failed: reconstructed_x does not match original x");
     }
     std::cout << "test_reminder passed." << std::endl;
+#endif
+}
+
+void test_cos() {
+#if !defined USE_ORIGINAL_GMPXX
+    mpf_class x, y;
+    x = 1.0;
+    y = cos(x);
+    std::cout << "cos(" << std::setprecision(3) << x << ") = " << std::setprecision(153) << y << std::endl;
+
+    x = "0.5";
+    y = cos(x);
+    std::cout << "cos(" << std::setprecision(3) << x << ") = " << std::setprecision(153) << y << std::endl;
+
+    x = "0.01";
+    y = cos(x);
+    std::cout << "cos(" << std::setprecision(3) << x << ") = " << std::setprecision(153) << y << std::endl;
 #endif
 }
 
@@ -2853,6 +2870,7 @@ int main() {
 
     //
     test_reminder();
+    test_cos();
     std::cout << "All tests passed." << std::endl;
 
     return 0;
