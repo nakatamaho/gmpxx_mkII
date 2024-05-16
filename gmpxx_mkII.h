@@ -3724,11 +3724,10 @@ mpf_class cos_taylor(const mpf_class &x) {
     mpf_class term(0.0, req_precision);
     mpf_class cosx(0.0, req_precision);
     mpf_class cosx_prev(0.0, req_precision);
-    mpf_class x_squared(0.0, req_precision);    
+    mpf_class x_squared(0.0, req_precision);
     mpf_class x_reduced(0.0, req_precision);
     mpf_class one(1.0, req_precision);
     mpf_class two(2.0, req_precision);
-    mpf_class three(2.0, req_precision);
     mpf_class four(4.0, req_precision);
     mpf_class n(0.0, req_precision);
     mpf_class epsilon(0.0, req_precision);
@@ -3774,6 +3773,56 @@ mpf_class cos_taylor(const mpf_class &x) {
     return cosx * symm_sign;
 }
 mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
+mpf_class sin_taylor(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    // Constants and variables
+    mpf_class _PI(0.0, req_precision);
+    mpf_class two_pi(0.0, req_precision);
+    mpf_class pi_over_4(0.0, req_precision);
+    mpf_class term(0.0, req_precision);
+    mpf_class sinx(0.0, req_precision);
+    mpf_class sinx_prev(0.0, req_precision);
+    mpf_class x_squared(0.0, req_precision);
+    mpf_class x_reduced(0.0, req_precision);
+    mpf_class zero(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class three(3.0, req_precision);
+    mpf_class four(4.0, req_precision);
+    mpf_class n(0.0, req_precision);
+    mpf_class epsilon(0.0, req_precision);
+    int symm_sign = 1;
+    // Setting some constants
+    _PI = const_pi(req_precision);
+    two_pi = two * _PI;
+    pi_over_4 = _PI / four;
+    epsilon.set_epsilon();
+    // sin(-x) = -sin(x)
+    x_reduced = x;
+    if (x_reduced < 0) {
+        x_reduced = -x_reduced;
+        symm_sign = -1;
+    }
+    // Reduce x to [0, two_pi)
+    x_reduced = mpf_remainder(x_reduced, two_pi);
+    // Calculate sin(x) using Taylor series
+    term = x_reduced;
+    sinx = zero;
+    sinx_prev = zero;
+    for (mp_bitcnt_t _n = 1; _n < req_precision; _n++) {
+        n = mpf_class(_n, req_precision);
+        sinx += term;
+        term *= -x * x / (two * n * (two * n + one));
+        if (abs(sinx_prev - sinx) < epsilon)
+            break;
+        sinx_prev = sinx;
+    }
+    return sinx * symm_sign;
+}
+mpf_class sin(const mpf_class &x) { return sin_taylor(x); }
 class gmp_randclass {
   public:
     // gmp_randinit_default, gmp_randinit_mt
