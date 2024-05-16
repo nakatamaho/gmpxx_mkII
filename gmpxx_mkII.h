@@ -3721,6 +3721,7 @@ mpf_class cos_taylor(const mpf_class &x) {
     mpf_class pi_over_4(0.0, req_precision);
     mpf_class term(0.0, req_precision);
     mpf_class cosx(0.0, req_precision);
+    mpf_class cosx_prev(0.0, req_precision);
     mpf_class x_squared(0.0, req_precision);
     mpf_class x_reduced(0.0, req_precision);
     mpf_class one(1.0, req_precision);
@@ -3730,11 +3731,15 @@ mpf_class cos_taylor(const mpf_class &x) {
     mpf_class five(5.0, req_precision);
     mpf_class seven(7.0, req_precision);
     mpf_class n(0.0, req_precision);
+    mpf_class epsilon(0.0, req_precision);
+    mpf_class terms(0.0, req_precision);
+    int sign = -1;
 
-    // constants
+    // Setting some constants
     _PI = const_pi(req_precision);
     two_pi = two * _PI;
     pi_over_4 = _PI / four;
+    epsilon.set_epsilon();
 
     // cos(-x) = cos(x)
     x_reduced = x;
@@ -3743,6 +3748,7 @@ mpf_class cos_taylor(const mpf_class &x) {
     }
     // Reduce x to [0, 2*pi)
     x_reduced = mpf_remainder(x_reduced, two_pi);
+    /*
     // Further reduce x to [0, pi/4]
     if (x_reduced > pi_over_4 && x_reduced <= three * pi_over_4) {
         x_reduced = _PI / two - x_reduced;
@@ -3753,17 +3759,22 @@ mpf_class cos_taylor(const mpf_class &x) {
     } else if (x_reduced > seven * pi_over_4) {
         x_reduced = x_reduced - two * _PI;
     }
+    */
     // Calculate cos(x) using Taylor series
     x_squared = x_reduced * x_reduced;
     term = one;
     cosx = one;
-    int sign = -1;
-    for (int _n = 1; _n <= 10; ++_n) {
+    cosx_prev = one;
+    for (mp_bitcnt_t _n = 1; _n < req_precision; _n++) {
         n = mpf_class(_n, req_precision);
-        term *= x_reduced * x_reduced / (two * n * (two * n - one));
+        term *= x_reduced * x_reduced / (2 * n * (2 * n - 1));
         cosx += sign * term;
+        if (abs(cosx_prev - cosx) < epsilon)
+            break;
+        cosx_prev = cosx;
         sign *= -1;
     }
+
     return cosx;
 }
 mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
