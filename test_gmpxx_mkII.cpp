@@ -1868,29 +1868,21 @@ void testAssignmentOperator_the_rule_of_five_mpq_class() {
     std::cout << "testAssignmentOperator_the_rule_of_five_mpq_class passed." << std::endl;
 }
 void testInitializationAndAssignmentString_mpq_class() {
-#if USE_ORIGINAL_GMPXX
-    try {
-#endif
-        mpq_class decimalFraction("-13/297");
-        const char *expectedValue_decimalFraction = "-13/297";
-        assert(Is_mpq_class_Equals(decimalFraction, expectedValue_decimalFraction, true));
-        std::cout << "Constructor initialization with decimal '" << expectedValue_decimalFraction << "' test passed." << std::endl;
+    mpq_class decimalFraction("-13/297");
+    const char *expectedValue_decimalFraction = "-13/297";
+    assert(Is_mpq_class_Equals(decimalFraction, expectedValue_decimalFraction, true));
+    std::cout << "Constructor initialization with decimal '" << expectedValue_decimalFraction << "' test passed." << std::endl;
 
-        mpq_class hexFraction("1/a", 16);
-        const char *expectedValue_hexFraction = "1/a";
-        assert(Is_mpq_class_Equals(hexFraction, expectedValue_hexFraction, true, 16));
-        std::cout << "Constructor initialization with hex '" << expectedValue_hexFraction << "' test passed." << std::endl;
+    mpq_class hexFraction("1/a", 16);
+    const char *expectedValue_hexFraction = "1/a";
+    assert(Is_mpq_class_Equals(hexFraction, expectedValue_hexFraction, true, 16));
+    std::cout << "Constructor initialization with hex '" << expectedValue_hexFraction << "' test passed." << std::endl;
 
-        std::string strFraction = "3/4";
-        mpq_class stringFraction(strFraction);
-        const char *expectedValue_strFraction = "3/4";
-        std::cout << "String fraction: " << expectedValue_strFraction << std::endl;
-#if defined USE_ORIGINAL_GMPXX
-        mpq_class invalidFraction("not a number");
-    } catch (const std::runtime_error &e) {
-        std::cout << "Expected Error: " << e.what() << std::endl;
-    }
-#endif
+    std::string strFraction = "3/4";
+    mpq_class stringFraction(strFraction);
+    const char *expectedValue_strFraction = "3/4";
+    std::cout << "String fraction: " << expectedValue_strFraction << std::endl;
+
     std::cout << "testInitializationAndAssignmentString_mpq_class passed." << std::endl;
 }
 void test_template_cmp_mpq_class() {
@@ -2116,14 +2108,14 @@ void test_mpq_class_functions() {
         input >> a;
         assert(a == mpq_class("5"));
     }
-
+#if !defined USE_ORIGINAL_GMPXX
     {
         std::istringstream input("invalid");
         mpq_class a;
         input >> a;
         assert(input.fail());
     }
-
+#endif
     std::cout << "test_mpq_class_functions passed." << std::endl;
 }
 void test_mpz_class_comparison_int() {
@@ -2748,11 +2740,11 @@ void test_reminder() {
 }
 
 void test_cos() {
-#if !defined USE_ORIGINAL_GMPXX && !defined ___GMPXX_STRICT_COMPATIBILITY___
+#if !defined USE_ORIGINAL_GMPXX
     {
         for (int i = -30; i < 30; i++) {
             mpf_class x = mpf_class(i) / 5.0;
-            mpf_class cosx = gmp::cos(x);
+            mpf_class cosx = cos(mpf_class(x));
             std::cout << "x= " << std::setprecision(3) << x << ", y= " << std::setprecision(30) << cosx << std::endl;
         }
     }
@@ -2765,7 +2757,7 @@ void test_cos() {
         mp_exp_t exp;
 
         mpf_class calculated_cos0_5;
-        calculated_cos0_5 = gmp::cos(0.5);
+        calculated_cos0_5 = cos(mpf_class(0.5));
         std::cout << "cos(0.5) " << std::setprecision(decimal_digits) << calculated_cos0_5 << std::endl;
         std::string _cos0_5_pi_str = calculated_cos0_5.get_str(exp, 10, decimal_digits);
         std::string calculated_cos0_5_str = insertDecimalPoint(_cos0_5_pi_str, exp);
@@ -2786,7 +2778,7 @@ void test_cos() {
         mp_exp_t exp;
 
         mpf_class calculated_cos1;
-        calculated_cos1 = gmp::cos(1.0);
+        calculated_cos1 = cos(mpf_class(1.0));
         std::cout << "cos(1.0) " << std::setprecision(decimal_digits) << calculated_cos1 << std::endl;
         std::string _cos1_pi_str = calculated_cos1.get_str(exp, 10, decimal_digits);
         std::string calculated_cos1_str = insertDecimalPoint(_cos1_pi_str, exp);
@@ -2804,7 +2796,7 @@ void test_cos() {
 }
 
 int main() {
-#if !defined GMPXX_MKII
+#if defined USE_ORIGINAL_GMPXX
     mpf_set_default_prec(512);
 #endif
     // mpf_class

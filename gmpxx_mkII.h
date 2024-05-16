@@ -41,6 +41,7 @@
 #include <cmath>
 #include <cstdarg>
 #include <tuple>
+#include <iomanip>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -1975,12 +1976,8 @@ class mpf_class {
     // The rule of 0/3/5
     // The rule 1 of 5 copy constructor
     mpf_class(const mpf_class &op) {
-#if !defined ___GMPXX_MKII_NOPRECCHANGE___
         mpf_init2(value, mpf_get_prec(op.value));
         mpf_set(value, op.value);
-#else
-        mpf_init_set(value, op.value);
-#endif
     }
     mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
         mpf_init2(value, prec);
@@ -1991,10 +1988,8 @@ class mpf_class {
         if (this != &op) {
 #if !defined ___GMPXX_MKII_NOPRECCHANGE___
             mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
-            mpf_set(value, op.value);
-#else
-            mpf_init_set(value, op.value);
 #endif
+            mpf_set(value, op.value);
         }
         return *this;
     }
@@ -2008,12 +2003,7 @@ class mpf_class {
     // The rule 5 of 5 move assignment operator
     mpf_class &operator=(mpf_class &&op) noexcept {
         if (this != &op) {
-#if !defined ___GMPXX_MKII_NOPRECCHANGE___
-            mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
-            mpf_set(value, op.value);
-#else
             mpf_swap(value, op.value);
-#endif
         }
         return *this;
     }
@@ -3366,16 +3356,15 @@ mpf_class const_pi() {
     static bool calculated = false;
     static mp_bitcnt_t calculated_pi_precision = 0;
     mp_bitcnt_t _default_prec = mpf_get_default_prec();
-
     if (!calculated || (calculated && calculated_pi_precision != _default_prec)) {
-        pi_cached = mpf_class();
+        pi_cached = mpf_class(0.0, _default_prec);
         calculated_pi_precision = mpf_get_default_prec();
         // calculating approximate pi using arithmetic-geometric mean
-        mpf_class one(1.0);
-        mpf_class two(2.0);
-        mpf_class four(4.0);
-        mpf_class a(one), b(one / sqrt(two)), t(0.25), p(one);
-        mpf_class a_next, b_next, t_next, tmp_pi, pi_previous;
+        mpf_class one(1.0, _default_prec);
+        mpf_class two(2.0, _default_prec);
+        mpf_class four(4.0, _default_prec);
+        mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(0.25, _default_prec), p(one, _default_prec);
+        mpf_class a_next(0.0, _default_prec), b_next(0.0, _default_prec), t_next(0.0, _default_prec), tmp_pi(0.0, _default_prec), pi_previous(0.0, _default_prec);
 
         bool converged = false;
         int iteration = 0;
@@ -3398,7 +3387,6 @@ mpf_class const_pi() {
             // Calculate pi
             pi_previous = tmp_pi;
             tmp_pi = (a + b) * (a + b) / (four * t);
-
             // Check for convergence
             if (abs(tmp_pi - pi_previous) < epsilon) {
                 converged = true;
@@ -3422,10 +3410,10 @@ mpf_class const_pi(mp_bitcnt_t req_precision) {
     mpf_class two(2.0, req_precision);
     mpf_class four(4.0, req_precision);
 
-    mpf_class calculated_pi(zero);
-    mpf_class a(one), b(one / sqrt(two)), t(quarter), p(one);
-    mpf_class a_next(zero), b_next(zero), t_next(zero), tmp_pi(zero), pi_previous(zero);
-    mpf_class epsilon(zero), tmp(zero);
+    mpf_class calculated_pi(zero, req_precision);
+    mpf_class a(one, req_precision), b(one / sqrt(two), req_precision), t(quarter, req_precision), p(one, req_precision);
+    mpf_class a_next(zero, req_precision), b_next(zero, req_precision), t_next(zero, req_precision), tmp_pi(zero, req_precision), pi_previous(zero, req_precision);
+    mpf_class epsilon(zero, req_precision), tmp(zero, req_precision);
 
     assert(calculated_pi.get_prec() == req_precision);
     assert(a.get_prec() == req_precision);
@@ -3468,7 +3456,6 @@ mpf_class const_pi(mp_bitcnt_t req_precision) {
         }
     }
     calculated_pi = tmp_pi;
-
     assert(calculated_pi.get_prec() == req_precision);
     assert(a.get_prec() == req_precision);
     assert(b.get_prec() == req_precision);
@@ -3748,8 +3735,8 @@ mpf_class cos_taylor(const mpf_class &x) {
     }
     // Reduce x to [0, 2*pi)
     x_reduced = mpf_remainder(x_reduced, two_pi);
-    /*
     // Further reduce x to [0, pi/4]
+    /*
     if (x_reduced > pi_over_4 && x_reduced <= three * pi_over_4) {
         x_reduced = _PI / two - x_reduced;
     } else if (x_reduced > three * pi_over_4 && x_reduced <= five * pi_over_4) {
