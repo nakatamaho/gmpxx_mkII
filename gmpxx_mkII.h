@@ -3710,7 +3710,14 @@ mpf_class mpf_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quoti
     if (quotient_out) {
         *quotient_out = int_quotient;
     }
-    return x - int_quotient * y;
+    mpf_class remainder = x - int_quotient * y;
+    if (remainder < 0) {
+        remainder += y;
+        if (quotient_out) {
+            (*quotient_out)--;
+        }
+    }
+    return remainder;
 }
 mpf_class cos_taylor(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
@@ -3781,7 +3788,7 @@ mpf_class sin_taylor(const mpf_class &x) {
     // Constants and variables
     mpf_class _PI(0.0, req_precision);
     mpf_class two_pi(0.0, req_precision);
-    mpf_class pi_over_4(0.0, req_precision);
+    mpf_class pi_over_2(0.0, req_precision);
     mpf_class term(0.0, req_precision);
     mpf_class sinx(0.0, req_precision);
     mpf_class sinx_prev(0.0, req_precision);
@@ -3798,7 +3805,7 @@ mpf_class sin_taylor(const mpf_class &x) {
     // Setting some constants
     _PI = const_pi(req_precision);
     two_pi = two * _PI;
-    pi_over_4 = _PI / four;
+    pi_over_2 = _PI / two;
     epsilon.set_epsilon();
     // sin(-x) = -sin(x)
     x_reduced = x;
@@ -3806,8 +3813,16 @@ mpf_class sin_taylor(const mpf_class &x) {
         x_reduced = -x_reduced;
         symm_sign = -1;
     }
-    // Reduce x to [0, two_pi)
+    // Reduce x to [0, 2pi)
     x_reduced = mpf_remainder(x_reduced, two_pi);
+    // Furthur reduce x to [0, pi/2)
+    if ((pi_over_2 < x_reduced) && (x_reduced <= _PI)) {
+        x_reduced = _PI - x_reduced;
+    }
+    if ((_PI < x_reduced) && (x_reduced <= three * two_pi)) {
+        x_reduced = three * two_pi - x_reduced;
+        symm_sign *= -1;
+    }
     // Calculate sin(x) using Taylor series
     term = x_reduced;
     sinx = zero;
@@ -3815,7 +3830,7 @@ mpf_class sin_taylor(const mpf_class &x) {
     for (mp_bitcnt_t _n = 1; _n < req_precision; _n++) {
         n = mpf_class(_n, req_precision);
         sinx += term;
-        term *= -x * x / (two * n * (two * n + one));
+        term *= -x_reduced * x_reduced / (two * n * (two * n + one));
         if (abs(sinx_prev - sinx) < epsilon)
             break;
         sinx_prev = sinx;

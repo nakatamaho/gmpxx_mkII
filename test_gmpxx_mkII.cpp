@@ -2798,7 +2798,7 @@ void test_cos() {
 }
 void test_sin() {
 #if !defined USE_ORIGINAL_GMPXX
-#ifdef NOT_COMPILE
+#if defined NOT_COMPILE
     {
         for (int i = -30; i < 30; i++) {
             mpf_class x = mpf_class(i) / 5.0;
