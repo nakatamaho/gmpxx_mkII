@@ -2003,7 +2003,15 @@ class mpf_class {
     // The rule 5 of 5 move assignment operator
     mpf_class &operator=(mpf_class &&op) noexcept {
         if (this != &op) {
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
+            if (mpf_get_prec(this->get_mpf_t()) == mpf_get_prec(op.value)) {
+                mpf_swap(value, op.value);
+            } else {
+                mpf_set(value, op.value);
+            }
+#else
             mpf_swap(value, op.value);
+#endif
         }
         return *this;
     }
@@ -3357,14 +3365,17 @@ mpf_class const_pi() {
     static mp_bitcnt_t calculated_pi_precision = 0;
     mp_bitcnt_t _default_prec = mpf_get_default_prec();
     if (!calculated || (calculated && calculated_pi_precision != _default_prec)) {
-        pi_cached = mpf_class(0.0, _default_prec);
         calculated_pi_precision = mpf_get_default_prec();
         // calculating approximate pi using arithmetic-geometric mean
+        mpf_class zero(0.0, _default_prec);
+        mpf_class quater(0.25, _default_prec);
         mpf_class one(1.0, _default_prec);
         mpf_class two(2.0, _default_prec);
         mpf_class four(4.0, _default_prec);
-        mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(0.25, _default_prec), p(one, _default_prec);
-        mpf_class a_next(0.0, _default_prec), b_next(0.0, _default_prec), t_next(0.0, _default_prec), tmp_pi(0.0, _default_prec), pi_previous(0.0, _default_prec);
+        mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(quater, _default_prec), p(one, _default_prec);
+        mpf_class a_next(zero, _default_prec), b_next(zero, _default_prec), t_next(zero, _default_prec), tmp_pi(zero, _default_prec), pi_previous(zero, _default_prec);
+        pi_cached.set_prec(_default_prec);
+        pi_cached = zero;
 
         bool converged = false;
         int iteration = 0;
@@ -3483,11 +3494,15 @@ mpf_class const_log2() {
         log2_cached = mpf_class();
         calculated_log2_precision = mpf_get_default_prec();
         // calculating approximate log2 using arithmetic-geometric mean
+        mpf_class zero(0.0);
         mpf_class one(1.0);
         mpf_class two(2.0);
         mpf_class a(one);
         mpf_class epsilon = one;
         epsilon.div_2exp((_default_prec / 2) - 2);
+
+        log2_cached.set_prec(_default_prec);
+        log2_cached = zero;
 
         mpf_class b = epsilon;
         mpf_class sum = one;
