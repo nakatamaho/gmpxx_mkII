@@ -2741,6 +2741,7 @@ void test_reminder() {
 
 void test_cos() {
 #if !defined USE_ORIGINAL_GMPXX
+#ifdef NOT_COMPILE
     {
         for (int i = -30; i < 30; i++) {
             mpf_class x = mpf_class(i) / 5.0;
@@ -2748,6 +2749,7 @@ void test_cos() {
             std::cout << "x= " << std::setprecision(3) << x << ", y= " << std::setprecision(30) << cosx << std::endl;
         }
     }
+#endif
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Bcos%280.5%29%2C+1000%5D
@@ -2782,7 +2784,6 @@ void test_cos() {
         std::cout << "cos(1.0) " << std::setprecision(decimal_digits) << calculated_cos1 << std::endl;
         std::string _cos1_pi_str = calculated_cos1.get_str(exp, 10, decimal_digits);
         std::string calculated_cos1_str = insertDecimalPoint(_cos1_pi_str, exp);
-
         int i;
         for (i = 0; i < decimal_digits; ++i) {
             if (cos1_approx[i] != calculated_cos1_str[i]) {

@@ -3724,18 +3724,16 @@ mpf_class cos_taylor(const mpf_class &x) {
     mpf_class term(0.0, req_precision);
     mpf_class cosx(0.0, req_precision);
     mpf_class cosx_prev(0.0, req_precision);
-    mpf_class x_squared(0.0, req_precision);
+    mpf_class x_squared(0.0, req_precision);    
     mpf_class x_reduced(0.0, req_precision);
     mpf_class one(1.0, req_precision);
     mpf_class two(2.0, req_precision);
     mpf_class three(2.0, req_precision);
     mpf_class four(4.0, req_precision);
-    mpf_class five(5.0, req_precision);
-    mpf_class seven(7.0, req_precision);
     mpf_class n(0.0, req_precision);
     mpf_class epsilon(0.0, req_precision);
-    mpf_class terms(0.0, req_precision);
     int sign = -1;
+    int symm_sign = 1;
     // Setting some constants
     _PI = const_pi(req_precision);
     two_pi = two * _PI;
@@ -3751,6 +3749,14 @@ mpf_class cos_taylor(const mpf_class &x) {
     if (x_reduced < 0)
         x_reduced += two_pi;
     x_reduced -= _PI;
+    // Furthur reduce x to  [-pi/2, pi/2)
+    if (x_reduced > _PI / 2) {
+        x_reduced = _PI - x;
+        symm_sign = -1;
+    } else if (x_reduced < -_PI / 2) {
+        x_reduced = -_PI - x_reduced;
+        symm_sign = -1;
+    }
     // Calculate cos(x) using Taylor series
     x_squared = x_reduced * x_reduced;
     term = one;
@@ -3765,7 +3771,7 @@ mpf_class cos_taylor(const mpf_class &x) {
         cosx_prev = cosx;
         sign *= -1;
     }
-    return cosx;
+    return cosx * symm_sign;
 }
 mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
 class gmp_randclass {
