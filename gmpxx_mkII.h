@@ -3842,6 +3842,35 @@ mpf_class sin_taylor(const mpf_class &x) {
     return sinx * symm_sign;
 }
 mpf_class sin(const mpf_class &x) { return sin_taylor(x); }
+mpf_class tan_from_sin_cos(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class tanx(0.0, req_precision);
+    tanx = sin(x) / cos(x);
+    return tanx;
+}
+mpf_class tan(const mpf_class &x) { return tan_from_sin_cos(x); }
+mpf_class pow_from_exp_log(const mpf_class &x, const mpf_class &y) {
+    mp_bitcnt_t req_precision = x.get_prec();
+    mp_bitcnt_t req_precision_y = y.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision_y == mpf_get_default_prec());
+#endif
+    if (req_precision != req_precision_y) {
+        throw std::runtime_error("Precision mismatch between x and y.");
+    }
+    mpf_class log_x(0.0, req_precision);
+    mpf_class y_log_x(0.0, req_precision);
+    mpf_class result(0.0, req_precision);
+    log_x = log(mpf_class(x));
+    y_log_x = y * log_x;
+    result = exp(mpf_class(y_log_x));
+    return result;
+}
+mpf_class pow(const mpf_class &x, const mpf_class &y) { return pow_from_exp_log(x, y); }
 class gmp_randclass {
   public:
     // gmp_randinit_default, gmp_randinit_mt
