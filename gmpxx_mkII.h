@@ -3895,6 +3895,49 @@ mpf_class log10_from_log(const mpf_class &x) {
     return result;
 }
 mpf_class log10(const mpf_class &x) { return log10_from_log(x); }
+mpf_class atan_AGM(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    // Constants and variables
+    mpf_class zero(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class three(3.0, req_precision);
+    mpf_class four(4.0, req_precision);
+    mpf_class s(2.0, req_precision);
+    mpf_class epsilon(2.0, req_precision);
+    mpf_class v(zero, req_precision);
+    mpf_class q(one, req_precision);
+    mpf_class ai(zero, req_precision);
+    mpf_class bi(one, req_precision);
+    mpf_class ci(zero, req_precision);
+    mpf_class si(one, req_precision);
+    mpf_class vi(one, req_precision);
+    mpf_class qi(one, req_precision);
+    mpf_class atanx(zero, req_precision);
+
+    s.div_2exp(req_precision / 2);
+    epsilon.div_2exp(req_precision);
+
+    v = x / (one + sqrt(one + x * x));
+    q = one;
+
+    si = s, vi = v, qi = q;
+    while (one - si >= epsilon) {
+        qi = two * qi / (one + si);
+        ai = two * si * vi / (one + vi * vi);
+        bi = ai / (one + sqrt(one - ai * ai));
+        ci = (vi + bi) / (one - vi * bi);
+        vi = ci / (one + sqrt(one + ci * ci));
+        si = two * sqrt(si) / (one + si);
+    }
+    atanx = qi * log((one + vi) / (one - vi));
+    return atanx;
+}
+mpf_class atan(const mpf_class &x) { return atan_AGM(x); }
+
 class gmp_randclass {
   public:
     // gmp_randinit_default, gmp_randinit_mt
