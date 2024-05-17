@@ -3895,8 +3895,8 @@ mpf_class log10_from_log(const mpf_class &x) {
     return result;
 }
 mpf_class log10(const mpf_class &x) { return log10_from_log(x); }
-mpf_class atan_AGM(const mpf_class &x) {
-    mp_bitcnt_t req_precision = x.get_prec();
+mpf_class atan_AGM(const mpf_class &_x) {
+    mp_bitcnt_t req_precision = _x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
@@ -3908,6 +3908,7 @@ mpf_class atan_AGM(const mpf_class &x) {
     mpf_class four(4.0, req_precision);
     mpf_class s(2.0, req_precision);
     mpf_class epsilon(2.0, req_precision);
+    mpf_class x(zero, req_precision);
     mpf_class v(zero, req_precision);
     mpf_class q(one, req_precision);
     mpf_class ai(zero, req_precision);
@@ -3917,7 +3918,18 @@ mpf_class atan_AGM(const mpf_class &x) {
     mpf_class vi(one, req_precision);
     mpf_class qi(one, req_precision);
     mpf_class atanx(zero, req_precision);
-
+    int sign = 1;
+    int reduce = 1;
+    if (_x < 0) {
+        x = -_x;
+        sign = -1;
+    } else
+        x = _x;
+    //    
+    if (x >= 1) {
+        x = (sqrt(one + x * x) - one) / x;
+        reduce = 2;
+    }
     s.div_2exp(req_precision / 2);
     epsilon.div_2exp(req_precision);
 
@@ -3934,7 +3946,7 @@ mpf_class atan_AGM(const mpf_class &x) {
         si = two * sqrt(si) / (one + si);
     }
     atanx = qi * log((one + vi) / (one - vi));
-    return atanx;
+    return atanx * sign * reduce;
 }
 mpf_class atan2(const mpf_class &y, const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
