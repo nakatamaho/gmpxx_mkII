@@ -3871,6 +3871,30 @@ mpf_class pow_from_exp_log(const mpf_class &x, const mpf_class &y) {
     return result;
 }
 mpf_class pow(const mpf_class &x, const mpf_class &y) { return pow_from_exp_log(x, y); }
+mpf_class log2_from_log(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class _log2(0.0, req_precision);
+    mpf_class result(0.0, req_precision);
+    _log2 = log(mpf_class(2));
+    result = log(x) / _log2;
+    return result;
+}
+mpf_class log2(const mpf_class &x) { return log2_from_log(x); }
+mpf_class log10_from_log(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class _log10(0.0, req_precision);
+    mpf_class result(0.0, req_precision);
+    _log10 = log(mpf_class(10));
+    result = log(x) / _log10;
+    return result;
+}
+mpf_class log10(const mpf_class &x) { return log10_from_log(x); }
 class gmp_randclass {
   public:
     // gmp_randinit_default, gmp_randinit_mt
