@@ -3936,6 +3936,70 @@ mpf_class atan_AGM(const mpf_class &x) {
     atanx = qi * log((one + vi) / (one - vi));
     return atanx;
 }
+mpf_class atan2(const mpf_class &y, const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+    mp_bitcnt_t req_precision_y = y.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    assert(req_precision == req_precision_y);
+    mpf_class zero(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class three(3.0, req_precision);
+    mpf_class four(4.0, req_precision);
+    mpf_class pi_(0.0, req_precision);
+    //    mpf_class pi_quarter_(0.0, req_precision);
+    mpf_class pi_over_2_(0.0, req_precision);
+    //    mpf_class pi_3_over_4_(0.0, req_precision);
+    pi_ = const_pi(req_precision);
+    //    pi_quarter_ = pi_ / four;
+    pi_over_2_ = pi_ / two;
+    //    pi_3_over_4_ = pi_ * three / four;
+
+    if (y == 0 && x == 0) {
+        return 0;
+    }
+    if (x == 0) {
+        if (y > 0)
+            return pi_over_2_;
+        if (y < 0)
+            return -pi_over_2_;
+    }
+    if (y == 0) {
+        if (x > 0)
+            return 0;
+        if (x < 0)
+            return pi_;
+    }
+    /*
+    if (x == std::numeric_limits<mpf_class>::infinity()) {
+        if (y == std::numeric_limits<mpf_class>::infinity())
+            return pi_quarter_;
+        if (y == -std::numeric_limits<mpf_class>::infinity())
+            return -pi_quarter_;
+        return zero;
+    }
+    if (x == -std::numeric_limits<mpf_class>::infinity()) {
+        if (y == std::numeric_limits<mpf_class>::infinity())
+            return pi_3_over_4_;
+        if (y == -std::numeric_limits<mpf_class>::infinity())
+            return -pi_3_over_4_;
+        return pi_;
+    }
+    if (y == std::numeric_limits<mpf_class>::infinity())
+        return pi_over_2_;
+    if (y == -std::numeric_limits<mpf_class>::infinity())
+        return -pi_over_2_;
+    */
+    if (x > 0) {
+        return atan_AGM(y / x);
+    } else if (x < zero && y >= zero) {
+        return atan_AGM(y / x) + pi_;
+    } else {
+        return atan_AGM(y / x) - pi_;
+    }
+}
 mpf_class atan(const mpf_class &x) { return atan_AGM(x); }
 
 class gmp_randclass {
