@@ -3925,7 +3925,7 @@ mpf_class atan_AGM(const mpf_class &_x) {
         sign = -1;
     } else
         x = _x;
-    //    
+    //
     if (x >= 1) {
         x = (sqrt(one + x * x) - one) / x;
         reduce = 2;
