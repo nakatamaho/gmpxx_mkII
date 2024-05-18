@@ -4103,7 +4103,7 @@ mpf_class acos(const mpf_class &x) {
     assert(req_precision == mpf_get_default_prec());
 #endif
     mpf_class acosx(0.0, req_precision);
-    mpf_class half_pi(0.0, req_precision);    
+    mpf_class half_pi(0.0, req_precision);
     half_pi = const_pi(req_precision) * 0.5;
     acosx = half_pi - asin(x);
     return acosx;
@@ -4141,7 +4141,48 @@ mpf_class tanh(const mpf_class &x) {
     cosh_x = cosh(x);
     return sinh_x / cosh_x;
 }
-
+mpf_class asinh(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class one(1.0, req_precision);
+    mpf_class result(0.0, req_precision);
+    mpf_class sqrt_term(0.0, req_precision);
+    sqrt_term = sqrt(x * x + one);
+    result = log(x + sqrt_term);
+    return result;
+}
+mpf_class acosh(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    if (x < 1) {
+        throw std::domain_error("acosh is not defined for x < 1");
+    }
+    mpf_class one(1.0, req_precision);
+    mpf_class result(0.0, req_precision);
+    mpf_class sqrt_term(0.0, req_precision);
+    sqrt_term = sqrt(x * x - one);
+    result = log(x + sqrt_term);
+    return result;
+}
+mpf_class atanh(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    // atanh is only defined for -1 < x < 1
+    if (x <= -1 || x >= 1) {
+        throw std::domain_error("atanh is not defined for |x| >= 1");
+    }
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class result(0.0, req_precision);
+    result = log((one + x) / (one - x)) / two;
+    return result;
+}
 class gmp_randclass {
   public:
     // gmp_randinit_default, gmp_randinit_mt
