@@ -3368,11 +3368,11 @@ mpf_class const_pi() {
         calculated_pi_precision = mpf_get_default_prec();
         // calculating approximate pi using arithmetic-geometric mean
         mpf_class zero(0.0, _default_prec);
-        mpf_class quater(0.25, _default_prec);
+        mpf_class quarter(0.25, _default_prec);
         mpf_class one(1.0, _default_prec);
         mpf_class two(2.0, _default_prec);
         mpf_class four(4.0, _default_prec);
-        mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(quater, _default_prec), p(one, _default_prec);
+        mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(quarter, _default_prec), p(one, _default_prec);
         mpf_class a_next(zero, _default_prec), b_next(zero, _default_prec), t_next(zero, _default_prec), tmp_pi(zero, _default_prec), pi_previous(zero, _default_prec);
         pi_cached.set_prec(_default_prec);
         pi_cached = zero;
@@ -3841,7 +3841,7 @@ mpf_class sin_taylor(const mpf_class &x) {
     }
     return sinx * symm_sign;
 }
-mpf_class sin_taylor_quater(const mpf_class &x) {
+mpf_class sin_taylor_quarter(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -3895,7 +3895,7 @@ mpf_class sin_taylor_quater(const mpf_class &x) {
     sinx = two * sin_half * cos_half;
     return sinx * symm_sign;
 }
-mpf_class sin(const mpf_class &x) { return sin_taylor_quater(x); }
+mpf_class sin(const mpf_class &x) { return sin_taylor_quarter(x); }
 mpf_class tan_from_sin_cos(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -4109,7 +4109,7 @@ mpf_class arcsin_taylor(const mpf_class &x) {
     mpf_class n(0.0, req_precision);
 
     mpf_class zero(0.0, req_precision);
-    mpf_class quater(0.25, req_precision);
+    mpf_class quarter(0.25, req_precision);
     mpf_class one(1.0, req_precision);
     mpf_class two(2.0, req_precision);
     mpf_class four(4.0, req_precision);
