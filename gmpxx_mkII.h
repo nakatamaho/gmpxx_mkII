@@ -3841,7 +3841,61 @@ mpf_class sin_taylor(const mpf_class &x) {
     }
     return sinx * symm_sign;
 }
-mpf_class sin(const mpf_class &x) { return sin_taylor(x); }
+mpf_class sin_taylor_quater(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    // Constants and variables
+    mpf_class _PI(0.0, req_precision);
+    mpf_class two_pi(0.0, req_precision);
+    mpf_class pi_over_2(0.0, req_precision);
+    mpf_class zero(0.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class three(3.0, req_precision);
+    mpf_class four(4.0, req_precision);
+    mpf_class x_reduced(0.0, req_precision);
+    mpf_class sin_quarter(0.0, req_precision);
+    mpf_class cos_quarter(0.0, req_precision);
+    mpf_class sin_half(0.0, req_precision);
+    mpf_class cos_half(0.0, req_precision);
+    mpf_class sinx(0.0, req_precision);
+
+    int symm_sign = 1;
+    // Setting some constants
+    _PI = const_pi(req_precision);
+    two_pi = two * _PI;
+    pi_over_2 = _PI / two;
+    // sin(-x) = -sin(x)
+    x_reduced = x;
+    if (x_reduced < 0) {
+        x_reduced = -x_reduced;
+        symm_sign = -1;
+    }
+    // Reduce x to [0, 2pi)
+    x_reduced = mpf_remainder(x_reduced, two_pi);
+    // Furthur reduce x to [0, pi/2)
+    if ((pi_over_2 < x_reduced) && (x_reduced <= _PI)) {
+        x_reduced = _PI - x_reduced;
+    }
+    if ((_PI < x_reduced) && (x_reduced <= three * two_pi)) {
+        x_reduced = three * two_pi - x_reduced;
+        symm_sign *= -1;
+    }
+    if ((three * two_pi < x_reduced) && (x_reduced <= two_pi)) {
+        x_reduced = two_pi - x_reduced;
+        symm_sign *= -1;
+    }
+    // Calculate sin(x) using quarter angle of sin(x/4) and cos(x/4)
+    x_reduced = x_reduced / four;
+    sin_quarter = sin_taylor(x_reduced);
+    cos_quarter = cos_taylor(x_reduced);
+    sin_half = two * sin_quarter * cos_quarter;
+    cos_half = cos_quarter * cos_quarter - sin_quarter * sin_quarter;
+    sinx = two * sin_half * cos_half;
+    return sinx * symm_sign;
+}
+mpf_class sin(const mpf_class &x) { return sin_taylor_quater(x); }
 mpf_class tan_from_sin_cos(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
