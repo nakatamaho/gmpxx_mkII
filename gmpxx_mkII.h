@@ -3984,7 +3984,7 @@ mpf_class atan2(const mpf_class &y, const mpf_class &x) {
         if (x < 0)
             return pi_;
     }
-    /*
+    /* GMP does not comply IEEE 754 or IEC 60559, it doesn't have NaN nor +-Inf
     if (x == std::numeric_limits<mpf_class>::infinity()) {
         if (y == std::numeric_limits<mpf_class>::infinity())
             return pi_quarter_;
@@ -4013,6 +4013,134 @@ mpf_class atan2(const mpf_class &y, const mpf_class &x) {
     }
 }
 mpf_class atan(const mpf_class &x) { return atan_AGM(x); }
+mpf_class asin_AGM(const mpf_class &x) {
+    if (x < -1 || x > 1) {
+        throw std::out_of_range("Error: x must be between -1 and 1.");
+    }
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class one(1.0, req_precision);
+    mpf_class half(0.5, req_precision);
+    mpf_class pi_over_2(1.0, req_precision);
+    pi_over_2 = const_pi(req_precision) * half;
+    if (x == -1)
+        return -pi_over_2;
+    if (x == 1)
+        return pi_over_2;
+    mpf_class sqrt_one_minus_x2(0.0, req_precision);
+    sqrt_one_minus_x2 = sqrt(one - x * x);
+    mpf_class result = atan_AGM(x / sqrt_one_minus_x2);
+    return result;
+}
+
+// arcsin(x) using Taylor series expansion around x = 0
+// |x| \sim 1 there is a serious convergence problem
+mpf_class arcsin_taylor(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class abs_x(0.0, req_precision);
+    mpf_class term(0.0, req_precision);
+    mpf_class arcsin_x(0.0, req_precision);
+    mpf_class arcsin_x_prev(0.0, req_precision);
+    mpf_class fact_2n(1.0, req_precision);
+    mpf_class fact_n(1.0, req_precision);
+    mpf_class pow_4n(1.0, req_precision);
+    mpf_class two_n_plus_one(1.0, req_precision);
+    mpf_class x_pow_2n_plus_1(0.0, req_precision);
+    mpf_class epsilon(2.0, req_precision);
+    mpf_class n(0.0, req_precision);
+
+    mpf_class zero(0.0, req_precision);
+    mpf_class quater(0.25, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class four(4.0, req_precision);
+
+    mpf_class pi_over_2(1.0, req_precision);
+    mpf_class half(0.5, req_precision);
+    pi_over_2 = const_pi(req_precision) * half;
+    if (x == -1)
+        return -pi_over_2;
+    if (x == 1)
+        return pi_over_2;
+
+    bool negative = false;
+    abs_x = x;
+    if (x < 0) {
+        negative = true;
+        abs_x = -x;
+    }
+    term = abs_x;
+    epsilon.div_2exp(req_precision);
+
+    x_pow_2n_plus_1 = abs_x;                             // x^(2n+1)
+    for (mp_bitcnt_t _n = 0; _n < req_precision; ++_n) { // |x| \sim 1 there is a serious convergence problem
+        if (_n > 0) {
+            n = mpf_class(_n);
+            fact_2n *= (two * n) * (two * n - one);
+            fact_n *= n;
+            pow_4n *= four;
+            two_n_plus_one = two * n + one;
+            x_pow_2n_plus_1 *= abs_x * abs_x;
+            term = (fact_2n / (pow_4n * fact_n * fact_n * two_n_plus_one)) * x_pow_2n_plus_1;
+        }
+        arcsin_x_prev = arcsin_x;
+        arcsin_x += term;
+        if (abs(arcsin_x - arcsin_x_prev) < epsilon) {
+            break;
+        }
+    }
+    return negative ? -arcsin_x : arcsin_x;
+}
+mpf_class asin(const mpf_class &x) { return asin_AGM(x); }
+mpf_class acos(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class acosx(0.0, req_precision);
+    mpf_class half_pi(0.0, req_precision);    
+    half_pi = const_pi(req_precision) * 0.5;
+    acosx = half_pi - asin(x);
+    return acosx;
+}
+mpf_class sinh(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class exp_x(0.0, req_precision);
+    mpf_class exp_neg_x(0.0, req_precision);
+    exp_x = exp(x);
+    exp_neg_x = exp(-x);
+    return (exp_x - exp_neg_x) / 2;
+}
+mpf_class cosh(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class exp_x(0.0, req_precision);
+    mpf_class exp_neg_x(0.0, req_precision);
+    exp_x = exp(x);
+    exp_neg_x = exp(-x);
+    return (exp_x + exp_neg_x) / 2;
+}
+mpf_class tanh(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class sinh_x(0.0, req_precision);
+    mpf_class cosh_x(0.0, req_precision);
+    sinh_x = sinh(x);
+    cosh_x = cosh(x);
+    return sinh_x / cosh_x;
+}
 
 class gmp_randclass {
   public:
