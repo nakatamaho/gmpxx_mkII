@@ -4090,7 +4090,16 @@ mpf_class pow_from_exp_log(const mpf_class &x, const mpf_class &y) {
     result = exp(mpf_class(y_log_x));
     return result;
 }
-mpf_class pow(const mpf_class &x, const mpf_class &y) { return pow_from_exp_log(x, y); }
+mpf_class pow(const mpf_class &x, const mpf_class &y) {
+    if (mpf_integer_p(y.get_mpf_t()) != 0) {
+        unsigned long int y_uint = mpf_get_ui(y.get_mpf_t());
+        mpf_class result(0.0, x.get_prec());
+        mpf_pow_ui(result.get_mpf_t(), x.get_mpf_t(), y_uint);
+        return result;
+    } else {
+        return pow_from_exp_log(x, y);
+    }
+}
 mpf_class log2_from_log(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -4188,7 +4197,6 @@ mpf_class atan2(const mpf_class &y, const mpf_class &x) {
     //    pi_quarter_ = pi_ / four;
     pi_over_2_ = pi_ / two;
     //    pi_3_over_4_ = pi_ * three / four;
-
     if (y == 0 && x == 0) {
         return 0;
     }
