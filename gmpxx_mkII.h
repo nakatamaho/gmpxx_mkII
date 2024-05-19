@@ -3719,6 +3719,7 @@ mpf_class mpf_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quoti
     }
     return remainder;
 }
+// Naive Taylor expansion version. It generates a very long series.
 mpf_class cos_taylor_naive(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -3779,7 +3780,8 @@ mpf_class cos_taylor_naive(const mpf_class &x) {
     }
     return cosx * symm_sign;
 }
-mpf_class cos_taylor_reduced(const mpf_class &x) {
+// Internal use only. calculate cos(x) where x is [-pi/2, pi/2).
+mpf_class cos_taylor_reduced(const mpf_class &x, bool addprec = false) {
     mp_bitcnt_t _req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(_req_precision == mpf_get_default_prec());
@@ -3829,6 +3831,8 @@ mpf_class cos_taylor_reduced(const mpf_class &x) {
         s *= two * s;
         s -= one;
     }
+    if (addprec == true)
+        return s;
     _s = s; // reduce the precision
     return _s;
 }
@@ -3872,7 +3876,8 @@ mpf_class cos_taylor(const mpf_class &x) {
     return cosx;
 }
 mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
-mpf_class sin_taylor(const mpf_class &x) {
+// Naive Taylor expansion version. It generates a very long series.
+mpf_class sin_taylor_naive(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -3933,7 +3938,36 @@ mpf_class sin_taylor(const mpf_class &x) {
     }
     return sinx * symm_sign;
 }
-mpf_class sin_taylor_quarter(const mpf_class &x) {
+// assume x is in the interval [0, pi/2)
+mpf_class sinx_from_cos_internal(const mpf_class &x, bool addprec = false) {
+    mp_bitcnt_t _req_precision = x.get_prec();
+    mpf_class _s(0.0, _req_precision);
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(_req_precision == mpf_get_default_prec());
+#endif
+    mp_bitcnt_t k = std::floor(std::sqrt(_req_precision / 2));
+    // We need some additional precision for successive applications of the double-angle formula
+    mp_bitcnt_t additional_precision;
+    if (k % 64 != 0) {
+        additional_precision = ((k / 64) + 1) * 64;
+    }
+    mp_bitcnt_t req_precision = _req_precision + additional_precision;
+    mpf_class c(0.0, req_precision);
+    mpf_class t(0.0, req_precision);
+    mpf_class s(0.0, req_precision);
+    mpf_class u(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    c = cos_taylor_reduced(x, true);
+    t = c * c;
+    u = one - t;
+    s = sqrt(u);
+    if (addprec)
+        return s;
+    else
+        _s = s;
+    return _s;
+}
+mpf_class sin_from_cos(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -3942,17 +3976,13 @@ mpf_class sin_taylor_quarter(const mpf_class &x) {
     mpf_class _PI(0.0, req_precision);
     mpf_class two_pi(0.0, req_precision);
     mpf_class pi_over_2(0.0, req_precision);
+    mpf_class x_reduced(0.0, req_precision);
+    mpf_class sinx(0.0, req_precision);
     mpf_class zero(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
     mpf_class two(2.0, req_precision);
     mpf_class three(3.0, req_precision);
-    mpf_class four(4.0, req_precision);
-    mpf_class x_reduced(0.0, req_precision);
-    mpf_class sin_quarter(0.0, req_precision);
-    mpf_class cos_quarter(0.0, req_precision);
-    mpf_class sin_half(0.0, req_precision);
-    mpf_class cos_half(0.0, req_precision);
-    mpf_class sinx(0.0, req_precision);
-
+    mpf_class n(0.0, req_precision);
     int symm_sign = 1;
     // Setting some constants
     _PI = const_pi(req_precision);
@@ -3978,23 +4008,67 @@ mpf_class sin_taylor_quarter(const mpf_class &x) {
         x_reduced = two_pi - x_reduced;
         symm_sign *= -1;
     }
-    // Calculate sin(x) using quarter angle of sin(x/4) and cos(x/4)
-    x_reduced = x_reduced / four;
-    sin_quarter = sin_taylor(x_reduced);
-    cos_quarter = cos_taylor(x_reduced);
-    sin_half = two * sin_quarter * cos_quarter;
-    cos_half = cos_quarter * cos_quarter - sin_quarter * sin_quarter;
-    sinx = two * sin_half * cos_half;
+    sinx = sinx_from_cos_internal(x_reduced);
     return sinx * symm_sign;
 }
-mpf_class sin(const mpf_class &x) { return sin_taylor_quarter(x); }
+mpf_class sin(const mpf_class &x) { return sin_from_cos(x); }
 mpf_class tan_from_sin_cos(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
-    mpf_class tanx(0.0, req_precision);
-    tanx = sin(x) / cos(x);
+    // Constants and variables
+    mpf_class _PI(0.0, req_precision);
+    mpf_class two_pi(0.0, req_precision);
+    mpf_class pi_over_2(0.0, req_precision);
+    mpf_class x_reduced(0.0, req_precision);
+    mpf_class zero(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class three(3.0, req_precision);
+    mpf_class n(0.0, req_precision);
+    int symm_sign = 1;
+    // Setting some constants
+    _PI = const_pi(req_precision);
+    two_pi = two * _PI;
+    pi_over_2 = _PI / two;
+    // tan(-x) = -tan(x)
+    x_reduced = x;
+    if (x_reduced < 0) {
+        x_reduced = -x_reduced;
+        symm_sign = -1;
+    }
+    // Reduce x to [0, 2pi)
+    x_reduced = mpf_remainder(x_reduced, two_pi);
+    // Furthur reduce x to [0, pi/2)
+    if ((pi_over_2 < x_reduced) && (x_reduced <= _PI)) {
+        x_reduced = _PI - x_reduced;
+    }
+    if ((_PI < x_reduced) && (x_reduced <= three * two_pi)) {
+        x_reduced = three * two_pi - x_reduced;
+        symm_sign *= -1;
+    }
+    if ((three * two_pi < x_reduced) && (x_reduced <= two_pi)) {
+        x_reduced = two_pi - x_reduced;
+        symm_sign *= -1;
+    }
+    // Calculate tan(x) using Taylor series
+    mp_bitcnt_t k = std::floor(std::sqrt(req_precision / 2));
+    // We need some additional precision for successive applications of the double-angle formula
+    mp_bitcnt_t additional_precision;
+    if (k % 64 != 0) {
+        additional_precision = ((k / 64) + 1) * 64;
+    }
+    mp_bitcnt_t _req_precision = req_precision + additional_precision;
+    // Constants and variables
+    mpf_class cosx(0.0, _req_precision);
+    mpf_class sinx(0.0, _req_precision);
+    mpf_class tanx(0.0, _req_precision);
+
+    cosx = cos_taylor_reduced(x, true);
+    sinx = sinx_from_cos_internal(x, true);
+    tanx = (sinx / cosx);
+    tanx *= symm_sign;
     return tanx;
 }
 mpf_class tan(const mpf_class &x) { return tan_from_sin_cos(x); }
