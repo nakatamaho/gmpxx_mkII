@@ -4151,6 +4151,7 @@ mpf_class atan_AGM(const mpf_class &_x) {
     mpf_class vi(one, req_precision);
     mpf_class qi(one, req_precision);
     mpf_class atanx(zero, req_precision);
+    mpf_class atanx_refined(zero, req_precision);
     int sign = 1;
     int reduce = 1;
     if (_x < 0) {
@@ -4179,7 +4180,9 @@ mpf_class atan_AGM(const mpf_class &_x) {
         si = two * sqrt(si) / (one + si);
     }
     atanx = qi * log((one + vi) / (one - vi));
-    return atanx * sign * reduce;
+    atanx = atanx * sign * reduce;
+    atanx_refined = atanx - (tan(atanx) - _x) / (one + tan(atanx) * tan(atanx));
+    return atanx_refined;
 }
 mpf_class atan2(const mpf_class &y, const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
