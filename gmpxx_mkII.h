@@ -4092,10 +4092,14 @@ mpf_class pow_from_exp_log(const mpf_class &x, const mpf_class &y) {
 }
 mpf_class pow(const mpf_class &x, const mpf_class &y) {
     if (mpf_integer_p(y.get_mpf_t()) != 0) {
-        unsigned long int y_uint = mpf_get_ui(y.get_mpf_t());
-        mpf_class result(0.0, x.get_prec());
-        mpf_pow_ui(result.get_mpf_t(), x.get_mpf_t(), y_uint);
-        return result;
+        if (y > 0) {
+            unsigned long int y_uint = mpf_get_ui(y.get_mpf_t());
+            mpf_class result(0.0, x.get_prec());
+            mpf_pow_ui(result.get_mpf_t(), x.get_mpf_t(), y_uint);
+            return result;
+        } else {
+            return pow_from_exp_log(x, y);
+        }
     } else {
         return pow_from_exp_log(x, y);
     }
