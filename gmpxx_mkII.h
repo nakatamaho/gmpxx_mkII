@@ -3719,7 +3719,7 @@ mpf_class mpf_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quoti
     }
     return remainder;
 }
-mpf_class cos_taylor(const mpf_class &x) {
+mpf_class cos_taylor_naive(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -3778,6 +3778,98 @@ mpf_class cos_taylor(const mpf_class &x) {
         sign *= -1;
     }
     return cosx * symm_sign;
+}
+mpf_class cos_taylor_reduced(const mpf_class &x) {
+    mp_bitcnt_t _req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(_req_precision == mpf_get_default_prec());
+#endif
+    // Calculate cos(x) using Taylor series
+    mp_bitcnt_t k = std::floor(std::sqrt(_req_precision / 2));
+    // We need some additional precision for successive application of the double-angle formula
+    mp_bitcnt_t additional_precision;
+    if (k % 64 != 0) {
+        additional_precision = ((k / 64) + 1) * 64;
+    }
+    mp_bitcnt_t req_precision = _req_precision + additional_precision;
+    // Constants and variables
+    mpf_class zero(0.0, req_precision);
+    mpf_class one(1.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class r(0.0, req_precision);
+    mpf_class s(0.0, req_precision);
+    mpf_class t(0.0, req_precision);
+    mpf_class l(0.0, req_precision);
+    mpf_class epsilon(1.0, req_precision);
+    mpf_class _s(0.0, _req_precision);
+    r = x;
+    r = r * r;
+    r.div_2exp((k * 2));
+    epsilon.div_2exp(req_precision);
+    s = zero;
+    t = one;
+    l = one;
+    int counter = 0;
+    for (mp_bitcnt_t _l = 1; _l < _req_precision; _l++) {
+        t *= r;
+        t /= ((two * l - one) * (two * l));
+        if (t < epsilon) {
+            break;
+        }
+        if (_l % 2 == 1) {
+            s -= t;
+        } else {
+            s += t;
+        }
+        l = l + 1;
+        counter++;
+    }
+    s += one;
+    for (mp_bitcnt_t i = 0; i < k; i++) {
+        s *= two * s;
+        s -= one;
+    }
+    _s = s; // reduce the precision
+    return _s;
+}
+mpf_class cos_taylor(const mpf_class &x) {
+    mp_bitcnt_t req_precision = x.get_prec();
+#if defined ___GMPXX_MKII_NOPRECCHANGE___
+    assert(req_precision == mpf_get_default_prec());
+#endif
+    mpf_class pi(0.0, req_precision);
+    mpf_class two(2.0, req_precision);
+    mpf_class two_pi(0.0, req_precision);
+    mpf_class pi_over_2(0.0, req_precision);
+    mpf_class x_reduced(0.0, req_precision);
+    mpf_class cosx(0.0, req_precision);
+    int symm_sign;
+    // Setting some constants
+    pi = const_pi(req_precision);
+    two_pi = two * pi;
+    pi_over_2 = pi / two;
+    // cos(-x) = cos(x)
+    x_reduced = x;
+    if (x_reduced < 0) {
+        x_reduced = -x_reduced;
+    }
+    // Reduce x to [-pi, pi)
+    x_reduced = mpf_remainder(x_reduced + pi, two_pi);
+    if (x_reduced < 0)
+        x_reduced += two_pi;
+    x_reduced -= pi;
+    // Furthur reduce x to  [-pi/2, pi/2)
+    if (x_reduced > pi_over_2) {
+        x_reduced = pi - x;
+        symm_sign = -1;
+    } else if (x_reduced < -pi_over_2) {
+        x_reduced = -pi - x_reduced;
+        symm_sign = -1;
+    }
+    cosx = cos_taylor_reduced(x_reduced);
+    if (symm_sign == -1)
+        cosx = -cosx;
+    return cosx;
 }
 mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
 mpf_class sin_taylor(const mpf_class &x) {
