@@ -2474,8 +2474,8 @@ inline mpf_class operator+(const mpf_class &op1, const mpf_class &op2) {
 }
 inline mpf_class operator-(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    mpf_class result;
-    mpf_sub(result.value, op1.value, op2.value);
+    mpf_class result(op1);
+    mpf_sub(result.value, result.value, op2.value);
 #else
     mpf_class result;
     mp_bitcnt_t prec = largerprec(op1, op2);
@@ -2486,8 +2486,8 @@ inline mpf_class operator-(const mpf_class &op1, const mpf_class &op2) {
 }
 inline mpf_class operator*(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    mpf_class result;
-    mpf_mul(result.value, op1.value, op2.value);
+    mpf_class result(op1);
+    mpf_mul(result.value, result.value, op2.value);
 #else
     mpf_class result;
     mp_bitcnt_t prec = largerprec(op1, op2);
@@ -2498,8 +2498,8 @@ inline mpf_class operator*(const mpf_class &op1, const mpf_class &op2) {
 }
 inline mpf_class operator/(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    mpf_class result;
-    mpf_div(result.value, op1.value, op2.value);
+    mpf_class result(op1);
+    mpf_div(result.value, result.value, op2.value);
 #else
     mpf_class result;
     mp_bitcnt_t prec = largerprec(op1, op2);
@@ -3786,7 +3786,7 @@ mpf_class cos_taylor_reduced(const mpf_class &x) {
 #endif
     // Calculate cos(x) using Taylor series
     mp_bitcnt_t k = std::floor(std::sqrt(_req_precision / 2));
-    // We need some additional precision for successive application of the double-angle formula
+    // We need some additional precision for successive applications of the double-angle formula
     mp_bitcnt_t additional_precision;
     if (k % 64 != 0) {
         additional_precision = ((k / 64) + 1) * 64;
