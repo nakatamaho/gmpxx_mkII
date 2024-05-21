@@ -4098,7 +4098,11 @@ mpf_class pow(const mpf_class &x, const mpf_class &y) {
             mpf_pow_ui(result.get_mpf_t(), x.get_mpf_t(), y_uint);
             return result;
         } else {
-            return pow_from_exp_log(x, y);
+            // Handle y < 0 using exp and log
+            unsigned long int y_uint = mpf_get_ui(-y.get_mpf_t());
+            mpf_class result(0.0, x.get_prec());
+            mpf_pow_ui(result.get_mpf_t(), x.get_mpf_t(), y_uint);
+            return 1.0 / result;
         }
     } else {
         return pow_from_exp_log(x, y);
@@ -4259,6 +4263,8 @@ mpf_class asin_AGM(const mpf_class &x) {
     mpf_class one(1.0, req_precision);
     mpf_class half(0.5, req_precision);
     mpf_class pi_over_2(1.0, req_precision);
+    mpf_class asin_refined(1.0, req_precision);
+    mpf_class result(0.0, req_precision);
     pi_over_2 = const_pi(req_precision) * half;
     if (x == -1)
         return -pi_over_2;
@@ -4266,8 +4272,9 @@ mpf_class asin_AGM(const mpf_class &x) {
         return pi_over_2;
     mpf_class sqrt_one_minus_x2(0.0, req_precision);
     sqrt_one_minus_x2 = sqrt(one - x * x);
-    mpf_class result = atan_AGM(x / sqrt_one_minus_x2);
-    return result;
+    result = atan_AGM(x / sqrt_one_minus_x2);
+    asin_refined = result - (sin(result) - x) / cos(result);
+    return asin_refined;
 }
 
 // arcsin(x) using Taylor series expansion around x = 0
