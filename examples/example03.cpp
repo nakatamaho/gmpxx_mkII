@@ -7,12 +7,12 @@
 int main() {
     int decimal_precision = 50;                                                         // You can change this value to adjust the precision
     int bit_precision = static_cast<int>(std::ceil(decimal_precision * std::log2(10))); // Calculate bit precision from decimal
-    mpfr::defaults::set_default_prec(bit_precision);
+    mpf_set_default_prec(bit_precision);
 
     // Initialization and precision setting
-    mpfr::mpfr_class x(1.0); // initial guess
-    mpfr::mpfr_class prev_x;
-    mpfr::mpfr_class two(2.0); // Constant 2
+    gmp::mpf_class x(1.0); // initial guess
+    gmp::mpf_class prev_x;
+    gmp::mpf_class two(2.0); // Constant 2
 
     std::cout << std::fixed << std::setprecision(decimal_precision); // Set output to fixed point notation with desired digits
 
@@ -24,11 +24,11 @@ int main() {
         x = (x + two / x) / two; // Newton's method formula
         std::cout << "Iteration" << std::setw(14) << iteration + 1 << ": " << x << std::endl;
         iteration++;
-    } while (mpfr::abs(x - prev_x) > mpfr::mpfr_class(pow(10, -decimal_precision))); // Continue until convergence
+    } while (gmp::abs(x - prev_x) > gmp::mpf_class(pow(10, -decimal_precision))); // Continue until convergence
 
-    // Comparison with mpfr::sqrt
-    mpfr::mpfr_class sqrt2 = mpfr::sqrt(two); // Calculate sqrt(2) using MPFR
-    std::cout << "Result using mpfr::sqrt: " << sqrt2 << std::endl;
+    // Comparison with gmp::sqrt
+    gmp::mpf_class sqrt2 = gmp::sqrt(two); // Calculate sqrt(2) using GMP
+    std::cout << "Result using gmp::sqrt:  " << sqrt2 << std::endl;
 
     return 0;
 }
