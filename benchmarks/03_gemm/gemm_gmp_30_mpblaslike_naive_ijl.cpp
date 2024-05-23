@@ -30,16 +30,16 @@ double flops_gemm(int k_i, int m_i, int n_i) {
     return flops;
 }
 
-void matmul_gmp(int m, int n, int k, mpf_class alpha, mpf_class *a, int lda, mpf_class *b, int ldb, mpf_class beta, mpf_class *c, int ldc) {
+void matmul_gmp(long m, long n, long k, mpf_class alpha, mpf_class *a, long lda, mpf_class *b, long ldb, mpf_class beta, mpf_class *c, long ldc) {
     mpf_class temp;
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
+    for (long i = 0; i < m; ++i) {
+        for (long j = 0; j < n; ++j) {
             c[i + j * ldc] = beta * c[i + j * ldc];
         }
     }
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n; ++j) {
-            for (int l = 0; l < k; ++l) {
+    for (long i = 0; i < m; ++i) {
+        for (long j = 0; j < n; ++j) {
+            for (long l = 0; l < k; ++l) {
                 c[i + j * ldc] += alpha * a[i + l * lda] * b[l + j * ldb];
             }
         }
