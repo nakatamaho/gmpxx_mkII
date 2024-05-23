@@ -27,8 +27,8 @@ void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *a, long lda, mpf_t *
     mpf_init(sum);
     mpf_init(temp);
 
-    for (long j = 0; j < n; ++j) {
-        for (long i = 0; i < m; ++i) {
+    for (long i = 0; i < m; ++i) {
+        for (long j = 0; j < n; ++j) {
             mpf_set_ui(sum, 0);
             for (long l = 0; l < k; ++l) {
                 mpf_mul(temp, a[i + l * lda], b[l + j * ldb]);
