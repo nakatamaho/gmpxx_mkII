@@ -34,7 +34,7 @@ BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_10_naive inn
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
 
 BENCHMARKS03_DIR = benchmarks/03_gemm
-BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli.cpp gemm_gmp_11_naive_jli_openmp)
+BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli gemm_gmp_11_naive_jli_openmp)
 BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
 
 all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1)

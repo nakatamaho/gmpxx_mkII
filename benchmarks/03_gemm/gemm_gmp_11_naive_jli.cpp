@@ -23,10 +23,9 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 }
 
 void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *a, long lda, mpf_t *b, long ldb, mpf_t beta, mpf_t *c, long ldc) {
-    mpf_t temp;
-    mpf_t sum;
-    mpf_init(temp);
+    mpf_t sum, temp;
     mpf_init(sum);
+    mpf_init(temp);
 
     for (long i = 0; i < m; ++i) {
         for (long j = 0; j < n; ++j) {
