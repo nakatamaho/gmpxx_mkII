@@ -25,11 +25,15 @@ ORIG_TESTS_DIR = orig_tests/cxx
 ORIG_TESTS_SOURCES = $(wildcard $(ORIG_TESTS_DIR)/*.cc)
 ORIG_TESTS = $(filter-out $(ORIG_TESTS_DIR)/t-istream, $(ORIG_TESTS_SOURCES:$(ORIG_TESTS_DIR)/%.cc=$(ORIG_TESTS_DIR)/%))
 
+EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/example03.cpp examples/example04.cpp
+EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
+EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
+
 BENCHMARKS_DIR = benchmarks/00_inner_product
 BENCHMARKS0 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
 BENCHMARKS1 = $(addprefix $(BENCHMARKS_DIR)/,inner_product_gmp_12_mpblas inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
 
-all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(ORIG_TESTS) $(BENCHMARKS0) $(BENCHMARKS1)
+all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS0) $(BENCHMARKS1)
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RPATH_FLAGS)
@@ -60,6 +64,12 @@ $(ORIG_TESTS): $(ORIG_TESTS_DIR)/t-% : $(ORIG_TESTS_DIR)/t-%.cc $(HEADERS)
 
 $(ORIG_TESTS_DIR)/t-istream: $(ORIG_TESTS_DIR)/t-istream.cc $(ORIG_TESTS_DIR)/trace.c $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $^ $(LDFLAGS)
+
+$(EXAMPLES_OBJECTS): %.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	
+$(EXAMPLES_EXECUTABLES): %: %.o
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS_DIR)/%: $(BENCHMARKS_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
@@ -94,7 +104,9 @@ check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG
 		echo "./$$test"; ./$$test ; \
 	done
 
-clean:
-	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_COMPAT) $(OBJECTS_MKIISR) $(BENCHMARKS0) $(BENCHMARKS1) $(TARGETS_TESTS) $(ORIG_TESTS)*~
+examples: $(EXAMPLES_EXECUTABLES)
 
-.PHONY: all clean check $(TARGETS_TESTS)
+clean:
+	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_COMPAT) $(OBJECTS_MKIISR) $(BENCHMARKS0) $(BENCHMARKS1) $(TARGETS_TESTS) $(EXAMPLES_OBJECTS) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS)*~
+
+.PHONY: all clean check $(TARGETS_TESTS) examples

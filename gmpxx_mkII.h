@@ -4099,7 +4099,7 @@ mpf_class pow(const mpf_class &x, const mpf_class &y) {
             return result;
         } else {
             // Handle y < 0 using exp and log
-            unsigned long int y_uint = mpf_get_ui(-y.get_mpf_t());
+            unsigned long int y_uint = -mpf_get_ui(y.get_mpf_t());
             mpf_class result(0.0, x.get_prec());
             mpf_pow_ui(result.get_mpf_t(), x.get_mpf_t(), y_uint);
             return 1.0 / result;
