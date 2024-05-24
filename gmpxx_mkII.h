@@ -3294,13 +3294,50 @@ std::ostream &operator<<(std::ostream &os, const mpf_t &op) {
     return os;
 }
 bool is_valid_number_char(char ch) { return std::isxdigit(ch) || ch == '.' || ch == 'p' || ch == 'P' || ch == '-' || ch == '+'; }
-std::istream &read_nofmtflags_mpf_from_stream(std::istream &stream, mpf_t op) {
+void print_format_flags(std::ios_base::fmtflags flags) {
+    std::cout << "Current Format Flags:" << std::endl;
+    if (flags & std::ios_base::dec)
+        std::cout << "dec ";
+    if (flags & std::ios_base::oct)
+        std::cout << "oct ";
+    if (flags & std::ios_base::hex)
+        std::cout << "hex ";
+    if (flags & std::ios_base::scientific)
+        std::cout << "scientific ";
+    if (flags & std::ios_base::fixed)
+        std::cout << "fixed ";
+    if (flags & std::ios_base::boolalpha)
+        std::cout << "boolalpha ";
+    if (flags & std::ios_base::showbase)
+        std::cout << "showbase ";
+    if (flags & std::ios_base::showpoint)
+        std::cout << "showpoint ";
+    if (flags & std::ios_base::showpos)
+        std::cout << "showpos ";
+    if (flags & std::ios_base::skipws)
+        std::cout << "skipws ";
+    if (flags & std::ios_base::unitbuf)
+        std::cout << "unitbuf ";
+    if (flags & std::ios_base::uppercase)
+        std::cout << "uppercase ";
+    if (flags & std::ios_base::adjustfield)
+        std::cout << "adjustfield ";
+    if (flags & std::ios_base::basefield)
+        std::cout << "basefield ";
+    if (flags & std::ios_base::floatfield)
+        std::cout << "floatfield ";
+    std::cout << std::endl;
+}
+std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
+    std::ios_base::fmtflags current_flags = stream.flags();
+    if (current_flags & std::ios_base::oct || current_flags & std::ios_base::hex) {
+        throw std::runtime_error("Unsupported number base for mpf_t");
+    }
     char ch;
     std::string number;
     bool negative = false;
     bool is_space = false;
     int base = 10;
-    std::ios_base::fmtflags current_flags = stream.flags();
     int counter = 0;
     while (stream >> ch && isspace(ch)) {
         is_space = true;
@@ -3385,14 +3422,6 @@ std::istream &read_nofmtflags_mpf_from_stream(std::istream &stream, mpf_t op) {
         mpf_neg(op, op);
     }
     return stream;
-}
-std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
-    std::ios_base::fmtflags current_flags = stream.flags();
-    if (current_flags == std::ios_base::fmtflags(0)) {
-        return read_nofmtflags_mpf_from_stream(stream, op);
-    } else {
-        throw std::runtime_error("Invalid stream format flags");
-    }
 }
 std::istream &operator>>(std::istream &stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
 std::istream &operator>>(std::istream &stream, mpf_class &op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
