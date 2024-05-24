@@ -2442,9 +2442,16 @@ mpq_class::operator mpf_class() const { return mpf_class(this->get_mpq_t()); }
 mpz_class::operator mpq_class() const { return mpq_class(this->get_mpz_t()); }
 mpq_class::operator mpz_class() const { return mpz_class(this->get_mpq_t()); }
 
-inline mp_bitcnt_t largerprec(const mpf_class &op1, const mpf_class &op2) {
-    mp_bitcnt_t prec1 = op1.get_prec(), prec2 = op2.get_prec();
-    return (prec1 > prec2) ? prec1 : prec2;
+inline int preccmp(const mpf_class &op1, const mpf_class &op2) {
+    mp_bitcnt_t prec1 = op1.get_prec();
+    mp_bitcnt_t prec2 = op2.get_prec();
+    if (prec1 > prec2) {
+        return 1;
+    } else if (prec1 == prec2) {
+        return 0;
+    } else {
+        return -1;
+    }
 }
 inline mpf_class &operator+=(mpf_class &lhs, const mpf_class &rhs) {
     mpf_add(lhs.value, lhs.value, rhs.value);
@@ -2466,49 +2473,73 @@ inline mpf_class operator+(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result;
     mpf_add(result.value, op1.value, op2.value);
-#else
-    mpf_class result;
-    mp_bitcnt_t prec = largerprec(op1, op2);
-    mpf_init2(result.value, prec);
-    mpf_add(result.value, op1.value, op2.value);
-#endif
     return result;
+#else
+    int _preccmp = preccmp(op1, op2);
+    if (_preccmp == 1) {
+        mpf_class result(op1);
+        mpf_add(result.value, op1.value, op2.value);
+        return result;
+    } else {
+        mpf_class result(op2);
+        mpf_add(result.value, op1.value, op2.value);
+        return result;
+    }
+#endif
 }
 inline mpf_class operator-(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result(op1);
     mpf_sub(result.value, result.value, op2.value);
-#else
-    mpf_class result;
-    mp_bitcnt_t prec = largerprec(op1, op2);
-    mpf_init2(result.value, prec);
-    mpf_sub(result.value, op1.value, op2.value);
-#endif
     return result;
+#else
+    int _preccmp = preccmp(op1, op2);
+    if (_preccmp == 1) {
+        mpf_class result(op1);
+        mpf_sub(result.value, op1.value, op2.value);
+        return result;
+    } else {
+        mpf_class result(op2);
+        mpf_sub(result.value, op1.value, op2.value);
+        return result;
+    }
+#endif
 }
 inline mpf_class operator*(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result(op1);
     mpf_mul(result.value, result.value, op2.value);
-#else
-    mpf_class result;
-    mp_bitcnt_t prec = largerprec(op1, op2);
-    mpf_init2(result.value, prec);
-    mpf_mul(result.value, op1.value, op2.value);
-#endif
     return result;
+#else
+    int _preccmp = preccmp(op1, op2);
+    if (_preccmp == 1) {
+        mpf_class result(op1);
+        mpf_mul(result.value, op1.value, op2.value);
+        return result;
+    } else {
+        mpf_class result(op2);
+        mpf_mul(result.value, op1.value, op2.value);
+        return result;
+    }
+#endif
 }
 inline mpf_class operator/(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class result(op1);
     mpf_div(result.value, result.value, op2.value);
-#else
-    mpf_class result;
-    mp_bitcnt_t prec = largerprec(op1, op2);
-    mpf_init2(result.value, prec);
-    mpf_div(result.value, op1.value, op2.value);
-#endif
     return result;
+#else
+    int _preccmp = preccmp(op1, op2);
+    if (_preccmp == 1) {
+        mpf_class result(op1);
+        mpf_div(result.value, op1.value, op2.value);
+        return result;
+    } else {
+        mpf_class result(op2);
+        mpf_div(result.value, op1.value, op2.value);
+        return result;
+    }
+#endif
 }
 inline mpf_class operator+(const mpf_class &op) {
     mpf_class result(op.value);
@@ -2929,13 +2960,19 @@ inline mpf_class hypot(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     mpf_class rop;
     rop = sqrt(op1 * op1 + op2 * op2);
-#else
-    mpf_class rop;
-    mp_bitcnt_t prec = largerprec(op1, op2);
-    mpf_init2(rop.value, prec);
-    rop = sqrt(op1 * op1 + op2 * op2);
-#endif
     return rop;
+#else
+    int _preccmp = preccmp(op1, op2);
+    if (_preccmp == 1) {
+        mpf_class rop(op1);
+        rop = sqrt(op1 * op1 + op2 * op2);
+        return rop;
+    } else {
+        mpf_class rop(op2);
+        rop = sqrt(op1 * op1 + op2 * op2);
+        return rop;
+    }
+#endif
 }
 inline int sgn(const mpf_class &op) {
     int flag = mpf_sgn(op.get_mpf_t());
