@@ -1987,7 +1987,9 @@ class mpf_class {
     mpf_class &operator=(const mpf_class &op) noexcept {
         if (this != &op) {
 #if !defined ___GMPXX_MKII_NOPRECCHANGE___
-            mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
+            if (mpf_get_prec(this->get_mpf_t()) != mpf_get_prec(op.value)) {
+                mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
+            }
 #endif
             mpf_set(value, op.value);
         }

@@ -6,12 +6,12 @@ executables=(
     "inner_product_gmp_11_openmp"
     "inner_product_gmp_12_mpblas_orig"
     "inner_product_gmp_12_mpblas_mkII"
-    "inner_product_gmp_12_mpblas_compat"
     "inner_product_gmp_12_mpblas_mkIISR"
-    "inner_product_gmp_13_mpblas_openmp"
-    "inner_product_gmp_13_mpblas_openmp_compat"
+    "inner_product_gmp_12_mpblas_compat"
+    "inner_product_gmp_13_mpblas_openmp_orig"
     "inner_product_gmp_13_mpblas_openmp_mkII"
     "inner_product_gmp_13_mpblas_openmp_mkIISR"
+    "inner_product_gmp_13_mpblas_openmp_compat"
 )
 for exe in "${executables[@]}"; do
     echo "./$exe 10000000 1024"

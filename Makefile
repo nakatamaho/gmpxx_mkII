@@ -32,7 +32,7 @@ EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 CXXFLAGS_BENCH = -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_inner_product
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
-BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas_orig inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
+BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas_orig inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp_orig inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
 
 BENCHMARKS03_DIR = benchmarks/03_gemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli gemm_gmp_12_naive_jli_openmp)
@@ -91,8 +91,8 @@ $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_compat: $(BENCHMARKS00_DIR)/inne
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_mkIISR: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
-$(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
+$(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp_orig: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp_mkII: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
