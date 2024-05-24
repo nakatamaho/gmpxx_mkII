@@ -2651,18 +2651,16 @@ template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const mpf_c
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator*(const T op1, const mpf_class &op2) { return op2 * op1; }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class &) operator/=(mpf_class &lhs, const T rhs) {
-    mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     if (rhs >= 0) {
         mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     } else {
-        mpf_div_ui(lhs.value, lhs.value, -static_cast<unsigned long int>(-rhs));
+        mpf_div_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
         mpf_neg(lhs.value, lhs.value);
     }
     return lhs;
 }
 template <typename T> inline SIGNED_INT_COND(T, mpf_class) operator/(const mpf_class &op1, const T op2) {
     mpf_class result(op1);
-    mpf_div_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     if (op2 >= 0) {
         mpf_div_ui(result.value, result.value, static_cast<unsigned long int>(op2));
     } else {
