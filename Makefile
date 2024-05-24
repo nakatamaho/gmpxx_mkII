@@ -29,9 +29,10 @@ EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/exampl
 EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
 EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
+CXXFLAGS_BENCH = -pg -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_inner_product
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
-BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
+BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas_orig inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
 
 BENCHMARKS03_DIR = benchmarks/03_gemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli gemm_gmp_12_naive_jli_openmp)
@@ -76,43 +77,43 @@ $(EXAMPLES_EXECUTABLES): %: %.o
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS00_DIR)/%: $(BENCHMARKS00_DIR)/%.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS)
 
-$(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
+$(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_orig: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_mkII: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_compat: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_mkIISR: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp_mkII: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp_compat: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp_mkIISR: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS03_DIR)/%: $(BENCHMARKS03_DIR)/%.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) -fopenmp $(INCLUDES) -o $@ $< $(LDFLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) -fopenmp $(INCLUDES) -o $@ $< $(LDFLAGS)
 
 $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_orig: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
 
 $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_mkII: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKII) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKII) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_mkIISR: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG_TESTS)
 	./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR)
