@@ -3386,7 +3386,7 @@ std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
         if (!stream.get(ch))
             break;
     }
-    // folloing code detects invalid +-, -+, --, ++
+    // The following code detects invalid +-, -+, --, ++
     std::size_t pos_plus_minus = number.find("+-");
     std::size_t pos_minus_plus = number.find("-+");
     std::size_t pos_minus_minus = number.find("--");
