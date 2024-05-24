@@ -4,7 +4,7 @@
 #include <gmp.h>
 #include <assert.h>
 
-#include <gmpxx.h>
+#include <gmpxx.h> //this is only used for checking.
 #include "Rgemm.hpp"
 
 #define MFLOPS 1e-6
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     matmul_gmp((long)m, (long)n, (long)k, alpha, a, (long)lda, b, (long)ldb, beta, c, (long)ldc);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
-
+#if defined NEED_CHECK
     char transa = 'n', transb = 'n';
     Rgemm(&transa, &transb, (long)m, (long)n, (long)k, _alpha, _a, (long)lda, _b, (long)ldb, _beta, _c, (long)ldc);
 
@@ -121,6 +121,11 @@ int main(int argc, char *argv[]) {
     printf("%5d %5d %5d %10.3f", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
     gmp_printf("   %.F3e", tmp);
     printf("     %5.3f\n", elapsed_seconds.count());
+#else
+    printf("    m     n     k     MFLOPS    Elapsed(s)\n");
+    printf("%5d %5d %5d %10.3f", m, n, k, flops_gemm(k, m, n) / elapsed_seconds.count() * MFLOPS);
+    printf("     %5.3f\n", elapsed_seconds.count());
+#endif
 
     // clear memory
     for (int i = 0; i < m * k; i++) {
