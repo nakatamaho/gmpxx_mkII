@@ -18,6 +18,7 @@ for exe in "${executables[@]}"; do
     ./$exe 10000000 1024
     if [ -f gmon.out ]; then
         mv gmon.out "gmon_${exe}.out"
+        gprof ./$exe "gmon_${exe}.out" > "gprof_${exe}.txt"
     fi
     echo
 done
