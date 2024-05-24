@@ -29,14 +29,14 @@ EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/exampl
 EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
 EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
-CXXFLAGS_BENCH = -pg -Wall -Wextra
+CXXFLAGS_BENCH = -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_inner_product
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas_orig inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
 
 BENCHMARKS03_DIR = benchmarks/03_gemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli gemm_gmp_12_naive_jli_openmp)
-BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
+BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_compat gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
 
 all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1)
 
@@ -108,6 +108,9 @@ $(BENCHMARKS03_DIR)/%: $(BENCHMARKS03_DIR)/%.cpp $(HEADERS)
 
 $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_orig: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_compat: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
 
 $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_mkII: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKII) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
