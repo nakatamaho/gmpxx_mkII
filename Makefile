@@ -36,9 +36,12 @@ BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas_or
 
 BENCHMARKS03_DIR = benchmarks/03_gemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli gemm_gmp_12_naive_jli_openmp)
-BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_compat gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
+BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_20_mpblas_orig gemm_gmp_20_mpblas_compat gemm_gmp_20_mpblas_mkII gemm_gmp_20_mpblas_mkIISR)
+BENCHMARKS03_2 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_21_mpblas_openmp_orig gemm_gmp_21_mpblas_openmp_compat gemm_gmp_21_mpblas_openmp_mkII gemm_gmp_21_mpblas_openmp_mkIISR)
+BENCHMARKS03_3 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_compat gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
 
-all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1)
+
+all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RPATH_FLAGS)
@@ -118,6 +121,30 @@ $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_mkII: $(BENCHMARKS03_DIR)/g
 $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl_mkIISR: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
+$(BENCHMARKS03_DIR)/gemm_gmp_20_mpblas_orig: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_20_mpblas_compat: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_20_mpblas_mkII: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKII) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_20_mpblas_mkIISR: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_21_mpblas_openmp_orig: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_21_mpblas_openmp_compat: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_21_mpblas_openmp_mkII: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKII) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS03_DIR)/gemm_gmp_21_mpblas_openmp_mkIISR: $(BENCHMARKS03_DIR)/gemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
 check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG_TESTS)
 	./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR)
 	for test in $^ ; do \
@@ -127,6 +154,6 @@ check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG
 examples: $(EXAMPLES_EXECUTABLES)
 
 clean:
-	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_COMPAT) $(OBJECTS_MKIISR) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS00_DIR)/gmon* $(BENCHMARKS00_DIR)/gprof* $(BENCHMARKS03_DIR)/gmon* $(BENCHMARKS03_DIR)/gprof* $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(TARGETS_TESTS) $(EXAMPLES_OBJECTS) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS)*~
+	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_COMPAT) $(OBJECTS_MKIISR) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS00_DIR)/gmon* $(BENCHMARKS00_DIR)/gprof* $(BENCHMARKS03_DIR)/gmon* $(BENCHMARKS03_DIR)/gprof* $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3) $(TARGETS_TESTS) $(EXAMPLES_OBJECTS) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS)*~
 
 .PHONY: all clean check $(TARGETS_TESTS) examples
