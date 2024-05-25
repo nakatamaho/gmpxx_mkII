@@ -2020,8 +2020,12 @@ class mpf_class {
     // constructors
     explicit mpf_class(const mpf_t op) {
 #if !defined ___GMPXX_MKII_NOPRECCHANGE___
-        mpf_init2(value, mpf_get_prec(op));
-        mpf_set(value, op);
+        if (mpf_get_prec(this->get_mpf_t()) == mpf_get_prec(op)) {
+            mpf_init_set(value, op);
+        } else {
+            mpf_init2(value, mpf_get_prec(op));
+            mpf_set(value, op);
+        }
 #else
         mpf_init_set(value, op);
 #endif

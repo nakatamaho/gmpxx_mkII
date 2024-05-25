@@ -29,7 +29,7 @@ EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/exampl
 EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
 EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
-CXXFLAGS_BENCH = -pg -Wall -Wextra
+CXXFLAGS_BENCH = -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_inner_product
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas_orig inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp_orig inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
