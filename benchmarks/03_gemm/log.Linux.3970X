@@ -3,29 +3,61 @@ model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
 ./gemm_gmp_10_naive_ijl 1000 1000 1000 512
     m     n     k     MFLOPS    Elapsed(s)
- 1000  1000  1000     25.528     78.425
+ 1000  1000  1000     25.830     77.507
 
 ./gemm_gmp_11_naive_jli 1000 1000 1000 512
     m     n     k     MFLOPS      DIFF     Elapsed(s)
- 1000  1000  1000     34.141   0.000e+00     58.639
+ 1000  1000  1000     34.116   0.000e+00     58.682
 
 ./gemm_gmp_12_naive_jli_openmp 1000 1000 1000 512
     m     n     k     MFLOPS      DIFF     Elapsed(s)
- 1000  1000  1000   1076.688   0.000e+00     1.859
+ 1000  1000  1000   1086.280   0.000e+00     1.843
 
-./gemm_gmp_30_mpblaslike_naive_ijl_orig 1000 1000 1000 512
+./gemm_gmp_20_mpblas_orig 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     11.238     178.147
+ 1000  1000  1000     11.311     176.998
+
+./gemm_gmp_20_mpblas_compat 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000      9.915     201.906
+
+./gemm_gmp_20_mpblas_mkII 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000      9.360     213.896
+
+./gemm_gmp_20_mpblas_mkIISR 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000     12.272     163.140
+
+./gemm_gmp_21_mpblas_openmp_orig 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000     11.263     177.742
+
+./gemm_gmp_21_mpblas_openmp_compat 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000      9.581     208.966
+
+./gemm_gmp_21_mpblas_openmp_mkII 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000      9.338     214.383
+
+./gemm_gmp_21_mpblas_openmp_mkIISR 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000     12.246     163.483
 
 ./gemm_gmp_30_mpblaslike_naive_ijl_compat 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.869     202.862
-
-./gemm_gmp_30_mpblaslike_naive_ijl_mkIISR 1000 1000 1000 512
-    m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     12.184     164.319
+ 1000  1000  1000      9.890     202.429
 
 ./gemm_gmp_30_mpblaslike_naive_ijl_mkII 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.540     209.862
+ 1000  1000  1000      9.330     214.572
+
+./gemm_gmp_30_mpblaslike_naive_ijl_mkIISR 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000     12.219     163.838
+
+./gemm_gmp_30_mpblaslike_naive_ijl_orig 1000 1000 1000 512
+    m     n     k     MFLOPS       Elapsed(s)
+ 1000  1000  1000     11.228     178.310
 
