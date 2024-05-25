@@ -1,34 +1,22 @@
-./gemm_gmp_10_naive     500  500  500 512
-./gemm_gmp_10_naive    1000 1000 1000 512
-./gemm_gmp_10_naive    1500 1500 1500 512
-./gemm_gmp_10_naive    2000 2000 2000 512
+uname -a
+cat /proc/cpuinfo | grep 'model name' | head -1
+echo
+executables=(
+"gemm_gmp_10_naive_ijl"
+"gemm_gmp_11_naive_jli"
+"gemm_gmp_12_naive_jli_openmp"
+"gemm_gmp_30_mpblaslike_naive_ijl_orig"
+"gemm_gmp_30_mpblaslike_naive_ijl_compat"
+"gemm_gmp_30_mpblaslike_naive_ijl_mkIISR"
+"gemm_gmp_30_mpblaslike_naive_ijl_mkII"
+)
+for exe in "${executables[@]}"; do
+    echo "./$exe 1000 1000 1000 512"
+    ./$exe 1000 1000 1000 512
+    if [ -f gmon.out ]; then
+        mv gmon.out "gmon_${exe}.out"
+        gprof ./$exe "gmon_${exe}.out" > "gprof_${exe}.txt"
+    fi
+    echo
+done
 
-./gemm_gmp_20_mpblas    500  500  500 512
-./gemm_gmp_20_mpblas   1000 1000 1000 512
-./gemm_gmp_20_mpblas   1500 1500 1500 512
-./gemm_gmp_20_mpblas   2000 2000 2000 512
-
-./gemm_gmp_21_mpblas_openmp    500  500  500 512
-./gemm_gmp_21_mpblas_openmp   1000 1000 1000 512
-./gemm_gmp_21_mpblas_openmp   1500 1500 1500 512
-./gemm_gmp_21_mpblas_openmp   2000 2000 2000 512
-
-./gemm_gmp_30_mpblaslike_naive    500  500  500 512
-./gemm_gmp_30_mpblaslike_naive   1000 1000 1000 512
-./gemm_gmp_30_mpblaslike_naive   1500 1500 1500 512
-./gemm_gmp_30_mpblaslike_naive 	 2000 2000 2000 512
-
-./gemm_gmp_31_mpblaslike_blocking    500  500  500 512
-./gemm_gmp_31_mpblaslike_blocking   1000 1000 1000 512
-./gemm_gmp_31_mpblaslike_blocking   1500 1500 1500 512
-./gemm_gmp_31_mpblaslike_blocking   2000 2000 2000 512
-
-./gemm_gmp_32_mpblaslike_blocking_openmp    500  500  500 512
-./gemm_gmp_32_mpblaslike_blocking_openmp   1000 1000 1000 512
-./gemm_gmp_32_mpblaslike_blocking_openmp   1500 1500 1500 512
-./gemm_gmp_32_mpblaslike_blocking_openmp   2000 2000 2000 512
-
-./gemm_mpfr_10_naive     500  500  500 512
-./gemm_mpfr_10_naive    1000 1000 1000 512
-./gemm_mpfr_10_naive    1500 1500 1500 512
-./gemm_mpfr_10_naive    2000 2000 2000 512
