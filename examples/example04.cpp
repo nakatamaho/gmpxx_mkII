@@ -11,7 +11,7 @@ int main() {
     int bit_precision = static_cast<int>(std::ceil(decimal_precision * std::log2(10))) * 2; // Calculate bit precision from decimal, * 2 is for sure
     mpf_set_default_prec(bit_precision);
     std::cout << std::fixed << std::setprecision(decimal_precision); // Set output to fixed-point notation with 50 digits of precision
-    std::cout << "calcuate pi using arithmetic-geometric mean";
+    std::cout << "calcuate pi using arithmetic-geometric mean" << std::endl;
 
     int iteration = 0;
     gmp::mpf_class one(1.0); // Second parameter sets the precision in bits
