@@ -3859,7 +3859,7 @@ mpf_class cos_taylor_reduced(const mpf_class &x, bool addprec = false) {
     // Calculate cos(x) using Taylor series
     mp_bitcnt_t k = std::floor(std::sqrt(_req_precision / 2));
     // We need some additional precision for successive applications of the double-angle formula
-    mp_bitcnt_t additional_precision;
+    mp_bitcnt_t additional_precision = 0;
     if (k % 64 != 0) {
         additional_precision = ((k / 64) + 1) * 64;
     }
@@ -4017,7 +4017,7 @@ mpf_class sinx_from_cos_internal(const mpf_class &x, bool addprec = false) {
 #endif
     mp_bitcnt_t k = std::floor(std::sqrt(_req_precision / 2));
     // We need some additional precision for successive applications of the double-angle formula
-    mp_bitcnt_t additional_precision;
+    mp_bitcnt_t additional_precision = 0;
     if (k % 64 != 0) {
         additional_precision = ((k / 64) + 1) * 64;
     }
@@ -4125,11 +4125,12 @@ mpf_class tan_from_sin_cos(const mpf_class &x) {
     // Calculate tan(x) using Taylor series
     mp_bitcnt_t k = std::floor(std::sqrt(req_precision / 2));
     // We need some additional precision for successive applications of the double-angle formula
-    mp_bitcnt_t additional_precision;
+    mp_bitcnt_t additional_precision = 0;
     if (k % 64 != 0) {
         additional_precision = ((k / 64) + 1) * 64;
     }
-    mp_bitcnt_t _req_precision = req_precision + additional_precision;
+    mp_bitcnt_t _req_precision;
+    _req_precision = req_precision + additional_precision;
     // Constants and variables
     mpf_class cosx(0.0, _req_precision);
     mpf_class sinx(0.0, _req_precision);

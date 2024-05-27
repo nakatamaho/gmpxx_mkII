@@ -1,5 +1,5 @@
 CXX = g++-12
-CXXFLAGS = -Wall -Wextra
+CXXFLAGS = -Wall -Wextra -O2
 LDFLAGS = -L/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib -lgmp
 INCLUDES = -I/home/docker/gmpxx_mkII/i/GMP-6.3.0/include -I/home/docker/gmpxx_mkII/
 RPATH_FLAGS = -Wl,-rpath,/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib

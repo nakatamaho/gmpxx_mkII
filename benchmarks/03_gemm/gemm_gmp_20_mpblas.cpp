@@ -3,7 +3,15 @@
 #include <stdio.h>
 #include <gmp.h>
 #include <assert.h>
+
+#if defined USE_ORIGINAL_GMPXX
 #include <gmpxx.h>
+#else
+#include "gmpxx_mkII.h"
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+using namespace gmp;
+#endif
+#endif
 
 #define MFLOPS 1e-6
 

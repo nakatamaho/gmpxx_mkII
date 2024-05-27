@@ -14,8 +14,9 @@ executables=(
     "inner_product_gmp_13_mpblas_openmp_compat"
 )
 for exe in "${executables[@]}"; do
-    echo "./$exe 10000000 1024"
-    ./$exe 10000000 1024
+    COMMAND_LINE="./$exe 100000000 1024"
+    echo $COMMAND_LINE
+    $COMMAND_LINE
     if [ -f gmon.out ]; then
         mv gmon.out "gmon_${exe}.out"
         gprof ./$exe "gmon_${exe}.out" > "gprof_${exe}.txt"
