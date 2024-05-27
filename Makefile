@@ -87,12 +87,15 @@ $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_orig: $(BENCHMARKS00_DIR)/inner_
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_mkII: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_compat: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_COMPAT) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_mkIISR: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp_orig: $(BENCHMARKS00_DIR)/inner_product_gmp_13_mpblas_openmp.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
