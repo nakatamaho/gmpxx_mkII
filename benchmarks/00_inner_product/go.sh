@@ -14,7 +14,7 @@ executables=(
     "inner_product_gmp_13_mpblas_openmp_compat"
 )
 for exe in "${executables[@]}"; do
-    COMMAND_LINE="./$exe 100000000 1024"
+    COMMAND_LINE="./$exe 500000000 512"
     echo $COMMAND_LINE
     $COMMAND_LINE
     if [ -f gmon.out ]; then
