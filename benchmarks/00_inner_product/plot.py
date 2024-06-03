@@ -15,14 +15,26 @@ with open(file_path, 'r') as file:
     content = file.read()
 
 # Define the pattern to extract operations and their elapsed times
-pattern = re.compile(r'(\\./inner_product_gmp_\\d+_[\\w]+) \\d+ \\d+\\nElapsed time: ([\\d.]+) s')
+pattern = re.compile(r'(\./inner_product_gmp_\d+_\w+) \d+ \d+\nElapsed time: ([\d.]+) s')
 
 # Extract data using the defined pattern
 data = pattern.findall(content)
 
+# Print extracted data for debugging
+print("Extracted data:", data)
+
 # Organize data, removing 'inner_product' from the operation names
 operations = [op.replace('inner_product_', '') for op, _ in data]
 times = [float(time) for _, time in data]
+
+# Print organized operations and times for further debugging
+print("Operations:", operations)
+print("Elapsed Times:", times)
+
+# Check if we have data to plot
+if not operations:
+    print("No data to plot.")
+    sys.exit(1)
 
 # Plotting
 plt.figure(figsize=(14, 8))
