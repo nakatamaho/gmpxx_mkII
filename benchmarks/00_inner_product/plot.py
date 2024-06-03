@@ -27,16 +27,22 @@ print("Extracted data:", data)
 operations = [op.replace('inner_product_', '') for op, _ in data]
 times = [float(time) for _, time in data]
 
+# Filter data for "openmp" operations
+openmp_operations = [op for op in operations if 'openmp' in op]
+openmp_times = [times[i] for i, op in enumerate(operations) if 'openmp' in op]
+
 # Print organized operations and times for further debugging
 print("Operations:", operations)
 print("Elapsed Times:", times)
+print("OpenMP Operations:", openmp_operations)
+print("OpenMP Elapsed Times:", openmp_times)
 
 # Check if we have data to plot
 if not operations:
     print("No data to plot.")
     sys.exit(1)
 
-# Plotting
+# Plotting all operations
 plt.figure(figsize=(14, 8))
 plt.bar(operations, times, color='lightblue')
 plt.xlabel('Operation')
@@ -44,7 +50,19 @@ plt.ylabel('Elapsed Time (s)')
 plt.title('Elapsed Time for Various GMP Operations in Inner Product Calculations')
 plt.xticks(rotation=90)
 plt.tight_layout()
-
-# Save the plot to a PDF file
-plt.savefig('elapsed_times_chart.pdf')
+plt.savefig('all_operations_elapsed_times_chart.pdf')
 plt.close()
+
+# Plotting only "openmp" operations
+if openmp_operations:
+    plt.figure(figsize=(10, 6))
+    plt.bar(openmp_operations, openmp_times, color='coral')
+    plt.xlabel('Operation')
+    plt.ylabel('Elapsed Time (s)')
+    plt.title('Elapsed Time for OpenMP GMP Operations in Inner Product Calculations')
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.savefig('openmp_operations_elapsed_times_chart.pdf')
+    plt.close()
+else:
+    print("No OpenMP data to plot.")
