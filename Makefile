@@ -29,7 +29,7 @@ EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/exampl
 EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
 EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
-CXXFLAGS_BENCH = -fopenmp -Wall -Wextra
+CXXFLAGS_BENCH = -fno-unroll-loops -fopenmp -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_inner_product
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_10_naive inner_product_gmp_11_openmp)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_12_mpblas_orig inner_product_gmp_12_mpblas_mkII inner_product_gmp_12_mpblas_compat inner_product_gmp_12_mpblas_mkIISR inner_product_gmp_13_mpblas_openmp_orig inner_product_gmp_13_mpblas_openmp_compat inner_product_gmp_13_mpblas_openmp_mkII inner_product_gmp_13_mpblas_openmp_mkIISR)
@@ -84,6 +84,7 @@ $(BENCHMARKS00_DIR)/%: $(BENCHMARKS00_DIR)/%.cpp $(HEADERS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_orig: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
 $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas_mkII: $(BENCHMARKS00_DIR)/inner_product_gmp_12_mpblas.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)

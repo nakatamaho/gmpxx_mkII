@@ -45,16 +45,21 @@
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#define ___GMPXX_DONT_USE_NAMESPACE___
+#define ___GMPXX_UDL_CHAR___
+#endif
+
 #define INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value, X>::type
 #define FLOAT_COND(T, X) typename std::enable_if<std::is_float<T>::value, X>::type
 #define UNSIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, X>::type
 #define SIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, X>::type
 #define NON_INT_COND(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
 #define NON_GMP_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value && !std::is_same<T, mpq_class>::value && !std::is_same<T, mpz_class>::value, X>::type
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+
+#if !defined ___GMPXX_DONT_USE_NAMESPACE___
 namespace gmp {
 #endif
-
 class gmpxx_defaults {
   public:
     static int base;
@@ -4564,14 +4569,14 @@ class gmp_randclass {
         }
     }
 }; // gmp_randclass
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+#if !defined ___GMPXX_DONT_USE_NAMESPACE___
 } // namespace gmp
 #endif
 
 // mpf_class operator"" _mpf (const char *str)
 // mpz_class operator"" _mpz (const char *str)
 // mpq_class operator"" _mpq (const char *str)
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
 mpz_class operator"" _mpz(unsigned long long int val) { return mpz_class(static_cast<unsigned long int>(val)); }
 mpq_class operator"" _mpq(unsigned long long int val) { return mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
 mpf_class operator"" _mpf(long double val) { return mpf_class(static_cast<double>(val)); }
@@ -4583,7 +4588,7 @@ gmp::mpf_class operator"" _mpf(long double val) { return gmp::mpf_class(static_c
 // in the manual, the following functions are avilable, but actually not.
 // cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
 // "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
-#if !defined ___GMPXX_POSSIBLE_BUGS___
+#if !defined ___GMPXX_UDL_CHAR___
 gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
 gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpq_class(str); }
 gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
@@ -4597,7 +4602,7 @@ void swap(mpf_class &op1, mpf_class &op2) noexcept { op1.swap(op2); }
 
 namespace std { // namespace std for numerical limits
 template <>
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
 class numeric_limits<mpz_class> {
 #else
 class numeric_limits<gmp::mpz_class> {
@@ -4621,7 +4626,7 @@ class numeric_limits<gmp::mpz_class> {
     static constexpr bool traps = false;
     static constexpr bool tinyness_before = false;
     static constexpr float_round_style round_style = round_toward_zero;
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
     static mpz_class min() noexcept { return mpz_class(0); }
     static mpz_class max() noexcept { return mpz_class(0); }
     static mpz_class lowest() noexcept { return mpz_class(0); }
@@ -4644,7 +4649,7 @@ class numeric_limits<gmp::mpz_class> {
 #endif
 };
 template <>
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
 class numeric_limits<mpq_class> {
 #else
 class numeric_limits<gmp::mpq_class> {
@@ -4668,7 +4673,7 @@ class numeric_limits<gmp::mpq_class> {
     static constexpr bool traps = false;
     static constexpr bool tinyness_before = false;
     static constexpr float_round_style round_style = round_toward_zero;
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
     static mpq_class min() noexcept { return mpq_class(0); }
     static mpq_class max() noexcept { return mpq_class(0); }
     static mpq_class lowest() noexcept { return mpq_class(0); }
@@ -4691,7 +4696,7 @@ class numeric_limits<gmp::mpq_class> {
 #endif
 };
 template <>
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
 class numeric_limits<mpf_class> {
 #else
 class numeric_limits<gmp::mpf_class> {
@@ -4715,7 +4720,7 @@ class numeric_limits<gmp::mpf_class> {
     static constexpr bool traps = false;
     static constexpr bool tinyness_before = false;
     static constexpr float_round_style round_style = round_toward_zero;
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
     static mpf_class min() noexcept { return mpf_class(0); }
     static mpf_class max() noexcept { return mpf_class(0); }
     static mpf_class lowest() noexcept { return mpf_class(0); }
@@ -4739,7 +4744,7 @@ class numeric_limits<gmp::mpf_class> {
 };
 } // namespace std
 
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
 int gmpxx_defaults::base;
 
 class mpf_class_initializer {
