@@ -3908,7 +3908,7 @@ mpf_class cos_taylor_reduced(const mpf_class &x, bool addprec = false) {
     }
     if (addprec == true)
         return s;
-    _s = s; // reduce the precision
+    _s = s; // reduce the precision, may not be necessary but to be sure.
     return _s;
 }
 mpf_class cos_taylor(const mpf_class &x) {
@@ -3922,7 +3922,7 @@ mpf_class cos_taylor(const mpf_class &x) {
     mpf_class pi_over_2(0.0, req_precision);
     mpf_class x_reduced(0.0, req_precision);
     mpf_class cosx(0.0, req_precision);
-    int symm_sign;
+    int symm_sign = 1;
     // Setting some constants
     pi = const_pi(req_precision);
     two_pi = two * pi;
@@ -3945,12 +3945,11 @@ mpf_class cos_taylor(const mpf_class &x) {
         x_reduced = -pi - x_reduced;
         symm_sign = -1;
     }
-    cosx = cos_taylor_reduced(x_reduced);
-    if (symm_sign == -1)
-        cosx = -cosx;
+    cosx = cos_taylor_reduced(x_reduced) * symm_sign;
     return cosx;
 }
 mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
+//mpf_class cos(const mpf_class &x) { return cos_taylor_naive(x); }
 // Naive Taylor expansion version. It generates a very long series.
 mpf_class sin_taylor_naive(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
