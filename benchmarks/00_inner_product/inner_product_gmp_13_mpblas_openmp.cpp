@@ -17,7 +17,7 @@ inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy
     long ix = 0;
     long iy = 0;
     long i;
-    mpf_class temp, templ;
+    mpf_class temp, templ, templl;
 
     temp = 0.0;
 
@@ -37,8 +37,11 @@ inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy
 #ifdef _OPENMP
 #pragma omp for
 #endif
+            templ = 0.0;
             for (i = 0; i < n; i++) {
-                templ += dx[i] * dy[i];
+                templl = dx[i];
+                templl *= dy[i];
+                templ += templl;
             }
 #ifdef _OPENMP
 #pragma omp critical
@@ -47,7 +50,8 @@ inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy
         }
     } else {
         for (i = 0; i < n; i++) {
-            temp += dx[ix] * dy[iy];
+            templl = dx[i] * dy[i];
+            temp += templl;
             ix = ix + incx;
             iy = iy + incy;
         }
