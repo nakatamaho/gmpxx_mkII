@@ -4,7 +4,7 @@
 #  sudo sh -c 'echo -1 >/proc/sys/kernel/perf_event_paranoid' # to run perf
 #  or
 #  sudo sysctl -w kernel.perf_event_paranoid=-1 # to run perf
-#  docker run -it gmpxx_mkii /bin/bash
+#  docker run --privileged -it gmpxx_mkii /bin/bash
 #
 FROM ubuntu:22.04
 
