@@ -1,6 +1,9 @@
 uname -a
 cat /proc/cpuinfo | grep 'model name' | head -1
 echo
+
+FLAMEGRAPH_DIR="/home/docker/FlameGraph"
+
 executables=(
     "inner_product_gmp_10_naive"
     "inner_product_gmp_11_openmp"
@@ -20,15 +23,13 @@ executables=(
     "inner_product_gmp_13_1_mpblas_openmp_mkII"
     "inner_product_gmp_13_1_mpblas_openmp_mkIISR"
 )
+
+args="500000000 512"
 for exe in "${executables[@]}"; do
-    COMMAND_LINE="sudo perf record -g ./$exe 500000000 512"
-        echo $COMMAND_LINE
-#    $COMMAND_LINE 2>&1 | tee perf_record_output_${exe}.txt
-    $COMMAND_LINE 2>&1
-
-    COMMAND_LINE2="sudo perf report"
-    echo $COMMAND_LINE2
-    $COMMAND_LINE2 2>&1 | tee perf_output_output_${exe}.txt
-
+    echo "Profiling $exe"
+    sudo perf record -o perf.data_${exe} -g -- ./$exe $args 
+    sudo perf script -i perf.data_${exe} > out_${exe}.perf
+    cat out_${exe}.perf | $FLAMEGRAPH_DIR/stackcollapse-perf.pl | $FLAMEGRAPH_DIR/flamegraph.pl > flamegraph_${exe}.svg
+    echo "Flamegraph for $exe generated."
     echo
 done
