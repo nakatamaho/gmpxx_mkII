@@ -13,9 +13,12 @@ executables=(
     "inner_product_gmp_12_2_mpblas_orig"
     "inner_product_gmp_12_2_mpblas_mkII"
     "inner_product_gmp_12_2_mpblas_mkIISR"
-    "inner_product_gmp_13_mpblas_openmp_orig"
-    "inner_product_gmp_13_mpblas_openmp_mkII"
-    "inner_product_gmp_13_mpblas_openmp_mkIISR"
+    "inner_product_gmp_13_0_mpblas_openmp_orig"
+    "inner_product_gmp_13_0_mpblas_openmp_mkII"
+    "inner_product_gmp_13_0_mpblas_openmp_mkIISR"
+    "inner_product_gmp_13_1_mpblas_openmp_orig"
+    "inner_product_gmp_13_1_mpblas_openmp_mkII"
+    "inner_product_gmp_13_1_mpblas_openmp_mkIISR"
 )
 for exe in "${executables[@]}"; do
     COMMAND_LINE="./$exe 500000000 512"
