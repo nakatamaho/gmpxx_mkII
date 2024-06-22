@@ -17,7 +17,7 @@ inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy
     long ix = 0;
     long iy = 0;
     long i;
-    mpf_class temp, templ;
+    mpf_class temp, templ, templl;
 
     temp = 0.0;
 
@@ -30,7 +30,7 @@ inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy
     if (incx == 1 && incy == 1) {
 // no reduction for multiple precision
 #ifdef _OPENMP
-#pragma omp parallel private(i, templ) shared(temp, dx, dy, n)
+#pragma omp parallel private(i, templ, templl) shared(temp, dx, dy, n)
 #endif
         {
             templ = 0.0;
@@ -38,7 +38,9 @@ inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy
 #pragma omp for
 #endif
             for (i = 0; i < n; i++) {
-                templ += dx[i] * dy[i];
+                templl = dx[i];
+                templl *= dy[i];
+                templ += templl;
             }
 #ifdef _OPENMP
 #pragma omp critical
