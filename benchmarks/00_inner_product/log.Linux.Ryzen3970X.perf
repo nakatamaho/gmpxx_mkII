@@ -1,0 +1,122 @@
+Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Jan 16 14:32:32 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+model name      : AMD Ryzen Threadripper 3970X 32-Core Processor
+
+Profiling inner_product_gmp_10_naive
+Elapsed time: 36.4109 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 215 times to write data ]
+[ perf record: Captured and wrote 54.097 MB perf.data_inner_product_gmp_10_naive (573110 samples) ]
+Flamegraph for inner_product_gmp_10_naive generated.
+
+Profiling inner_product_gmp_11_openmp
+Elapsed time: 1.66226 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 183 times to write data ]
+[ perf record: Captured and wrote 73.903 MB perf.data_inner_product_gmp_11_openmp (822938 samples) ]
+Flamegraph for inner_product_gmp_11_openmp generated.
+
+Profiling inner_product_gmp_12_0_mpblas_orig
+Elapsed time: 116.28 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 602 times to write data ]
+[ perf record: Captured and wrote 151.023 MB perf.data_inner_product_gmp_12_0_mpblas_orig (1502092 samples) ]
+Flamegraph for inner_product_gmp_12_0_mpblas_orig generated.
+
+Profiling inner_product_gmp_12_0_mpblas_mkII
+Elapsed time: 85.0373 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 521 times to write data ]
+[ perf record: Captured and wrote 131.332 MB perf.data_inner_product_gmp_12_0_mpblas_mkII (1390979 samples) ]
+Flamegraph for inner_product_gmp_12_0_mpblas_mkII generated.
+
+Profiling inner_product_gmp_12_0_mpblas_mkIISR
+Elapsed time: 58.9168 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 451 times to write data ]
+[ perf record: Captured and wrote 113.355 MB perf.data_inner_product_gmp_12_0_mpblas_mkIISR (1175981 samples) ]
+Flamegraph for inner_product_gmp_12_0_mpblas_mkIISR generated.
+
+Profiling inner_product_gmp_12_1_mpblas_orig
+Elapsed time: 92.6224 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 547 times to write data ]
+[ perf record: Captured and wrote 137.588 MB perf.data_inner_product_gmp_12_1_mpblas_orig (1390682 samples) ]
+Flamegraph for inner_product_gmp_12_1_mpblas_orig generated.
+
+Profiling inner_product_gmp_12_1_mpblas_mkII
+Elapsed time: 94.0478 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 521 times to write data ]
+[ perf record: Captured and wrote 130.817 MB perf.data_inner_product_gmp_12_1_mpblas_mkII (1379838 samples) ]
+Flamegraph for inner_product_gmp_12_1_mpblas_mkII generated.
+
+Profiling inner_product_gmp_12_1_mpblas_mkIISR
+Elapsed time: 62.8862 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 450 times to write data ]
+[ perf record: Captured and wrote 112.762 MB perf.data_inner_product_gmp_12_1_mpblas_mkIISR (1167361 samples) ]
+Flamegraph for inner_product_gmp_12_1_mpblas_mkIISR generated.
+
+Profiling inner_product_gmp_12_2_mpblas_orig
+Elapsed time: 93.63 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 550 times to write data ]
+[ perf record: Captured and wrote 137.848 MB perf.data_inner_product_gmp_12_2_mpblas_orig (1389492 samples) ]
+Flamegraph for inner_product_gmp_12_2_mpblas_orig generated.
+
+Profiling inner_product_gmp_12_2_mpblas_mkII
+Elapsed time: 50.826 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 458 times to write data ]
+[ perf record: Captured and wrote 115.041 MB perf.data_inner_product_gmp_12_2_mpblas_mkII (1196009 samples) ]
+Flamegraph for inner_product_gmp_12_2_mpblas_mkII generated.
+
+Profiling inner_product_gmp_12_2_mpblas_mkIISR
+Elapsed time: 44.3876 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 433 times to write data ]
+[ perf record: Captured and wrote 108.641 MB perf.data_inner_product_gmp_12_2_mpblas_mkIISR (1116008 samples) ]
+Flamegraph for inner_product_gmp_12_2_mpblas_mkIISR generated.
+
+Profiling inner_product_gmp_13_0_mpblas_openmp_orig
+Elapsed time: 122.161 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 11071 times to write data ]
+[ perf record: Captured and wrote 3193.133 MB perf.data_inner_product_gmp_13_0_mpblas_openmp_orig (29586061 samples) ]
+Flamegraph for inner_product_gmp_13_0_mpblas_openmp_orig generated.
+
+Profiling inner_product_gmp_13_0_mpblas_openmp_mkII
+[sudo] password for docker:
+Elapsed time: 52.884 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 3826 times to write data ]
+[ perf record: Captured and wrote 1235.782 MB perf.data_inner_product_gmp_13_0_mpblas_openmp_mkII (13487856 samples) ]
+Flamegraph for inner_product_gmp_13_0_mpblas_openmp_mkII generated.
+
+Profiling inner_product_gmp_13_0_mpblas_openmp_mkIISR
+Elapsed time: 24.9646 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 1234 times to write data ]
+[ perf record: Captured and wrote 601.540 MB perf.data_inner_product_gmp_13_0_mpblas_openmp_mkIISR (6882384 samples) ]
+Flamegraph for inner_product_gmp_13_0_mpblas_openmp_mkIISR generated.
+
+Profiling inner_product_gmp_13_1_mpblas_openmp_orig
+Elapsed time: 93.0491 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 6683 times to write data ]
+[ perf record: Captured and wrote 2208.818 MB perf.data_inner_product_gmp_13_1_mpblas_openmp_orig (22768903 samples) ]
+Flamegraph for inner_product_gmp_13_1_mpblas_openmp_orig generated.
+
+Profiling inner_product_gmp_13_1_mpblas_openmp_mkII
+Elapsed time: 24.115 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 1546 times to write data ]
+[ perf record: Captured and wrote 592.424 MB perf.data_inner_product_gmp_13_1_mpblas_openmp_mkII (6731323 samples) ]
+Flamegraph for inner_product_gmp_13_1_mpblas_openmp_mkII generated.
+
+Profiling inner_product_gmp_13_1_mpblas_openmp_mkIISR
+Elapsed time: 19.1141 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 1019 times to write data ]
+[ perf record: Captured and wrote 490.046 MB perf.data_inner_product_gmp_13_1_mpblas_openmp_mkIISR (5605270 samples) ]
+Flamegraph for inner_product_gmp_13_1_mpblas_openmp_mkIISR generated.
