@@ -31,9 +31,8 @@ mpf_class Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t in
     if (incx == 1 && incy == 1) {
         {
             for (i = 0; i < n; i++) {
-                templ += dx[i] * dy[i];
+                temp += dx[i] * dy[i];
             }
-            temp += templ;
         }
     } else {
         for (i = 0; i < n; i++) {
