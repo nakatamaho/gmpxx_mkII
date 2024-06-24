@@ -31,5 +31,10 @@ for exe in "${executables[@]}"; do
     sudo perf script -i perf.data_${exe} > out_${exe}.perf
     cat out_${exe}.perf | $FLAMEGRAPH_DIR/stackcollapse-perf.pl | $FLAMEGRAPH_DIR/flamegraph.pl > flamegraph_${exe}.svg
     echo "Flamegraph for $exe generated."
+
+    sudo perf annotate -i perf.data_${exe} > annotation_${exe}.txt
+    echo "Annotation for $exe saved."
+    sudo perf report -i perf.data_${exe} --stdio > report_${exe}.txt
+    echo "Perf report for $exe generated and saved to report_${exe}.txt."
     echo
 done
