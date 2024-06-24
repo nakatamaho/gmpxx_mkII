@@ -21,7 +21,7 @@ executables=(
     "inner_product_gmp_13_1_mpblas_openmp_mkIISR"
 )
 for exe in "${executables[@]}"; do
-    COMMAND_LINE="./$exe 500000000 512"
+    COMMAND_LINE="/usr/bin/time ./$exe 500000000 512"
     echo $COMMAND_LINE
     $COMMAND_LINE
     if [ -f gmon.out ]; then
