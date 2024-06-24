@@ -27,7 +27,12 @@ executables=(
 args="500000000 512"
 for exe in "${executables[@]}"; do
     echo "Profiling $exe"
-    sudo perf record -o perf.data_${exe} -g -- /usr/bin/time ./$exe $args 
+    start_time=$(date +%s%N)
+    sudo perf record -o perf.data_${exe} -g -- ./$exe $args 
+    end_time=$(date +%s%N)
+    duration=$(( (end_time - start_time) / 1000000 ))
+    echo "Execution time: $duration ms"
+
     sudo perf script -i perf.data_${exe} > out_${exe}.perf
     cat out_${exe}.perf | $FLAMEGRAPH_DIR/stackcollapse-perf.pl | $FLAMEGRAPH_DIR/flamegraph.pl > flamegraph_${exe}.svg
     echo "Flamegraph for $exe generated."
