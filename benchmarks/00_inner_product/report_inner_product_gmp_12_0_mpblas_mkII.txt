@@ -1,0 +1,2116 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 501K of event 'cycles:P'
+# Event count (approx.): 1214627858172
+#
+# Children      Self  Command          Shared Object                       Symbol                                                                                                                                                                                                                                                                                                                                                    
+# ........  ........  ...............  ..................................  ..........................................................................................................................................................................................................................................................................................................................................................
+#
+    35.38%     0.00%  inner_product_g  libc.so.6                           [.] __libc_start_call_main
+            |
+            ---__libc_start_call_main
+               |          
+               |--34.39%--main
+               |          |          
+               |          |--13.45%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+               |          |          |          
+               |          |          |--7.22%--gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+               |          |          |          |          
+               |          |          |          |--2.21%--__gmpf_mul
+               |          |          |          |          |          
+               |          |          |          |           --0.52%--__gmpn_mul
+               |          |          |          |          
+               |          |          |          |--1.04%--__gmpn_copyi
+               |          |          |          |          
+               |          |          |           --0.89%--gmp::preccmp(gmp::mpf_class const&, gmp::mpf_class const&)
+               |          |          |          
+               |          |           --4.43%--gmp::operator+=(gmp::mpf_class&, gmp::mpf_class const&)
+               |          |                     |          
+               |          |                     |--2.43%--__gmpf_add
+               |          |                     |          
+               |          |                     |--0.95%--__gmpn_copyi
+               |          |                     |          
+               |          |                      --0.57%--__gmpn_add_n
+               |          |          
+               |          |--3.89%--__gmpf_init2
+               |          |          |          
+               |          |           --2.75%--asm_exc_page_fault
+               |          |                     |          
+               |          |                      --2.56%--exc_page_fault
+               |          |                                |          
+               |          |                                 --2.42%--do_user_addr_fault
+               |          |                                           |          
+               |          |                                            --2.19%--handle_mm_fault
+               |          |                                                      |          
+               |          |                                                       --2.05%--__handle_mm_fault
+               |          |                                                                 |          
+               |          |                                                                  --1.90%--handle_pte_fault
+               |          |                                                                            |          
+               |          |                                                                             --1.78%--do_anonymous_page
+               |          |                                                                                       |          
+               |          |                                                                                        --0.75%--vma_alloc_folio
+               |          |                                                                                                  |          
+               |          |                                                                                                   --0.67%--__folio_alloc
+               |          |                                                                                                             |          
+               |          |                                                                                                              --0.65%--__alloc_pages
+               |          |                                                                                                                        |          
+               |          |                                                                                                                         --0.58%--get_page_from_freelist
+               |          |          
+               |          |--3.59%--__gmpf_init
+               |          |          |          
+               |          |           --2.62%--asm_exc_page_fault
+               |          |                     |          
+               |          |                      --2.42%--exc_page_fault
+               |          |                                |          
+               |          |                                 --2.26%--do_user_addr_fault
+               |          |                                           |          
+               |          |                                            --2.05%--handle_mm_fault
+               |          |                                                      |          
+               |          |                                                       --1.95%--__handle_mm_fault
+               |          |                                                                 |          
+               |          |                                                                  --1.81%--handle_pte_fault
+               |          |                                                                            |          
+               |          |                                                                             --1.71%--do_anonymous_page
+               |          |                                                                                       |          
+               |          |                                                                                        --0.69%--vma_alloc_folio
+               |          |                                                                                                  |          
+               |          |                                                                                                   --0.61%--__folio_alloc
+               |          |                                                                                                             |          
+               |          |                                                                                                              --0.60%--__alloc_pages
+               |          |                                                                                                                        |          
+               |          |                                                                                                                         --0.52%--get_page_from_freelist
+               |          |          
+               |          |--1.34%--gmp::mpf_class::operator=(gmp::mpf_class&&)
+               |          |          
+               |          |--1.26%--__gmpf_get_prec
+               |          |          
+               |          |--1.11%--__gmp_default_allocate
+               |          |          
+               |          |--0.99%--__gmpf_clear
+               |          |          
+               |          |--0.98%--init_mpf_vec(__mpf_struct (*) [1], int, int)
+               |          |          
+               |          |--0.90%--gmp::mpf_class::mpf_class(__mpf_struct const*)
+               |          |          
+               |          |--0.75%--__gmpf_urandomb
+               |          |          
+               |          |--0.66%--gmp::mpf_class::~mpf_class()
+               |          |          
+               |          |--0.64%--__gmpf_swap
+               |          |          
+               |          |--0.60%--gmp::mpf_class::mpf_class()
+               |          |          
+               |          |--0.60%--cfree@GLIBC_2.2.5
+               |          |          
+               |           --0.60%--__gmpn_copyi
+               |          
+                --0.52%--gmp::mpf_class::mpf_class()
+
+    35.24%     1.73%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] main
+            |          
+            |--33.51%--main
+            |          |          
+            |          |--13.45%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+            |          |          |          
+            |          |          |--7.22%--gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          |          |          |          
+            |          |          |          |--2.21%--__gmpf_mul
+            |          |          |          |          |          
+            |          |          |          |           --0.52%--__gmpn_mul
+            |          |          |          |          
+            |          |          |          |--1.04%--__gmpn_copyi
+            |          |          |          |          
+            |          |          |           --0.89%--gmp::preccmp(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          |          |          
+            |          |           --4.43%--gmp::operator+=(gmp::mpf_class&, gmp::mpf_class const&)
+            |          |                     |          
+            |          |                     |--2.43%--__gmpf_add
+            |          |                     |          
+            |          |                     |--0.95%--__gmpn_copyi
+            |          |                     |          
+            |          |                      --0.57%--__gmpn_add_n
+            |          |          
+            |          |--3.89%--__gmpf_init2
+            |          |          |          
+            |          |           --2.75%--asm_exc_page_fault
+            |          |                     |          
+            |          |                      --2.56%--exc_page_fault
+            |          |                                |          
+            |          |                                 --2.42%--do_user_addr_fault
+            |          |                                           |          
+            |          |                                            --2.19%--handle_mm_fault
+            |          |                                                      |          
+            |          |                                                       --2.05%--__handle_mm_fault
+            |          |                                                                 |          
+            |          |                                                                  --1.90%--handle_pte_fault
+            |          |                                                                            |          
+            |          |                                                                             --1.78%--do_anonymous_page
+            |          |                                                                                       |          
+            |          |                                                                                        --0.75%--vma_alloc_folio
+            |          |                                                                                                  |          
+            |          |                                                                                                   --0.67%--__folio_alloc
+            |          |                                                                                                             |          
+            |          |                                                                                                              --0.65%--__alloc_pages
+            |          |                                                                                                                        |          
+            |          |                                                                                                                         --0.58%--get_page_from_freelist
+            |          |          
+            |          |--3.51%--__gmpf_init
+            |          |          |          
+            |          |           --2.55%--asm_exc_page_fault
+            |          |                     |          
+            |          |                      --2.36%--exc_page_fault
+            |          |                                |          
+            |          |                                 --2.20%--do_user_addr_fault
+            |          |                                           |          
+            |          |                                            --2.00%--handle_mm_fault
+            |          |                                                      |          
+            |          |                                                       --1.91%--__handle_mm_fault
+            |          |                                                                 |          
+            |          |                                                                  --1.77%--handle_pte_fault
+            |          |                                                                            |          
+            |          |                                                                             --1.67%--do_anonymous_page
+            |          |                                                                                       |          
+            |          |                                                                                        --0.66%--vma_alloc_folio
+            |          |                                                                                                  |          
+            |          |                                                                                                   --0.58%--__folio_alloc
+            |          |                                                                                                             |          
+            |          |                                                                                                              --0.57%--__alloc_pages
+            |          |          
+            |          |--1.20%--gmp::mpf_class::operator=(gmp::mpf_class&&)
+            |          |          
+            |          |--1.13%--__gmpf_get_prec
+            |          |          
+            |          |--1.09%--__gmp_default_allocate
+            |          |          
+            |          |--0.98%--init_mpf_vec(__mpf_struct (*) [1], int, int)
+            |          |          
+            |          |--0.96%--__gmpf_clear
+            |          |          
+            |          |--0.81%--gmp::mpf_class::mpf_class(__mpf_struct const*)
+            |          |          
+            |          |--0.75%--__gmpf_urandomb
+            |          |          
+            |          |--0.62%--gmp::mpf_class::~mpf_class()
+            |          |          
+            |          |--0.60%--gmp::mpf_class::mpf_class()
+            |          |          
+            |          |--0.58%--__gmpf_swap
+            |          |          
+            |          |--0.57%--cfree@GLIBC_2.2.5
+            |          |          
+            |           --0.54%--__gmpn_copyi
+            |          
+             --0.94%--__libc_start_call_main
+                       |          
+                        --0.89%--main
+
+    30.35%     6.43%  inner_product_g  libc.so.6                           [.] _int_malloc
+            |          
+            |--27.98%--_int_malloc
+            |          |          
+            |           --21.47%--asm_exc_page_fault
+            |                     |          
+            |                      --19.87%--exc_page_fault
+            |                                |          
+            |                                 --18.65%--do_user_addr_fault
+            |                                           |          
+            |                                           |--16.94%--handle_mm_fault
+            |                                           |          |          
+            |                                           |           --15.95%--__handle_mm_fault
+            |                                           |                     |          
+            |                                           |                      --14.83%--handle_pte_fault
+            |                                           |                                |          
+            |                                           |                                 --13.93%--do_anonymous_page
+            |                                           |                                           |          
+            |                                           |                                           |--5.95%--vma_alloc_folio
+            |                                           |                                           |          |          
+            |                                           |                                           |           --5.31%--__folio_alloc
+            |                                           |                                           |                     |          
+            |                                           |                                           |                      --5.16%--__alloc_pages
+            |                                           |                                           |                                |          
+            |                                           |                                           |                                 --4.59%--get_page_from_freelist
+            |                                           |                                           |                                           |          
+            |                                           |                                           |                                           |--3.39%--clear_page_rep
+            |                                           |                                           |                                           |          
+            |                                           |                                           |                                            --0.74%--rmqueue
+            |                                           |                                           |          
+            |                                           |                                           |--2.17%--folio_add_lru_vma
+            |                                           |                                           |          |          
+            |                                           |                                           |           --2.15%--folio_add_lru
+            |                                           |                                           |                     |          
+            |                                           |                                           |                      --1.83%--folio_batch_move_lru
+            |                                           |                                           |                                |          
+            |                                           |                                           |                                 --1.43%--lru_add_fn
+            |                                           |                                           |                                           |          
+            |                                           |                                           |                                            --0.98%--lru_gen_add_folio
+            |                                           |                                           |          
+            |                                           |                                           |--2.03%--__mem_cgroup_charge
+            |                                           |                                           |          |          
+            |                                           |                                           |           --0.97%--charge_memcg
+            |                                           |                                           |          
+            |                                           |                                           |--1.11%--folio_add_new_anon_rmap
+            |                                           |                                           |          |          
+            |                                           |                                           |           --0.73%--__mod_lruvec_page_state
+            |                                           |                                           |          
+            |                                           |                                            --0.60%--__folio_throttle_swaprate
+            |                                           |          
+            |                                            --0.80%--lock_vma_under_rcu
+            |          
+            |--1.09%--__libc_start_call_main
+            |          |          
+            |           --1.04%--main
+            |          
+             --0.76%--__gmp_randget_mt
+
+    27.00%     0.49%  inner_product_g  [kernel.kallsyms]                   [k] asm_exc_page_fault
+            |          
+             --26.50%--asm_exc_page_fault
+                       |          
+                        --24.48%--exc_page_fault
+                                  |          
+                                  |--22.96%--do_user_addr_fault
+                                  |          |          
+                                  |          |--20.81%--handle_mm_fault
+                                  |          |          |          
+                                  |          |           --19.59%--__handle_mm_fault
+                                  |          |                     |          
+                                  |          |                      --18.18%--handle_pte_fault
+                                  |          |                                |          
+                                  |          |                                 --17.07%--do_anonymous_page
+                                  |          |                                           |          
+                                  |          |                                           |--7.35%--vma_alloc_folio
+                                  |          |                                           |          |          
+                                  |          |                                           |           --6.54%--__folio_alloc
+                                  |          |                                           |                     |          
+                                  |          |                                           |                      --6.36%--__alloc_pages
+                                  |          |                                           |                                |          
+                                  |          |                                           |                                 --5.65%--get_page_from_freelist
+                                  |          |                                           |                                           |          
+                                  |          |                                           |                                           |--4.16%--clear_page_rep
+                                  |          |                                           |                                           |          
+                                  |          |                                           |                                            --0.92%--rmqueue
+                                  |          |                                           |          
+                                  |          |                                           |--2.70%--folio_add_lru_vma
+                                  |          |                                           |          |          
+                                  |          |                                           |           --2.69%--folio_add_lru
+                                  |          |                                           |                     |          
+                                  |          |                                           |                      --2.29%--folio_batch_move_lru
+                                  |          |                                           |                                |          
+                                  |          |                                           |                                 --1.78%--lru_add_fn
+                                  |          |                                           |                                           |          
+                                  |          |                                           |                                            --1.21%--lru_gen_add_folio
+                                  |          |                                           |          
+                                  |          |                                           |--2.39%--__mem_cgroup_charge
+                                  |          |                                           |          |          
+                                  |          |                                           |           --1.16%--charge_memcg
+                                  |          |                                           |          
+                                  |          |                                           |--1.38%--folio_add_new_anon_rmap
+                                  |          |                                           |          |          
+                                  |          |                                           |           --0.92%--__mod_lruvec_page_state
+                                  |          |                                           |                     |          
+                                  |          |                                           |                      --0.52%--__mod_lruvec_state
+                                  |          |                                           |          
+                                  |          |                                            --0.69%--__folio_throttle_swaprate
+                                  |          |          
+                                  |           --1.00%--lock_vma_under_rcu
+                                  |          
+                                   --0.54%--irqentry_exit
+
+    25.14%     0.53%  inner_product_g  [kernel.kallsyms]                   [k] exc_page_fault
+            |          
+             --24.61%--exc_page_fault
+                       |          
+                       |--23.08%--do_user_addr_fault
+                       |          |          
+                       |          |--20.94%--handle_mm_fault
+                       |          |          |          
+                       |          |           --19.72%--__handle_mm_fault
+                       |          |                     |          
+                       |          |                      --18.31%--handle_pte_fault
+                       |          |                                |          
+                       |          |                                 --17.20%--do_anonymous_page
+                       |          |                                           |          
+                       |          |                                           |--7.39%--vma_alloc_folio
+                       |          |                                           |          |          
+                       |          |                                           |           --6.58%--__folio_alloc
+                       |          |                                           |                     |          
+                       |          |                                           |                      --6.40%--__alloc_pages
+                       |          |                                           |                                |          
+                       |          |                                           |                                 --5.69%--get_page_from_freelist
+                       |          |                                           |                                           |          
+                       |          |                                           |                                           |--4.19%--clear_page_rep
+                       |          |                                           |                                           |          
+                       |          |                                           |                                            --0.92%--rmqueue
+                       |          |                                           |          
+                       |          |                                           |--2.70%--folio_add_lru_vma
+                       |          |                                           |          |          
+                       |          |                                           |           --2.69%--folio_add_lru
+                       |          |                                           |                     |          
+                       |          |                                           |                      --2.29%--folio_batch_move_lru
+                       |          |                                           |                                |          
+                       |          |                                           |                                 --1.78%--lru_add_fn
+                       |          |                                           |                                           |          
+                       |          |                                           |                                            --1.21%--lru_gen_add_folio
+                       |          |                                           |          
+                       |          |                                           |--2.44%--__mem_cgroup_charge
+                       |          |                                           |          |          
+                       |          |                                           |           --1.14%--charge_memcg
+                       |          |                                           |          
+                       |          |                                           |--1.38%--folio_add_new_anon_rmap
+                       |          |                                           |          |          
+                       |          |                                           |           --0.92%--__mod_lruvec_page_state
+                       |          |                                           |                     |          
+                       |          |                                           |                      --0.52%--__mod_lruvec_state
+                       |          |                                           |          
+                       |          |                                            --0.74%--__folio_throttle_swaprate
+                       |          |          
+                       |           --1.00%--lock_vma_under_rcu
+                       |          
+                        --0.54%--irqentry_exit
+
+    23.93%     0.93%  inner_product_g  [kernel.kallsyms]                   [k] do_user_addr_fault
+            |          
+             --23.00%--do_user_addr_fault
+                       |          
+                       |--20.81%--handle_mm_fault
+                       |          |          
+                       |           --19.59%--__handle_mm_fault
+                       |                     |          
+                       |                      --18.18%--handle_pte_fault
+                       |                                |          
+                       |                                 --17.07%--do_anonymous_page
+                       |                                           |          
+                       |                                           |--7.39%--vma_alloc_folio
+                       |                                           |          |          
+                       |                                           |           --6.58%--__folio_alloc
+                       |                                           |                     |          
+                       |                                           |                      --6.40%--__alloc_pages
+                       |                                           |                                |          
+                       |                                           |                                 --5.68%--get_page_from_freelist
+                       |                                           |                                           |          
+                       |                                           |                                           |--4.19%--clear_page_rep
+                       |                                           |                                           |          
+                       |                                           |                                            --0.92%--rmqueue
+                       |                                           |          
+                       |                                           |--2.70%--folio_add_lru_vma
+                       |                                           |          |          
+                       |                                           |           --2.69%--folio_add_lru
+                       |                                           |                     |          
+                       |                                           |                      --2.29%--folio_batch_move_lru
+                       |                                           |                                |          
+                       |                                           |                                 --1.78%--lru_add_fn
+                       |                                           |                                           |          
+                       |                                           |                                            --1.21%--lru_gen_add_folio
+                       |                                           |          
+                       |                                           |--2.46%--__mem_cgroup_charge
+                       |                                           |          |          
+                       |                                           |           --1.17%--charge_memcg
+                       |                                           |          
+                       |                                           |--1.29%--folio_add_new_anon_rmap
+                       |                                           |          |          
+                       |                                           |           --0.85%--__mod_lruvec_page_state
+                       |                                           |          
+                       |                                            --0.70%--__folio_throttle_swaprate
+                       |          
+                        --1.00%--lock_vma_under_rcu
+
+    21.95%     0.90%  inner_product_g  [kernel.kallsyms]                   [k] handle_mm_fault
+            |          
+             --21.05%--handle_mm_fault
+                       |          
+                        --19.81%--__handle_mm_fault
+                                  |          
+                                   --18.40%--handle_pte_fault
+                                             |          
+                                              --17.28%--do_anonymous_page
+                                                        |          
+                                                        |--7.40%--vma_alloc_folio
+                                                        |          |          
+                                                        |           --6.59%--__folio_alloc
+                                                        |                     |          
+                                                        |                      --6.41%--__alloc_pages
+                                                        |                                |          
+                                                        |                                 --5.69%--get_page_from_freelist
+                                                        |                                           |          
+                                                        |                                           |--4.20%--clear_page_rep
+                                                        |                                           |          
+                                                        |                                            --0.92%--rmqueue
+                                                        |          
+                                                        |--2.70%--folio_add_lru_vma
+                                                        |          |          
+                                                        |           --2.69%--folio_add_lru
+                                                        |                     |          
+                                                        |                      --2.29%--folio_batch_move_lru
+                                                        |                                |          
+                                                        |                                 --1.78%--lru_add_fn
+                                                        |                                           |          
+                                                        |                                            --1.21%--lru_gen_add_folio
+                                                        |          
+                                                        |--2.54%--__mem_cgroup_charge
+                                                        |          |          
+                                                        |           --1.21%--charge_memcg
+                                                        |          
+                                                        |--1.33%--folio_add_new_anon_rmap
+                                                        |          |          
+                                                        |           --0.88%--__mod_lruvec_page_state
+                                                        |          
+                                                         --0.72%--__folio_throttle_swaprate
+
+    20.18%     1.48%  inner_product_g  [kernel.kallsyms]                   [k] __handle_mm_fault
+            |          
+            |--18.70%--__handle_mm_fault
+            |          |          
+            |           --17.30%--handle_pte_fault
+            |                     |          
+            |                      --16.30%--do_anonymous_page
+            |                                |          
+            |                                |--7.37%--vma_alloc_folio
+            |                                |          |          
+            |                                |           --6.56%--__folio_alloc
+            |                                |                     |          
+            |                                |                      --6.38%--__alloc_pages
+            |                                |                                |          
+            |                                |                                 --5.67%--get_page_from_freelist
+            |                                |                                           |          
+            |                                |                                           |--4.19%--clear_page_rep
+            |                                |                                           |          
+            |                                |                                            --0.90%--rmqueue
+            |                                |          
+            |                                |--2.62%--folio_add_lru_vma
+            |                                |          |          
+            |                                |           --2.61%--folio_add_lru
+            |                                |                     |          
+            |                                |                      --2.28%--folio_batch_move_lru
+            |                                |                                |          
+            |                                |                                 --1.78%--lru_add_fn
+            |                                |                                           |          
+            |                                |                                            --1.21%--lru_gen_add_folio
+            |                                |          
+            |                                |--2.49%--__mem_cgroup_charge
+            |                                |          |          
+            |                                |           --1.19%--charge_memcg
+            |                                |          
+            |                                |--1.14%--folio_add_new_anon_rmap
+            |                                |          |          
+            |                                |           --0.79%--__mod_lruvec_page_state
+            |                                |          
+            |                                 --0.58%--__folio_throttle_swaprate
+            |          
+             --1.06%--_int_malloc
+                       |          
+                        --1.01%--asm_exc_page_fault
+                                  |          
+                                   --1.01%--exc_page_fault
+                                             |          
+                                              --1.01%--do_user_addr_fault
+                                                        |          
+                                                         --1.01%--handle_mm_fault
+                                                                   |          
+                                                                    --1.00%--__handle_mm_fault
+                                                                              |          
+                                                                               --0.99%--handle_pte_fault
+                                                                                         |          
+                                                                                          --0.89%--do_anonymous_page
+
+    18.80%     1.49%  inner_product_g  [kernel.kallsyms]                   [k] do_anonymous_page
+            |          
+             --17.30%--do_anonymous_page
+                       |          
+                       |--7.40%--vma_alloc_folio
+                       |          |          
+                       |           --6.59%--__folio_alloc
+                       |                     |          
+                       |                      --6.41%--__alloc_pages
+                       |                                |          
+                       |                                 --5.70%--get_page_from_freelist
+                       |                                           |          
+                       |                                           |--4.20%--clear_page_rep
+                       |                                           |          
+                       |                                            --0.92%--rmqueue
+                       |          
+                       |--2.63%--folio_add_lru_vma
+                       |          |          
+                       |           --2.61%--folio_add_lru
+                       |                     |          
+                       |                      --2.22%--folio_batch_move_lru
+                       |                                |          
+                       |                                 --1.73%--lru_add_fn
+                       |                                           |          
+                       |                                            --1.18%--lru_gen_add_folio
+                       |          
+                       |--2.55%--__mem_cgroup_charge
+                       |          |          
+                       |           --1.22%--charge_memcg
+                       |          
+                       |--1.36%--folio_add_new_anon_rmap
+                       |          |          
+                       |           --0.89%--__mod_lruvec_page_state
+                       |                     |          
+                       |                      --0.51%--__mod_lruvec_state
+                       |          
+                        --0.76%--__folio_throttle_swaprate
+
+    18.78%     0.34%  inner_product_g  [kernel.kallsyms]                   [k] handle_pte_fault
+            |          
+             --18.44%--handle_pte_fault
+                       |          
+                        --17.29%--do_anonymous_page
+                                  |          
+                                  |--7.40%--vma_alloc_folio
+                                  |          |          
+                                  |           --6.59%--__folio_alloc
+                                  |                     |          
+                                  |                      --6.41%--__alloc_pages
+                                  |                                |          
+                                  |                                 --5.69%--get_page_from_freelist
+                                  |                                           |          
+                                  |                                           |--4.20%--clear_page_rep
+                                  |                                           |          
+                                  |                                            --0.92%--rmqueue
+                                  |          
+                                  |--2.69%--folio_add_lru_vma
+                                  |          |          
+                                  |           --2.68%--folio_add_lru
+                                  |                     |          
+                                  |                      --2.28%--folio_batch_move_lru
+                                  |                                |          
+                                  |                                 --1.78%--lru_add_fn
+                                  |                                           |          
+                                  |                                            --1.21%--lru_gen_add_folio
+                                  |          
+                                  |--2.55%--__mem_cgroup_charge
+                                  |          |          
+                                  |           --1.22%--charge_memcg
+                                  |          
+                                  |--1.34%--folio_add_new_anon_rmap
+                                  |          |          
+                                  |           --0.88%--__mod_lruvec_page_state
+                                  |                     |          
+                                  |                      --0.51%--__mod_lruvec_state
+                                  |          
+                                   --0.76%--__folio_throttle_swaprate
+
+    14.90%     7.44%  inner_product_g  libgmp.so.10.5.0                    [.] __gmp_randget_mt
+            |          
+            |--9.38%--__gmp_randget_mt
+            |          
+            |--3.00%--_int_malloc
+            |          |          
+            |           --2.49%--asm_exc_page_fault
+            |                     |          
+            |                      --2.19%--exc_page_fault
+            |                                |          
+            |                                 --2.12%--do_user_addr_fault
+            |                                           |          
+            |                                            --1.85%--handle_mm_fault
+            |                                                      |          
+            |                                                       --1.78%--__handle_mm_fault
+            |                                                                 |          
+            |                                                                  --1.60%--handle_pte_fault
+            |                                                                            |          
+            |                                                                             --1.50%--do_anonymous_page
+            |                                                                                       |          
+            |                                                                                        --1.21%--vma_alloc_folio
+            |                                                                                                  |          
+            |                                                                                                   --1.08%--__folio_alloc
+            |                                                                                                             |          
+            |                                                                                                              --1.05%--__alloc_pages
+            |                                                                                                                        |          
+            |                                                                                                                         --0.93%--get_page_from_freelist
+            |                                                                                                                                   |          
+            |                                                                                                                                    --0.73%--clear_page_rep
+            |          
+            |--1.40%--__libc_start_call_main
+            |          main
+            |          |          
+            |           --0.87%--__gmpf_init2
+            |                     |          
+            |                      --0.62%--asm_exc_page_fault
+            |                                |          
+            |                                 --0.56%--exc_page_fault
+            |                                           |          
+            |                                            --0.55%--do_user_addr_fault
+            |          
+             --0.69%--__gmp_mt_recalc_buffer
+
+    13.81%     1.02%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+            |          
+            |--12.79%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+            |          |          
+            |          |--7.00%--gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          |          |          
+            |          |          |--2.17%--__gmpf_mul
+            |          |          |          
+            |          |          |--1.00%--__gmpn_copyi
+            |          |          |          
+            |          |           --0.89%--gmp::preccmp(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          |          
+            |           --4.05%--gmp::operator+=(gmp::mpf_class&, gmp::mpf_class const&)
+            |                     |          
+            |                     |--2.22%--__gmpf_add
+            |                     |          
+            |                     |--0.87%--__gmpn_copyi
+            |                     |          
+            |                      --0.51%--__gmpn_add_n
+            |          
+             --0.66%--__libc_start_call_main
+                       main
+                       |          
+                        --0.66%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+
+    10.44%     5.34%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_mul_basecase
+            |          
+            |--5.10%--__gmpn_mul_basecase
+            |          
+            |--3.71%--__libc_start_call_main
+            |          main
+            |          |          
+            |           --3.65%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+            |                     |          
+            |                      --2.86%--gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+            |                                |          
+            |                                |--0.87%--__gmpf_mul
+            |                                |          
+            |                                 --0.61%--gmp::preccmp(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          
+             --0.57%--malloc
+
+     9.06%     4.06%  inner_product_g  libc.so.6                           [.] malloc
+            |          
+            |--5.14%--malloc
+            |          
+            |--1.45%--__libc_start_call_main
+            |          |          
+            |           --1.40%--main
+            |          
+             --1.37%--_int_malloc
+                       |          
+                        --1.11%--asm_exc_page_fault
+                                  |          
+                                   --0.99%--exc_page_fault
+                                             |          
+                                              --0.96%--do_user_addr_fault
+                                                        |          
+                                                         --0.85%--handle_mm_fault
+                                                                   |          
+                                                                    --0.81%--__handle_mm_fault
+                                                                              |          
+                                                                               --0.70%--handle_pte_fault
+                                                                                         |          
+                                                                                          --0.65%--do_anonymous_page
+                                                                                                    |          
+                                                                                                     --0.59%--vma_alloc_folio
+                                                                                                               |          
+                                                                                                                --0.52%--__folio_alloc
+                                                                                                                          |          
+                                                                                                                           --0.51%--__alloc_pages
+
+     8.03%     0.62%  inner_product_g  [kernel.kallsyms]                   [k] vma_alloc_folio
+            |          
+             --7.41%--vma_alloc_folio
+                       |          
+                        --6.59%--__folio_alloc
+                                  |          
+                                   --6.40%--__alloc_pages
+                                             |          
+                                              --5.69%--get_page_from_freelist
+                                                        |          
+                                                        |--4.20%--clear_page_rep
+                                                        |          
+                                                         --0.92%--rmqueue
+
+     7.87%     0.77%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          
+            |--7.10%--gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          |          
+            |          |--2.17%--__gmpf_mul
+            |          |          |          
+            |          |           --0.50%--__gmpn_mul
+            |          |          
+            |          |--1.01%--__gmpn_copyi
+            |          |          
+            |           --0.88%--gmp::preccmp(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          
+             --0.50%--__libc_start_call_main
+                       main
+
+     7.83%     4.26%  inner_product_g  libc.so.6                           [.] _int_free
+            |          
+            |--3.82%--_int_free
+            |          
+            |--2.13%--__libc_start_call_main
+            |          |          
+            |           --2.09%--main
+            |                     |          
+            |                      --0.70%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+            |          
+             --0.84%--0x61
+                       _int_free
+
+     7.70%     3.50%  inner_product_g  [kernel.kallsyms]                   [k] clear_page_rep
+            |          
+            |--4.20%--clear_page_rep
+            |          
+            |--1.95%--_int_malloc
+            |          |          
+            |           --1.22%--asm_exc_page_fault
+            |                     |          
+            |                      --1.08%--exc_page_fault
+            |                                |          
+            |                                 --0.55%--do_user_addr_fault
+            |          
+            |--0.77%--__libc_start_call_main
+            |          |          
+            |           --0.77%--main
+            |          
+             --0.62%--__gmp_randget_mt
+
+     7.29%     0.82%  inner_product_g  [kernel.kallsyms]                   [k] __alloc_pages
+            |          
+            |--6.47%--__alloc_pages
+            |          |          
+            |           --5.70%--get_page_from_freelist
+            |                     |          
+            |                     |--4.21%--clear_page_rep
+            |                     |          
+            |                      --0.92%--rmqueue
+            |          
+             --0.58%--_int_malloc
+
+     6.84%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] entry_SYSCALL_64_after_hwframe
+            |          
+             --6.84%--entry_SYSCALL_64_after_hwframe
+                       |          
+                        --6.82%--do_syscall_64
+                                  |          
+                                  |--5.40%--__x64_sys_exit_group
+                                  |          do_group_exit
+                                  |          do_exit
+                                  |          exit_mm
+                                  |          mmput
+                                  |          __mmput
+                                  |          exit_mmap
+                                  |          |          
+                                  |           --5.39%--unmap_vmas
+                                  |                     unmap_single_vma
+                                  |                     unmap_page_range
+                                  |                     zap_pmd_range.isra.0
+                                  |                     |          
+                                  |                      --5.25%--zap_pte_range
+                                  |                                |          
+                                  |                                |--3.16%--tlb_flush_mmu
+                                  |                                |          |          
+                                  |                                |           --3.16%--tlb_batch_pages_flush
+                                  |                                |                     |          
+                                  |                                |                      --3.12%--free_pages_and_swap_cache
+                                  |                                |                                |          
+                                  |                                |                                 --3.00%--release_pages
+                                  |                                |                                           |          
+                                  |                                |                                           |--1.20%--free_unref_page_list
+                                  |                                |                                           |          |          
+                                  |                                |                                           |           --0.78%--free_unref_page_commit
+                                  |                                |                                           |                     |          
+                                  |                                |                                           |                      --0.66%--free_pcppages_bulk
+                                  |                                |                                           |                                |          
+                                  |                                |                                           |                                 --0.52%--__free_one_page
+                                  |                                |                                           |          
+                                  |                                |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                  |                                |          
+                                  |                                 --1.36%--page_remove_rmap
+                                  |                                           |          
+                                  |                                            --0.85%--__mod_lruvec_page_state
+                                  |          
+                                  |--0.73%--__x64_sys_brk
+                                  |          |          
+                                  |           --0.72%--__do_sys_brk
+                                  |                     |          
+                                  |                      --0.59%--do_brk_flags
+                                  |          
+                                   --0.64%--__x64_sys_munmap
+                                             __vm_munmap
+                                             do_vmi_munmap
+                                             do_vmi_align_munmap
+                                             unmap_region
+                                             |          
+                                              --0.64%--unmap_vmas
+                                                        unmap_single_vma
+                                                        unmap_page_range
+                                                        zap_pmd_range.isra.0
+                                                        |          
+                                                         --0.60%--zap_pte_range
+
+     6.83%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] do_syscall_64
+            |          
+             --6.82%--do_syscall_64
+                       |          
+                       |--5.40%--__x64_sys_exit_group
+                       |          do_group_exit
+                       |          do_exit
+                       |          exit_mm
+                       |          mmput
+                       |          __mmput
+                       |          exit_mmap
+                       |          |          
+                       |           --5.39%--unmap_vmas
+                       |                     unmap_single_vma
+                       |                     unmap_page_range
+                       |                     zap_pmd_range.isra.0
+                       |                     |          
+                       |                      --5.25%--zap_pte_range
+                       |                                |          
+                       |                                |--3.16%--tlb_flush_mmu
+                       |                                |          |          
+                       |                                |           --3.16%--tlb_batch_pages_flush
+                       |                                |                     |          
+                       |                                |                      --3.12%--free_pages_and_swap_cache
+                       |                                |                                |          
+                       |                                |                                 --3.00%--release_pages
+                       |                                |                                           |          
+                       |                                |                                           |--1.20%--free_unref_page_list
+                       |                                |                                           |          |          
+                       |                                |                                           |           --0.78%--free_unref_page_commit
+                       |                                |                                           |                     |          
+                       |                                |                                           |                      --0.66%--free_pcppages_bulk
+                       |                                |                                           |                                |          
+                       |                                |                                           |                                 --0.52%--__free_one_page
+                       |                                |                                           |          
+                       |                                |                                            --0.91%--lru_gen_del_folio.constprop.0
+                       |                                |          
+                       |                                 --1.36%--page_remove_rmap
+                       |                                           |          
+                       |                                            --0.85%--__mod_lruvec_page_state
+                       |          
+                       |--0.73%--__x64_sys_brk
+                       |          |          
+                       |           --0.72%--__do_sys_brk
+                       |                     |          
+                       |                      --0.58%--do_brk_flags
+                       |          
+                        --0.64%--__x64_sys_munmap
+                                  __vm_munmap
+                                  do_vmi_munmap
+                                  do_vmi_align_munmap
+                                  unmap_region
+                                  |          
+                                   --0.64%--unmap_vmas
+                                             unmap_single_vma
+                                             unmap_page_range
+                                             zap_pmd_range.isra.0
+                                             |          
+                                              --0.60%--zap_pte_range
+
+     6.78%     0.16%  inner_product_g  [kernel.kallsyms]                   [k] __folio_alloc
+            |          
+             --6.62%--__folio_alloc
+                       |          
+                        --6.41%--__alloc_pages
+                                  |          
+                                   --5.70%--get_page_from_freelist
+                                             |          
+                                             |--4.20%--clear_page_rep
+                                             |          
+                                              --0.92%--rmqueue
+
+     6.18%     0.46%  inner_product_g  [kernel.kallsyms]                   [k] get_page_from_freelist
+            |          
+             --5.72%--get_page_from_freelist
+                       |          
+                       |--4.21%--clear_page_rep
+                       |          
+                        --0.92%--rmqueue
+
+     6.03%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] unmap_vmas
+            |
+            ---unmap_vmas
+               unmap_single_vma
+               unmap_page_range
+               zap_pmd_range.isra.0
+               |          
+                --5.85%--zap_pte_range
+                          |          
+                          |--3.54%--tlb_flush_mmu
+                          |          |          
+                          |           --3.54%--tlb_batch_pages_flush
+                          |                     |          
+                          |                      --3.49%--free_pages_and_swap_cache
+                          |                                |          
+                          |                                 --3.36%--release_pages
+                          |                                           |          
+                          |                                           |--1.34%--free_unref_page_list
+                          |                                           |          |          
+                          |                                           |           --0.88%--free_unref_page_commit
+                          |                                           |                     |          
+                          |                                           |                      --0.75%--free_pcppages_bulk
+                          |                                           |                                |          
+                          |                                           |                                 --0.60%--__free_one_page
+                          |                                           |          
+                          |                                           |--1.03%--lru_gen_del_folio.constprop.0
+                          |                                           |          
+                          |                                            --0.51%--__mem_cgroup_uncharge_list
+                          |          
+                           --1.50%--page_remove_rmap
+                                     |          
+                                      --0.94%--__mod_lruvec_page_state
+                                                |          
+                                                 --0.54%--__mod_lruvec_state
+
+     6.03%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] unmap_single_vma
+            |
+            ---unmap_single_vma
+               unmap_page_range
+               zap_pmd_range.isra.0
+               |          
+                --5.85%--zap_pte_range
+                          |          
+                          |--3.54%--tlb_flush_mmu
+                          |          |          
+                          |           --3.54%--tlb_batch_pages_flush
+                          |                     |          
+                          |                      --3.49%--free_pages_and_swap_cache
+                          |                                |          
+                          |                                 --3.36%--release_pages
+                          |                                           |          
+                          |                                           |--1.34%--free_unref_page_list
+                          |                                           |          |          
+                          |                                           |           --0.88%--free_unref_page_commit
+                          |                                           |                     |          
+                          |                                           |                      --0.75%--free_pcppages_bulk
+                          |                                           |                                |          
+                          |                                           |                                 --0.60%--__free_one_page
+                          |                                           |          
+                          |                                           |--1.03%--lru_gen_del_folio.constprop.0
+                          |                                           |          
+                          |                                            --0.51%--__mem_cgroup_uncharge_list
+                          |          
+                           --1.50%--page_remove_rmap
+                                     |          
+                                      --0.94%--__mod_lruvec_page_state
+                                                |          
+                                                 --0.54%--__mod_lruvec_state
+
+     6.03%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] unmap_page_range
+            |
+            ---unmap_page_range
+               zap_pmd_range.isra.0
+               |          
+                --5.85%--zap_pte_range
+                          |          
+                          |--3.54%--tlb_flush_mmu
+                          |          |          
+                          |           --3.54%--tlb_batch_pages_flush
+                          |                     |          
+                          |                      --3.49%--free_pages_and_swap_cache
+                          |                                |          
+                          |                                 --3.36%--release_pages
+                          |                                           |          
+                          |                                           |--1.34%--free_unref_page_list
+                          |                                           |          |          
+                          |                                           |           --0.88%--free_unref_page_commit
+                          |                                           |                     |          
+                          |                                           |                      --0.75%--free_pcppages_bulk
+                          |                                           |                                |          
+                          |                                           |                                 --0.60%--__free_one_page
+                          |                                           |          
+                          |                                           |--1.03%--lru_gen_del_folio.constprop.0
+                          |                                           |          
+                          |                                            --0.51%--__mem_cgroup_uncharge_list
+                          |          
+                           --1.50%--page_remove_rmap
+                                     |          
+                                      --0.94%--__mod_lruvec_page_state
+                                                |          
+                                                 --0.54%--__mod_lruvec_state
+
+     6.03%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] zap_pmd_range.isra.0
+            |          
+             --6.03%--zap_pmd_range.isra.0
+                       |          
+                        --5.85%--zap_pte_range
+                                  |          
+                                  |--3.54%--tlb_flush_mmu
+                                  |          |          
+                                  |           --3.54%--tlb_batch_pages_flush
+                                  |                     |          
+                                  |                      --3.49%--free_pages_and_swap_cache
+                                  |                                |          
+                                  |                                 --3.36%--release_pages
+                                  |                                           |          
+                                  |                                           |--1.34%--free_unref_page_list
+                                  |                                           |          |          
+                                  |                                           |           --0.88%--free_unref_page_commit
+                                  |                                           |                     |          
+                                  |                                           |                      --0.75%--free_pcppages_bulk
+                                  |                                           |                                |          
+                                  |                                           |                                 --0.60%--__free_one_page
+                                  |                                           |          
+                                  |                                           |--1.03%--lru_gen_del_folio.constprop.0
+                                  |                                           |          
+                                  |                                            --0.51%--__mem_cgroup_uncharge_list
+                                  |          
+                                   --1.50%--page_remove_rmap
+                                             |          
+                                              --0.94%--__mod_lruvec_page_state
+                                                        |          
+                                                         --0.54%--__mod_lruvec_state
+
+     5.91%     0.77%  inner_product_g  [kernel.kallsyms]                   [k] zap_pte_range
+            |          
+            |--5.14%--zap_pte_range
+            |          |          
+            |          |--3.54%--tlb_flush_mmu
+            |          |          |          
+            |          |           --3.54%--tlb_batch_pages_flush
+            |          |                     |          
+            |          |                      --3.49%--free_pages_and_swap_cache
+            |          |                                |          
+            |          |                                 --3.36%--release_pages
+            |          |                                           |          
+            |          |                                           |--1.34%--free_unref_page_list
+            |          |                                           |          |          
+            |          |                                           |           --0.88%--free_unref_page_commit
+            |          |                                           |                     |          
+            |          |                                           |                      --0.75%--free_pcppages_bulk
+            |          |                                           |                                |          
+            |          |                                           |                                 --0.60%--__free_one_page
+            |          |                                           |          
+            |          |                                           |--1.03%--lru_gen_del_folio.constprop.0
+            |          |                                           |          
+            |          |                                            --0.51%--__mem_cgroup_uncharge_list
+            |          |          
+            |           --1.05%--page_remove_rmap
+            |                     |          
+            |                      --0.64%--__mod_lruvec_page_state
+            |          
+             --0.69%--entry_SYSCALL_64_after_hwframe
+                       do_syscall_64
+                       __x64_sys_exit_group
+                       do_group_exit
+                       do_exit
+                       exit_mm
+                       mmput
+                       __mmput
+                       exit_mmap
+                       unmap_vmas
+                       unmap_single_vma
+                       unmap_page_range
+                       zap_pmd_range.isra.0
+                       |          
+                        --0.64%--zap_pte_range
+
+     5.59%     3.26%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_copyi
+            |          
+            |--2.33%--__gmpn_copyi
+            |          
+             --1.97%--__libc_start_call_main
+                       |          
+                        --1.94%--main
+                                  |          
+                                   --1.40%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+                                             |          
+                                              --0.82%--gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+
+     5.51%     1.73%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_init2
+            |          
+            |--3.79%--__gmpf_init2
+            |          |          
+            |           --2.54%--asm_exc_page_fault
+            |                     |          
+            |                      --2.36%--exc_page_fault
+            |                                |          
+            |                                 --2.22%--do_user_addr_fault
+            |                                           |          
+            |                                            --2.00%--handle_mm_fault
+            |                                                      |          
+            |                                                       --1.86%--__handle_mm_fault
+            |                                                                 |          
+            |                                                                  --1.71%--handle_pte_fault
+            |                                                                            |          
+            |                                                                             --1.60%--do_anonymous_page
+            |                                                                                       |          
+            |                                                                                        --0.70%--vma_alloc_folio
+            |                                                                                                  |          
+            |                                                                                                   --0.62%--__folio_alloc
+            |                                                                                                             |          
+            |                                                                                                              --0.61%--__alloc_pages
+            |                                                                                                                        |          
+            |                                                                                                                         --0.54%--get_page_from_freelist
+            |          
+             --0.75%--__libc_start_call_main
+                       main
+
+     5.40%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __x64_sys_exit_group
+            |
+            ---__x64_sys_exit_group
+               do_group_exit
+               do_exit
+               exit_mm
+               mmput
+               __mmput
+               exit_mmap
+               |          
+                --5.39%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --5.25%--zap_pte_range
+                                     |          
+                                     |--3.16%--tlb_flush_mmu
+                                     |          |          
+                                     |           --3.16%--tlb_batch_pages_flush
+                                     |                     |          
+                                     |                      --3.12%--free_pages_and_swap_cache
+                                     |                                |          
+                                     |                                 --3.00%--release_pages
+                                     |                                           |          
+                                     |                                           |--1.20%--free_unref_page_list
+                                     |                                           |          |          
+                                     |                                           |           --0.78%--free_unref_page_commit
+                                     |                                           |                     |          
+                                     |                                           |                      --0.66%--free_pcppages_bulk
+                                     |                                           |                                |          
+                                     |                                           |                                 --0.52%--__free_one_page
+                                     |                                           |          
+                                     |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                     |          
+                                      --1.36%--page_remove_rmap
+                                                |          
+                                                 --0.85%--__mod_lruvec_page_state
+
+     5.40%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] do_group_exit
+            |
+            ---do_group_exit
+               do_exit
+               exit_mm
+               mmput
+               __mmput
+               exit_mmap
+               |          
+                --5.39%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --5.25%--zap_pte_range
+                                     |          
+                                     |--3.16%--tlb_flush_mmu
+                                     |          |          
+                                     |           --3.16%--tlb_batch_pages_flush
+                                     |                     |          
+                                     |                      --3.12%--free_pages_and_swap_cache
+                                     |                                |          
+                                     |                                 --3.00%--release_pages
+                                     |                                           |          
+                                     |                                           |--1.20%--free_unref_page_list
+                                     |                                           |          |          
+                                     |                                           |           --0.78%--free_unref_page_commit
+                                     |                                           |                     |          
+                                     |                                           |                      --0.66%--free_pcppages_bulk
+                                     |                                           |                                |          
+                                     |                                           |                                 --0.52%--__free_one_page
+                                     |                                           |          
+                                     |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                     |          
+                                      --1.36%--page_remove_rmap
+                                                |          
+                                                 --0.85%--__mod_lruvec_page_state
+
+     5.40%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] do_exit
+            |
+            ---do_exit
+               exit_mm
+               mmput
+               __mmput
+               exit_mmap
+               |          
+                --5.39%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --5.25%--zap_pte_range
+                                     |          
+                                     |--3.16%--tlb_flush_mmu
+                                     |          |          
+                                     |           --3.16%--tlb_batch_pages_flush
+                                     |                     |          
+                                     |                      --3.12%--free_pages_and_swap_cache
+                                     |                                |          
+                                     |                                 --3.00%--release_pages
+                                     |                                           |          
+                                     |                                           |--1.20%--free_unref_page_list
+                                     |                                           |          |          
+                                     |                                           |           --0.78%--free_unref_page_commit
+                                     |                                           |                     |          
+                                     |                                           |                      --0.66%--free_pcppages_bulk
+                                     |                                           |                                |          
+                                     |                                           |                                 --0.52%--__free_one_page
+                                     |                                           |          
+                                     |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                     |          
+                                      --1.36%--page_remove_rmap
+                                                |          
+                                                 --0.85%--__mod_lruvec_page_state
+
+     5.40%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] exit_mm
+            |
+            ---exit_mm
+               mmput
+               __mmput
+               exit_mmap
+               |          
+                --5.39%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --5.25%--zap_pte_range
+                                     |          
+                                     |--3.16%--tlb_flush_mmu
+                                     |          |          
+                                     |           --3.16%--tlb_batch_pages_flush
+                                     |                     |          
+                                     |                      --3.12%--free_pages_and_swap_cache
+                                     |                                |          
+                                     |                                 --3.00%--release_pages
+                                     |                                           |          
+                                     |                                           |--1.20%--free_unref_page_list
+                                     |                                           |          |          
+                                     |                                           |           --0.78%--free_unref_page_commit
+                                     |                                           |                     |          
+                                     |                                           |                      --0.66%--free_pcppages_bulk
+                                     |                                           |                                |          
+                                     |                                           |                                 --0.52%--__free_one_page
+                                     |                                           |          
+                                     |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                     |          
+                                      --1.36%--page_remove_rmap
+                                                |          
+                                                 --0.85%--__mod_lruvec_page_state
+
+     5.40%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] mmput
+            |
+            ---mmput
+               __mmput
+               exit_mmap
+               |          
+                --5.39%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --5.25%--zap_pte_range
+                                     |          
+                                     |--3.16%--tlb_flush_mmu
+                                     |          |          
+                                     |           --3.16%--tlb_batch_pages_flush
+                                     |                     |          
+                                     |                      --3.12%--free_pages_and_swap_cache
+                                     |                                |          
+                                     |                                 --3.00%--release_pages
+                                     |                                           |          
+                                     |                                           |--1.20%--free_unref_page_list
+                                     |                                           |          |          
+                                     |                                           |           --0.78%--free_unref_page_commit
+                                     |                                           |                     |          
+                                     |                                           |                      --0.66%--free_pcppages_bulk
+                                     |                                           |                                |          
+                                     |                                           |                                 --0.52%--__free_one_page
+                                     |                                           |          
+                                     |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                     |          
+                                      --1.36%--page_remove_rmap
+                                                |          
+                                                 --0.85%--__mod_lruvec_page_state
+
+     5.40%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __mmput
+            |
+            ---__mmput
+               exit_mmap
+               |          
+                --5.39%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --5.25%--zap_pte_range
+                                     |          
+                                     |--3.16%--tlb_flush_mmu
+                                     |          |          
+                                     |           --3.16%--tlb_batch_pages_flush
+                                     |                     |          
+                                     |                      --3.12%--free_pages_and_swap_cache
+                                     |                                |          
+                                     |                                 --3.00%--release_pages
+                                     |                                           |          
+                                     |                                           |--1.20%--free_unref_page_list
+                                     |                                           |          |          
+                                     |                                           |           --0.78%--free_unref_page_commit
+                                     |                                           |                     |          
+                                     |                                           |                      --0.66%--free_pcppages_bulk
+                                     |                                           |                                |          
+                                     |                                           |                                 --0.52%--__free_one_page
+                                     |                                           |          
+                                     |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                     |          
+                                      --1.36%--page_remove_rmap
+                                                |          
+                                                 --0.85%--__mod_lruvec_page_state
+
+     5.40%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] exit_mmap
+            |
+            ---exit_mmap
+               |          
+                --5.39%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --5.25%--zap_pte_range
+                                     |          
+                                     |--3.16%--tlb_flush_mmu
+                                     |          |          
+                                     |           --3.16%--tlb_batch_pages_flush
+                                     |                     |          
+                                     |                      --3.12%--free_pages_and_swap_cache
+                                     |                                |          
+                                     |                                 --3.00%--release_pages
+                                     |                                           |          
+                                     |                                           |--1.20%--free_unref_page_list
+                                     |                                           |          |          
+                                     |                                           |           --0.78%--free_unref_page_commit
+                                     |                                           |                     |          
+                                     |                                           |                      --0.66%--free_pcppages_bulk
+                                     |                                           |                                |          
+                                     |                                           |                                 --0.52%--__free_one_page
+                                     |                                           |          
+                                     |                                            --0.91%--lru_gen_del_folio.constprop.0
+                                     |          
+                                      --1.36%--page_remove_rmap
+                                                |          
+                                                 --0.85%--__mod_lruvec_page_state
+
+     5.25%     1.78%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_init
+            |          
+            |--3.47%--__gmpf_init
+            |          |          
+            |           --2.36%--asm_exc_page_fault
+            |                     |          
+            |                      --2.16%--exc_page_fault
+            |                                |          
+            |                                 --2.00%--do_user_addr_fault
+            |                                           |          
+            |                                            --1.82%--handle_mm_fault
+            |                                                      |          
+            |                                                       --1.72%--__handle_mm_fault
+            |                                                                 |          
+            |                                                                  --1.60%--handle_pte_fault
+            |                                                                            |          
+            |                                                                             --1.51%--do_anonymous_page
+            |                                                                                       |          
+            |                                                                                        --0.53%--vma_alloc_folio
+            |          
+             --0.89%--_int_malloc
+                       |          
+                        --0.72%--asm_exc_page_fault
+                                  |          
+                                   --0.64%--exc_page_fault
+                                             |          
+                                              --0.62%--do_user_addr_fault
+                                                        |          
+                                                         --0.54%--handle_mm_fault
+                                                                   |          
+                                                                    --0.51%--__handle_mm_fault
+
+     4.90%     2.40%  inner_product_g  libgmp.so.10.5.0                    [.] __gmp_mt_recalc_buffer
+            |          
+            |--2.50%--__gmp_mt_recalc_buffer
+            |          
+            |--0.92%--_int_malloc
+            |          |          
+            |           --0.73%--asm_exc_page_fault
+            |                     |          
+            |                      --0.62%--exc_page_fault
+            |                                |          
+            |                                 --0.60%--do_user_addr_fault
+            |          
+             --0.84%--__gmp_randget_mt
+
+     4.65%     2.27%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_add
+            |          
+            |--2.38%--__gmpf_add
+            |          
+             --1.21%--__libc_start_call_main
+                       main
+                       |          
+                        --1.21%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+                                  |          
+                                   --0.97%--gmp::operator*(gmp::mpf_class const&, gmp::mpf_class const&)
+
+     4.58%     0.16%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::operator+=(gmp::mpf_class&, gmp::mpf_class const&)
+            |          
+             --4.42%--gmp::operator+=(gmp::mpf_class&, gmp::mpf_class const&)
+                       |          
+                       |--2.42%--__gmpf_add
+                       |          
+                       |--0.94%--__gmpn_copyi
+                       |          
+                        --0.57%--__gmpn_add_n
+
+     3.62%     1.95%  inner_product_g  libc.so.6                           [.] cfree@GLIBC_2.2.5
+            |          
+            |--1.73%--cfree@GLIBC_2.2.5
+            |          
+             --1.02%--__libc_start_call_main
+                       |          
+                        --0.99%--main
+
+     3.61%     1.24%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_mul
+            |          
+            |--2.37%--__gmpf_mul
+            |          
+             --0.72%--__libc_start_call_main
+                       main
+                       |          
+                        --0.69%--Rdot(long, gmp::mpf_class*, long, gmp::mpf_class*, long)
+
+     3.55%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] tlb_batch_pages_flush
+            |          
+             --3.54%--tlb_batch_pages_flush
+                       |          
+                        --3.50%--free_pages_and_swap_cache
+                                  |          
+                                   --3.36%--release_pages
+                                             |          
+                                             |--1.34%--free_unref_page_list
+                                             |          |          
+                                             |           --0.88%--free_unref_page_commit
+                                             |                     |          
+                                             |                      --0.75%--free_pcppages_bulk
+                                             |                                |          
+                                             |                                 --0.60%--__free_one_page
+                                             |          
+                                             |--1.03%--lru_gen_del_folio.constprop.0
+                                             |          
+                                              --0.52%--__mem_cgroup_uncharge_list
+
+     3.54%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] tlb_flush_mmu
+            |          
+             --3.54%--tlb_flush_mmu
+                       |          
+                        --3.54%--tlb_batch_pages_flush
+                                  |          
+                                   --3.50%--free_pages_and_swap_cache
+                                             |          
+                                              --3.36%--release_pages
+                                                        |          
+                                                        |--1.34%--free_unref_page_list
+                                                        |          |          
+                                                        |           --0.88%--free_unref_page_commit
+                                                        |                     |          
+                                                        |                      --0.75%--free_pcppages_bulk
+                                                        |                                |          
+                                                        |                                 --0.60%--__free_one_page
+                                                        |          
+                                                        |--1.03%--lru_gen_del_folio.constprop.0
+                                                        |          
+                                                         --0.51%--__mem_cgroup_uncharge_list
+
+     3.53%     0.13%  inner_product_g  [kernel.kallsyms]                   [k] free_pages_and_swap_cache
+            |          
+             --3.40%--free_pages_and_swap_cache
+                       |          
+                        --3.35%--release_pages
+                                  |          
+                                  |--1.34%--free_unref_page_list
+                                  |          |          
+                                  |           --0.88%--free_unref_page_commit
+                                  |                     |          
+                                  |                      --0.75%--free_pcppages_bulk
+                                  |                                |          
+                                  |                                 --0.60%--__free_one_page
+                                  |          
+                                  |--1.02%--lru_gen_del_folio.constprop.0
+                                  |          
+                                   --0.52%--__mem_cgroup_uncharge_list
+
+     3.50%     0.33%  inner_product_g  [kernel.kallsyms]                   [k] release_pages
+            |          
+             --3.17%--release_pages
+                       |          
+                       |--1.34%--free_unref_page_list
+                       |          |          
+                       |           --0.88%--free_unref_page_commit
+                       |                     |          
+                       |                      --0.75%--free_pcppages_bulk
+                       |                                |          
+                       |                                 --0.60%--__free_one_page
+                       |          
+                       |--0.82%--lru_gen_del_folio.constprop.0
+                       |          
+                        --0.51%--__mem_cgroup_uncharge_list
+
+     3.33%     0.00%  inner_product_g  [unknown]                           [.] 0x0000000000000061
+            |
+            ---0x61
+               _int_free
+
+     3.29%     0.00%  inner_product_g  [unknown]                           [k] 0000000000000000
+            |
+            ---0
+               |          
+               |--1.25%--__gmpn_mul_basecase
+               |          
+               |--0.87%--__brk
+               |          |          
+               |           --0.79%--entry_SYSCALL_64_after_hwframe
+               |                     |          
+               |                      --0.77%--do_syscall_64
+               |                                |          
+               |                                 --0.74%--__x64_sys_brk
+               |                                           |          
+               |                                            --0.72%--__do_sys_brk
+               |                                                      |          
+               |                                                       --0.59%--do_brk_flags
+               |          
+                --0.53%--__gmpf_init_set
+
+     3.10%     0.54%  inner_product_g  [kernel.kallsyms]                   [k] __mem_cgroup_charge
+            |          
+             --2.56%--__mem_cgroup_charge
+                       |          
+                        --1.22%--charge_memcg
+
+     3.06%     1.24%  inner_product_g  libgmp.so.10.5.0                    [.] __gmp_default_allocate
+            |          
+             --1.83%--__gmp_default_allocate
+
+     3.04%     0.22%  inner_product_g  [kernel.kallsyms]                   [k] folio_add_lru_vma
+            |          
+             --2.82%--folio_add_lru_vma
+                       |          
+                        --2.68%--folio_add_lru
+                                  |          
+                                   --2.28%--folio_batch_move_lru
+                                             |          
+                                              --1.78%--lru_add_fn
+                                                        |          
+                                                         --1.21%--lru_gen_add_folio
+
+     3.00%     1.48%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_urandomb
+            |          
+            |--1.56%--__gmpf_urandomb
+            |          
+             --0.56%--_int_malloc
+
+     2.96%     1.21%  inner_product_g  [kernel.kallsyms]                   [k] __mod_lruvec_state
+            |          
+            |--1.75%--__mod_lruvec_state
+            |          |          
+            |           --1.01%--__mod_memcg_lruvec_state
+            |          
+             --0.52%--entry_SYSCALL_64_after_hwframe
+                       do_syscall_64
+                       __x64_sys_exit_group
+                       do_group_exit
+                       do_exit
+                       exit_mm
+                       mmput
+                       __mmput
+                       exit_mmap
+                       |          
+                        --0.52%--unmap_vmas
+                                  unmap_single_vma
+                                  unmap_page_range
+                                  zap_pmd_range.isra.0
+                                  |          
+                                   --0.50%--zap_pte_range
+
+     2.85%     0.15%  inner_product_g  [kernel.kallsyms]                   [k] folio_add_lru
+            |          
+             --2.70%--folio_add_lru
+                       |          
+                        --2.27%--folio_batch_move_lru
+                                  |          
+                                   --1.77%--lru_add_fn
+                                             |          
+                                              --1.20%--lru_gen_add_folio
+
+     2.84%     1.57%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::operator=(gmp::mpf_class&&)
+            |          
+            |--1.28%--gmp::mpf_class::operator=(gmp::mpf_class&&)
+            |          
+             --1.04%--__libc_start_call_main
+                       |          
+                        --0.98%--main
+
+     2.57%     0.85%  inner_product_g  [kernel.kallsyms]                   [k] __mod_lruvec_page_state
+            |          
+             --1.72%--__mod_lruvec_page_state
+                       |          
+                        --0.93%--__mod_lruvec_state
+
+     2.53%     1.94%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_init_set
+            |          
+            |--1.31%--__libc_start_call_main
+            |          |          
+            |           --1.24%--main
+            |          
+             --0.59%--__gmpf_init_set
+
+     2.38%     0.20%  inner_product_g  [kernel.kallsyms]                   [k] folio_batch_move_lru
+            |          
+             --2.18%--folio_batch_move_lru
+                       |          
+                        --1.69%--lru_add_fn
+                                  |          
+                                   --1.14%--lru_gen_add_folio
+
+     2.30%     0.77%  inner_product_g  [kernel.kallsyms]                   [k] lru_add_fn
+            |          
+            |--1.53%--lru_add_fn
+            |          |          
+            |           --0.95%--lru_gen_add_folio
+            |          
+             --0.54%--_int_malloc
+
+     2.29%     0.89%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_get_prec
+            |          
+            |--1.39%--__gmpf_get_prec
+            |          
+             --0.63%--__libc_start_call_main
+                       |          
+                        --0.61%--main
+
+     2.24%     1.17%  inner_product_g  [kernel.kallsyms]                   [k] srso_safe_ret
+            |          
+            |--1.07%--srso_safe_ret
+            |          
+             --0.52%--_int_malloc
+
+     2.16%     1.22%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] init_mpf_vec(__mpf_struct (*) [1], int, int)
+            |          
+             --0.94%--init_mpf_vec(__mpf_struct (*) [1], int, int)
+
+     2.10%     0.63%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::~mpf_class()
+            |          
+             --1.46%--gmp::mpf_class::~mpf_class()
+
+     2.08%     0.87%  inner_product_g  [kernel.kallsyms]                   [k] __mod_memcg_lruvec_state
+            |          
+             --1.22%--__mod_memcg_lruvec_state
+
+     2.06%     0.79%  inner_product_g  [kernel.kallsyms]                   [k] charge_memcg
+            |          
+             --1.27%--charge_memcg
+
+     1.99%     1.10%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::mpf_class(__mpf_struct const*)
+            |          
+            |--0.89%--gmp::mpf_class::mpf_class(__mpf_struct const*)
+            |          
+             --0.73%--__libc_start_call_main
+                       |          
+                        --0.69%--main
+
+     1.88%     0.95%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_swap
+            |          
+             --0.93%--__gmpf_swap
+
+     1.73%     0.62%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::mpf_class()
+            |          
+             --1.11%--gmp::mpf_class::mpf_class()
+
+     1.66%     0.33%  inner_product_g  [kernel.kallsyms]                   [k] page_remove_rmap
+            |          
+             --1.33%--page_remove_rmap
+                       |          
+                        --0.77%--__mod_lruvec_page_state
+
+     1.60%     0.52%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_clear
+            |          
+             --1.08%--__gmpf_clear
+
+     1.60%     0.58%  inner_product_g  [kernel.kallsyms]                   [k] lock_vma_under_rcu
+            |          
+             --1.01%--lock_vma_under_rcu
+
+     1.59%     0.19%  inner_product_g  [kernel.kallsyms]                   [k] folio_add_new_anon_rmap
+            |          
+             --1.39%--folio_add_new_anon_rmap
+                       |          
+                        --0.92%--__mod_lruvec_page_state
+                                  |          
+                                   --0.52%--__mod_lruvec_state
+
+     1.52%     0.46%  inner_product_g  [kernel.kallsyms]                   [k] lru_gen_add_folio
+            |          
+             --1.06%--lru_gen_add_folio
+
+     1.48%     0.55%  inner_product_g  [kernel.kallsyms]                   [k] rmqueue
+            |          
+             --0.93%--rmqueue
+
+     1.41%     0.37%  inner_product_g  [kernel.kallsyms]                   [k] __rcu_read_unlock
+            |          
+             --1.04%--__rcu_read_unlock
+
+     1.38%     0.35%  inner_product_g  [kernel.kallsyms]                   [k] free_unref_page_list
+            |          
+             --1.03%--free_unref_page_list
+                       |          
+                        --0.80%--free_unref_page_commit
+                                  |          
+                                   --0.74%--free_pcppages_bulk
+                                             |          
+                                              --0.59%--__free_one_page
+
+     1.24%     0.35%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::preccmp(gmp::mpf_class const&, gmp::mpf_class const&)
+            |          
+             --0.90%--gmp::preccmp(gmp::mpf_class const&, gmp::mpf_class const&)
+
+     1.18%     0.40%  inner_product_g  [kernel.kallsyms]                   [k] lru_gen_del_folio.constprop.0
+            |          
+             --0.78%--lru_gen_del_folio.constprop.0
+
+     1.15%     0.59%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_mul
+            |          
+             --0.55%--__gmpn_mul
+
+     1.06%     0.50%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_add_n
+            |          
+             --0.57%--__gmpn_add_n
+
+     1.05%     0.58%  inner_product_g  [kernel.kallsyms]                   [k] get_mem_cgroup_from_mm
+     1.03%     0.96%  inner_product_g  [kernel.kallsyms]                   [k] srso_return_thunk
+     1.00%     0.18%  inner_product_g  [kernel.kallsyms]                   [k] __folio_throttle_swaprate
+            |          
+             --0.82%--__folio_throttle_swaprate
+
+     0.97%     0.61%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] clear_mpf_vec(__mpf_struct (*) [1], int)
+     0.95%     0.10%  inner_product_g  [kernel.kallsyms]                   [k] free_unref_page_commit
+            |          
+             --0.85%--free_unref_page_commit
+                       |          
+                        --0.75%--free_pcppages_bulk
+                                  |          
+                                   --0.60%--__free_one_page
+
+     0.88%     0.46%  inner_product_g  [kernel.kallsyms]                   [k] blk_cgroup_congested
+     0.87%     0.01%  inner_product_g  libc.so.6                           [.] __brk
+            |          
+             --0.87%--__brk
+                       |          
+                        --0.79%--entry_SYSCALL_64_after_hwframe
+                                  |          
+                                   --0.77%--do_syscall_64
+                                             |          
+                                              --0.73%--__x64_sys_brk
+                                                        |          
+                                                         --0.72%--__do_sys_brk
+                                                                   |          
+                                                                    --0.59%--do_brk_flags
+
+     0.87%     0.16%  inner_product_g  [kernel.kallsyms]                   [k] irqentry_exit
+            |          
+             --0.71%--irqentry_exit
+
+     0.83%     0.43%  inner_product_g  [kernel.kallsyms]                   [k] __count_memcg_events
+     0.82%     0.26%  inner_product_g  [kernel.kallsyms]                   [k] irqentry_exit_to_user_mode
+            |          
+             --0.56%--irqentry_exit_to_user_mode
+
+     0.79%     0.32%  inner_product_g  [kernel.kallsyms]                   [k] __rcu_read_lock
+     0.76%     0.18%  inner_product_g  [kernel.kallsyms]                   [k] free_pcppages_bulk
+            |          
+             --0.58%--free_pcppages_bulk
+
+     0.75%     0.20%  inner_product_g  [kernel.kallsyms]                   [k] mas_walk
+            |          
+             --0.55%--mas_walk
+
+     0.75%     0.38%  inner_product_g  [kernel.kallsyms]                   [k] __pte_offset_map_lock
+     0.74%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] __x64_sys_brk
+            |          
+             --0.74%--__x64_sys_brk
+                       |          
+                        --0.72%--__do_sys_brk
+                                  |          
+                                   --0.58%--do_brk_flags
+
+     0.74%     0.03%  inner_product_g  [kernel.kallsyms]                   [k] __do_sys_brk
+            |          
+             --0.70%--__do_sys_brk
+                       |          
+                        --0.57%--do_brk_flags
+
+     0.73%     0.29%  inner_product_g  [kernel.kallsyms]                   [k] exit_to_user_mode_prepare
+     0.71%     0.71%  inner_product_g  [kernel.kallsyms]                   [k] native_irq_return_iret
+     0.71%     0.49%  inner_product_g  [kernel.kallsyms]                   [k] __free_one_page
+     0.68%     0.27%  inner_product_g  [kernel.kallsyms]                   [k] try_charge_memcg
+     0.67%     0.34%  inner_product_g  [kernel.kallsyms]                   [k] mtree_range_walk
+     0.67%     0.60%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_get_prec@plt
+     0.66%     0.30%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::get_mpf_t()
+     0.64%     0.00%  inner_product_g  libc.so.6                           [.] __munmap
+            |
+            ---__munmap
+               entry_SYSCALL_64_after_hwframe
+               do_syscall_64
+               __x64_sys_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               unmap_region
+               |          
+                --0.64%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --0.60%--zap_pte_range
+
+     0.64%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __x64_sys_munmap
+            |
+            ---__x64_sys_munmap
+               __vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               unmap_region
+               |          
+                --0.64%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --0.60%--zap_pte_range
+
+     0.64%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __vm_munmap
+            |
+            ---__vm_munmap
+               do_vmi_munmap
+               do_vmi_align_munmap
+               unmap_region
+               |          
+                --0.64%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --0.60%--zap_pte_range
+
+     0.64%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] do_vmi_munmap
+            |
+            ---do_vmi_munmap
+               do_vmi_align_munmap
+               unmap_region
+               |          
+                --0.64%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --0.60%--zap_pte_range
+
+     0.64%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] do_vmi_align_munmap
+            |
+            ---do_vmi_align_munmap
+               unmap_region
+               |          
+                --0.64%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --0.60%--zap_pte_range
+
+     0.64%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] unmap_region
+            |
+            ---unmap_region
+               |          
+                --0.64%--unmap_vmas
+                          unmap_single_vma
+                          unmap_page_range
+                          zap_pmd_range.isra.0
+                          |          
+                           --0.60%--zap_pte_range
+
+     0.61%     0.04%  inner_product_g  [kernel.kallsyms]                   [k] do_brk_flags
+            |          
+             --0.56%--do_brk_flags
+
+     0.59%     0.25%  inner_product_g  [kernel.kallsyms]                   [k] count_memcg_events.constprop.0
+     0.59%     0.24%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::mpf_class(gmp::mpf_class&&)
+     0.58%     0.11%  inner_product_g  [kernel.kallsyms]                   [k] __rmqueue_pcplist
+     0.58%     0.26%  inner_product_g  [kernel.kallsyms]                   [k] cgroup_rstat_updated
+     0.57%     0.39%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::mpf_class(gmp::mpf_class const&)
+     0.55%     0.37%  inner_product_g  [kernel.kallsyms]                   [k] post_alloc_hook
+     0.53%     0.14%  inner_product_g  [kernel.kallsyms]                   [k] __mem_cgroup_uncharge_list
+     0.53%     0.27%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] gmp::mpf_class::get_prec() const
+     0.51%     0.22%  inner_product_g  [kernel.kallsyms]                   [k] sync_regs
+     0.50%     0.22%  inner_product_g  [kernel.kallsyms]                   [k] pte_offset_map_nolock
+     0.49%     0.20%  inner_product_g  [kernel.kallsyms]                   [k] error_entry
+     0.49%     0.27%  inner_product_g  [kernel.kallsyms]                   [k] rmqueue_bulk
+     0.46%     0.22%  inner_product_g  [kernel.kallsyms]                   [k] __mod_node_page_state
+     0.45%     0.28%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpf_set
+     0.44%     0.31%  inner_product_g  [kernel.kallsyms]                   [k] uncharge_folio
+     0.43%     0.22%  inner_product_g  [kernel.kallsyms]                   [k] __pte_offset_map
+     0.43%     0.16%  inner_product_g  [kernel.kallsyms]                   [k] __mod_zone_page_state
+     0.41%     0.16%  inner_product_g  [kernel.kallsyms]                   [k] inc_mm_counter
+     0.40%     0.31%  inner_product_g  libgmp.so.10.5.0                    [.] __gmp_default_free
+     0.31%     0.13%  inner_product_g  [kernel.kallsyms]                   [k] percpu_counter_add_batch
+     0.30%     0.30%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_init@plt
+     0.30%     0.09%  inner_product_g  [kernel.kallsyms]                   [k] __irqentry_text_end
+     0.29%     0.17%  inner_product_g  [kernel.kallsyms]                   [k] policy_node
+     0.29%     0.12%  inner_product_g  [kernel.kallsyms]                   [k] consume_stock
+     0.27%     0.12%  inner_product_g  [kernel.kallsyms]                   [k] perf_iterate_ctx
+     0.26%     0.26%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_copyi@plt
+     0.26%     0.15%  inner_product_g  [kernel.kallsyms]                   [k] free_unref_page_prepare
+     0.25%     0.13%  inner_product_g  [kernel.kallsyms]                   [k] set_pte
+     0.25%     0.22%  inner_product_g  libgmp.so.10.5.0                    [.] free@plt
+     0.24%     0.23%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_clear@plt
+     0.22%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] perf_event_mmap
+     0.22%     0.10%  inner_product_g  [kernel.kallsyms]                   [k] access_error
+     0.22%     0.03%  inner_product_g  [kernel.kallsyms]                   [k] error_return
+     0.22%     0.12%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_init2@plt
+     0.21%     0.21%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_mul@plt
+     0.21%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] perf_event_mmap_event
+     0.21%     0.21%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_init_set@plt
+     0.20%     0.03%  inner_product_g  [kernel.kallsyms]                   [k] kthread_blkcg
+     0.19%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] perf_iterate_sb
+     0.19%     0.13%  inner_product_g  libgmp.so.10.5.0                    [.] malloc@plt
+     0.18%     0.07%  inner_product_g  [kernel.kallsyms]                   [k] __next_zones_zonelist
+     0.18%     0.13%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_swap@plt
+     0.17%     0.07%  inner_product_g  [kernel.kallsyms]                   [k] _raw_spin_trylock
+     0.17%     0.16%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_set@plt
+     0.15%     0.06%  inner_product_g  [kernel.kallsyms]                   [k] down_read_trylock
+     0.15%     0.09%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_urandomb@plt
+     0.15%     0.04%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_add_n@plt
+     0.15%     0.05%  inner_product_g  [kernel.kallsyms]                   [k] _raw_spin_unlock
+     0.14%     0.05%  inner_product_g  [kernel.kallsyms]                   [k] _raw_spin_lock
+     0.14%     0.05%  inner_product_g  [kernel.kallsyms]                   [k] pud_val
+     0.14%     0.07%  inner_product_g  [kernel.kallsyms]                   [k] pfn_pte
+     0.13%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_store_prealloc
+     0.13%     0.06%  inner_product_g  [kernel.kallsyms]                   [k] fpregs_assert_state_consistent
+     0.13%     0.04%  inner_product_g  [kernel.kallsyms]                   [k] pmd_val
+     0.13%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] folio_mapping
+     0.12%     0.05%  inner_product_g  [kernel.kallsyms]                   [k] policy_nodemask
+     0.12%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_preallocate
+     0.11%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_alloc_nodes
+     0.11%     0.03%  inner_product_g  [kernel.kallsyms]                   [k] _find_first_bit
+     0.10%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] _compound_head
+     0.10%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] asm_sysvec_apic_timer_interrupt
+     0.10%     0.04%  inner_product_g  [kernel.kallsyms]                   [k] up_read
+     0.09%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] sysvec_apic_timer_interrupt
+     0.09%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] should_fail_alloc_page
+     0.08%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_destroy
+     0.08%     0.04%  inner_product_g  [kernel.kallsyms]                   [k] kmem_cache_alloc_bulk
+     0.08%     0.05%  inner_product_g  [kernel.kallsyms]                   [k] vm_normal_page
+     0.08%     0.03%  inner_product_g  [kernel.kallsyms]                   [k] memcg_check_events
+     0.07%     0.07%  inner_product_g  [kernel.kallsyms]                   [k] srso_untrain_ret
+     0.07%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] folio_test_hugetlb
+     0.07%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __sysvec_apic_timer_interrupt
+     0.07%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] __tlb_remove_page_size
+     0.07%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] hrtimer_interrupt
+     0.07%     0.06%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_mul@plt
+     0.06%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __hrtimer_run_queues
+     0.06%     0.03%  inner_product_g  [kernel.kallsyms]                   [k] mem_cgroup_from_task
+     0.06%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] tick_sched_timer
+     0.06%     0.04%  inner_product_g  [kernel.kallsyms]                   [k] perf_event_mmap_output
+     0.06%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] kmem_cache_free_bulk.part.0
+     0.06%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] free_swap_cache
+     0.06%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] folio_lruvec_lock_irqsave
+     0.06%     0.04%  inner_product_g  libgmp.so.10.5.0                    [.] __gmpn_mul_basecase@plt
+     0.05%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] vma_prepare
+     0.05%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] tick_sched_handle
+     0.05%     0.05%  inner_product_g  inner_product_gmp_12_0_mpblas_mkII  [.] __gmpf_add@plt
+     0.05%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] update_process_times
+     0.05%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] kmem_cache_free_bulk
+     0.05%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] native_set_pte
+     0.04%     0.03%  inner_product_g  [kernel.kallsyms]                   [k] __get_vma_policy
+     0.04%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] kmem_cache_free
+     0.04%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] check_brk_limits
+     0.04%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_find
+     0.04%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] memset_orig
+     0.04%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_wr_store_entry.isra.0
+     0.04%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] _raw_spin_lock_irqsave
+     0.04%     0.02%  inner_product_g  libc.so.6                           [.] sysmalloc
+     0.04%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] scheduler_tick
+     0.04%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] amd_clear_divider
+     0.03%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] kmem_cache_alloc
+     0.03%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] __cond_resched
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] get_unmapped_area
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] syscall_exit_to_user_mode
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] build_detached_freelist
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_wr_modify
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] vma_complete
+     0.03%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __pte_alloc
+     0.03%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] __x86_indirect_thunk_r14
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] __raw_spin_lock_irqsave
+     0.03%     0.02%  inner_product_g  [kernel.kallsyms]                   [k] p4d_offset
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] security_vm_enough_memory_mm
+     0.03%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] pte_alloc_one
+     0.03%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] __kmem_cache_alloc_bulk
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] __vm_enough_memory
+     0.02%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] alloc_pages
+     0.02%     0.00%  inner_product_g  libgmp.so.10.5.0                    [.] __gmp_mt_recalc_buffer@plt
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] page_counter_try_charge
+     0.02%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] task_tick_fair
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] _raw_spin_unlock_irqrestore
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_update_gap.part.0
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] cap_vm_enough_memory
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] down_write
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] arch_get_unmapped_area_topdown
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] __mem_cgroup_threshold
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] irqentry_enter
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] security_mmap_addr
+     0.02%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] entry_SYSCALL_64
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] exit_to_user_mode_loop
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_next_slot
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] up_write
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] khugepaged_enter_vma
+     0.01%     0.01%  inner_product_g  libc.so.6                           [.] __sbrk
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] vma_adjust_trans_huge
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] mas_leaf_max_gap
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] perf_adjust_freq_unthr_context
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] task_work_run
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] perf_event_task_tick
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] mas_prev
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] can_vma_merge_after
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] task_mm_cid_work
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] cap_mmap_addr
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] tick_do_update_jiffies64
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] free_pud_range
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] free_pgtables
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] free_pgd_range
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] free_p4d_range
+     0.01%     0.01%  inner_product_g  libc.so.6                           [.] __default_morecore@GLIBC_2.2.5
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] down_write_killable
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] ___pte_free_tlb
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] tick_sched_do_timer
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] anon_vma_interval_tree_insert
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] update_wall_time
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] update_load_avg
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] timekeeping_advance
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] cache_from_obj
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] pgd_none
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __anon_vma_interval_tree_remove
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] anon_vma_interval_tree_remove
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] irq_exit_rcu
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] entry_untrain_ret
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] uncharge_batch
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __irq_exit_rcu
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] refill_stock
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __memcg_kmem_charge_page
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] __do_softirq
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] mas_wr_walk
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] userfaultfd_unmap_complete
+     0.01%     0.01%  inner_product_g  [kernel.kallsyms]                   [k] read_tsc
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] mod_lruvec_page_state.constprop.0
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] tlb_remove_page
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] update_curr
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] mas_prev_slot
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] hugepage_vma_check
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] timekeeping_update
+     0.01%     0.00%  inner_product_g  [kernel.kallsyms]                   [k] account_process_tick
