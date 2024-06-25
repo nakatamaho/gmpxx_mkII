@@ -62,6 +62,7 @@ RUN echo "\n\
 " > /home/$DOCKER_USER/.gitconfig
 SHELL ["/bin/bash", "-c"]
 
+RUN cd ${WORK} && git clone https://github.com/brendangregg/FlameGraph.git
 RUN cd ${WORK} && git clone https://github.com/nakatamaho/gmpxx_mkII.git
 RUN cd ${WORK}/gmpxx_mkII && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
 RUN cd ${WORK}/gmpxx_mkII/setup && bash -x setup_gmp.sh
