@@ -9,6 +9,7 @@ void Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *an
     int64_t iy = 0;
     int64_t i;
     mpf_t templ;
+    mpf_t temp;
 
     if (incx < 0)
         ix = (-n + 1) * incx;
@@ -20,13 +21,18 @@ void Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *an
         exit(-1);
     }
     mpf_set_d(*ans, 0.0);
+    mpf_init2(temp, prec);
     mpf_init2(templ, prec);
+    mpf_set_d(temp, 0.0);
     mpf_set_d(templ, 0.0);
     for (i = 0; i < n; i++) {
         mpf_mul(templ, dx[i], dy[i]);
-        mpf_add(*ans, *ans, templ);
+        mpf_add(temp, temp, templ);
     }
     mpf_clear(templ);
+    mpf_swap(*ans, temp);
+    mpf_clear(temp);
+
 }
 
 void init_mpf_vec(mpf_t *vec, int n, int prec) {

@@ -44,11 +44,14 @@ if not operations:
 
 # Plotting all operations
 plt.figure(figsize=(14, 8))
-plt.bar(operations, times, color='lightblue')
+bars = plt.bar(operations, times, color='lightblue')
 plt.xlabel('Operation')
 plt.ylabel('Elapsed Time (s)')
 plt.title('Elapsed Time for Various GMP Operations in Inner Product Calculations')
 plt.xticks(rotation=90)
+for bar, time in zip(bars, times):
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval, round(time, 2), ha='center', va='bottom')
 plt.tight_layout()
 plt.savefig('all_operations_elapsed_times_chart.pdf')
 plt.close()
@@ -56,11 +59,14 @@ plt.close()
 # Plotting only "openmp" operations
 if openmp_operations:
     plt.figure(figsize=(10, 6))
-    plt.bar(openmp_operations, openmp_times, color='coral')
+    bars = plt.bar(openmp_operations, openmp_times, color='coral')
     plt.xlabel('Operation')
     plt.ylabel('Elapsed Time (s)')
     plt.title('Elapsed Time for OpenMP GMP Operations in Inner Product Calculations')
     plt.xticks(rotation=90)
+    for bar, time in zip(bars, openmp_times):
+        yval = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, yval, round(time, 2), ha='center', va='bottom')
     plt.tight_layout()
     plt.savefig('openmp_operations_elapsed_times_chart.pdf')
     plt.close()
