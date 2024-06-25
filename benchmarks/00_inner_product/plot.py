@@ -27,6 +27,18 @@ print("Extracted data:", data)
 operations = [op.replace('inner_product_', '') for op, _ in data]
 times = [float(time) for _, time in data]
 
+# Determine colors based on operation types
+colors = []
+for op in operations:
+    if 'orig' in op:
+        colors.append('blue')
+    elif 'mkII' in op:
+        colors.append('green')
+    elif 'mkIISR' in op:
+        colors.append('red')
+    else:
+        colors.append('gray')  # Default color for operations that do not match any condition
+
 # Filter data for "openmp" operations
 openmp_operations = [op for op in operations if 'openmp' in op]
 openmp_times = [times[i] for i, op in enumerate(operations) if 'openmp' in op]
