@@ -30,12 +30,12 @@ times = [float(time) for _, time in data]
 # Determine colors based on operation types
 colors = []
 for op in operations:
-    if 'orig' in op:
-        colors.append('blue')
+    if 'mkIISR' in op:
+        colors.append('red')
     elif 'mkII' in op:
         colors.append('green')
-    elif 'mkIISR' in op:
-        colors.append('red')
+    elif 'orig' in op:
+        colors.append('blue')
     else:
         colors.append('gray')  # Default color for operations that do not match any condition
 
@@ -56,7 +56,7 @@ if not operations:
 
 # Plotting all operations
 plt.figure(figsize=(14, 8))
-bars = plt.bar(operations, times, color='lightblue')
+bars = plt.bar(operations, times, color=colors)
 plt.xlabel('Operation')
 plt.ylabel('Elapsed Time (s)')
 plt.title('Elapsed Time for Various GMP Operations in Inner Product Calculations')
@@ -71,7 +71,7 @@ plt.close()
 # Plotting only "openmp" operations
 if openmp_operations:
     plt.figure(figsize=(10, 6))
-    bars = plt.bar(openmp_operations, openmp_times, color='coral')
+    bars = plt.bar(openmp_operations, openmp_times, color=colors)	
     plt.xlabel('Operation')
     plt.ylabel('Elapsed Time (s)')
     plt.title('Elapsed Time for OpenMP GMP Operations in Inner Product Calculations')
