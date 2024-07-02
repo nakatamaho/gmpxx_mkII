@@ -14,8 +14,15 @@ file_path = sys.argv[1]
 with open(file_path, 'r') as file:
     lines = file.readlines()
 
-# Extract CPU model from the second line of the log
-cpu_model = lines[1].strip() if len(lines) > 1 else "Unknown CPU Model"
+# Extract and simplify CPU model from the second line of the log
+cpu_model_line = lines[1].strip() if len(lines) > 1 else "Unknown CPU Model"
+# Simplify CPU model name using regex
+cpu_model_pattern = r'(Intel\s+)?(Core|i\d+|Xeon|AMD\s+Ryzen\s+\d+\s+\d+)[^a-zA-Z]*'
+cpu_model_match = re.search(cpu_model_pattern, cpu_model_line)
+cpu_model = cpu_model_match.group(0) if cpu_model_match else "Unknown CPU Model"
+
+# Clean unwanted characters like TM, (R), etc.
+cpu_model = re.sub(r'\(TM\)|\(R\)', '', cpu_model).strip()
 
 # Define the pattern to extract operations and their elapsed times
 pattern = re.compile(r'(\./inner_product_gmp_\d+_\w+) \d+ \d+\nElapsed time: ([\d.]+) s')
