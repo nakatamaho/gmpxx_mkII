@@ -16,16 +16,14 @@ with open(file_path, 'r') as file:
 
 # Extract CPU model and execution parameters from the log file
 cpu_model_line = lines[1].strip() if len(lines) > 1 else "Unknown CPU Model"
-dimension_line = lines[3].strip() if len(lines) > 3 else None
 
+dimension_line = lines[3].strip() if len(lines) > 3 else None
 # Extract dimensions and precision
 if dimension_line:
     parts = dimension_line.split()
     if len(parts) >= 2:
         dim = parts[-2]  # Second to last element
         prec = parts[-1]  # Last element
-        dim = f"dim={dim}"
-        prec = f"prec={prec}bit"
     else:
         print("Error: Dimension and precision data is malformed or not enough elements.")
         sys.exit(1)
@@ -36,7 +34,11 @@ else:
 # Clean up the model name and remove non-ASCII characters
 cpu_model = re.sub(r'\b(AMD|Intel|Threadripper|\(TM\)|\(R\)|Processor)\b', '', cpu_model_line).strip()
 cpu_model = re.sub(r'[^\x00-\x7F]', '', cpu_model)  # Remove non-ASCII characters
+cpu_model = cpu_model.replace('model name', '').strip()  # Remove 'model name:' prefix after regex clean-up
+cpu_model = re.sub(r':', '', cpu_model)  # Remove :
 cpu_model = re.sub(r'\s+', ' ', cpu_model).strip()  # Replace multiple spaces with a single space
+
+cpu_model_filename = cpu_model.replace(' ', '_')  # Prepare CPU model for filename usage
 
 # Define the pattern to extract operations and their elapsed times
 pattern = re.compile(r'(\./inner_product_gmp_\d+_\w+) \d+ \d+\nElapsed time: ([\d.]+) s')
@@ -69,13 +71,14 @@ plt.figure(figsize=(14, 8))
 bars = plt.bar(operations, times, color=colors)
 plt.xlabel('Operation')
 plt.ylabel('Elapsed Time (s)')
-plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} ({dim}, {prec})')
+plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={dim}, prec={prec})')
 plt.xticks(rotation=90)
 for bar, time in zip(bars, times):
     yval = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2, yval, round(time, 2), ha='center', va='bottom')
 plt.tight_layout()
-plt.savefig('all_operations_elapsed_times_chart.pdf')
+filename = f'all_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
+plt.savefig(filename)
 plt.close()
 
 # Plotting only "openmp" operations if any exist
@@ -84,8 +87,9 @@ if openmp_operations:
     plt.bar(openmp_operations, openmp_times, color=colors)
     plt.xlabel('Operation')
     plt.ylabel('Elapsed Time (s)')
-    plt.title(f'Elapsed Time for OpenMP GMP Operations on {cpu_model} ({dim}, {prec})')
+    plt.title(f'Elapsed Time for OpenMP GMP Operations on {cpu_model} (dim={dim}, prec={prec})')
     plt.xticks(rotation=90)
     plt.tight_layout()
-    plt.savefig('openmp_operations_elapsed_times_chart.pdf')
+    filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
+    plt.savefig(filename_openmp)
     plt.close()
