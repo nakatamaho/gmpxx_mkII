@@ -8,16 +8,10 @@ if len(sys.argv) < 2:
     print("Usage: python script_name.py path_to_log_files_pattern")
     sys.exit(1)
 
-# Get the file pattern from the command line argument
-file_pattern = sys.argv[1]
+# Read all file paths from command line arguments
+file_paths = sys.argv[1:]
 
-# Use glob to find all files matching the pattern
-file_paths = glob.glob(file_pattern)
-
-# Check if any files were found
-if not file_paths:
-    print(f"No files found matching the pattern: {file_pattern}")
-    sys.exit(1)
+print(f"Files to process: {file_paths}")
 
 # You can loop through file_paths to process each file.
 for file_path in file_paths:
