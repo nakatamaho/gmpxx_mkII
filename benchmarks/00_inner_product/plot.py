@@ -14,24 +14,23 @@ file_path = sys.argv[1]
 with open(file_path, 'r') as file:
     lines = file.readlines()
 
-# Extract and simplify CPU model from the second line of the log
+# Extract CPU model from the second line of the log
 cpu_model_line = lines[1].strip() if len(lines) > 1 else "Unknown CPU Model"
-# Simplify CPU model name using regex
-cpu_model_pattern = r'(Intel\s+)?(Core|i\d+|Xeon)|(AMD\s+)?Ryzen\s+\d+X?\s+\d+-Core'
-cpu_model_match = re.search(cpu_model_pattern, cpu_model_line)
-cpu_model = cpu_model_match.group(0) if cpu_model_match else "Unknown CPU Model"
+print("Full CPU model line for debugging:", cpu_model_line)  # Print the full CPU model line for verification
 
-# Clean up the model name
-cpu_model = re.sub(r'\(TM\)|\(R\)|Processor', '', cpu_model).strip()
+# Clean up the model name from unnecessary parts and remove non-ASCII characters
+cpu_model = re.sub(r'\b(AMD|Intel|Threadripper|\(TM\)|\(R\)|Processor)\b', '', cpu_model_line).strip()
+cpu_model = re.sub(r'[^\x00-\x7F]', '', cpu_model)  # Remove non-ASCII characters
+cpu_model = re.sub(r'\s+', ' ', cpu_model).strip()  # Replace multiple spaces or tabs with a single space
+
+# Print the simplified CPU model for debugging
+print("CPU Model Extracted:", cpu_model)
 
 # Define the pattern to extract operations and their elapsed times
 pattern = re.compile(r'(\./inner_product_gmp_\d+_\w+) \d+ \d+\nElapsed time: ([\d.]+) s')
 
 # Extract data using the defined pattern
 data = pattern.findall(''.join(lines))
-
-# Print extracted data for debugging
-print("Extracted data:", data)
 
 # Organize data, removing 'inner_product' from the operation names
 operations = [op.replace('inner_product_', '') for op, _ in data]
