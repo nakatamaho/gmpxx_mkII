@@ -35,6 +35,11 @@ else:
 cpu_model = re.sub(r'\b(AMD|Intel|Threadripper|\(TM\)|\(R\)|Processor)\b', '', cpu_model_line).strip()
 cpu_model = re.sub(r'[^\x00-\x7F]', '', cpu_model)  # Remove non-ASCII characters
 cpu_model = cpu_model.replace('model name', '').strip()  # Remove 'model name:' prefix after regex clean-up
+cpu_model = re.sub(r'\d+(th|rd|st|nd)\b', '', cpu_model)  # Remove ordinal suffixes like 13th, 2nd, etc.
+cpu_model = cpu_model.replace('(R)', '').strip()
+cpu_model = cpu_model.replace('(TM)', '').strip()
+cpu_model = cpu_model.replace('CPU', '').strip()
+cpu_model = cpu_model.replace('Gen', '').strip()
 cpu_model = re.sub(r':', '', cpu_model)  # Remove :
 cpu_model = re.sub(r'\s+', ' ', cpu_model).strip()  # Replace multiple spaces with a single space
 
