@@ -12,13 +12,16 @@ file_path = sys.argv[1]
 
 # Read file contents
 with open(file_path, 'r') as file:
-    content = file.read()
+    lines = file.readlines()
+
+# Extract CPU model from the second line of the log
+cpu_model = lines[1].strip() if len(lines) > 1 else "Unknown CPU Model"
 
 # Define the pattern to extract operations and their elapsed times
 pattern = re.compile(r'(\./inner_product_gmp_\d+_\w+) \d+ \d+\nElapsed time: ([\d.]+) s')
 
 # Extract data using the defined pattern
-data = pattern.findall(content)
+data = pattern.findall(''.join(lines))
 
 # Print extracted data for debugging
 print("Extracted data:", data)
@@ -43,23 +46,12 @@ for op in operations:
 openmp_operations = [op for op in operations if 'openmp' in op]
 openmp_times = [times[i] for i, op in enumerate(operations) if 'openmp' in op]
 
-# Print organized operations and times for further debugging
-print("Operations:", operations)
-print("Elapsed Times:", times)
-print("OpenMP Operations:", openmp_operations)
-print("OpenMP Elapsed Times:", openmp_times)
-
-# Check if we have data to plot
-if not operations:
-    print("No data to plot.")
-    sys.exit(1)
-
 # Plotting all operations
 plt.figure(figsize=(14, 8))
 bars = plt.bar(operations, times, color=colors)
 plt.xlabel('Operation')
 plt.ylabel('Elapsed Time (s)')
-plt.title('Elapsed Time for Various GMP Operations in Inner Product Calculations')
+plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model}')
 plt.xticks(rotation=90)
 for bar, time in zip(bars, times):
     yval = bar.get_height()
@@ -68,19 +60,14 @@ plt.tight_layout()
 plt.savefig('all_operations_elapsed_times_chart.pdf')
 plt.close()
 
-# Plotting only "openmp" operations
+# Plotting only "openmp" operations if any exist
 if openmp_operations:
     plt.figure(figsize=(10, 6))
-    bars = plt.bar(openmp_operations, openmp_times, color=colors)	
+    plt.bar(openmp_operations, openmp_times, color=colors)
     plt.xlabel('Operation')
     plt.ylabel('Elapsed Time (s)')
-    plt.title('Elapsed Time for OpenMP GMP Operations in Inner Product Calculations')
+    plt.title(f'Elapsed Time for OpenMP GMP Operations on {cpu_model}')
     plt.xticks(rotation=90)
-    for bar, time in zip(bars, openmp_times):
-        yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, yval, round(time, 2), ha='center', va='bottom')
     plt.tight_layout()
     plt.savefig('openmp_operations_elapsed_times_chart.pdf')
     plt.close()
-else:
-    print("No OpenMP data to plot.")
