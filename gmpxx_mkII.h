@@ -63,19 +63,38 @@
 #if !defined ___GMPXX_DONT_USE_NAMESPACE___
 namespace gmp {
 #endif
-class gmpxx_defaults {
-  public:
-    static int base;
-    static inline void set_default_prec(const mp_bitcnt_t _prec) { mpf_set_default_prec(_prec); }
-    static inline void set_default_prec_raw(const mp_bitcnt_t prec_raw) { mpf_set_default_prec(prec_raw); }
-    static inline mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
-    static inline void set_default_base(const int _base) { base = _base; }
-};
 
 class mpz_class;
 class mpq_class;
 class mpf_class;
 
+struct gmpxx_defaults {
+    static void set_default_prec(int prec) { mpf_set_default_prec(prec); }
+    static void set_default_prec_raw(int prec) { mpf_set_default_prec(prec); }
+    static mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
+    inline static int base = 10;
+};
+template <typename T = void> class mpf_class_initializer {
+  public:
+    mpf_class_initializer() {
+        gmpxx_defaults::set_default_prec(512);
+        gmpxx_defaults::set_default_prec_raw(512);
+        gmpxx_defaults::base = 10;
+    }
+};
+template <typename T> inline mpf_class_initializer<T> global_mpf_class_initializer;
+namespace gmp {
+template <typename T = void> struct globals {
+    static mpf_class pi_cached;
+    static mpf_class e_cached;
+    static mpf_class log_cached;
+    static mpf_class log2_cached;
+};
+template <typename T> mpf_class globals<T>::pi_cached;
+template <typename T> mpf_class globals<T>::e_cached;
+template <typename T> mpf_class globals<T>::log_cached;
+template <typename T> mpf_class globals<T>::log2_cached;
+} // namespace gmp
 class mpz_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -2440,11 +2459,6 @@ class mpf_class {
 
   private:
     mpf_t value;
-
-    static mpf_class pi_cached;
-    static mpf_class e_cached;
-    static mpf_class log10_cached;
-    static mpf_class log2_cached;
 };
 // casts
 inline mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); }
@@ -3437,7 +3451,6 @@ inline std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
 }
 inline std::istream &operator>>(std::istream &stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
 inline std::istream &operator>>(std::istream &stream, mpf_class &op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
-mpf_class pi_cached;
 inline mpf_class const_pi() {
     static bool calculated = false;
     static mp_bitcnt_t calculated_pi_precision = 0;
@@ -3452,8 +3465,8 @@ inline mpf_class const_pi() {
         mpf_class four(4.0, _default_prec);
         mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(quarter, _default_prec), p(one, _default_prec);
         mpf_class a_next(zero, _default_prec), b_next(zero, _default_prec), t_next(zero, _default_prec), tmp_pi(zero, _default_prec), pi_previous(zero, _default_prec);
-        pi_cached.set_prec(_default_prec);
-        pi_cached = zero;
+        gmp::globals<>::pi_cached.set_prec(_default_prec);
+        gmp::globals<>::pi_cached = zero;
 
         bool converged = false;
         int iteration = 0;
@@ -3482,11 +3495,11 @@ inline mpf_class const_pi() {
             }
         }
         calculated = true;
-        pi_cached = tmp_pi;
+        gmp::globals<>::pi_cached = tmp_pi;
     } else {
         //      std::cout << "pi cached\n";
     }
-    return pi_cached;
+    return gmp::globals<>::pi_cached;
 }
 inline mpf_class const_pi(mp_bitcnt_t req_precision) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -3561,7 +3574,6 @@ inline mpf_class const_pi(mp_bitcnt_t req_precision) {
     return calculated_pi;
 }
 
-mpf_class log2_cached;
 inline mpf_class const_log2() {
     static mpf_class log2_cached;
     static bool calculated = false;
@@ -4746,30 +4758,4 @@ class numeric_limits<gmp::mpf_class> {
 };
 } // namespace std
 
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-int gmpxx_defaults::base;
-
-class mpf_class_initializer {
-  public:
-    mpf_class_initializer() {
-        gmpxx_defaults::set_default_prec(512);
-        gmpxx_defaults::set_default_prec_raw(512);
-        gmpxx_defaults::base = 10;
-    }
-};
-#else
-int gmp::gmpxx_defaults::base;
-
-class mpf_class_initializer {
-  public:
-    mpf_class_initializer() {
-        gmp::gmpxx_defaults::set_default_prec(512);
-        gmp::gmpxx_defaults::set_default_prec_raw(512);
-        gmp::gmpxx_defaults::base = 10;
-    }
-};
-#endif
-
-mpf_class_initializer global_mpf_class_initializer;
-
-#endif
+#endif // ___GMPXX_MKII_H___
