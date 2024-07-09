@@ -83,18 +83,18 @@ template <typename T = void> class mpf_class_initializer {
     }
 };
 template <typename T> inline mpf_class_initializer<T> global_mpf_class_initializer;
-namespace gmp {
-template <typename T = void> struct globals {
+
+template <typename T = void> struct caches {
     static mpf_class pi_cached;
     static mpf_class e_cached;
     static mpf_class log_cached;
     static mpf_class log2_cached;
 };
-template <typename T> mpf_class globals<T>::pi_cached;
-template <typename T> mpf_class globals<T>::e_cached;
-template <typename T> mpf_class globals<T>::log_cached;
-template <typename T> mpf_class globals<T>::log2_cached;
-} // namespace gmp
+template <typename T> mpf_class caches<T>::pi_cached;
+template <typename T> mpf_class caches<T>::e_cached;
+template <typename T> mpf_class caches<T>::log_cached;
+template <typename T> mpf_class caches<T>::log2_cached;
+
 class mpz_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -3465,8 +3465,8 @@ inline mpf_class const_pi() {
         mpf_class four(4.0, _default_prec);
         mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(quarter, _default_prec), p(one, _default_prec);
         mpf_class a_next(zero, _default_prec), b_next(zero, _default_prec), t_next(zero, _default_prec), tmp_pi(zero, _default_prec), pi_previous(zero, _default_prec);
-        gmp::globals<>::pi_cached.set_prec(_default_prec);
-        gmp::globals<>::pi_cached = zero;
+        caches<>::pi_cached.set_prec(_default_prec);
+        caches<>::pi_cached = zero;
 
         bool converged = false;
         int iteration = 0;
@@ -3495,11 +3495,11 @@ inline mpf_class const_pi() {
             }
         }
         calculated = true;
-        gmp::globals<>::pi_cached = tmp_pi;
+        caches<>::pi_cached = tmp_pi;
     } else {
         //      std::cout << "pi cached\n";
     }
-    return gmp::globals<>::pi_cached;
+    return caches<>::pi_cached;
 }
 inline mpf_class const_pi(mp_bitcnt_t req_precision) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
