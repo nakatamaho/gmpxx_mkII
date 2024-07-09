@@ -26,6 +26,9 @@
  *
  */
 
+#ifndef ___GMPXX_MKII_H___
+#define ___GMPXX_MKII_H___
+
 #if __cplusplus < 201703L
 #error "This class only runs on C++ 17 and later"
 #endif
@@ -1087,7 +1090,7 @@ inline mpz_class fibonacci(const mpz_class &op) {
     }
     return result;
 }
-void print_mpz(std::ostream &os, const mpz_t op) {
+inline void print_mpz(std::ostream &os, const mpz_t op) {
     std::ios_base::fmtflags flags = os.flags();
     std::streamsize width = os.width();
     char fill = os.fill();
@@ -1150,15 +1153,15 @@ void print_mpz(std::ostream &os, const mpz_t op) {
     os << s;
     os.width(0);
 }
-std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
+inline std::ostream &operator<<(std::ostream &os, const mpz_class &op) {
     print_mpz(os, op.get_mpz_t());
     return os;
 }
-std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
+inline std::ostream &operator<<(std::ostream &os, const mpz_t &op) {
     print_mpz(os, op);
     return os;
 }
-std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
+inline std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
     char ch;
     std::string number;
     bool negative = false;
@@ -1215,7 +1218,7 @@ std::istream &read_nofmtflags_mpz_from_stream(std::istream &stream, mpz_t op) {
     }
     return stream;
 }
-std::istream &read_base_mpz_from_stream(std::istream &stream, mpz_t op, int base = 10) {
+inline std::istream &read_base_mpz_from_stream(std::istream &stream, mpz_t op, int base = 10) {
     char ch;
     std::string number;
     bool negative = false;
@@ -1256,7 +1259,7 @@ std::istream &read_base_mpz_from_stream(std::istream &stream, mpz_t op, int base
     }
     return stream;
 }
-std::istream &read_mpz_from_stream(std::istream &stream, mpz_t op) {
+inline std::istream &read_mpz_from_stream(std::istream &stream, mpz_t op) {
     std::ios_base::fmtflags current_flags = stream.flags();
     if (current_flags == std::ios_base::fmtflags(0)) {
         return read_nofmtflags_mpz_from_stream(stream, op);
@@ -1268,8 +1271,8 @@ std::istream &read_mpz_from_stream(std::istream &stream, mpz_t op) {
     }
     return read_base_mpz_from_stream(stream, op);
 }
-std::istream &operator>>(std::istream &stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
-std::istream &operator>>(std::istream &stream, mpz_class &op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
+inline std::istream &operator>>(std::istream &stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
+inline std::istream &operator>>(std::istream &stream, mpz_class &op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
 class mpq_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -1706,7 +1709,7 @@ inline mpq_class abs(const mpq_class &op) {
     mpq_abs(rop.value, op.get_mpq_t());
     return rop;
 }
-void print_mpq(std::ostream &os, const mpq_t op) {
+inline void print_mpq(std::ostream &os, const mpq_t op) {
     std::ios_base::fmtflags flags = os.flags();
     std::streamsize width = os.width();
     char fill = os.fill();
@@ -1885,15 +1888,15 @@ void print_mpq(std::ostream &os, const mpq_t op) {
     os << s;
     os.width(0);
 }
-std::ostream &operator<<(std::ostream &os, const mpq_class &op) {
+inline std::ostream &operator<<(std::ostream &os, const mpq_class &op) {
     print_mpq(os, op.get_mpq_t());
     return os;
 }
-std::ostream &operator<<(std::ostream &os, const mpq_t &op) {
+inline std::ostream &operator<<(std::ostream &os, const mpq_t &op) {
     print_mpq(os, op);
     return os;
 }
-std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base = 10) {
+inline std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base = 10) {
     char ch;
     std::string number;
     mpz_ptr _numerator = mpq_numref(op);
@@ -1929,7 +1932,7 @@ std::istream &read_base_mpq_from_stream(std::istream &stream, mpq_t op, int base
     }
     return stream;
 }
-std::istream &read_nofmtflags_mpq_from_stream(std::istream &stream, mpq_t op) {
+inline std::istream &read_nofmtflags_mpq_from_stream(std::istream &stream, mpq_t op) {
     char ch;
     std::string number;
     mpz_ptr _numerator = mpq_numref(op);
@@ -1956,7 +1959,7 @@ std::istream &read_nofmtflags_mpq_from_stream(std::istream &stream, mpq_t op) {
         mpz_set_ui(_denominator, 1UL);
     return stream;
 }
-std::istream &read_mpq_from_stream(std::istream &stream, mpq_t op) {
+inline std::istream &read_mpq_from_stream(std::istream &stream, mpq_t op) {
     std::ios_base::fmtflags current_flags = stream.flags();
     if (current_flags == std::ios_base::fmtflags(0)) {
         return read_nofmtflags_mpq_from_stream(stream, op);
@@ -1968,8 +1971,8 @@ std::istream &read_mpq_from_stream(std::istream &stream, mpq_t op) {
     }
     return read_base_mpq_from_stream(stream, op);
 }
-std::istream &operator>>(std::istream &stream, mpq_t op) { return read_mpq_from_stream(stream, op); }
-std::istream &operator>>(std::istream &stream, mpq_class &op) { return read_mpq_from_stream(stream, op.get_mpq_t()); }
+inline std::istream &operator>>(std::istream &stream, mpq_t op) { return read_mpq_from_stream(stream, op); }
+inline std::istream &operator>>(std::istream &stream, mpq_class &op) { return read_mpq_from_stream(stream, op.get_mpq_t()); }
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -2444,12 +2447,12 @@ class mpf_class {
     static mpf_class log2_cached;
 };
 // casts
-mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); }
-mpf_class::operator mpz_class() const { return mpz_class(this->get_mpf_t()); }
-mpz_class::operator mpf_class() const { return mpf_class(this->get_mpz_t()); }
-mpq_class::operator mpf_class() const { return mpf_class(this->get_mpq_t()); }
-mpz_class::operator mpq_class() const { return mpq_class(this->get_mpz_t()); }
-mpq_class::operator mpz_class() const { return mpz_class(this->get_mpq_t()); }
+inline mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); }
+inline mpf_class::operator mpz_class() const { return mpz_class(this->get_mpf_t()); }
+inline mpz_class::operator mpf_class() const { return mpf_class(this->get_mpz_t()); }
+inline mpq_class::operator mpf_class() const { return mpf_class(this->get_mpq_t()); }
+inline mpz_class::operator mpq_class() const { return mpq_class(this->get_mpz_t()); }
+inline mpq_class::operator mpz_class() const { return mpz_class(this->get_mpq_t()); }
 
 inline int preccmp(const mpf_class &op1, const mpf_class &op2) {
     mp_bitcnt_t prec1 = op1.get_prec();
@@ -2985,7 +2988,7 @@ inline int sgn(const mpf_class &op) {
     int flag = mpf_sgn(op.get_mpf_t());
     return flag;
 }
-std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+inline std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
     char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec, value);
@@ -3063,7 +3066,7 @@ std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, i
     }
     return formatted_base;
 }
-mp_exp_t integraldigits_in_base(const mpf_t value, int base) {
+inline mp_exp_t integraldigits_in_base(const mpf_t value, int base) {
     mp_exp_t exp;
     mpf_get_d_2exp(&exp, value);
     if (mpf_sgn(value) == 0) {
@@ -3091,7 +3094,7 @@ mp_exp_t integraldigits_in_base(const mpf_t value, int base) {
     }
     return digits;
 }
-std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+inline std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
     mp_exp_t digits = integraldigits_in_base(value, base);
@@ -3168,7 +3171,7 @@ std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int
     }
     return formatted_base;
 }
-std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+inline std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags, int width, int prec, char fill) {
     // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
@@ -3244,7 +3247,7 @@ std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags
     }
     return formatted_base;
 }
-void print_mpf(std::ostream &os, const mpf_t op) {
+inline void print_mpf(std::ostream &os, const mpf_t op) {
     std::ios_base::fmtflags flags = os.flags();
     std::streamsize prec = os.precision();
     std::streamsize width = os.width();
@@ -3294,16 +3297,16 @@ void print_mpf(std::ostream &os, const mpf_t op) {
     os << s;
     os.width(0);
 }
-std::ostream &operator<<(std::ostream &os, const mpf_class &op) {
+inline std::ostream &operator<<(std::ostream &os, const mpf_class &op) {
     print_mpf(os, op.get_mpf_t());
     return os;
 }
-std::ostream &operator<<(std::ostream &os, const mpf_t &op) {
+inline std::ostream &operator<<(std::ostream &os, const mpf_t &op) {
     print_mpf(os, op);
     return os;
 }
-bool is_valid_number_char(char ch) { return std::isxdigit(ch) || ch == '.' || ch == 'p' || ch == 'P' || ch == '-' || ch == '+'; }
-void print_format_flags(std::ios_base::fmtflags flags) {
+inline bool is_valid_number_char(char ch) { return std::isxdigit(ch) || ch == '.' || ch == 'p' || ch == 'P' || ch == '-' || ch == '+'; }
+inline void print_format_flags(std::ios_base::fmtflags flags) {
     std::cout << "Current Format Flags:" << std::endl;
     if (flags & std::ios_base::dec)
         std::cout << "dec ";
@@ -3337,7 +3340,7 @@ void print_format_flags(std::ios_base::fmtflags flags) {
         std::cout << "floatfield ";
     std::cout << std::endl;
 }
-std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
+inline std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
     std::ios_base::fmtflags current_flags = stream.flags();
     if (current_flags & std::ios_base::oct || current_flags & std::ios_base::hex) {
         throw std::runtime_error("Unsupported number base for mpf_t");
@@ -3432,10 +3435,10 @@ std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
     }
     return stream;
 }
-std::istream &operator>>(std::istream &stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
-std::istream &operator>>(std::istream &stream, mpf_class &op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
+inline std::istream &operator>>(std::istream &stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
+inline std::istream &operator>>(std::istream &stream, mpf_class &op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
 mpf_class pi_cached;
-mpf_class const_pi() {
+inline mpf_class const_pi() {
     static bool calculated = false;
     static mp_bitcnt_t calculated_pi_precision = 0;
     mp_bitcnt_t _default_prec = mpf_get_default_prec();
@@ -3485,7 +3488,7 @@ mpf_class const_pi() {
     }
     return pi_cached;
 }
-mpf_class const_pi(mp_bitcnt_t req_precision) {
+inline mpf_class const_pi(mp_bitcnt_t req_precision) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
@@ -3559,7 +3562,7 @@ mpf_class const_pi(mp_bitcnt_t req_precision) {
 }
 
 mpf_class log2_cached;
-mpf_class const_log2() {
+inline mpf_class const_log2() {
     static mpf_class log2_cached;
     static bool calculated = false;
     static mp_bitcnt_t calculated_log2_precision = 0;
@@ -3602,7 +3605,7 @@ mpf_class const_log2() {
     }
     return log2_cached;
 }
-mpf_class const_log2(mp_bitcnt_t req_precision) {
+inline mpf_class const_log2(mp_bitcnt_t req_precision) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
 #endif
@@ -3662,7 +3665,7 @@ mpf_class const_log2(mp_bitcnt_t req_precision) {
 
     return log2;
 }
-mpf_class log(const mpf_class &x) {
+inline mpf_class log(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -3733,7 +3736,7 @@ mpf_class log(const mpf_class &x) {
 
     return _log;
 }
-mpf_class exp(const mpf_class &x) {
+inline mpf_class exp(const mpf_class &x) {
     // https://www.mpfr.org/algorithms.pdf section 4.4
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -3779,7 +3782,7 @@ mpf_class exp(const mpf_class &x) {
         _exp = one / _exp; // avoid cancellation of significant digits
     return _exp;
 }
-mpf_class mpf_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quotient_out = nullptr) {
+inline mpf_class mpf_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quotient_out = nullptr) {
     mpf_class quotient = x / y;
     mpz_class int_quotient(quotient);
     if (quotient_out) {
@@ -3795,7 +3798,7 @@ mpf_class mpf_remainder(const mpf_class &x, const mpf_class &y, mpz_class *quoti
     return remainder;
 }
 // Naive Taylor expansion version. It generates a very long series.
-mpf_class cos_taylor_naive(const mpf_class &x) {
+inline mpf_class cos_taylor_naive(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -3856,7 +3859,7 @@ mpf_class cos_taylor_naive(const mpf_class &x) {
     return cosx * symm_sign;
 }
 // Internal use only. calculate cos(x) where x is [-pi/2, pi/2).
-mpf_class cos_taylor_reduced(const mpf_class &x, bool addprec = false) {
+inline mpf_class cos_taylor_reduced(const mpf_class &x, bool addprec = false) {
     mp_bitcnt_t _req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(_req_precision == mpf_get_default_prec());
@@ -3911,7 +3914,7 @@ mpf_class cos_taylor_reduced(const mpf_class &x, bool addprec = false) {
     _s = s; // reduce the precision, may not be necessary but to be sure.
     return _s;
 }
-mpf_class cos_taylor(const mpf_class &x) {
+inline mpf_class cos_taylor(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -3948,10 +3951,10 @@ mpf_class cos_taylor(const mpf_class &x) {
     cosx = cos_taylor_reduced(x_reduced) * symm_sign;
     return cosx;
 }
-mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
-//mpf_class cos(const mpf_class &x) { return cos_taylor_naive(x); }
-// Naive Taylor expansion version. It generates a very long series.
-mpf_class sin_taylor_naive(const mpf_class &x) {
+inline mpf_class cos(const mpf_class &x) { return cos_taylor(x); }
+// mpf_class cos(const mpf_class &x) { return cos_taylor_naive(x); }
+//  Naive Taylor expansion version. It generates a very long series.
+inline mpf_class sin_taylor_naive(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4013,7 +4016,7 @@ mpf_class sin_taylor_naive(const mpf_class &x) {
     return sinx * symm_sign;
 }
 // assume x is in the interval [0, pi/2)
-mpf_class sinx_from_cos_internal(const mpf_class &x, bool addprec = false) {
+inline mpf_class sinx_from_cos_internal(const mpf_class &x, bool addprec = false) {
     mp_bitcnt_t _req_precision = x.get_prec();
     mpf_class _s(0.0, _req_precision);
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -4041,7 +4044,7 @@ mpf_class sinx_from_cos_internal(const mpf_class &x, bool addprec = false) {
         _s = s;
     return _s;
 }
-mpf_class sin_from_cos(const mpf_class &x) {
+inline mpf_class sin_from_cos(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4085,8 +4088,8 @@ mpf_class sin_from_cos(const mpf_class &x) {
     sinx = sinx_from_cos_internal(x_reduced);
     return sinx * symm_sign;
 }
-mpf_class sin(const mpf_class &x) { return sin_from_cos(x); }
-mpf_class tan_from_sin_cos(const mpf_class &x) {
+inline mpf_class sin(const mpf_class &x) { return sin_from_cos(x); }
+inline mpf_class tan_from_sin_cos(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4146,8 +4149,8 @@ mpf_class tan_from_sin_cos(const mpf_class &x) {
     tanx *= symm_sign;
     return tanx;
 }
-mpf_class tan(const mpf_class &x) { return tan_from_sin_cos(x); }
-mpf_class pow_from_exp_log(const mpf_class &x, const mpf_class &y) {
+inline mpf_class tan(const mpf_class &x) { return tan_from_sin_cos(x); }
+inline mpf_class pow_from_exp_log(const mpf_class &x, const mpf_class &y) {
     mp_bitcnt_t req_precision = x.get_prec();
     mp_bitcnt_t req_precision_y = y.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -4165,7 +4168,7 @@ mpf_class pow_from_exp_log(const mpf_class &x, const mpf_class &y) {
     result = exp(mpf_class(y_log_x));
     return result;
 }
-mpf_class pow(const mpf_class &x, const mpf_class &y) {
+inline mpf_class pow(const mpf_class &x, const mpf_class &y) {
     if (mpf_integer_p(y.get_mpf_t()) != 0) {
         if (y > 0) {
             unsigned long int y_uint = mpf_get_ui(y.get_mpf_t());
@@ -4183,7 +4186,7 @@ mpf_class pow(const mpf_class &x, const mpf_class &y) {
         return pow_from_exp_log(x, y);
     }
 }
-mpf_class log2_from_log(const mpf_class &x) {
+inline mpf_class log2_from_log(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4194,8 +4197,8 @@ mpf_class log2_from_log(const mpf_class &x) {
     result = log(x) / _log2;
     return result;
 }
-mpf_class log2(const mpf_class &x) { return log2_from_log(x); }
-mpf_class log10_from_log(const mpf_class &x) {
+inline mpf_class log2(const mpf_class &x) { return log2_from_log(x); }
+inline mpf_class log10_from_log(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4206,8 +4209,8 @@ mpf_class log10_from_log(const mpf_class &x) {
     result = log(x) / _log10;
     return result;
 }
-mpf_class log10(const mpf_class &x) { return log10_from_log(x); }
-mpf_class atan_AGM(const mpf_class &_x) {
+inline mpf_class log10(const mpf_class &x) { return log10_from_log(x); }
+inline mpf_class atan_AGM(const mpf_class &_x) {
     mp_bitcnt_t req_precision = _x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4263,7 +4266,7 @@ mpf_class atan_AGM(const mpf_class &_x) {
     atanx_refined = atanx - (tan(atanx) - _x) / (one + tan(atanx) * tan(atanx));
     return atanx_refined;
 }
-mpf_class atan2(const mpf_class &y, const mpf_class &x) {
+inline mpf_class atan2(const mpf_class &y, const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
     mp_bitcnt_t req_precision_y = y.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -4326,8 +4329,8 @@ mpf_class atan2(const mpf_class &y, const mpf_class &x) {
         return atan_AGM(y / x) - pi_;
     }
 }
-mpf_class atan(const mpf_class &x) { return atan_AGM(x); }
-mpf_class asin_AGM(const mpf_class &x) {
+inline mpf_class atan(const mpf_class &x) { return atan_AGM(x); }
+inline mpf_class asin_AGM(const mpf_class &x) {
     if (x < -1 || x > 1) {
         throw std::out_of_range("Error: x must be between -1 and 1.");
     }
@@ -4354,7 +4357,7 @@ mpf_class asin_AGM(const mpf_class &x) {
 
 // arcsin(x) using Taylor series expansion around x = 0
 // |x| \sim 1 there is a serious convergence problem
-mpf_class arcsin_taylor(const mpf_class &x) {
+inline mpf_class arcsin_taylor(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4413,8 +4416,8 @@ mpf_class arcsin_taylor(const mpf_class &x) {
     }
     return negative ? -arcsin_x : arcsin_x;
 }
-mpf_class asin(const mpf_class &x) { return asin_AGM(x); }
-mpf_class acos(const mpf_class &x) {
+inline mpf_class asin(const mpf_class &x) { return asin_AGM(x); }
+inline mpf_class acos(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4425,7 +4428,7 @@ mpf_class acos(const mpf_class &x) {
     acosx = half_pi - asin(x);
     return acosx;
 }
-mpf_class sinh(const mpf_class &x) {
+inline mpf_class sinh(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4436,7 +4439,7 @@ mpf_class sinh(const mpf_class &x) {
     exp_neg_x = exp(-x);
     return (exp_x - exp_neg_x) / 2;
 }
-mpf_class cosh(const mpf_class &x) {
+inline mpf_class cosh(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4447,7 +4450,7 @@ mpf_class cosh(const mpf_class &x) {
     exp_neg_x = exp(-x);
     return (exp_x + exp_neg_x) / 2;
 }
-mpf_class tanh(const mpf_class &x) {
+inline mpf_class tanh(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4458,7 +4461,7 @@ mpf_class tanh(const mpf_class &x) {
     cosh_x = cosh(x);
     return sinh_x / cosh_x;
 }
-mpf_class asinh(const mpf_class &x) {
+inline mpf_class asinh(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4470,7 +4473,7 @@ mpf_class asinh(const mpf_class &x) {
     result = log(x + sqrt_term);
     return result;
 }
-mpf_class acosh(const mpf_class &x) {
+inline mpf_class acosh(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4485,7 +4488,7 @@ mpf_class acosh(const mpf_class &x) {
     result = log(x + sqrt_term);
     return result;
 }
-mpf_class atanh(const mpf_class &x) {
+inline mpf_class atanh(const mpf_class &x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
     assert(req_precision == mpf_get_default_prec());
@@ -4576,21 +4579,21 @@ class gmp_randclass {
 // mpz_class operator"" _mpz (const char *str)
 // mpq_class operator"" _mpq (const char *str)
 #if defined ___GMPXX_DONT_USE_NAMESPACE___
-mpz_class operator"" _mpz(unsigned long long int val) { return mpz_class(static_cast<unsigned long int>(val)); }
-mpq_class operator"" _mpq(unsigned long long int val) { return mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
-mpf_class operator"" _mpf(long double val) { return mpf_class(static_cast<double>(val)); }
+inline mpz_class operator"" _mpz(unsigned long long int val) { return mpz_class(static_cast<unsigned long int>(val)); }
+inline mpq_class operator"" _mpq(unsigned long long int val) { return mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
+inline mpf_class operator"" _mpf(long double val) { return mpf_class(static_cast<double>(val)); }
 #else
-gmp::mpz_class operator"" _mpz(unsigned long long int val) { return gmp::mpz_class(static_cast<unsigned long int>(val)); }
-gmp::mpq_class operator"" _mpq(unsigned long long int val) { return gmp::mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
-gmp::mpf_class operator"" _mpf(long double val) { return gmp::mpf_class(static_cast<double>(val)); }
+inline gmp::mpz_class operator"" _mpz(unsigned long long int val) { return gmp::mpz_class(static_cast<unsigned long int>(val)); }
+inline gmp::mpq_class operator"" _mpq(unsigned long long int val) { return gmp::mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
+inline gmp::mpf_class operator"" _mpf(long double val) { return gmp::mpf_class(static_cast<double>(val)); }
 #endif
 // in the manual, the following functions are avilable, but actually not.
 // cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
 // "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
 #if !defined ___GMPXX_UDL_CHAR___
-gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
-gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpq_class(str); }
-gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
+inline gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
+inline gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpq_class(str); }
+inline gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
 #endif
 
 #if defined ___GMPXX_STRICT_COMPATIBILITY___
@@ -4768,3 +4771,5 @@ class mpf_class_initializer {
 #endif
 
 mpf_class_initializer global_mpf_class_initializer;
+
+#endif
