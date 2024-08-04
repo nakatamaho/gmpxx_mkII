@@ -58,7 +58,7 @@ for file_path in file_paths:
     data = pattern.findall(''.join(lines))
 
     # Organize data, removing 'inner_product' from the operation names
-    operations = [op.replace('inner_product_', '') for op, _ in data]
+    operations = [op.replace('./inner_product_gmp_', '') for op, _ in data]
     times = [float(time) for _, time in data]
 
     # Determine colors based on operation types
