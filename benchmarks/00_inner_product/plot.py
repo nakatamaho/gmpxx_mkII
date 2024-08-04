@@ -99,10 +99,11 @@ for file_path in file_paths:
     if openmp_operations:
         plt.figure(figsize=(10, 6))
         plt.bar(openmp_operations, openmp_times, color=colors)
-        plt.xlabel('Operation')
-        plt.ylabel('Elapsed Time (s)')
-        plt.title(f'Elapsed Time for OpenMP GMP Operations on {cpu_model} (dim={dim}, prec={prec})')
-        plt.xticks(rotation=90)
+        plt.xlabel('Operation', fontsize=14, fontweight='bold')
+        plt.ylabel('Elapsed Time (s)', fontsize=14, fontweight='bold')
+        plt.title(f'Elapsed Time for OpenMP GMP Operations on {cpu_model} (dim={dim}, prec={prec})', fontsize=16, fontweight='bold')
+        plt.xticks(rotation=90, fontsize=12, fontweight='bold')
+        plt.yticks(fontsize=12, fontweight='bold')
         plt.tight_layout()
         filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp)
