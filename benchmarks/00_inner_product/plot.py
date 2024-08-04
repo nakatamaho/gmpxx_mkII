@@ -84,7 +84,7 @@ for file_path in file_paths:
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
     plt.ylabel('Elapsed Time (s)', fontsize=14, fontweight='bold')
     plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={dim}, prec={prec})', fontsize=16, fontweight='bold')
-    plt.xticks(rotation=60, fontsize=12, fontweight='bold', ha='right')
+    plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
     plt.yticks(fontsize=12, fontweight='bold')
 
     for bar, time in zip(bars, times):
