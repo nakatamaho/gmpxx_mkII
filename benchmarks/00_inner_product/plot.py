@@ -84,12 +84,12 @@ for file_path in file_paths:
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
     plt.ylabel('Elapsed Time (s)', fontsize=14, fontweight='bold')
     plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={dim}, prec={prec})', fontsize=16, fontweight='bold')
-    plt.xticks(rotation=120, fontsize=12, fontweight='bold')
+    plt.xticks(rotation=60, fontsize=12, fontweight='bold')
     plt.yticks(fontsize=12, fontweight='bold')
 
     for bar, time in zip(bars, times):
         yval = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2, yval, round(time, 2), ha='center', va='bottom', fontsize=16)
+        plt.text(bar.get_x() + bar.get_width()/2, yval, round(time, 2), ha='center', va='bottom', fontsize=16,fontweight='bold')
     plt.tight_layout()
     filename = f'all_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
     plt.savefig(filename)
