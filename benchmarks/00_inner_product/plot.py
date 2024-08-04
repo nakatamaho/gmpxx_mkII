@@ -76,6 +76,7 @@ for file_path in file_paths:
     # Filter data for "openmp" operations
     openmp_operations = [op for op in operations if 'openmp' in op]
     openmp_times = [times[i] for i, op in enumerate(operations) if 'openmp' in op]
+    openmp_bars = plt.bar(openmp_operations, openmp_times, color=colors)
 
     # Plotting all operations
     plt.figure(figsize=(14, 8))
@@ -106,7 +107,7 @@ for file_path in file_paths:
         plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
         plt.yticks(fontsize=12, fontweight='bold')
 
-        for bar, time in zip(bars, openmp_times):
+        for bar, time in zip(openmp_bars, openmp_times):
             yval = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2, yval, f"{time:.2f}", ha='center', va='bottom', fontsize=16, fontweight='bold')
 
