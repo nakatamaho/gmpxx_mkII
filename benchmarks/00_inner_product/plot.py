@@ -99,7 +99,7 @@ for file_path in file_paths:
 
     # Plotting only "openmp" operations if any exist
     if openmp_operations:
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 9))
         plt.bar(openmp_operations, openmp_times, color=colors)
         plt.xlabel('Operation', fontsize=14, fontweight='bold')
         plt.ylabel('Elapsed Time (s)', fontsize=14, fontweight='bold')
