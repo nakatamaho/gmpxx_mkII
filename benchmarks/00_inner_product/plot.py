@@ -135,7 +135,7 @@ for file_path in file_paths:
             yval = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2, yval, f"{time:.2f}", ha='center', va='bottom', fontsize=15, fontweight='bold')
 
-        plt.subplots_adjust(bottom=0.4)
+        plt.subplots_adjust(bottom=0.4, right=0.75)
         for color, label in zip(legend_colors, legend_labels):
             plt.plot([], [], color=color, label=label, linewidth=10)
 
@@ -144,5 +144,5 @@ for file_path in file_paths:
             text.set_fontweight('bold')
 
         filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
-        plt.savefig(filename_openmp)
+        plt.savefig(filename_openmp, bbox_inches='tight')
         plt.close()
