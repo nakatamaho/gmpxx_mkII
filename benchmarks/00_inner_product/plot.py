@@ -131,12 +131,15 @@ for file_path in file_paths:
         plt.title(f'Elapsed Time for OpenMP GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
         plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
         plt.yticks(fontsize=12, fontweight='bold')
-
         for bar, time in zip(openmp_bars, openmp_times):
             yval = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2, yval, f"{time:.2f}", ha='center', va='bottom', fontsize=15, fontweight='bold')
 
         plt.subplots_adjust(bottom=0.3)
+        for color, label in zip(legend_colors, legend_labels):
+            plt.plot([], [], color=color, label=label, linewidth=10)
+            plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=12, frameon=False)
+
         filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp)
         plt.close()
