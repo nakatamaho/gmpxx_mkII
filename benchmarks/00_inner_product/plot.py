@@ -122,7 +122,7 @@ for file_path in file_paths:
 
     # Plotting only "openmp" operations if any exist
     if openmp_operations:
-        plt.figure(figsize=(15, 9))
+        plt.figure(figsize=(17, 9))
         openmp_bars = plt.bar(openmp_operations, openmp_times, color=openmp_colors)
 
         plt.bar(openmp_operations, openmp_times, color=openmp_colors)
