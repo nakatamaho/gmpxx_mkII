@@ -122,7 +122,7 @@ for file_path in file_paths:
 
     # Plotting only "openmp" operations if any exist
     if openmp_operations:
-        plt.figure(figsize=(12, 9))
+        plt.figure(figsize=(15, 9))
         openmp_bars = plt.bar(openmp_operations, openmp_times, color=openmp_colors)
 
         plt.bar(openmp_operations, openmp_times, color=openmp_colors)
@@ -138,7 +138,10 @@ for file_path in file_paths:
         plt.subplots_adjust(bottom=0.3)
         for color, label in zip(legend_colors, legend_labels):
             plt.plot([], [], color=color, label=label, linewidth=10)
-            plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=12, frameon=False)
+
+        legend = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=12, frameon=False)
+        for text in legend.get_texts():
+            text.set_fontweight('bold')
 
         filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp)
