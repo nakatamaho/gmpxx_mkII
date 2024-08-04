@@ -85,7 +85,7 @@ for file_path in file_paths:
     plt.ylabel('Elapsed Time (s)', fontsize=14, fontweight='bold')
     plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={dim}, prec={prec})', fontsize=16, fontweight='bold')
     plt.xticks(rotation=60, fontsize=12, fontweight='bold')
-    plt.yticks(fontsize=12, fontweight='bold')
+    plt.yticks(fontsize=12, fontweight='bold', ha='right')
 
     for bar, time in zip(bars, times):
         yval = bar.get_height()
