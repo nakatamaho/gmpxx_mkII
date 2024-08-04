@@ -72,15 +72,26 @@ for file_path in file_paths:
             colors.append('blue')
         else:
             colors.append('gray')  # Default color for operations that do not match any condition
+    bars = plt.bar(operations, times, color=colors)
 
     # Filter data for "openmp" operations
     openmp_operations = [op for op in operations if 'openmp' in op]
     openmp_times = [times[i] for i, op in enumerate(operations) if 'openmp' in op]
-    openmp_bars = plt.bar(openmp_operations, openmp_times, color=colors)
+
+    openmp_colors = []
+    for op in openmp_operations:
+        if 'mkIISR' in op:
+            openmp_colors.append('red')
+        elif 'mkII' in op:
+            openmp_colors.append('green')
+        elif 'orig' in op:
+            openmp_colors.append('blue')
+        else:
+            openmp_colors.append('gray')  # Default color for operations that do not match any condition
+    openmp_bars = plt.bar(openmp_operations, openmp_times, color=openmp_colors)
 
     # Plotting all operations
     plt.figure(figsize=(14, 8))
-    bars = plt.bar(operations, times, color=colors)
 
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
     plt.ylabel('Elapsed Time (s)', fontsize=16, fontweight='bold')
@@ -100,7 +111,7 @@ for file_path in file_paths:
     # Plotting only "openmp" operations if any exist
     if openmp_operations:
         plt.figure(figsize=(12, 9))
-        plt.bar(openmp_operations, openmp_times, color=colors)
+        plt.bar(openmp_operations, openmp_times, color=openmp_colors)
         plt.xlabel('Operation', fontsize=14, fontweight='bold')
         plt.ylabel('Elapsed Time (s)', fontsize=17, fontweight='bold')
         plt.title(f'Elapsed Time for OpenMP GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
