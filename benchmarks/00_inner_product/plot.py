@@ -82,7 +82,7 @@ for file_path in file_paths:
     bars = plt.bar(operations, times, color=colors)
 
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
-    plt.ylabel('Elapsed Time (s)', fontsize=14, fontweight='bold')
+    plt.ylabel('Elapsed Time (s)', fontsize=16, fontweight='bold')
     formatted_dim = "{:,}".format(int(dim))
     plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
     plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
