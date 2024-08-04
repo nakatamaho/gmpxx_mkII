@@ -107,7 +107,7 @@ for file_path in file_paths:
     plt.subplots_adjust(bottom=0.3)
 
     # Add legend bars on the right side
-    legend_labels = ['naive C', 'orig', 'mkII', 'mkIISR']
+    legend_labels = ['naive C', 'orig(gmpxx.h)', 'mkII(gmpxx_mkII.h)', 'mkIISR(gmpxx_mkII.h)']
     legend_colors = ['gray', 'blue', 'green', 'red' ]
     for color, label in zip(legend_colors, legend_labels):
         plt.plot([], [], color=color, label=label, linewidth=10)
