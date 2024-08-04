@@ -89,7 +89,7 @@ for file_path in file_paths:
             openmp_colors.append('gray')  # Default color for operations that do not match any condition
 
     # Plotting all operations
-    plt.figure(figsize=(14.5, 8))
+    plt.figure(figsize=(15, 8))
     bars = plt.bar(operations, times, color=colors)
 
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
