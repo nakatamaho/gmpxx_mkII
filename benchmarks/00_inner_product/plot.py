@@ -111,6 +111,7 @@ for file_path in file_paths:
             yval = bar.get_height()
             plt.text(bar.get_x() + bar.get_width()/2, yval, f"{time:.2f}", ha='center', va='bottom', fontsize=16, fontweight='bold')
 
+        plt.subplots_adjust(bottom=0.3)
         filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp)
         plt.close()
