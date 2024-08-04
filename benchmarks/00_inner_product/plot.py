@@ -107,11 +107,13 @@ for file_path in file_paths:
     plt.subplots_adjust(bottom=0.3)
 
     # Add legend bars on the right side
-    legend_labels = ['naive', 'orig', 'mkII', 'mkIISR']
+    legend_labels = ['naive C', 'orig', 'mkII', 'mkIISR']
     legend_colors = ['gray', 'blue', 'green', 'red' ]
     for color, label in zip(legend_colors, legend_labels):
         plt.plot([], [], color=color, label=label, linewidth=10)
-    plt.legend(loc='upper right', bbox_to_anchor=(1, 1), fontsize=12, frameon=False)
+    legend = plt.legend(loc='upper right', bbox_to_anchor=(1, 1), fontsize=12, frameon=False)
+    for text in legend.get_texts():
+        text.set_fontweight('bold')
 
     filename = f'all_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
     plt.savefig(filename)
