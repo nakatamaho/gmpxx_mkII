@@ -106,6 +106,10 @@ for file_path in file_paths:
         plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
         plt.yticks(fontsize=12, fontweight='bold')
 
+        for bar, time in zip(bars, openmp_times):
+            yval = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2, yval, f"{time:.2f}", ha='center', va='bottom', fontsize=16, fontweight='bold')
+
         plt.tight_layout()
         filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp)
