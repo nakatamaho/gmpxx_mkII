@@ -98,13 +98,14 @@ for file_path in file_paths:
     plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
     plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
     plt.yticks(fontsize=12, fontweight='bold')
+    plt.ylim(0, max(times) * 1.1)
 
     for bar, time in zip(bars, times):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width()/2, yval, f"{time:.2f}", ha='center', va='bottom', fontsize=16, fontweight='bold')
 
     # Adjust the subplot parameters to give more space at the bottom
-    plt.subplots_adjust(bottom=0.3)
+    plt.subplots_adjust(bottom=0.4)
 
     # Add legend bars on the right side
     legend_labels = ['naive C', 'orig(gmpxx.h)', 'mkII(gmpxx_mkII.h)', 'mkIISR(gmpxx_mkII.h)']
