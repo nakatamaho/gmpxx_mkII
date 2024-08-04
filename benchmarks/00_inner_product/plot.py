@@ -80,10 +80,12 @@ for file_path in file_paths:
     # Plotting all operations
     plt.figure(figsize=(14, 8))
     bars = plt.bar(operations, times, color=colors)
-    plt.xlabel('Operation')
-    plt.ylabel('Elapsed Time (s)')
-    plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={dim}, prec={prec})')
-    plt.xticks(rotation=90)
+
+    plt.xlabel('Operation', fontsize=14, fontweight='bold')
+    plt.ylabel('Elapsed Time (s)', fontsize=14, fontweight='bold')
+    plt.title(f'Elapsed Time for Various GMP Operations on {cpu_model} (dim={dim}, prec={prec})', fontsize=16, fontweight='bold')
+    plt.xticks(rotation=90, fontsize=12, fontweight='bold')
+
     for bar, time in zip(bars, times):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width()/2, yval, round(time, 2), ha='center', va='bottom')
