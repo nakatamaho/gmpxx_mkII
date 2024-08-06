@@ -74,32 +74,66 @@ struct gmpxx_defaults {
     static mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
     inline static int base = 10;
 };
-template <typename T = void> class mpf_class_initializer {
+class mpf_class_initializer {
   public:
     mpf_class_initializer() {
-        gmpxx_defaults::set_default_prec(512);
-        gmpxx_defaults::set_default_prec_raw(512);
+        int prec = 512;
+        int prec_raw = 512;
+
+        const char *prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
+        const char *prec_raw_env = std::getenv("GMPXX_MKII_DEFAULT_PREC_RAW");
+
+        if (prec_env) {
+            try {
+                int prec_val = std::stoi(prec_env);
+                if (prec_val > 0) {
+                    prec = prec_val;
+                } else {
+                    throw std::invalid_argument("Precision must be a positive integer.");
+                }
+            } catch (const std::exception &e) {
+                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC value: " << e.what() << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+        }
+
+        if (prec_raw_env) {
+            try {
+                int prec_raw_val = std::stoi(prec_raw_env);
+                if (prec_raw_val > 0) {
+                    prec_raw = prec_raw_val;
+                } else {
+                    throw std::invalid_argument("Raw precision must be a positive integer.");
+                }
+            } catch (const std::exception &e) {
+                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC_RAW value: " << e.what() << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+        }
+
+        gmpxx_defaults::set_default_prec(prec);
+        gmpxx_defaults::set_default_prec_raw(prec_raw);
         gmpxx_defaults::base = 10;
     }
 };
-template <typename T> inline mpf_class_initializer<T> global_mpf_class_initializer;
+inline mpf_class_initializer global_mpf_class_initializer;
 class mpf_class_initializer_singleton {
   public:
     static mpf_class_initializer_singleton &instance() {
         static mpf_class_initializer_singleton instance;
         return instance;
     }
+    static void initialize() { instance(); }
 
   private:
-    mpf_class_initializer_singleton() { (void)global_mpf_class_initializer<void>; }
+    mpf_class_initializer_singleton() { (void)global_mpf_class_initializer; }
     mpf_class_initializer_singleton(const mpf_class_initializer_singleton &) = delete;
     mpf_class_initializer_singleton &operator=(const mpf_class_initializer_singleton &) = delete;
 };
-#define ___GMPXX_MKII_INITIALIZER___ mpf_class_initializer_singleton::instance()
-
 namespace {
-const auto &initializer = ___GMPXX_MKII_INITIALIZER___;
+const auto &initializer = mpf_class_initializer_singleton::instance();
 }
+#define ___GMPXX_MKII_INITIALIZER___ mpf_class_initializer_singleton::instance()
 
 template <typename T = void> struct caches {
     static mpf_class pi_cached;

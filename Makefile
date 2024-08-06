@@ -8,6 +8,7 @@ TARGET = test_gmpxx_mkII
 TARGET_ORIG = test_gmpxx
 TARGET_COMPAT = test_gmpxx_compat
 TARGET_MKIISR = test_gmpxx_mkIISR
+TARGET_TEST_ENV = test_env
 
 GMPXX_MODE_ORIGINAL = -DUSE_ORIGINAL_GMPXX
 GMPXX_MODE_COMPAT = -D___GMPXX_POSSIBLE_BUGS___ -D___GMPXX_STRICT_COMPATIBILITY___
@@ -20,6 +21,8 @@ OBJECTS = $(SOURCES:.cpp=.o)
 OBJECTS_ORIG = $(SOURCES:.cpp=_orig.o)
 OBJECTS_COMPAT = $(SOURCES:.cpp=_compat.o)
 OBJECTS_MKIISR = $(SOURCES:.cpp=_mkiisr.o)
+
+SOURCE_TEST_ENV = test_env.cpp
 
 ORIG_TESTS_DIR = orig_tests/cxx
 ORIG_TESTS_SOURCES = $(wildcard $(ORIG_TESTS_DIR)/*.cc)
@@ -40,8 +43,7 @@ BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_20_mpblas_orig gemm_g
 BENCHMARKS03_2 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_21_mpblas_openmp_orig gemm_gmp_21_mpblas_openmp_mkII gemm_gmp_21_mpblas_openmp_mkIISR)
 BENCHMARKS03_3 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
 
-
-all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
+all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RPATH_FLAGS)
@@ -63,6 +65,9 @@ $(OBJECTS_COMPAT): $(SOURCES) $(HEADERS)
 
 $(TARGET_MKIISR): $(OBJECTS_MKIISR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $(TARGET_MKIISR) $(OBJECTS_MKIISR) $(LDFLAGS) $(RPATH_FLAGS)
+
+$(TARGET_TEST_ENV): $(SOURCE_TEST_ENV) $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET_TEST_ENV) $(SOURCE_TEST_ENV) $(LDFLAGS) $(RPATH_FLAGS)
 
 $(OBJECTS_MKIISR): $(SOURCES) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -c $(SOURCES) -o $@
@@ -172,6 +177,24 @@ check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG
 	for test in $^ ; do \
 		echo "./$$test"; ./$$test ; \
 	done
+
+check_env: $(TARGET)
+	@unset GMPXX_MKII_DEFAULT_PREC; \
+	 unset GMPXX_MKII_DEFAULT_PREC_RAW; \
+	 ./$(TARGET) > output.txt; \
+	 grep "Default precision: 512" output.txt && echo "Test 1 passed!" || echo "Test 1 failed!"
+	@export GMPXX_MKII_DEFAULT_PREC=256; \
+	 export GMPXX_MKII_DEFAULT_PREC_RAW=256; \
+	 ./$(TARGET) > output.txt; \
+	 grep "Default precision: 256" output.txt && echo "Test 2 passed!" || echo "Test 2 failed!"
+	@export GMPXX_MKII_DEFAULT_PREC=1024; \
+	 export GMPXX_MKII_DEFAULT_PREC_RAW=1024; \
+	 ./$(TARGET) > output.txt; \
+	 grep "Default precision: 1024" output.txt && echo "Test 3 passed!" || echo "Test 3 failed!"
+	@export GMPXX_MKII_DEFAULT_PREC=0.5; \
+	 export GMPXX_MKII_DEFAULT_PREC_RAW=HOGE; \
+	 ./$(TARGET) > output.txt 2>&1 || true; \
+	 grep "Error: Invalid GMPXX_MKII_DEFAULT_PREC value" output.txt && echo "Test 4 passed!" || echo "Test 4 failed!"
 
 examples: $(EXAMPLES_EXECUTABLES)
 
