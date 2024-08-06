@@ -83,6 +83,23 @@ template <typename T = void> class mpf_class_initializer {
     }
 };
 template <typename T> inline mpf_class_initializer<T> global_mpf_class_initializer;
+class mpf_class_initializer_singleton {
+  public:
+    static mpf_class_initializer_singleton &instance() {
+        static mpf_class_initializer_singleton instance;
+        return instance;
+    }
+
+  private:
+    mpf_class_initializer_singleton() { (void)global_mpf_class_initializer<void>; }
+    mpf_class_initializer_singleton(const mpf_class_initializer_singleton &) = delete;
+    mpf_class_initializer_singleton &operator=(const mpf_class_initializer_singleton &) = delete;
+};
+#define ___GMPXX_MKII_INITIALIZER___ mpf_class_initializer_singleton::instance()
+
+namespace {
+const auto &initializer = ___GMPXX_MKII_INITIALIZER___;
+}
 
 template <typename T = void> struct caches {
     static mpf_class pi_cached;
