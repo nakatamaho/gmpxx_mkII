@@ -195,6 +195,10 @@ check_env: $(TARGET)
 	 export GMPXX_MKII_DEFAULT_PREC_RAW=HOGE; \
 	 ./$(TARGET) > output.txt 2>&1 || true; \
 	 grep "Error: Invalid GMPXX_MKII_DEFAULT_PREC value" output.txt && echo "Test 4 passed!" || echo "Test 4 failed!"
+	@export GMPXX_MKII_DEFAULT_PREC=3; \
+	 export GMPXX_MKII_DEFAULT_PREC_RAW=0.5; \
+	 ./$(TARGET) > output.txt 2>&1 || true; \
+	 grep "Error: Invalid GMPXX_MKII_DEFAULT_PREC_RAW value" output.txt && echo "Test 5 passed!" || echo "Test 5 failed!"
 
 examples: $(EXAMPLES_EXECUTABLES)
 

@@ -79,38 +79,41 @@ class mpf_class_initializer {
     mpf_class_initializer() {
         int prec = 512;
         int prec_raw = 512;
+
         const char *prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
         const char *prec_raw_env = std::getenv("GMPXX_MKII_DEFAULT_PREC_RAW");
+
         if (prec_env) {
-            try {
+            if (is_positive_integer(prec_env)) {
                 int prec_val = std::stoi(prec_env);
                 if (prec_val > 0) {
                     prec = prec_val;
-                } else {
-                    throw std::invalid_argument("Precision must be a positive integer.");
                 }
-            } catch (const std::exception &e) {
-                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC value: " << e.what() << std::endl;
+            } else {
+                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC value: must be a positive integer." << std::endl;
                 std::exit(EXIT_FAILURE);
             }
         }
+
         if (prec_raw_env) {
-            try {
+            if (is_positive_integer(prec_raw_env)) {
                 int prec_raw_val = std::stoi(prec_raw_env);
                 if (prec_raw_val > 0) {
                     prec_raw = prec_raw_val;
-                } else {
-                    throw std::invalid_argument("Raw precision must be a positive integer.");
                 }
-            } catch (const std::exception &e) {
-                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC_RAW value: " << e.what() << std::endl;
+            } else {
+                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC_RAW value: must be a positive integer." << std::endl;
                 std::exit(EXIT_FAILURE);
             }
         }
+
         gmpxx_defaults::set_default_prec(prec);
         gmpxx_defaults::set_default_prec_raw(prec_raw);
         gmpxx_defaults::base = 10;
     }
+
+  private:
+    bool is_positive_integer(const std::string &s) { return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit); }
 };
 inline mpf_class_initializer global_mpf_class_initializer;
 class mpf_class_initializer_singleton {
