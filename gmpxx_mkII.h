@@ -79,10 +79,8 @@ class mpf_class_initializer {
     mpf_class_initializer() {
         int prec = 512;
         int prec_raw = 512;
-
         const char *prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
         const char *prec_raw_env = std::getenv("GMPXX_MKII_DEFAULT_PREC_RAW");
-
         if (prec_env) {
             try {
                 int prec_val = std::stoi(prec_env);
@@ -96,7 +94,6 @@ class mpf_class_initializer {
                 std::exit(EXIT_FAILURE);
             }
         }
-
         if (prec_raw_env) {
             try {
                 int prec_raw_val = std::stoi(prec_raw_env);
@@ -110,7 +107,6 @@ class mpf_class_initializer {
                 std::exit(EXIT_FAILURE);
             }
         }
-
         gmpxx_defaults::set_default_prec(prec);
         gmpxx_defaults::set_default_prec_raw(prec_raw);
         gmpxx_defaults::base = 10;
