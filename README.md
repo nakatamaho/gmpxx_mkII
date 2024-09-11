@@ -1,6 +1,6 @@
 ## gmpxx_mkII.h: Yet Another GMP C++ Wrapper for High-Precision Calculations
 
-#### Overview
+### Overview
 
 `gmpxx_mkII` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, which is licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
