@@ -68,7 +68,50 @@ When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lg
 
 ## Improvements from original gmpxx.h
 
-One of the key enhancements in `gmpxx_mkII.h` over the original `gmpxx.h` is the extension of mathematical functions without the limitations previously noted in the GMP C++ interface. The updated version includes a broader range of functions such as `log`, `log2`, `log10`, `exp`, `pow`, `cos`, `sin`, `asin`, `acos`, `atan`, `atan2`, `cosh`, `sinh`, `tanh`, `acosh`, `asinh`, and `atanh`. These improvements allow for more robust and versatile mathematical computations, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations.
+### Enhanced Mathematical Functions
+
+One of the major enhancements introduced with `gmpxx_mkII.h` over the original `gmpxx.h` is the significant expansion of available mathematical functions, removing the limitations previously noted in the GMP C++ interface. The improved version now supports a broader array of functions, enhancing the capability for more robust and versatile mathematical computations. These functions include:
+
+- **Logarithmic Functions:** `log`, `log2`, `log10`
+- **Exponential and Power Functions:** `exp`, `pow`
+- **Trigonometric Functions:** `cos`, `sin`, `tan`, `acos`, `asin`, `atan`, `atan2`
+- **Hyperbolic Functions:** `cosh`, `sinh`, `tanh`, `acosh`, `asinh`, `atanh`
+
+Each of these additions enhances the toolkit available to developers, enabling more complex and precise calculations directly within the C++ environment, without the need for additional libraries or workarounds. This expansion not only increases the utility of the library but also ensures that developers can tackle a wider range of mathematical challenges with ease.
+
+### No C++ Interface Limitations
+
+`gmpxx_mkII` significantly expands the capabilities of the standard GMP C++ bindings, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations, providing greater flexibility and precision in mathematical computations.
+
+#### Example: Calculating Minimum Values
+Here is a simple example demonstrating how to use `gmpxx_mkII` to perform arithmetic operations and comparisons more intuitively:
+
+```cpp
+#if defined USE_ORIGINAL_GMPXX
+#include <gmpxx.h>
+#else
+#include "gmpxx_mkII.h"
+using namespace gmp;
+#endif
+
+#include <iostream>
+#include <algorithm>
+
+int main() {
+    // Initialize mpf_class variables
+    mpf_class a = 1.0, b = 2.0, c = 3.0, d;
+
+    // Calculate the minimum between 'a' and the sum of 'b' and 'c'
+    d = std::min(a, b + c);
+
+    // Output the result to the console
+    std::cout << "The minimum of " << a << " and the sum of " << b << " and " << c << " is " << d << std::endl;
+
+    return 0;
+}
+```
+
+This code snippet showcases how `gmpxx_mkII.h` can be seamlessly integrated into typical C++ programs, allowing the use of standard algorithms like `std::min` with `mpf_class` objects to perform high-precision arithmetic operations efficiently.
 
 ## Compatibility Differences from Original gmpxx.h
 
