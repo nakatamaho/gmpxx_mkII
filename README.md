@@ -1,21 +1,21 @@
-Yet another GMP C++ wrapper for High-Precision Calculations
-# Overview
+# Yet Another GMP C++ Wrapper for High-Precision Calculations
 
-The gmpxx_mkII is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library licensed under 2-clause BSD license. 
-MPFR is a C library for multiple-precision floating-point computations with correct rounding. This class provides a convenient C++ wrapper around the MPFR library's functionalities.
-Features
-    
-    * licensed under the 2-clause BSD License.
-    * written from scratch
-    * Easy-to-use interface for multiple-precision arithmetic.
-    * Integration with MPFR library's multiple-precision types.
-    * Exception safety and efficient memory management.
-    * Support for copy and move semantics.
+## Overview
 
-# Requirements
+`gmpxx_mkII` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, which is licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
-    C++17 or higher.
-    MPFR library installed on your system.
+### Features
+
+- High-level source compatibility with `gmpxx.h`
+- Implementation of trigonometric (sin, cos, tan, asin, acos, atan, etc.) and transcendental functions (log, exp)
+- Licensed under the 2-clause BSD License
+- Written from scratch
+
+## Requirements
+
+- C++17 or higher
+
+---
 
 # Installation
 
