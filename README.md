@@ -69,13 +69,13 @@ When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lg
 
 ## Improvements from original gmpxx.h
 
-In `gmpxx_mkII.h`, significant performance improvements have been observed, particularly in single-core computations for inner products, where speed enhancements of up to 25% compared (mkIISR mode) to gmpxx.h have been noted. This increase in efficiency primarily results from the elimination of complex macro expansions, which are not required in the new implementation. However, in multi-core scenarios, the performance of gmpxx_mkII.h is approximately the same as that of the original gmpxx.h.
-
 ### Performance Improvements
 
-In `gmpxx_mkII.h`, significant performance improvements have been observed, particularly in single-core computations for inner products, where enhancements of up to 25% compared to `gmpxx.h` have been recorded with mkIISR mode. This increase in efficiency primarily stems from the elimination of complex macro expansions, which are not required in the new implementation. However, in multi-core scenarios, the performance of `gmpxx_mkII.h` remains roughly equivalent to that of the original `gmpxx.h`.
+In gmpxx_mkII.h, we have observed significant performance improvements, particularly in single-core computations for inner products. When operating in mkIISR mode, enhancements of up to 25% compared to gmpxx.h have been documented. This increase in efficiency is primarily attributed to the elimination of complex macro expansions, which are not required in the new implementation. However, in multi-core scenarios, the performance of gmpxx_mkII.h is roughly equivalent to that of the original gmpxx.h.
 
 For detailed benchmarking results, particularly those conducted on a Ryzen 3970X 32-Core processor, please refer to the following [benchmark report](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_inner_product/all_operations_Ryzen_3970X_32-Core_500000000_512.pdf).
+
+While our benchmarking efforts have been extensive, we acknowledge that not all performance areas have been thoroughly explored yet. Notably, in some cases, such as matrix-matrix operations, the performance has been observed to be  inferior to that of the original `gmpxx.h`. Further investigation and optimization are underway to address these discrepancies.
 
 ### Enhanced Mathematical Functions
 
