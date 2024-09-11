@@ -8,7 +8,7 @@
 
 - **High-Level Source Compatibility:** Highly compatible with `gmpxx.h`, ensuring a smooth transition from the original GMP C++ wrapper.
 - **Provides three modes**: mkII mode (default), mkIISR mode (no-precision-change-mode), and compatibility mode (does not use namespace and no enhancements).
-- ** Enhanced Performance **: In mkIISR mode (no-precision-change mode), gmpxx_mkII. h often exhibits faster performance compared to the original gmpxx.h, although results may vary. This model is designed for scenarios requiring stable precision settings, contributing to its generally superior performance metrics.
+- **Enhanced Performance**: In mkIISR mode (no-precision-change mode), gmpxx_mkII. h often exhibits faster performance compared to the original gmpxx.h, although results may vary. This model is designed for scenarios requiring stable precision settings, contributing to its generally superior performance metrics.
 - **Comprehensive Mathematical Functions:** This includes implementations of trigonometric functions (sin, cos, tan, asin, acos, atan) and transcendental functions (log, exp), enhancing the library's utility for complex calculations.
 - **Straightforward Coding Style:** Implemented as typical classes without using (very complex) macros or lazy evaluation, prioritizing clarity and maintainability in the code.
 - **Header-Only Library:** This library eliminates the need for the `libgmpxx` library, simplifying integration and deployment.
