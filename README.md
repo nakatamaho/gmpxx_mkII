@@ -70,7 +70,7 @@ When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lg
 
 One of the key enhancements in `gmpxx_mkII` over the original `gmpxx.h` is the extension of mathematical functions without the limitations previously noted in the GMP C++ interface. The updated version includes a broader range of functions such as `log`, `log2`, `log10`, `exp`, `pow`, `cos`, `sin`, `asin`, `acos`, `atan`, `atan2`, `cosh`, `sinh`, `tanh`, `acosh`, `asinh`, and `atanh`. These improvements allow for more robust and versatile mathematical computations, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations.
 
-### Compatibility Differences from Original gmpxx.h
+## Compatibility Differences from Original gmpxx.h
 
 `gmpxx_mkII` introduces several modifications to behavior and functionality when compared to the original `gmpxx.h`. These changes are designed to improve predictability and align more closely with standard C++ practices, but they also affect how certain operations are handled:
 
