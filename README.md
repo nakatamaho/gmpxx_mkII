@@ -22,7 +22,8 @@
 To install this library, first clone the repository and then use the make install command:
 
 ```bash
-git clone https://github.com/nakatamaho/gmpxx_mkII.git ; sudo make PREFIX=/usr/local install
+git clone https://github.com/nakatamaho/gmpxx_mkII.git
+sudo make PREFIX=/usr/local install
 ```
 
 This will copy `gmpxx_mkII.h` to the appropriate location on your system.
@@ -31,30 +32,28 @@ This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 
 To effectively use `gmpxx_mkII` in your C++ projects, you will need to adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
 
-#### mkII Mode (Default)
+- **Default Operation**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
+  
+  ```cpp
+  #include <gmpxx_mkII.h>
+  using namespace gmp;  // Simplifies access to the library's functionalities
+  ```
+  
+  This setup allows you to use all the functions and classes in `gmpxx_mkII` without needing to prefix them with `gmp::`.
 
-This is the default mode of operation which provides enhanced functionalities and optimizations over the original `gmpxx.h`.
+- **No-Precision-Change Mode (`mkIISR`)**: Designed for scenarios where you require strict control over precision settings, ensuring that there are no automatic adjustments by the library.
+  
+  ```cpp
+  #include <gmpxx_mkII.h>
+  #define GMPXX_MKIISR  // Enable mkIISR mode at the preprocessor level
+  using namespace gmp;
+  ```
+  
+  In this mode, make sure to define `GMPXX_MKIISR` before including the header file to activate the specific functionalities.
 
-```cpp
-#include <gmpxx_mkII.h>
-using namespace gmp;  // Simplifies access to the library's functionalities
-```
+This format will improve readability and organization, making it clearer how to use each mode.
 
-This setup allows you to use all the functions and classes in `gmpxx_mkII` without needing to prefix them with `gmp::`.
-
-#### mkIISR Mode
-
-The No-Precision-Change Mode (`mkIISR`) is designed for scenarios where you require strict control over precision settings, ensuring that there are no automatic adjustments by the library.
-
-```cpp
-#include <gmpxx_mkII.h>
-#define GMPXX_MKIISR  // Enable mkIISR mode at the preprocessor level
-using namespace gmp;
-```
-
-In this mode, make sure to define `GMPXX_MKIISR` before including the header file to activate the specific functionalities.
-
-#### Compatibility Mode
+ - ** Compatibility Mode**:
 
 The Compatibility Mode is intended for those who need strict backward compatibility with older versions of the `gmpxx.h` library without utilizing namespaces.
 
