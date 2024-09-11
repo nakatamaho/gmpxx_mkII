@@ -2,12 +2,13 @@
 
 ## Overview
 
-`gmpxx_mkII.h` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, which is licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
+`gmpxx_mkII.h` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
 ## Features
 
 - **High-Level Source Compatibility:** Highly compatible with `gmpxx.h`, ensuring a smooth transition from the original GMP C++ wrapper.
-- **Provides three modes**: mkII mode (default), mkIISR mode (no-precision-change-mode; usually faster than original `gmpxx.h`), and compatibility mode (does not use namespace and no enhancements)
+- **Provides three modes**: mkII mode (default), mkIISR mode (no-precision-change-mode), and compatibility mode (does not use namespace and no enhancements).
+- ** Enhanced Performance **: In mkIISR mode (no-precision-change mode), gmpxx_mkII. h often exhibits faster performance compared to the original gmpxx.h, although results may vary. This model is designed for scenarios requiring stable precision settings, contributing to its generally superior performance metrics.
 - **Comprehensive Mathematical Functions:** This includes implementations of trigonometric functions (sin, cos, tan, asin, acos, atan) and transcendental functions (log, exp), enhancing the library's utility for complex calculations.
 - **Straightforward Coding Style:** Implemented as typical classes without using (very complex) macros or lazy evaluation, prioritizing clarity and maintainability in the code.
 - **Header-Only Library:** This library eliminates the need for the `libgmpxx` library, simplifying integration and deployment.
@@ -43,7 +44,7 @@ The default precision is 512 bits = 154 decimal significant digits.
   using namespace gmp;  // Simplifies access to the library's functionalities
   ```
   
-  This setup allows you to use all the functions and classes in `gmpxx_mkII.h` without needing to prefix them with `gmp::`.
+  This setup allows you to use all the functions and classes in `gmpxx_mkII.h` without prefixing them with `gmp::`.
 
 - **mkIISR mode (No-Precision-Change Mode)**: Designed for scenarios where precision settings must be explicitly controlled, this mode assumes changes to precision are made only through environment variables or directly at runtime during the main function's execution, ensuring that the library does not make any automatic adjustments.
   
@@ -59,13 +60,13 @@ The default precision is 512 bits = 154 decimal significant digits.
   ```cpp
   #include <gmpxx_mkII.h>
   ```
-  Compatibility Mode is designed for those who require strict backward compatibility with older versions of the `gmpxx.h` library. When compiling your project, ensure to include the flags `-D___GMPXX_POSSIBLE_BUGS___` and `-D___GMPXX_STRICT_COMPATIBILITY___` to activate this mode. This setup avoids the use of namespaces and maintains behavior consistent with earlier library versions.
+  Compatibility Mode is designed for those who require strict backward compatibility with older versions of the `gmpxx.h` library. When compiling your project, ensure to include the flags `-D___GMPXX_POSSIBLE_BUGS___` and `-D___GMPXX_STRICT_COMPATIBILITY___` to activate this mode. This setup avoids using namespaces and maintains behavior consistent with earlier library versions.
 
 In Compatibility Mode, do not use `using namespace gmp;` to avoid namespace conflicts. This mode ensures that your existing code that relies on older `gmpxx.h` features works without modifications.
 
 ## Link
 
-When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lgmpxx link option that was used with the original GMP C++ wrapper. While keeping it may not cause immediate harm, removing it ensures that you are linking specifically against the correct library version provided by gmpxx_mkII, avoiding any potential conflicts or ambiguities.
+When linking your project with `gmpxx_mkII.h`, removing the -lgmpxx link option used with the original GMP C++ wrapper is advisable. While keeping it may not cause immediate harm, removing it ensures that you link specifically against the correct library version provided by gmpxx_mkII, avoiding potential conflicts or ambiguities.
 
 ## Improvements from original gmpxx.h
 
@@ -73,7 +74,7 @@ When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lg
 
 In gmpxx_mkII.h, we have observed significant performance improvements, particularly in single-core computations for inner products. When operating in mkIISR mode, enhancements of up to 25% compared to gmpxx.h have been documented. This increase in efficiency is primarily attributed to the elimination of complex macro expansions, which are not required in the new implementation. However, in multi-core scenarios, the performance of gmpxx_mkII.h is roughly equivalent to that of the original gmpxx.h.
 
-For detailed benchmarking results, particularly those conducted on a Ryzen 3970X 32-Core processor, please refer to the following [benchmark report](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_inner_product/all_operations_Ryzen_3970X_32-Core_500000000_512.pdf).
+For detailed benchmarking results, particularly those conducted on a Ryzen 3970X 32-core processor, please refer to the following [benchmark report](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_inner_product/all_operations_Ryzen_3970X_32-Core_500000000_512.pdf).
 
 While our benchmarking efforts have been extensive, we acknowledge that not all performance areas have been thoroughly explored yet. Notably, in some cases, such as matrix-matrix operations, the performance has been observed to be  inferior to that of the original `gmpxx.h`. Further investigation and optimization are underway to address these discrepancies.
 
@@ -133,7 +134,7 @@ In any case, the default precision is 512 bits = 154 decimal significant digits.
   mpf_class f(3.0, small_prec);
   mpf_class g(1 / f, very_large_prec);
   ```
-  Unlike `gmpxx.h` where the precision of an expression is lazily evaluated upon assignment, `gmpxx_mkII.h` evaluates expressions immediately with the precision of the variable being assigned. This means in `gmpxx_mkII.h`, the expression `1/f` is evaluated with `small_prec`, then assigned to `g` at `very_large_prec`, ensuring more predictable behavior.
+  Unlike `gmpxx.h` where the precision of an expression is lazily evaluated upon assignment, `gmpxx_mkII.h` evaluates expressions immediately with the precision of the assigned variable. In `gmpxx_mkII.h`, the expression `1/f` is evaluated with `small_prec`, then transferred to `g` at `very_large_prec`, ensuring more predictable behavior.
 
 - **Difference in Precision Assignment in Random Number Generation**:
   ```cpp
@@ -145,7 +146,7 @@ In any case, the default precision is 512 bits = 154 decimal significant digits.
   ```
   In `gmpxx_mkII.h`, random numbers are generated at the default precision (`medium_prec`), not the precision of the variable `f` (`large_prec`) as in `gmpxx.h`. This modification aligns with typical C++ assignment behaviors, where the right-hand side of an assignment does not adapt to the left side's attributes.
 
-Each of these changes enhances consistency and reduces complexity, making `gmpxx_mkII.h` a more robust and straightforward tool for high-precision computations. However, users migrating from `gmpxx.h` should be aware of these differences to adjust their code accordingly.
+These changes enhance consistency and reduce complexity, making `gmpxx_mkII.h` a more robust and straightforward tool for high-precision computations. However, users migrating from `gmpxx.h` should be aware of these differences to adjust their code accordingly.
 
 
 ## Contributing
