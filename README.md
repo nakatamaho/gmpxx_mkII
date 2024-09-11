@@ -7,6 +7,7 @@
 ### Features
 
 - High-level source compatibility with `gmpxx.h`
+- Header-only library; libgmpxx is not needed anymore.
 - Implementation of trigonometric (sin, cos, tan, asin, acos, atan, etc.) and transcendental functions (log, exp)
 - Licensed under the 2-clause BSD License
 - Written from scratch
@@ -15,15 +16,41 @@
 
 - C++17 or higher
 
----
+## Installation
 
-# Installation
+To install this library, first clone the repository and then use the make install command:
 
-    Clone this repository or download the mpfr_class source files.
+```
+bash
+git clone https://github.com/nakatamaho/gmpxx_mkII.git ; sudo make PREFIX=/usr/local install
+```
 
-# Usage
+This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 
-Include the mpfr_class in your C++ project and use it to perform high-precision arithmetic operations. Here is a basic example:
+## Usage
+
+To use `gmpxx_mkII` in your C++ projects, you need to change the include directive from the original GMP wrapper:
+
+Replace:
+
+```cpp
+#include <gmpxx.h>
+```
+
+With:
+
+```cpp
+#include <gmpxx_mkII.h>
+```
+
+Additionally, to simplify access to its functionalities, you can include the namespace directive in your code:
+
+```cpp
+using namespace gmp;
+```
+
+This will allow you to use all the functions and classes in `gmpxx_mkII` without prefixing them with `gmp::`.
+
 
 # Building Your Project
 
