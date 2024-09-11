@@ -1,5 +1,7 @@
 CXX = g++-12
 CXXFLAGS = -Wall -Wextra -O2
+PREFIX = /usr/local
+
 LDFLAGS = -L/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib -lgmp
 INCLUDES = -I/home/docker/gmpxx_mkII/i/GMP-6.3.0/include -I/home/docker/gmpxx_mkII/
 RPATH_FLAGS = -Wl,-rpath,/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib
@@ -44,6 +46,15 @@ BENCHMARKS03_2 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_21_mpblas_openmp_orig
 BENCHMARKS03_3 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
 
 all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
+
+includedir = $(PREFIX)/include
+
+install: install-headers
+
+install-headers: $(HEADERS)
+	@mkdir -p $(includedir)
+	@install -m 644 $(HEADERS) $(includedir)
+	@echo "Installed headers to $(includedir)"
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RPATH_FLAGS)
