@@ -35,7 +35,7 @@ This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 
 To effectively use `gmpxx_mkII` in your C++ projects, you must adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
 
-- ** mkII mode (Default)**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
+- **mkII mode (Default)**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
   
   ```cpp
   #include <gmpxx_mkII.h>
