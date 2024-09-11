@@ -97,11 +97,14 @@ One of the major enhancements introduced with `gmpxx_mkII.h` over the original `
 
 Here is a simple example demonstrating how to use `gmpxx_mkII.h` to perform arithmetic operations and comparisons more intuitively:
 ```cpp
-    mpf_class a = 1.0, b = 2.0, c = 3.0, d;
-    d = std::min(a, b + c);
+mpf_class a = 1.0, b = 2.0, c = 3.0, d;
+d = std::min(a, b + c);
 ```
-
-This code snippet showcases how `gmpxx_mkII.h` can be seamlessly integrated into typical C++ programs. It allows the use of standard algorithms like `std::min` with `mpf_class` objects to perform high-precision arithmetic operations efficiently.
+This operation might seem straightforward, but it was not supported directly in the original `gmpxx.h` due to its limitations in handling such expressions. In the case of `gmpxx.h`, you would need to explicitly "cast" the operation as follows:
+```cpp
+mpf_class a = 1.0, b = 2.0, c = 3.0, d;
+d = std::min(a, mpf_class(b + c));
+```
 
 ### Configuring Precision at Runtime Using Environment Variables
 
