@@ -93,12 +93,31 @@ Here is a simple example demonstrating how to use `gmpxx_mkII.h` to perform arit
 
 This code snippet showcases how `gmpxx_mkII.h` can be seamlessly integrated into typical C++ programs. It allows the use of standard algorithms like `std::min` with `mpf_class` objects to perform high-precision arithmetic operations efficiently.
 
+### Configuring Precision at Runtime Using Environment Variables
+
+`gmpxx_mkII.h` allows dynamically configuring the default precision settings for arithmetic operations via environment variables. This feature will enable users to adjust precision without modifying the source code, making it highly versatile for computational needs or testing scenarios. Here's how you can use these environment variables:
+
+- **GMPXX_MKII_DEFAULT_PREC**: This environment variable sets the default precision for all calculations. Specify the precision as the number of bits. For example, setting this variable to "128" would configure the default precision to 128 bits.
+  
+  ```bash
+  export GMPXX_MKII_DEFAULT_PREC=128
+  ```
+
+- **GMPXX_MKII_DEFAULT_PREC_RAW**: This environment variable offers a direct way to set a specific raw precision level that overrides the default settings. This might be used for testing or to ensure consistent behavior across different environments.
+
+  ```bash
+  export GMPXX_MKII_DEFAULT_PREC_RAW=256
+  ```
+
+This configuration approach ensures that `gmpxx_mkII.h` can be adapted easily for various precision-dependent applications, providing flexibility and control over the computational precision directly via environment settings.
+
+
 ## Compatibility Differences from Original gmpxx.h
 
 `gmpxx_mkII.h` introduces several modifications to behavior and functionality when compared to the original `gmpxx.h`. These changes are designed to improve predictability and align more closely with standard C++ practices, but they also affect how certain operations are handled:
 
 - **No Binary Compatibility**:
-  `gmpxx_mkII.h` does not maintain binary compatibility with `gmpxx.h`. This means that binaries compiled with the original library cannot be directly replaced with those compiled using `gmpxx_mkII.h`. This allows for architectural improvements and the introduction of new features.
+  `gmpxx_mkII.h` does not maintain binary compatibility with `gmpxx.h`. This means binaries compiled with the original library cannot be directly replaced with those compiled using `gmpxx_mkII.h`. This allows for architectural improvements and the introduction of new features.
 
 - **Difference in Precision Handling in Evaluations**:
   ```cpp
