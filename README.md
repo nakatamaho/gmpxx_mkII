@@ -77,8 +77,7 @@ One of the major enhancements introduced with `gmpxx_mkII.h` over the original `
 - **Trigonometric Functions:** `cos`, `sin`, `tan`, `acos`, `asin`, `atan`, `atan2`
 - **Hyperbolic Functions:** `cosh`, `sinh`, `tanh`, `acosh`, `asinh`, `atanh`
 
-Each of these additions enhances the toolkit available to developers, enabling more complex and precise calculations directly within the C++ environment, without the need for additional libraries or workarounds. This expansion not only increases the utility of the library but also ensures that developers can tackle a wider range of mathematical challenges with ease.
-
+`log` and `atan` are implemented using the Arithmetic-Geometric Mean (AGM) method, while `exp`, `cos`, and `sin` are implemented using Taylor series expansions. The other functions are combinations of these implementations.
 ### No C++ Interface Limitations
 
 `gmpxx_mkII.h` expands the capabilities of the standard GMP C++ bindings, removing the restrictions detailed in the [GMP C++ Interface Limitations] (https://gmplib.org/manual/C_002b_002b-Interface-Limitations).
