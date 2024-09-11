@@ -34,6 +34,7 @@ This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 ## Usage
 
 To effectively use `gmpxx_mkII.h` in your C++ projects, you must adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
+The default precision is 512 bits = 154 decimal significant digits.
 
 - **mkII mode (Default)**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
   
@@ -68,9 +69,17 @@ When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lg
 
 ## Improvements from original gmpxx.h
 
+In `gmpxx_mkII.h`, significant performance improvements have been observed, particularly in single-core computations for inner products, where speed enhancements of up to 25% compared (mkIISR mode) to gmpxx.h have been noted. This increase in efficiency primarily results from the elimination of complex macro expansions, which are not required in the new implementation. However, in multi-core scenarios, the performance of gmpxx_mkII.h is approximately the same as that of the original gmpxx.h.
+
+### Performance Improvements
+
+In `gmpxx_mkII.h`, significant performance improvements have been observed, particularly in single-core computations for inner products, where enhancements of up to 25% compared to `gmpxx.h` have been recorded with mkIISR mode. This increase in efficiency primarily stems from the elimination of complex macro expansions, which are not required in the new implementation. However, in multi-core scenarios, the performance of `gmpxx_mkII.h` remains roughly equivalent to that of the original `gmpxx.h`.
+
+For detailed benchmarking results, particularly those conducted on a Ryzen 3970X 32-Core processor, please refer to the following [benchmark report](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_inner_product/all_operations_Ryzen_3970X_32-Core_500000000_512.pdf).
+
 ### Enhanced Mathematical Functions
 
-One of the major enhancements introduced with `gmpxx_mkII.h` over the original `gmpxx.h` is the significant expansion of available mathematical functions, removing the limitations previously noted in the GMP C++ interface. The improved version now supports a broader array of functions, enhancing the capability for more robust and versatile mathematical computations. These functions include:
+One of the major enhancements introduced with `gmpxx_mkII.h` over the original `gmpxx.h` is the significant expansion of available mathematical functions, removing the limitations previously noted in the GMP C++ interface. These functions include:
 
 - **Logarithmic Functions:** `log`, `log2`, `log10`
 - **Exponential and Power Functions:** `exp`, `pow`
@@ -108,8 +117,7 @@ This code snippet showcases how `gmpxx_mkII.h` can be seamlessly integrated into
   export GMPXX_MKII_DEFAULT_PREC_RAW=256
   ```
 
-This configuration approach ensures that `gmpxx_mkII.h` can be adapted easily for various precision-dependent applications, providing flexibility and control over the computational precision directly via environment settings.
-
+In any case, the default precision is 512 bits = 154 decimal significant digits.
 
 ## Compatibility Differences from Original gmpxx.h
 
