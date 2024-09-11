@@ -9,7 +9,7 @@
 - **High-Level Source Compatibility:** Highly compatible with `gmpxx.h`, ensuring a smooth transition from the original GMP C++ wrapper.
 - **Provides three modes**: mkII mode (default), mkIISR mode (no-precision-change-mode), and compatibility mode (does not use namespace and no enhancements).
 - **Enhanced Performance**: In mkIISR mode (no-precision-change mode), `gmpxx_mkII.h` often exhibits faster performance compared to the original `gmpxx.h`, although results may vary. This model is designed for scenarios requiring stable precision settings, contributing to its generally superior performance metrics.
-- **introduction of namespace**: to avoid confilicts, we introduced namespace.
+- **Introduction of namespace**: to avoid confilicts, we introduced namespace.
 - **No C++ Interface Limitations**: `gmpxx_mkII.h` removes the template limitations found in the original `gmpxx.h`, offering a more flexible and robust interface. For more details on the previous limitations, visit [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations).
 - **Comprehensive Mathematical Functions:** This includes implementations of trigonometric functions (sin, cos, tan, asin, acos, atan) and transcendental functions (log, exp), enhancing the library's utility for complex calculations.
 - **Straightforward Coding Style:** Implemented as typical classes without using (very complex) macros or lazy evaluation, prioritizing clarity and maintainability in the code.
@@ -37,7 +37,7 @@ This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 ## Usage
 
 To effectively use `gmpxx_mkII.h` in your C++ projects, you must adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
-The default precision is 512 bits = 154 decimal significant digits.
+The default precision is 512 bits = 154 decimal significant digits. We also introduced `namespace gmp` to avoid conflicts.
 
 - **mkII mode (Default)**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
   
