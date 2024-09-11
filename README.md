@@ -81,37 +81,17 @@ Each of these additions enhances the toolkit available to developers, enabling m
 
 ### No C++ Interface Limitations
 
-`gmpxx_mkII.h` significantly expands the capabilities of the standard GMP C++ bindings, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations, providing greater flexibility and precision in mathematical computations.
+`gmpxx_mkII.h` expands the capabilities of the standard GMP C++ bindings, removing the restrictions detailed in the [GMP C++ Interface Limitations] (https://gmplib.org/manual/C_002b_002b-Interface-Limitations).
 
 #### Example: Calculating Minimum Values
+
 Here is a simple example demonstrating how to use `gmpxx_mkII.h` to perform arithmetic operations and comparisons more intuitively:
-
 ```cpp
-#if defined USE_ORIGINAL_GMPXX
-#include <gmpxx.h>
-#else
-#include "gmpxx_mkII.h"
-using namespace gmp;
-#endif
-
-#include <iostream>
-#include <algorithm>
-
-int main() {
-    // Initialize mpf_class variables
     mpf_class a = 1.0, b = 2.0, c = 3.0, d;
-
-    // Calculate the minimum between 'a' and the sum of 'b' and 'c'
     d = std::min(a, b + c);
-
-    // Output the result to the console
-    std::cout << "The minimum of " << a << " and the sum of " << b << " and " << c << " is " << d << std::endl;
-
-    return 0;
-}
 ```
 
-This code snippet showcases how `gmpxx_mkII.h` can be seamlessly integrated into typical C++ programs, allowing the use of standard algorithms like `std::min` with `mpf_class` objects to perform high-precision arithmetic operations efficiently.
+This code snippet showcases how `gmpxx_mkII.h` can be seamlessly integrated into typical C++ programs. It allows the use of standard algorithms like `std::min` with `mpf_class` objects to perform high-precision arithmetic operations efficiently.
 
 ## Compatibility Differences from Original gmpxx.h
 
