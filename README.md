@@ -73,10 +73,6 @@ When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lg
 
 Contributions to the gmpxx_mkII.h are welcome. Please submit pull requests or open issues to suggest improvements or report bugs.
 
-## Supported Platforms
-
-- 64-bit Linux and macOS in LP64 environments
-
 ## License
 
 This project is licensed under the 2-clause BSD License.
