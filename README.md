@@ -17,6 +17,7 @@
 
 ## Requirements
 
+- 64bit linux and 64bit macOS (LP64 environments)
 - C++17 or higher
 
 ## Installation
