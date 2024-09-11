@@ -33,7 +33,7 @@ This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 
 ## Usage
 
-To effectively use `gmpxx_mkII` in your C++ projects, you must adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
+To effectively use `gmpxx_mkII.h` in your C++ projects, you must adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
 
 - **mkII mode (Default)**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
   
@@ -42,7 +42,7 @@ To effectively use `gmpxx_mkII` in your C++ projects, you must adjust your inclu
   using namespace gmp;  // Simplifies access to the library's functionalities
   ```
   
-  This setup allows you to use all the functions and classes in `gmpxx_mkII` without needing to prefix them with `gmp::`.
+  This setup allows you to use all the functions and classes in `gmpxx_mkII.h` without needing to prefix them with `gmp::`.
 
 - **mkIISR mode (No-Precision-Change Mode)**: Designed for scenarios where precision settings must be explicitly controlled, this mode assumes changes to precision are made only through environment variables or directly at runtime during the main function's execution, ensuring that the library does not make any automatic adjustments.
   
@@ -68,14 +68,14 @@ When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lg
 
 ## Improvements from original gmpxx.h
 
-One of the key enhancements in `gmpxx_mkII` over the original `gmpxx.h` is the extension of mathematical functions without the limitations previously noted in the GMP C++ interface. The updated version includes a broader range of functions such as `log`, `log2`, `log10`, `exp`, `pow`, `cos`, `sin`, `asin`, `acos`, `atan`, `atan2`, `cosh`, `sinh`, `tanh`, `acosh`, `asinh`, and `atanh`. These improvements allow for more robust and versatile mathematical computations, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations.
+One of the key enhancements in `gmpxx_mkII.h` over the original `gmpxx.h` is the extension of mathematical functions without the limitations previously noted in the GMP C++ interface. The updated version includes a broader range of functions such as `log`, `log2`, `log10`, `exp`, `pow`, `cos`, `sin`, `asin`, `acos`, `atan`, `atan2`, `cosh`, `sinh`, `tanh`, `acosh`, `asinh`, and `atanh`. These improvements allow for more robust and versatile mathematical computations, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations.
 
 ## Compatibility Differences from Original gmpxx.h
 
-`gmpxx_mkII` introduces several modifications to behavior and functionality when compared to the original `gmpxx.h`. These changes are designed to improve predictability and align more closely with standard C++ practices, but they also affect how certain operations are handled:
+`gmpxx_mkII.h` introduces several modifications to behavior and functionality when compared to the original `gmpxx.h`. These changes are designed to improve predictability and align more closely with standard C++ practices, but they also affect how certain operations are handled:
 
 - **No Binary Compatibility**:
-  `gmpxx_mkII` does not maintain binary compatibility with `gmpxx.h`. This means that binaries compiled with the original library cannot be directly replaced with those compiled using `gmpxx_mkII`. This allows for architectural improvements and the introduction of new features.
+  `gmpxx_mkII.h` does not maintain binary compatibility with `gmpxx.h`. This means that binaries compiled with the original library cannot be directly replaced with those compiled using `gmpxx_mkII.h`. This allows for architectural improvements and the introduction of new features.
 
 - **Difference in Precision Handling in Evaluations**:
   ```cpp
@@ -84,7 +84,7 @@ One of the key enhancements in `gmpxx_mkII` over the original `gmpxx.h` is the e
   mpf_class f(3.0, small_prec);
   mpf_class g(1 / f, very_large_prec);
   ```
-  Unlike `gmpxx.h` where the precision of an expression is lazily evaluated upon assignment, `gmpxx_mkII` evaluates expressions immediately with the precision of the variable being assigned. This means in `gmpxx_mkII`, the expression `1/f` is evaluated with `small_prec`, then assigned to `g` at `very_large_prec`, ensuring more predictable behavior.
+  Unlike `gmpxx.h` where the precision of an expression is lazily evaluated upon assignment, `gmpxx_mkII.h` evaluates expressions immediately with the precision of the variable being assigned. This means in `gmpxx_mkII.h`, the expression `1/f` is evaluated with `small_prec`, then assigned to `g` at `very_large_prec`, ensuring more predictable behavior.
 
 - **Difference in Precision Assignment in Random Number Generation**:
   ```cpp
@@ -94,9 +94,9 @@ One of the key enhancements in `gmpxx_mkII` over the original `gmpxx.h` is the e
   mpf_class f(0, large_prec);
   f = r1.get_f();
   ```
-  In `gmpxx_mkII`, random numbers are generated at the default precision (`medium_prec`), not the precision of the variable `f` (`large_prec`) as in `gmpxx.h`. This modification aligns with typical C++ assignment behaviors, where the right-hand side of an assignment does not adapt to the left side's attributes.
+  In `gmpxx_mkII.h`, random numbers are generated at the default precision (`medium_prec`), not the precision of the variable `f` (`large_prec`) as in `gmpxx.h`. This modification aligns with typical C++ assignment behaviors, where the right-hand side of an assignment does not adapt to the left side's attributes.
 
-Each of these changes enhances consistency and reduces complexity, making `gmpxx_mkII` a more robust and straightforward tool for high-precision computations. However, users migrating from `gmpxx.h` should be aware of these differences to adjust their code accordingly.
+Each of these changes enhances consistency and reduces complexity, making `gmpxx_mkII.h` a more robust and straightforward tool for high-precision computations. However, users migrating from `gmpxx.h` should be aware of these differences to adjust their code accordingly.
 
 
 ## Contributing
