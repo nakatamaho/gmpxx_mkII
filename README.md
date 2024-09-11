@@ -81,10 +81,10 @@ Each of these additions enhances the toolkit available to developers, enabling m
 
 ### No C++ Interface Limitations
 
-`gmpxx_mkII` significantly expands the capabilities of the standard GMP C++ bindings, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations, providing greater flexibility and precision in mathematical computations.
+`gmpxx_mkII.h` significantly expands the capabilities of the standard GMP C++ bindings, effectively removing the restrictions detailed in the [GMP C++ Interface Limitations](https://gmplib.org/manual/C_002b_002b-Interface-Limitations). This enhancement ensures that users have access to a more comprehensive and unrestricted set of tools for high-precision calculations, providing greater flexibility and precision in mathematical computations.
 
 #### Example: Calculating Minimum Values
-Here is a simple example demonstrating how to use `gmpxx_mkII` to perform arithmetic operations and comparisons more intuitively:
+Here is a simple example demonstrating how to use `gmpxx_mkII.h` to perform arithmetic operations and comparisons more intuitively:
 
 ```cpp
 #if defined USE_ORIGINAL_GMPXX
