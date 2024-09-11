@@ -2,7 +2,7 @@
 
 ## Overview
 
-`gmpxx_mkII` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, which is licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
+`gmpxx_mkII.h` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, which is licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
 ## Features
 
@@ -31,9 +31,9 @@ This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 
 ## Usage
 
-To effectively use `gmpxx_mkII` in your C++ projects, you will need to adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
+To effectively use `gmpxx_mkII` in your C++ projects, you must adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
 
-- **Default Operation**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
+- ** mkII mode (Default)**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
   
   ```cpp
   #include <gmpxx_mkII.h>
@@ -42,34 +42,27 @@ To effectively use `gmpxx_mkII` in your C++ projects, you will need to adjust yo
   
   This setup allows you to use all the functions and classes in `gmpxx_mkII` without needing to prefix them with `gmp::`.
 
-- **No-Precision-Change Mode (`mkIISR`)**: Designed for scenarios where you require strict control over precision settings, ensuring that there are no automatic adjustments by the library.
+- **mkIISR mode (No-Precision-Change Mode)**: Designed for scenarios where precision settings must be explicitly controlled, this mode assumes changes to precision are made only through environment variables or directly at runtime during the main function's execution, ensuring that the library does not make any automatic adjustments.
   
   ```cpp
   #include <gmpxx_mkII.h>
-  #define GMPXX_MKIISR  // Enable mkIISR mode at the preprocessor level
+  #define ___GMPXX_MKII_NOPRECCHANGE___  // Enable mkIISR mode at the preprocessor level
   using namespace gmp;
   ```
   
-  In this mode, make sure to define `GMPXX_MKIISR` before including the header file to activate the specific functionalities.
+  In this mode, make sure to define `___GMPXX_MKII_NOPRECCHANGE___` before including the header file to activate the specific functionalities.
 
-This format will improve readability and organization, making it clearer how to use each mode.
-
- - ** Compatibility Mode**:
-
-The Compatibility Mode is intended for those who need strict backward compatibility with older versions of the `gmpxx.h` library without utilizing namespaces.
-
-```cpp
-#define GMPXX_COMPAT  // Ensure compatibility with older gmpxx versions
-#include <gmpxx_mkII.h>
-```
+- **Compatibility Mode**:
+  ```cpp
+  #include <gmpxx_mkII.h>
+  ```
+  Compatibility Mode is designed for those who require strict backward compatibility with older versions of the `gmpxx.h` library. When compiling your project, ensure to include the flags `-D___GMPXX_POSSIBLE_BUGS___` and `-D___GMPXX_STRICT_COMPATIBILITY___` to activate this mode. This setup avoids the use of namespaces and maintains behavior consistent with earlier library versions.
 
 In Compatibility Mode, do not use `using namespace gmp;` to avoid namespace conflicts. This mode ensures that your existing code that relies on older `gmpxx.h` features works without modifications.
 
-Each mode tailors the `gmpxx_mkII` library to specific needs, ensuring flexibility and control over how high-precision operations are handled in your projects.
-
 ## Link
 
-When linking your project with `gmpxx_mkII`, make sure to remove the `-lgmpxx` link option that was used for the original GMP C++ wrapper. This ensures that you are linking against the correct library version provided by `gmpxx_mkII`.
+When linking your project with `gmpxx_mkII.h`, it is advisable to remove the -lgmpxx link option that was used with the original GMP C++ wrapper. While keeping it may not cause immediate harm, removing it ensures that you are linking specifically against the correct library version provided by gmpxx_mkII, avoiding any potential conflicts or ambiguities.
 
 ## Improvements from original gmpxx.h
 
