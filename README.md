@@ -1,23 +1,24 @@
-## gmpxx_mkII.h: A GMP C++ Wrapper for High-Precision Calculations
+# gmpxx_mkII.h: A GMP C++ Wrapper for High-Precision Calculations
 
-### Overview
+## Overview
 
 `gmpxx_mkII` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, which is licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
-### Features
+## Features
 
 - **High-Level Source Compatibility:** Highly compatible with `gmpxx.h`, ensuring a smooth transition from the original GMP C++ wrapper.
-- **Header-Only Library:** Eliminates the need for the `libgmpxx` library, simplifying integration and deployment.
 - **Comprehensive Mathematical Functions:** Includes implementations of trigonometric functions (sin, cos, tan, asin, acos, atan) and transcendental functions (log, exp), enhancing the library's utility for complex calculations.
+- **Straightforward Coding Style:** Implemented as typical classes without using (very complex) macros or lazy evaluation, prioritizing clarity and maintainability in the code.
+- **Header-Only Library:** This library eliminates the need for the `libgmpxx` library, simplifying integration and deployment.
 - **Licensing:** Distributed under the 2-clause BSD License, offering flexibility for both open-source and proprietary use.
 - **Platform Support:** Optimized for 64-bit Linux and macOS in LP64 environments, ensuring reliable performance across major systems.
 - **Original Development:** Written entirely from scratch, providing a clean, optimized, and maintainable code base.
 
-### Requirements
+## Requirements
 
 - C++17 or higher
 
-### Installation
+## Installation
 
 To install this library, first clone the repository and then use the make install command:
 
@@ -28,7 +29,7 @@ sudo make PREFIX=/usr/local install
 
 This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 
-### Usage
+## Usage
 
 To effectively use `gmpxx_mkII` in your C++ projects, you will need to adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
 
@@ -66,26 +67,26 @@ In Compatibility Mode, do not use `using namespace gmp;` to avoid namespace conf
 
 Each mode tailors the `gmpxx_mkII` library to specific needs, ensuring flexibility and control over how high-precision operations are handled in your projects.
 
-### Link
+## Link
 
 When linking your project with `gmpxx_mkII`, make sure to remove the `-lgmpxx` link option that was used for the original GMP C++ wrapper. This ensures that you are linking against the correct library version provided by `gmpxx_mkII`.
 
-### Improvements from original gmpxx.h
+## Improvements from original gmpxx.h
 
 
-### Contributing
+## Contributing
 
 Contributions to the gmpxx_mkII.h are welcome. Please submit pull requests or open issues to suggest improvements or report bugs.
 
-### Supported Platforms
+## Supported Platforms
 
 - 64-bit Linux and macOS in LP64 environments
 
-### License
+## License
 
 This project is licensed under the 2-clause BSD License.
 
-### ChatGPT4 (memo)
+## ChatGPT4 (memo)
 
 * https://chat.openai.com/c/e88b85d9-dbca-4bdc-bfb3-52cff97ddae4
 * https://chat.openai.com/c/268fe353-3a3f-44ea-8519-987b674d7d12
