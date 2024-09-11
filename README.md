@@ -109,7 +109,7 @@ d = std::min(a, mpf_class(b + c));
 
 ### Configuring Precision at Runtime Using Environment Variables
 
-`gmpxx_mkII.h` allows dynamically configuring the default precision settings for arithmetic operations via environment variables. This feature will enable users to adjust precision without modifying the source code, making it highly versatile for computational needs or testing scenarios. Here's how you can use these environment variables:
+`gmpxx_mkII.h` allows dynamically configuring the default precision settings for arithmetic operations via environment variables. This feature will enable users to adjust precision without modifying the source code. Here's how you can use these environment variables:
 
 - **GMPXX_MKII_DEFAULT_PREC**: This environment variable sets the default precision for all calculations. Specify the precision as the number of bits. For example, setting this variable to "128" would configure the default precision to 128 bits.
   
@@ -127,7 +127,7 @@ In any case, the default precision is 512 bits = 154 decimal significant digits.
 
 ## Compatibility Differences from Original gmpxx.h
 
-`gmpxx_mkII.h` introduces several modifications to behavior and functionality when compared to the original `gmpxx.h`. These changes are designed to improve predictability and align more closely with standard C++ practices, but they also affect how certain operations are handled:
+`gmpxx_mkII.h` introduces several modifications to behavior and functionality compared to the original `gmpxx.h`. These changes are designed to improve predictability and align more closely with standard C++ practices, but they also affect how certain operations are handled:
 
 - **No Binary Compatibility**:
   `gmpxx_mkII.h` does not maintain binary compatibility with `gmpxx.h`. This means binaries compiled with the original library cannot be directly replaced with those compiled using `gmpxx_mkII.h`. This allows for architectural improvements and the introduction of new features.
@@ -139,7 +139,7 @@ In any case, the default precision is 512 bits = 154 decimal significant digits.
   mpf_class f(3.0, small_prec);
   mpf_class g(1 / f, very_large_prec);
   ```
-  Unlike `gmpxx.h` where the precision of an expression is lazily evaluated upon assignment, `gmpxx_mkII.h` evaluates expressions immediately with the precision of the assigned variable. In `gmpxx_mkII.h`, the expression `1/f` is evaluated with `small_prec`, then transferred to `g` at `very_large_prec`, ensuring more predictable behavior.
+  Unlike `gmpxx.h`, where the precision of an expression is lazily evaluated upon assignment, `gmpxx_mkII.h` evaluates expressions immediately with the precision of the assigned variable. In `gmpxx_mkII.h`, the expression `1/f` is evaluated with `small_prec`, then transferred to `g` at `very_large_prec`, ensuring more predictable behavior.
 
 - **Difference in Precision Assignment in Random Number Generation**:
   ```cpp
