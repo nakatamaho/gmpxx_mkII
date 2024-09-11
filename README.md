@@ -116,13 +116,18 @@ d = std::min(a, mpf_class(b + c));
   ```bash
   export GMPXX_MKII_DEFAULT_PREC=128
   ```
-
+or
+  ```bash
+  GMPXX_MKII_DEFAULT_PREC=128 ./a.out
+  ```
 - **GMPXX_MKII_DEFAULT_PREC_RAW**: This environment variable offers a direct way to set a specific raw precision level that overrides the default settings. This might be used for testing or to ensure consistent behavior across different environments.
 
   ```bash
   export GMPXX_MKII_DEFAULT_PREC_RAW=256
   ```
-
+  ```bash
+  GMPXX_MKII_DEFAULT_PREC_raw=128 ./a.out
+  ```
 In any case, the default precision is 512 bits = 154 decimal significant digits.
 
 ## Compatibility Differences from Original gmpxx.h
