@@ -1,6 +1,6 @@
 ## gmpxx_mkII.h: Yet Another GMP C++ Wrapper for High-Precision Calculations
 
-## Overview
+#### Overview
 
 `gmpxx_mkII` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, which is licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
@@ -15,11 +15,11 @@ Here is the structured and corrected version of the "Features" section for your 
 - **Platform Support:** Optimized for 64-bit Linux and macOS in LP64 environments, ensuring reliable performance across major systems.
 - **Original Development:** Written entirely from scratch, providing a clean, optimized, and maintainable code base.
 
-## Requirements
+### Requirements
 
 - C++17 or higher
 
-## Installation
+### Installation
 
 To install this library, first clone the repository and then use the make install command:
 
@@ -29,11 +29,11 @@ git clone https://github.com/nakatamaho/gmpxx_mkII.git ; sudo make PREFIX=/usr/l
 
 This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 
-## Usage
+### Usage
 
 To effectively use `gmpxx_mkII` in your C++ projects, you will need to adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
 
-### mkII Mode (Default)
+#### mkII Mode (Default)
 
 This is the default mode of operation which provides enhanced functionalities and optimizations over the original `gmpxx.h`.
 
@@ -44,7 +44,7 @@ using namespace gmp;  // Simplifies access to the library's functionalities
 
 This setup allows you to use all the functions and classes in `gmpxx_mkII` without needing to prefix them with `gmp::`.
 
-### mkIISR Mode
+#### mkIISR Mode
 
 The No-Precision-Change Mode (`mkIISR`) is designed for scenarios where you require strict control over precision settings, ensuring that there are no automatic adjustments by the library.
 
@@ -56,7 +56,7 @@ using namespace gmp;
 
 In this mode, make sure to define `GMPXX_MKIISR` before including the header file to activate the specific functionalities.
 
-### Compatibility Mode
+#### Compatibility Mode
 
 The Compatibility Mode is intended for those who need strict backward compatibility with older versions of the `gmpxx.h` library without utilizing namespaces.
 
@@ -76,19 +76,19 @@ When linking your project with `gmpxx_mkII`, make sure to remove the `-lgmpxx` l
 ## Improvements from original gmpxx.h
 
 
-# Contributing
+## Contributing
 
 Contributions to the gmpxx_mkII.h are welcome. Please submit pull requests or open issues to suggest improvements or report bugs.
 
-# Supported Platforms
+## Supported Platforms
 
 - 64-bit Linux and macOS in LP64 environments
 
-# License
+## License
 
 This project is licensed under the 2-clause BSD License.
 
-# ChatGPT4
+## ChatGPT4
 
 * https://chat.openai.com/c/e88b85d9-dbca-4bdc-bfb3-52cff97ddae4
 * https://chat.openai.com/c/268fe353-3a3f-44ea-8519-987b674d7d12
