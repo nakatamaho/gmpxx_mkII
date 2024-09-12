@@ -28,6 +28,7 @@ To install this library, first clone the repository and then use the make instal
 
 ```bash
 git clone https://github.com/nakatamaho/gmpxx_mkII.git
+cd gmpxx_mkII
 sudo make PREFIX=/usr/local install
 ```
 
