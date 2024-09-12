@@ -82,7 +82,7 @@ While our benchmarking efforts have been extensive, we acknowledge that not all 
 
 ### Enhanced Mathematical Functions
 
-One of the major enhancements introduced with `gmpxx_mkII.h` over the original `gmpxx.h` is the significant expansion of available mathematical functions, removing the limitations previously noted in the GMP C++ interface. These functions include:
+One of the major enhancements introduced with `gmpxx_mkII.h` over the original `gmpxx.h` is the significant expansion of available mathematical functions. These functions include:
 
 - **Logarithmic Functions:** `log`, `log2`, `log10`
 - **Exponential and Power Functions:** `exp`, `pow`
