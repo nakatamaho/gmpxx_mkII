@@ -137,8 +137,8 @@ In any case, the default precision is 512 bits = 154 decimal significant digits.
 `gmpxx_mkII.h` introduces several modifications to behavior and functionality compared to the original `gmpxx.h`. These changes are designed to improve predictability and align more closely with standard C++ practices, but they also affect how certain operations are handled:
 
 - **No Binary Compatibility**:
-  `gmpxx_mkII.h` does not maintain binary compatibility with `gmpxx.h`. This means binaries compiled with the original library cannot be directly replaced with those compiled using `gmpxx_mkII.h`. This allows for architectural improvements and the introduction of new features.
-
+  `gmpxx_mkII.h` does not maintain binary compatibility with `gmpxx.h`. This means binaries compiled with the original library cannot be directly replaced with those compiled using `gmpxx_mkII.h`. Binaries and libraries must be recompiled.
+  
 - **Difference in Precision Handling in Evaluations**:
   ```cpp
   const int small_prec = 64, medium_prec = 128, very_large_prec = 256;
