@@ -90,6 +90,8 @@ One of the major enhancements introduced with `gmpxx_mkII.h` over the original `
 - **Hyperbolic Functions:** `cosh`, `sinh`, `tanh`, `acosh`, `asinh`, `atanh`
 
 `log` and `atan` are implemented using the Arithmetic-Geometric Mean (AGM) method, while `exp`, `cos`, and `sin` are implemented using Taylor series expansions. The other functions are combinations of these implementations.
+Implemented by referring to the implementation of MPFR. For details, see the [MPFR documentation](https://www.mpfr.org/mpfr-current/mpfr.pdf).
+
 ### No C++ Interface Limitations
 
 `gmpxx_mkII.h` expands the capabilities of the standard GMP C++ bindings, removing the restrictions detailed in the [GMP C++ Interface Limitations] (https://gmplib.org/manual/C_002b_002b-Interface-Limitations).
