@@ -148,7 +148,7 @@ In any case, the default precision is 512 bits = 154 decimal significant digits.
   ```
   Unlike `gmpxx.h`, where the precision of an expression is lazily evaluated upon assignment, `gmpxx_mkII.h` evaluates expressions immediately with the precision of the assigned variable. In `gmpxx_mkII.h`, the expression `1/f` is evaluated with `small_prec`, then transferred to `g` at `very_large_prec`, ensuring more predictable behavior.
 
-- **Difference in Precision Assignment in Random Number Generation**:
+- **No Referring the left side; esp. difference in Precision Assignment in Random Number Generation**:
   ```cpp
   const int medium_prec = 128, large_prec = 512;
   mpf_set_default_prec(medium_prec);
