@@ -14,6 +14,7 @@
 - **Comprehensive Mathematical Functions:** This includes implementations of trigonometric functions (sin, cos, tan, asin, acos, atan etc) and transcendental functions (log, exp), enhancing the library's utility for complex calculations.
 - **Straightforward Coding Style:** Implemented as typical classes without using (very complex) macros or lazy evaluation, prioritizing clarity and maintainability in the code.
 - **Header-Only Library:** This library eliminates the need for the `libgmpxx` library, simplifying integration and deployment.
+- **Quality assurance:** Enhanced with our own rigorous tests and building on the foundation of proven GMP tests
 - **Licensing:** Distributed under the 2-clause BSD License, offering flexibility for both open-source and proprietary use.
 - **Platform Support:** Optimized for 64-bit Linux and macOS in LP64 environments, ensuring reliable performance across major systems.
 - **Original Development:** Written entirely from scratch, providing a clean, optimized, and maintainable code base.
@@ -155,6 +156,10 @@ In any case, the default precision is 512 bits = 154 decimal significant digits.
   f = r1.get_f();
   ```
   In `gmpxx_mkII.h`, random numbers are generated at the default precision (`medium_prec`), not the precision of the variable `f` (`large_prec`) as in `gmpxx.h`. This modification aligns with typical C++ assignment behaviors, where the right-hand side of an assignment does not adapt to the left side's attributes.
+
+## Quality assurance
+
+To ensure the reliability and stability of `gmpxx_mkII.h`, we have implemented a comprehensive quality assurance process. In addition to our suite of custom tests, we have successfully ported and passed the tests originally included with GMP, with minimal modifications.
 
 ## Contributing
 
