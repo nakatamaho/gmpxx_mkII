@@ -2,104 +2,104 @@ Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue J
 model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
 /usr/bin/time ./inner_product_gmp_10_naive 500000000 512
-Elapsed time: 35.9632 s
+Elapsed time: 35.7145 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-90.45user 49.25system 2:19.86elapsed 99%CPU (0avgtext+0avgdata 117190144maxresident)k
-0inputs+0outputs (0major+29297031minor)pagefaults 0swaps
+89.77user 49.78system 2:19.69elapsed 99%CPU (0avgtext+0avgdata 117190656maxresident)k
+0inputs+0outputs (0major+29297032minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_11_openmp 500000000 512
-Elapsed time: 1.57682 s
+Elapsed time: 1.55283 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-154.57user 48.63system 1:46.64elapsed 190%CPU (0avgtext+0avgdata 117191168maxresident)k
-0inputs+0outputs (0major+29297290minor)pagefaults 0swaps
+156.87user 49.32system 1:49.58elapsed 188%CPU (0avgtext+0avgdata 117191680maxresident)k
+0inputs+0outputs (0major+29297294minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_12_0_mpblas_orig 500000000 512
-Elapsed time: 60.046 s
+Elapsed time: 62.0636 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-164.44user 99.20system 4:23.93elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
-0inputs+0outputs (0major+58593909minor)pagefaults 0swaps
+165.41user 97.50system 4:23.19elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
+0inputs+0outputs (0major+58593905minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_12_0_mpblas_mkII 500000000 512
-Elapsed time: 63.1806 s
+Elapsed time: 49.7278 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-174.01user 97.87system 4:32.17elapsed 99%CPU (0avgtext+0avgdata 234377728maxresident)k
-0inputs+0outputs (0major+58593907minor)pagefaults 0swaps
+162.51user 98.50system 4:21.31elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
+0inputs+0outputs (0major+58593911minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_12_0_mpblas_mkIISR 500000000 512
-Elapsed time: 44.5184 s
+Elapsed time: 41.5654 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-146.38user 98.12system 4:04.78elapsed 99%CPU (0avgtext+0avgdata 234377728maxresident)k
-0inputs+0outputs (0major+58593908minor)pagefaults 0swaps
+144.26user 98.46system 4:02.99elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
+0inputs+0outputs (0major+58593909minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_12_1_mpblas_orig 500000000 512
-Elapsed time: 48.4982 s
+Elapsed time: 47.8819 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-157.05user 110.98system 4:28.31elapsed 99%CPU (0avgtext+0avgdata 234376704maxresident)k
-0inputs+0outputs (0major+58593906minor)pagefaults 0swaps
-
-/usr/bin/time ./inner_product_gmp_12_1_mpblas_mkII 500000000 512
-Elapsed time: 66.7805 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-176.03user 98.69system 4:35.00elapsed 99%CPU (0avgtext+0avgdata 234377728maxresident)k
+149.74user 98.09system 4:08.10elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
 0inputs+0outputs (0major+58593910minor)pagefaults 0swaps
 
-/usr/bin/time ./inner_product_gmp_12_1_mpblas_mkIISR 500000000 512
-Elapsed time: 51.6739 s
+/usr/bin/time ./inner_product_gmp_12_1_mpblas_mkII 500000000 512
+Elapsed time: 53.4114 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-155.17user 98.50system 4:13.96elapsed 99%CPU (0avgtext+0avgdata 234377728maxresident)k
+166.96user 98.68system 4:25.93elapsed 99%CPU (0avgtext+0avgdata 234377216maxresident)k
+0inputs+0outputs (0major+58593909minor)pagefaults 0swaps
+
+/usr/bin/time ./inner_product_gmp_12_1_mpblas_mkIISR 500000000 512
+Elapsed time: 47.1388 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+152.89user 98.24system 4:11.41elapsed 99%CPU (0avgtext+0avgdata 234377728maxresident)k
 0inputs+0outputs (0major+58593908minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_12_2_mpblas_orig 500000000 512
-Elapsed time: 51.2715 s
+Elapsed time: 51.3656 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-155.51user 97.61system 4:13.40elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
-0inputs+0outputs (0major+58593910minor)pagefaults 0swaps
+155.46user 98.93system 4:14.68elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
+0inputs+0outputs (0major+58593911minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_12_2_mpblas_mkII 500000000 512
-Elapsed time: 39.7799 s
+Elapsed time: 39.3533 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-153.20user 97.88system 4:11.35elapsed 99%CPU (0avgtext+0avgdata 234376704maxresident)k
-0inputs+0outputs (0major+58593910minor)pagefaults 0swaps
+149.01user 98.31system 4:07.60elapsed 99%CPU (0avgtext+0avgdata 234378240maxresident)k
+0inputs+0outputs (0major+58593904minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_12_2_mpblas_mkIISR 500000000 512
-Elapsed time: 34.3819 s
+Elapsed time: 34.128 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-135.71user 97.30system 3:53.27elapsed 99%CPU (0avgtext+0avgdata 234377728maxresident)k
-0inputs+0outputs (0major+58593907minor)pagefaults 0swaps
+135.51user 97.76system 3:53.53elapsed 99%CPU (0avgtext+0avgdata 234377728maxresident)k
+0inputs+0outputs (0major+58593908minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_13_0_mpblas_openmp_orig 500000000 512
-Elapsed time: 1.85154 s
+Elapsed time: 1.8455 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-222.62user 99.08system 3:27.25elapsed 155%CPU (0avgtext+0avgdata 234378240maxresident)k
-0inputs+0outputs (0major+58594167minor)pagefaults 0swaps
+220.36user 97.65system 3:23.16elapsed 156%CPU (0avgtext+0avgdata 234378240maxresident)k
+0inputs+0outputs (0major+58594171minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_13_0_mpblas_openmp_mkII 500000000 512
-Elapsed time: 1.78174 s
+Elapsed time: 1.57649 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-224.51user 99.64system 3:35.02elapsed 150%CPU (0avgtext+0avgdata 234376704maxresident)k
-0inputs+0outputs (0major+58594170minor)pagefaults 0swaps
+216.03user 102.07system 3:42.52elapsed 142%CPU (0avgtext+0avgdata 234373120maxresident)k
+0inputs+0outputs (0major+58594169minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_13_0_mpblas_openmp_mkIISR 500000000 512
-Elapsed time: 1.56581 s
+Elapsed time: 1.56151 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-200.29user 99.52system 3:25.28elapsed 146%CPU (0avgtext+0avgdata 234376192maxresident)k
-0inputs+0outputs (0major+58594170minor)pagefaults 0swaps
+200.39user 100.45system 3:25.75elapsed 146%CPU (0avgtext+0avgdata 234374656maxresident)k
+0inputs+0outputs (0major+58594165minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_13_1_mpblas_openmp_orig 500000000 512
-Elapsed time: 1.57341 s
+Elapsed time: 1.58124 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-202.17user 98.44system 3:25.58elapsed 146%CPU (0avgtext+0avgdata 234378752maxresident)k
-0inputs+0outputs (0major+58594159minor)pagefaults 0swaps
+202.20user 98.58system 3:25.32elapsed 146%CPU (0avgtext+0avgdata 234378240maxresident)k
+0inputs+0outputs (0major+58594160minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_13_1_mpblas_openmp_mkII 500000000 512
-Elapsed time: 1.56574 s
+Elapsed time: 1.56381 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-208.14user 101.09system 3:34.70elapsed 144%CPU (0avgtext+0avgdata 234374656maxresident)k
-0inputs+0outputs (0major+58594168minor)pagefaults 0swaps
+212.94user 102.77system 3:39.92elapsed 143%CPU (0avgtext+0avgdata 234375680maxresident)k
+0inputs+0outputs (0major+58594170minor)pagefaults 0swaps
 
 /usr/bin/time ./inner_product_gmp_13_1_mpblas_openmp_mkIISR 500000000 512
-Elapsed time: 1.57983 s
+Elapsed time: 1.7214 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-201.38user 99.73system 3:26.66elapsed 145%CPU (0avgtext+0avgdata 234376192maxresident)k
-0inputs+0outputs (0major+58594170minor)pagefaults 0swaps
+202.14user 100.44system 3:28.01elapsed 145%CPU (0avgtext+0avgdata 234375168maxresident)k
+0inputs+0outputs (0major+58594169minor)pagefaults 0swaps
 

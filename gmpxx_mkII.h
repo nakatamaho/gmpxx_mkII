@@ -2546,22 +2546,14 @@ inline mpf_class &operator/=(mpf_class &lhs, const mpf_class &rhs) {
     return lhs;
 }
 inline mpf_class operator+(const mpf_class &op1, const mpf_class &op2) {
-#if defined ___GMPXX_MKII_NOPRECCHANGE___
-    mpf_class result;
-    mpf_add(result.value, op1.value, op2.value);
-    return result;
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
+    mp_bitcnt_t max_prec = std::max(op1.get_prec(), op2.get_prec());
+    mpf_class result(0, max_prec);
 #else
-    int _preccmp = preccmp(op1, op2);
-    if (_preccmp == 1) {
-        mpf_class result(op1);
-        mpf_add(result.value, op1.value, op2.value);
-        return result;
-    } else {
-        mpf_class result(op2);
-        mpf_add(result.value, op1.value, op2.value);
-        return result;
-    }
+    mpf_class result(0);
 #endif
+    mpf_add(result.get_mpf_t(), op1.get_mpf_t(), op2.get_mpf_t());
+    return result;
 }
 inline mpf_class operator-(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
@@ -2582,22 +2574,14 @@ inline mpf_class operator-(const mpf_class &op1, const mpf_class &op2) {
 #endif
 }
 inline mpf_class operator*(const mpf_class &op1, const mpf_class &op2) {
-#if defined ___GMPXX_MKII_NOPRECCHANGE___
-    mpf_class result(op1);
-    mpf_mul(result.value, result.value, op2.value);
-    return result;
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
+    mp_bitcnt_t max_prec = std::max(op1.get_prec(), op2.get_prec());
+    mpf_class result(0, max_prec);
 #else
-    int _preccmp = preccmp(op1, op2);
-    if (_preccmp == 1) {
-        mpf_class result(op1);
-        mpf_mul(result.value, op1.value, op2.value);
-        return result;
-    } else {
-        mpf_class result(op2);
-        mpf_mul(result.value, op1.value, op2.value);
-        return result;
-    }
+    mpf_class result(0);
 #endif
+    mpf_mul(result.get_mpf_t(), op1.get_mpf_t(), op2.get_mpf_t());
+    return result;
 }
 inline mpf_class operator/(const mpf_class &op1, const mpf_class &op2) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
