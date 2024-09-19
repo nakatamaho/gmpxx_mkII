@@ -2070,11 +2070,9 @@ class mpf_class {
     // The rule 3 of 5 default deconstructor
     ~mpf_class() { mpf_clear(value); }
     // The rule 4 of 5 move constructor
-    mpf_class(mpf_class &&op) noexcept : value(op.value) {
-        op.value->_mp_d = nullptr;
-        op.value->_mp_size = 0;
-        op.value->_mp_prec = 0;
-        op.value->_mp_exp = 0;
+    mpf_class(mpf_class &&op) noexcept {
+        mpf_init(value);
+        mpf_swap(value, op.value);
     }
     // The rule 5 of 5 move assignment operator
     mpf_class &operator=(mpf_class &&op) noexcept {
@@ -2092,7 +2090,7 @@ class mpf_class {
         return *this;
     }
     // constructors
-    explicit mpf_class(const mpf_t op) noexcept {
+    explicit mpf_class(const mpf_t op) {
         mp_bitcnt_t op_prec = mpf_get_prec(op);
         mpf_init2(value, op_prec);
         mpf_set(value, op);
