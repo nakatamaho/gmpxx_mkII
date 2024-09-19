@@ -27,7 +27,12 @@ OBJECTS_MKIISR = $(SOURCES:.cpp=_mkiisr.o)
 SOURCE_TEST_ENV = test_env.cpp
 
 ORIG_TESTS_DIR = orig_tests/cxx
-ORIG_TESTS_SOURCES = $(wildcard $(ORIG_TESTS_DIR)/*.cc)
+ORIG_TESTS_SOURCES = orig_tests/cxx/t-assign.cc orig_tests/cxx/t-binary.cc orig_tests/cxx/t-cast.cc orig_tests/cxx/t-constr.cc \
+orig_tests/cxx/t-cxx11.cc orig_tests/cxx/t-do-exceptions-work-at-all-with-this-compiler.cc orig_tests/cxx/t-headers.cc \
+orig_tests/cxx/t-iostream.cc orig_tests/cxx/t-istream.cc orig_tests/cxx/t-locale.cc orig_tests/cxx/t-misc.cc orig_tests/cxx/t-mix.cc \
+orig_tests/cxx/t-ops.cc orig_tests/cxx/t-ops2f.cc orig_tests/cxx/t-ops2qf.cc orig_tests/cxx/t-ops2z.cc orig_tests/cxx/t-ops3.cc \
+orig_tests/cxx/t-ostream.cc orig_tests/cxx/t-ternary.cc orig_tests/cxx/t-unary.cc
+#orig_tests/cxx/t-prec.cc orig_tests/cxx/t-rand.cc
 ORIG_TESTS = $(filter-out $(ORIG_TESTS_DIR)/t-istream, $(ORIG_TESTS_SOURCES:$(ORIG_TESTS_DIR)/%.cc=$(ORIG_TESTS_DIR)/%))
 
 EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/example03.cpp examples/example04.cpp

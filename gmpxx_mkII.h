@@ -2063,11 +2063,6 @@ class mpf_class {
     // The rule 2 of 5 copy assignment operator
     mpf_class &operator=(const mpf_class &op) noexcept {
         if (this != &op) {
-#if !defined ___GMPXX_MKII_NOPRECCHANGE___
-            if (mpf_get_prec(this->get_mpf_t()) != mpf_get_prec(op.value)) {
-                mpf_set_prec(value, mpf_get_prec(this->get_mpf_t()));
-            }
-#endif
             mpf_set(value, op.value);
         }
         return *this;
@@ -2075,9 +2070,11 @@ class mpf_class {
     // The rule 3 of 5 default deconstructor
     ~mpf_class() { mpf_clear(value); }
     // The rule 4 of 5 move constructor
-    mpf_class(mpf_class &&op) noexcept {
-        mpf_init(value);
-        mpf_swap(value, op.value);
+    mpf_class(mpf_class &&op) noexcept : value(op.value) {
+        op.value->_mp_d = nullptr;
+        op.value->_mp_size = 0;
+        op.value->_mp_prec = 0;
+        op.value->_mp_exp = 0;
     }
     // The rule 5 of 5 move assignment operator
     mpf_class &operator=(mpf_class &&op) noexcept {
@@ -2095,21 +2092,21 @@ class mpf_class {
         return *this;
     }
     // constructors
-    explicit mpf_class(const mpf_t op) {
+    explicit mpf_class(const mpf_t op) noexcept {
         mp_bitcnt_t op_prec = mpf_get_prec(op);
         mpf_init2(value, op_prec);
         mpf_set(value, op);
     }
-    mpf_class(const mpz_t op) {
+    mpf_class(const mpz_t op) noexcept {
         mpf_init(value);
         mpf_set_z(value, op);
     }
-    mpf_class(const mpq_t op) {
+    mpf_class(const mpq_t op) noexcept {
         mpf_init(value);
         mpf_set_q(value, op);
     }
     mpf_class(const unsigned long int op) noexcept { mpf_init_set_ui(value, op); }
-    mpf_class(const unsigned int op) noexcept { mpf_init_set_ui(value, static_cast<unsigned long int>(op)); }
+    mpf_class(const unsigned int op) noexcept : mpf_class(static_cast<unsigned long int>(op)) {}
     mpf_class(const signed long int op) noexcept { mpf_init_set_si(value, op); }
     mpf_class(const signed int op) noexcept { mpf_init_set_si(value, static_cast<signed long int>(op)); }
     mpf_class(const double op) noexcept { mpf_init_set_d(value, op); }
