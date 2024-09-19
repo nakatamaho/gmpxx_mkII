@@ -17,7 +17,7 @@ int main() {
     mpf_class d;
 
     // Calculate the minimum between b and c, then find the maximum between a and the result
-    d = std::min(a, b+c);
+    d = std::min(a, b + c);
 
     // Output the result
     std::cout << "The maximum of " << a << " and the minimum of " << b << " and " << c << " is " << d << std::endl;

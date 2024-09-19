@@ -2049,7 +2049,7 @@ class mpf_class {
     // https://gmplib.org/manual/C_002b_002b-Interface-Floats
     ////////////////////////////////////////////////////////////////////////////////////////
     // constructors and destructors
-    mpf_class() { mpf_init(value); }
+    mpf_class() { mpf_init(value); } // a default precision has already been established during initialization by a call to mpf_set_default_prec.
     // The rule of 0/3/5
     // The rule 1 of 5 copy constructor
     mpf_class(const mpf_class &op) {
@@ -2065,7 +2065,7 @@ class mpf_class {
         if (this != &op) {
 #if !defined ___GMPXX_MKII_NOPRECCHANGE___
             if (mpf_get_prec(this->get_mpf_t()) != mpf_get_prec(op.value)) {
-                mpf_init2(value, mpf_get_prec(this->get_mpf_t()));
+                mpf_set_prec(value, mpf_get_prec(this->get_mpf_t()));
             }
 #endif
             mpf_set(value, op.value);
