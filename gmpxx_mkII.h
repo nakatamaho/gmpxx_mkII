@@ -2096,16 +2096,9 @@ class mpf_class {
     }
     // constructors
     explicit mpf_class(const mpf_t op) {
-#if !defined ___GMPXX_MKII_NOPRECCHANGE___
-        if (mpf_get_prec(this->get_mpf_t()) == mpf_get_prec(op)) {
-            mpf_init_set(value, op);
-        } else {
-            mpf_init2(value, mpf_get_prec(op));
-            mpf_set(value, op);
-        }
-#else
-        mpf_init_set(value, op);
-#endif
+        mp_bitcnt_t op_prec = mpf_get_prec(op);
+        mpf_init2(value, op_prec);
+        mpf_set(value, op);
     }
     mpf_class(const mpz_t op) {
         mpf_init(value);
@@ -2122,11 +2115,13 @@ class mpf_class {
     mpf_class(const double op) noexcept { mpf_init_set_d(value, op); }
     mpf_class(const char *str) {
         if (mpf_init_set_str(value, str, gmpxx_defaults::base) != 0) {
+            mpf_clear(value);
             throw std::invalid_argument("");
         }
     }
     mpf_class(const std::string &str) {
         if (mpf_init_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
+            mpf_clear(value);
             throw std::invalid_argument("");
         }
     }
