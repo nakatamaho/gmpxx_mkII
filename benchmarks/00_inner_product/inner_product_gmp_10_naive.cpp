@@ -32,7 +32,6 @@ void Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *an
     mpf_clear(templ);
     mpf_swap(*ans, temp);
     mpf_clear(temp);
-
 }
 
 void init_mpf_vec(mpf_t *vec, int n, int prec) {

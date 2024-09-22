@@ -1,63 +1,63 @@
-Linux c77313517c6c 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Jan 16 14:32:32 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Jan 16 14:32:32 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
 model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
 ./gemm_gmp_10_naive_ijl 1000 1000 1000 512
-    m     n     k     MFLOPS    Elapsed(s)
- 1000  1000  1000     25.830     77.507
+    m     n     k     MFLOPS      DIFF     Elapsed(s)
+ 1000  1000  1000     21.700   2.777e-146     92.256
 
 ./gemm_gmp_11_naive_jli 1000 1000 1000 512
     m     n     k     MFLOPS      DIFF     Elapsed(s)
- 1000  1000  1000     34.116   0.000e+00     58.682
+ 1000  1000  1000     27.264   0.000e+00     73.430
 
 ./gemm_gmp_12_naive_jli_openmp 1000 1000 1000 512
     m     n     k     MFLOPS      DIFF     Elapsed(s)
- 1000  1000  1000   1086.280   0.000e+00     1.843
+ 1000  1000  1000    953.910   0.000e+00     2.099
 
 ./gemm_gmp_20_mpblas_orig 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     11.311     176.998
+ 1000  1000  1000     10.013     199.933
 
 ./gemm_gmp_20_mpblas_compat 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.915     201.906
+ 1000  1000  1000      8.749     228.819
 
 ./gemm_gmp_20_mpblas_mkII 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.360     213.896
+ 1000  1000  1000     11.000     182.006
 
 ./gemm_gmp_20_mpblas_mkIISR 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     12.272     163.140
+ 1000  1000  1000     11.527     173.681
 
 ./gemm_gmp_21_mpblas_openmp_orig 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     11.263     177.742
+ 1000  1000  1000     10.158     197.084
 
 ./gemm_gmp_21_mpblas_openmp_compat 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.581     208.966
+ 1000  1000  1000      8.786     227.855
 
 ./gemm_gmp_21_mpblas_openmp_mkII 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.338     214.383
+ 1000  1000  1000     10.836     184.755
 
 ./gemm_gmp_21_mpblas_openmp_mkIISR 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     12.246     163.483
+ 1000  1000  1000     11.573     172.989
 
 ./gemm_gmp_30_mpblaslike_naive_ijl_compat 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.890     202.429
+ 1000  1000  1000      8.548     234.207
 
 ./gemm_gmp_30_mpblaslike_naive_ijl_mkII 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000      9.330     214.572
+ 1000  1000  1000     11.078     180.712
 
 ./gemm_gmp_30_mpblaslike_naive_ijl_mkIISR 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     12.219     163.838
+ 1000  1000  1000     11.540     173.488
 
 ./gemm_gmp_30_mpblaslike_naive_ijl_orig 1000 1000 1000 512
     m     n     k     MFLOPS       Elapsed(s)
- 1000  1000  1000     11.228     178.310
+ 1000  1000  1000      9.978     200.651
 
