@@ -52,7 +52,7 @@ for file_path in file_paths:
     cpu_model_filename = cpu_model.replace(' ', '_')  # Prepare CPU model for filename usage
 
     # Define the pattern to extract operations and their elapsed times
-    pattern = re.compile(r'(\./inner_product_gmp_\d+_\w+) \d+ \d+\nElapsed time: ([\d.]+) s')
+    pattern = re.compile(r'/usr/bin/time\s+(\./inner_product_gmp_[\w]+)\s+\d+\s+\d+\nElapsed time:\s+([\d.]+)\s+s')
 
     # Extract data using the defined pattern
     data = pattern.findall(''.join(lines))
@@ -108,7 +108,7 @@ for file_path in file_paths:
     plt.subplots_adjust(bottom=0.4)
 
     # Add legend bars on the right side
-    legend_labels = ['naive C', 'orig(gmpxx.h)', 'mkII(gmpxx_mkII.h)', 'mkIISR(gmpxx_mkII.h)']
+    legend_labels = ['native C', 'orig(gmpxx.h)', 'mkII(gmpxx_mkII.h)', 'mkIISR(gmpxx_mkII.h)']
     legend_colors = ['gray', 'blue', 'green', 'red' ]
     for color, label in zip(legend_colors, legend_labels):
         plt.plot([], [], color=color, label=label, linewidth=10)

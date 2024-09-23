@@ -1,207 +1,171 @@
 Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Jan 16 14:32:32 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
 model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
-Profiling inner_product_gmp_10_naive
+Profiling inner_product_gmp_C_native_10
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 36.5013 s
+Elapsed time: 36.3498 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 94 times to write data ]
-[ perf record: Captured and wrote 23.464 MB perf.data_inner_product_gmp_10_naive (246800 samples) ]
-Execution time: 143549 ms
-Flamegraph for inner_product_gmp_10_naive generated.
-Annotation for inner_product_gmp_10_naive saved.
-Perf report for inner_product_gmp_10_naive generated and saved to report_inner_product_gmp_10_naive.txt.
+[ perf record: Woken up 96 times to write data ]
+[ perf record: Captured and wrote 23.812 MB perf.data_inner_product_gmp_C_native_10 (249726 samples) ]
+Execution time: 144547 ms
+Flamegraph for inner_product_gmp_C_native_10 generated.
+Annotation for inner_product_gmp_C_native_10 saved.
+Perf report for inner_product_gmp_C_native_10 generated and saved to report_inner_product_gmp_C_native_10.txt.
 
-Profiling inner_product_gmp_11_openmp
+Profiling inner_product_gmp_C_native_11_openmp
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 1.57417 s
+Elapsed time: 1.64272 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 79 times to write data ]
-[ perf record: Captured and wrote 32.219 MB perf.data_inner_product_gmp_11_openmp (358887 samples) ]
-Execution time: 110528 ms
-Flamegraph for inner_product_gmp_11_openmp generated.
-Annotation for inner_product_gmp_11_openmp saved.
-Perf report for inner_product_gmp_11_openmp generated and saved to report_inner_product_gmp_11_openmp.txt.
+[ perf record: Woken up 81 times to write data ]
+[ perf record: Captured and wrote 32.547 MB perf.data_inner_product_gmp_C_native_11_openmp (360265 samples) ]
+Execution time: 112513 ms
+Flamegraph for inner_product_gmp_C_native_11_openmp generated.
+Annotation for inner_product_gmp_C_native_11_openmp saved.
+Perf report for inner_product_gmp_C_native_11_openmp generated and saved to report_inner_product_gmp_C_native_11_openmp.txt.
 
-Profiling inner_product_gmp_12_0_mpblas_orig
+Profiling inner_product_gmp_kernel_01_orig
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 60.5641 s
+Elapsed time: 60.1043 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
 [ perf record: Woken up 188 times to write data ]
-[ perf record: Captured and wrote 47.359 MB perf.data_inner_product_gmp_12_0_mpblas_orig (460124 samples) ]
-Execution time: 265696 ms
-Flamegraph for inner_product_gmp_12_0_mpblas_orig generated.
-Annotation for inner_product_gmp_12_0_mpblas_orig saved.
-Perf report for inner_product_gmp_12_0_mpblas_orig generated and saved to report_inner_product_gmp_12_0_mpblas_orig.txt.
+[ perf record: Captured and wrote 47.417 MB perf.data_inner_product_gmp_kernel_01_orig (460059 samples) ]
+Execution time: 265676 ms
+Flamegraph for inner_product_gmp_kernel_01_orig generated.
+Annotation for inner_product_gmp_kernel_01_orig saved.
+Perf report for inner_product_gmp_kernel_01_orig generated and saved to report_inner_product_gmp_kernel_01_orig.txt.
 
-Profiling inner_product_gmp_12_0_mpblas_mkII
+Profiling inner_product_gmp_kernel_01_mkII
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 65.1412 s
+Elapsed time: 49.3108 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 189 times to write data ]
-[ perf record: Captured and wrote 48.339 MB perf.data_inner_product_gmp_12_0_mpblas_mkII (501232 samples) ]
-Execution time: 288727 ms
-Flamegraph for inner_product_gmp_12_0_mpblas_mkII generated.
-Annotation for inner_product_gmp_12_0_mpblas_mkII saved.
-Perf report for inner_product_gmp_12_0_mpblas_mkII generated and saved to report_inner_product_gmp_12_0_mpblas_mkII.txt.
+[ perf record: Woken up 179 times to write data ]
+[ perf record: Captured and wrote 44.750 MB perf.data_inner_product_gmp_kernel_01_mkII (452557 samples) ]
+Execution time: 261685 ms
+Flamegraph for inner_product_gmp_kernel_01_mkII generated.
+Annotation for inner_product_gmp_kernel_01_mkII saved.
+Perf report for inner_product_gmp_kernel_01_mkII generated and saved to report_inner_product_gmp_kernel_01_mkII.txt.
 
-Profiling inner_product_gmp_12_0_mpblas_mkIISR
+Profiling inner_product_gmp_kernel_01_mkIISR
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 49.3341 s
+Elapsed time: 42.7528 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 177 times to write data ]
-[ perf record: Captured and wrote 44.384 MB perf.data_inner_product_gmp_12_0_mpblas_mkIISR (448749 samples) ]
-Execution time: 258698 ms
-Flamegraph for inner_product_gmp_12_0_mpblas_mkIISR generated.
-Annotation for inner_product_gmp_12_0_mpblas_mkIISR saved.
-Perf report for inner_product_gmp_12_0_mpblas_mkIISR generated and saved to report_inner_product_gmp_12_0_mpblas_mkIISR.txt.
+[ perf record: Woken up 175 times to write data ]
+[ perf record: Captured and wrote 43.873 MB perf.data_inner_product_gmp_kernel_01_mkIISR (438278 samples) ]
+Execution time: 252665 ms
+Flamegraph for inner_product_gmp_kernel_01_mkIISR generated.
+Annotation for inner_product_gmp_kernel_01_mkIISR saved.
+Perf report for inner_product_gmp_kernel_01_mkIISR generated and saved to report_inner_product_gmp_kernel_01_mkIISR.txt.
 
-Profiling inner_product_gmp_12_1_mpblas_orig
+Profiling inner_product_gmp_kernel_02_orig
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 48.7505 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 177 times to write data ]
-[ perf record: Captured and wrote 44.614 MB perf.data_inner_product_gmp_12_1_mpblas_orig (436786 samples) ]
-Execution time: 252677 ms
-Flamegraph for inner_product_gmp_12_1_mpblas_orig generated.
-Annotation for inner_product_gmp_12_1_mpblas_orig saved.
-Perf report for inner_product_gmp_12_1_mpblas_orig generated and saved to report_inner_product_gmp_12_1_mpblas_orig.txt.
-
-Profiling inner_product_gmp_12_1_mpblas_mkII
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 68.9083 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 194 times to write data ]
-[ perf record: Captured and wrote 48.630 MB perf.data_inner_product_gmp_12_1_mpblas_mkII (502910 samples) ]
-Execution time: 289717 ms
-Flamegraph for inner_product_gmp_12_1_mpblas_mkII generated.
-Annotation for inner_product_gmp_12_1_mpblas_mkII saved.
-Perf report for inner_product_gmp_12_1_mpblas_mkII generated and saved to report_inner_product_gmp_12_1_mpblas_mkII.txt.
-
-Profiling inner_product_gmp_12_1_mpblas_mkIISR
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 50.8985 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 178 times to write data ]
-[ perf record: Captured and wrote 44.555 MB perf.data_inner_product_gmp_12_1_mpblas_mkIISR (450620 samples) ]
-Execution time: 260686 ms
-Flamegraph for inner_product_gmp_12_1_mpblas_mkIISR generated.
-Annotation for inner_product_gmp_12_1_mpblas_mkIISR saved.
-Perf report for inner_product_gmp_12_1_mpblas_mkIISR generated and saved to report_inner_product_gmp_12_1_mpblas_mkIISR.txt.
-
-Profiling inner_product_gmp_12_2_mpblas_orig
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 51.583 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 181 times to write data ]
-[ perf record: Captured and wrote 45.702 MB perf.data_inner_product_gmp_12_2_mpblas_orig (450415 samples) ]
-Execution time: 259680 ms
-Flamegraph for inner_product_gmp_12_2_mpblas_orig generated.
-Annotation for inner_product_gmp_12_2_mpblas_orig saved.
-Perf report for inner_product_gmp_12_2_mpblas_orig generated and saved to report_inner_product_gmp_12_2_mpblas_orig.txt.
-
-Profiling inner_product_gmp_12_2_mpblas_mkII
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 39.5218 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 177 times to write data ]
-[ perf record: Captured and wrote 44.688 MB perf.data_inner_product_gmp_12_2_mpblas_mkII (454469 samples) ]
-Execution time: 262705 ms
-Flamegraph for inner_product_gmp_12_2_mpblas_mkII generated.
-Annotation for inner_product_gmp_12_2_mpblas_mkII saved.
-Perf report for inner_product_gmp_12_2_mpblas_mkII generated and saved to report_inner_product_gmp_12_2_mpblas_mkII.txt.
-
-Profiling inner_product_gmp_12_2_mpblas_mkIISR
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 34.2473 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 167 times to write data ]
-[ perf record: Captured and wrote 41.949 MB perf.data_inner_product_gmp_12_2_mpblas_mkIISR (419527 samples) ]
-Execution time: 242672 ms
-Flamegraph for inner_product_gmp_12_2_mpblas_mkIISR generated.
-Annotation for inner_product_gmp_12_2_mpblas_mkIISR saved.
-Perf report for inner_product_gmp_12_2_mpblas_mkIISR generated and saved to report_inner_product_gmp_12_2_mpblas_mkIISR.txt.
-
-Profiling inner_product_gmp_13_0_mpblas_openmp_orig
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 1.8771 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 187 times to write data ]
-[ perf record: Captured and wrote 58.591 MB perf.data_inner_product_gmp_13_0_mpblas_openmp_orig (565551 samples) ]
-Execution time: 208634 ms
-Flamegraph for inner_product_gmp_13_0_mpblas_openmp_orig generated.
-Annotation for inner_product_gmp_13_0_mpblas_openmp_orig saved.
-Perf report for inner_product_gmp_13_0_mpblas_openmp_orig generated and saved to report_inner_product_gmp_13_0_mpblas_openmp_orig.txt.
-
-Profiling inner_product_gmp_13_0_mpblas_openmp_mkII
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 1.92649 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 200 times to write data ]
-[ perf record: Captured and wrote 56.550 MB perf.data_inner_product_gmp_13_0_mpblas_openmp_mkII (587118 samples) ]
-Execution time: 218638 ms
-Flamegraph for inner_product_gmp_13_0_mpblas_openmp_mkII generated.
-Annotation for inner_product_gmp_13_0_mpblas_openmp_mkII saved.
-Perf report for inner_product_gmp_13_0_mpblas_openmp_mkII generated and saved to report_inner_product_gmp_13_0_mpblas_openmp_mkII.txt.
-
-Profiling inner_product_gmp_13_0_mpblas_openmp_mkIISR
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 1.58977 s
-Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 156 times to write data ]
-[ perf record: Captured and wrote 52.240 MB perf.data_inner_product_gmp_13_0_mpblas_openmp_mkIISR (533831 samples) ]
-Execution time: 211648 ms
-Flamegraph for inner_product_gmp_13_0_mpblas_openmp_mkIISR generated.
-Annotation for inner_product_gmp_13_0_mpblas_openmp_mkIISR saved.
-Perf report for inner_product_gmp_13_0_mpblas_openmp_mkIISR generated and saved to report_inner_product_gmp_13_0_mpblas_openmp_mkIISR.txt.
-
-Profiling inner_product_gmp_13_1_mpblas_openmp_orig
-Lowering default frequency rate from 4000 to 1750.
-Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 1.58492 s
+Elapsed time: 60.1112 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
 [ perf record: Woken up 183 times to write data ]
-[ perf record: Captured and wrote 53.935 MB perf.data_inner_product_gmp_13_1_mpblas_openmp_orig (528350 samples) ]
-Execution time: 207632 ms
-Flamegraph for inner_product_gmp_13_1_mpblas_openmp_orig generated.
-Annotation for inner_product_gmp_13_1_mpblas_openmp_orig saved.
-Perf report for inner_product_gmp_13_1_mpblas_openmp_orig generated and saved to report_inner_product_gmp_13_1_mpblas_openmp_orig.txt.
+[ perf record: Captured and wrote 46.311 MB perf.data_inner_product_gmp_kernel_02_orig (458331 samples) ]
+Execution time: 264692 ms
+Flamegraph for inner_product_gmp_kernel_02_orig generated.
+Annotation for inner_product_gmp_kernel_02_orig saved.
+Perf report for inner_product_gmp_kernel_02_orig generated and saved to report_inner_product_gmp_kernel_02_orig.txt.
 
-Profiling inner_product_gmp_13_1_mpblas_openmp_mkII
+Profiling inner_product_gmp_kernel_02_mkII
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 1.58739 s
+Elapsed time: 47.0076 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 160 times to write data ]
-[ perf record: Captured and wrote 53.482 MB perf.data_inner_product_gmp_13_1_mpblas_openmp_mkII (548802 samples) ]
-Execution time: 219644 ms
-Flamegraph for inner_product_gmp_13_1_mpblas_openmp_mkII generated.
-Annotation for inner_product_gmp_13_1_mpblas_openmp_mkII saved.
-Perf report for inner_product_gmp_13_1_mpblas_openmp_mkII generated and saved to report_inner_product_gmp_13_1_mpblas_openmp_mkII.txt.
+[ perf record: Woken up 178 times to write data ]
+[ perf record: Captured and wrote 44.896 MB perf.data_inner_product_gmp_kernel_02_mkII (453254 samples) ]
+Execution time: 261679 ms
+Flamegraph for inner_product_gmp_kernel_02_mkII generated.
+Annotation for inner_product_gmp_kernel_02_mkII saved.
+Perf report for inner_product_gmp_kernel_02_mkII generated and saved to report_inner_product_gmp_kernel_02_mkII.txt.
 
-Profiling inner_product_gmp_13_1_mpblas_openmp_mkIISR
+Profiling inner_product_gmp_kernel_02_mkIISR
 Lowering default frequency rate from 4000 to 1750.
 Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
-Elapsed time: 1.55769 s
+Elapsed time: 40.5732 s
 Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
-[ perf record: Woken up 156 times to write data ]
-[ perf record: Captured and wrote 52.509 MB perf.data_inner_product_gmp_13_1_mpblas_openmp_mkIISR (535446 samples) ]
-Execution time: 212611 ms
-Flamegraph for inner_product_gmp_13_1_mpblas_openmp_mkIISR generated.
-Annotation for inner_product_gmp_13_1_mpblas_openmp_mkIISR saved.
-Perf report for inner_product_gmp_13_1_mpblas_openmp_mkIISR generated and saved to report_inner_product_gmp_13_1_mpblas_openmp_mkIISR.txt.
+[ perf record: Woken up 170 times to write data ]
+[ perf record: Captured and wrote 42.663 MB perf.data_inner_product_gmp_kernel_02_mkIISR (426949 samples) ]
+Execution time: 246678 ms
+Flamegraph for inner_product_gmp_kernel_02_mkIISR generated.
+Annotation for inner_product_gmp_kernel_02_mkIISR saved.
+Perf report for inner_product_gmp_kernel_02_mkIISR generated and saved to report_inner_product_gmp_kernel_02_mkIISR.txt.
+
+Profiling inner_product_gmp_kernel_03_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 48.2197 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 182 times to write data ]
+[ perf record: Captured and wrote 45.325 MB perf.data_inner_product_gmp_kernel_03_orig (442261 samples) ]
+Execution time: 255915 ms
+Flamegraph for inner_product_gmp_kernel_03_orig generated.
+Annotation for inner_product_gmp_kernel_03_orig saved.
+Perf report for inner_product_gmp_kernel_03_orig generated and saved to report_inner_product_gmp_kernel_03_orig.txt.
+
+Profiling inner_product_gmp_kernel_03_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 54.4946 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 178 times to write data ]
+[ perf record: Captured and wrote 45.311 MB perf.data_inner_product_gmp_kernel_03_mkII (457143 samples) ]
+Execution time: 263676 ms
+Flamegraph for inner_product_gmp_kernel_03_mkII generated.
+Annotation for inner_product_gmp_kernel_03_mkII saved.
+Perf report for inner_product_gmp_kernel_03_mkII generated and saved to report_inner_product_gmp_kernel_03_mkII.txt.
+
+Profiling inner_product_gmp_kernel_03_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 46.1854 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 172 times to write data ]
+[ perf record: Captured and wrote 43.496 MB perf.data_inner_product_gmp_kernel_03_mkIISR (437061 samples) ]
+Execution time: 252667 ms
+Flamegraph for inner_product_gmp_kernel_03_mkIISR generated.
+Annotation for inner_product_gmp_kernel_03_mkIISR saved.
+Perf report for inner_product_gmp_kernel_03_mkIISR generated and saved to report_inner_product_gmp_kernel_03_mkIISR.txt.
+
+Profiling inner_product_gmp_kernel_04_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 51.6613 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 182 times to write data ]
+[ perf record: Captured and wrote 45.931 MB perf.data_inner_product_gmp_kernel_04_orig (448820 samples) ]
+Execution time: 259358 ms
+Flamegraph for inner_product_gmp_kernel_04_orig generated.
+Annotation for inner_product_gmp_kernel_04_orig saved.
+Perf report for inner_product_gmp_kernel_04_orig generated and saved to report_inner_product_gmp_kernel_04_orig.txt.
+
+Profiling inner_product_gmp_kernel_04_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 34.6104 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 173 times to write data ]
+[ perf record: Captured and wrote 43.049 MB perf.data_inner_product_gmp_kernel_04_mkII (427171 samples) ]
+Execution time: 246668 ms
+Flamegraph for inner_product_gmp_kernel_04_mkII generated.
+Annotation for inner_product_gmp_kernel_04_mkII saved.
+Perf report for inner_product_gmp_kernel_04_mkII generated and saved to report_inner_product_gmp_kernel_04_mkII.txt.
+
+Profiling inner_product_gmp_kernel_04_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 33.6247 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 167 times to write data ]
+[ perf record: Captured and wrote 42.116 MB perf.data_inner_product_gmp_kernel_04_mkIISR (418361 samples) ]
+Execution time: 241663 ms
+Flamegraph for inner_product_gmp_kernel_04_mkIISR generated.
+Annotation for inner_product_gmp_kernel_04_mkIISR saved.
+Perf report for inner_product_gmp_kernel_04_mkIISR generated and saved to report_inner_product_gmp_kernel_04_mkIISR.txt.
 
