@@ -23,20 +23,20 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 }
 
 void matmul_gmp(long m, long n, long k, mpf_t alpha, mpf_t *a, long lda, mpf_t *b, long ldb, mpf_t beta, mpf_t *c, long ldc) {
-    mpf_t sum, temp;
-#pragma omp parallel private(temp, sum)
+#pragma omp parallel
     {
+        mpf_t sum, temp;
         mpf_init(temp);
         mpf_init(sum);
 
-#pragma omp for
+#pragma omp for collapse(2)
         for (long i = 0; i < m; ++i) {
             for (long j = 0; j < n; ++j) {
-                mpf_mul(c[i + j * ldc], beta, c[i + j * ldc]);
+                mpf_mul(c[i + j * ldc], c[i + j * ldc], beta);
             }
         }
 
-#pragma omp for
+#pragma omp for collapse(2) nowait
         for (long j = 0; j < n; ++j) {
             for (long l = 0; l < k; ++l) {
                 mpf_mul(temp, alpha, b[l + j * ldb]);
