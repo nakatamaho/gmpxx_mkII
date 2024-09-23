@@ -41,7 +41,7 @@ EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
 CXXFLAGS_BENCH = -g -fno-unroll-loops -fopenmp -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_inner_product
-BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_C_native_10 inner_product_gmp_C_native_openmp_11)
+BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_C_native_01 inner_product_gmp_C_native_openmp_01)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,\
 inner_product_gmp_kernel_01_orig inner_product_gmp_kernel_01_mkII inner_product_gmp_kernel_01_mkIISR \
 inner_product_gmp_kernel_02_orig inner_product_gmp_kernel_02_mkII inner_product_gmp_kernel_02_mkIISR \
@@ -50,8 +50,8 @@ inner_product_gmp_kernel_04_orig inner_product_gmp_kernel_04_mkII inner_product_
 inner_product_gmp_kernel_openmp_01_orig inner_product_gmp_kernel_openmp_01_mkII inner_product_gmp_kernel_openmp_01_mkIISR \
 inner_product_gmp_kernel_openmp_02_orig inner_product_gmp_kernel_openmp_02_mkII inner_product_gmp_kernel_openmp_02_mkIISR)
 
-#BENCHMARKS01_DIR = benchmarks/01_axpy
-#BENCHMARKS01_0 = $(addprefix $(BENCHMARKS01_DIR)/,axpy_gmp_C_native_10 axpy_gmp_C_native_11_openmp)
+BENCHMARKS01_DIR = benchmarks/01_axpy
+BENCHMARKS01_0 = $(addprefix $(BENCHMARKS01_DIR)/,axpy_gmp_C_native_01 axpy_gmp_C_native_01_openmp)
 
 BENCHMARKS03_DIR = benchmarks/03_gemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli gemm_gmp_12_naive_jli_openmp)
