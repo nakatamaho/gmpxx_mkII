@@ -5,8 +5,8 @@ echo
 FLAMEGRAPH_DIR="/home/docker/FlameGraph"
 
 executables=(
-    "inner_product_gmp_C_native_10"
-    "inner_product_gmp_C_native_openmp_11"
+    "inner_product_gmp_C_native_01"
+    "inner_product_gmp_C_native_openmp_01"
     "inner_product_gmp_kernel_01_orig"
     "inner_product_gmp_kernel_01_mkII"
     "inner_product_gmp_kernel_01_mkIISR"
