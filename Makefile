@@ -41,7 +41,7 @@ EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
 CXXFLAGS_BENCH = -g -fno-unroll-loops -fopenmp -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_inner_product
-BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_C_native_10 inner_product_gmp_C_native_11_openmp)
+BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,inner_product_gmp_C_native_10 inner_product_gmp_C_native_openmp_11)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,\
 inner_product_gmp_kernel_01_orig inner_product_gmp_kernel_01_mkII inner_product_gmp_kernel_01_mkIISR \
 inner_product_gmp_kernel_02_orig inner_product_gmp_kernel_02_mkII inner_product_gmp_kernel_02_mkIISR \
@@ -49,6 +49,9 @@ inner_product_gmp_kernel_03_orig inner_product_gmp_kernel_03_mkII inner_product_
 inner_product_gmp_kernel_04_orig inner_product_gmp_kernel_04_mkII inner_product_gmp_kernel_04_mkIISR \
 inner_product_gmp_kernel_openmp_01_orig inner_product_gmp_kernel_openmp_01_mkII inner_product_gmp_kernel_openmp_01_mkIISR \
 inner_product_gmp_kernel_openmp_02_orig inner_product_gmp_kernel_openmp_02_mkII inner_product_gmp_kernel_openmp_02_mkIISR)
+
+#BENCHMARKS01_DIR = benchmarks/01_axpy
+#BENCHMARKS01_0 = $(addprefix $(BENCHMARKS01_DIR)/,axpy_gmp_C_native_10 axpy_gmp_C_native_11_openmp)
 
 BENCHMARKS03_DIR = benchmarks/03_gemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_10_naive_ijl gemm_gmp_11_naive_jli gemm_gmp_12_naive_jli_openmp)
@@ -167,14 +170,18 @@ $(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_01_mkII: $(BENCHMARKS00_DIR)
 $(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_01_mkIISR: $(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_01.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
-$(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02_orig: $(BENCHMARKS00_DIR)/inner_product_gmp_13_1_mpblas_openmp.cpp $(HEADERS)
+$(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02_orig: $(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
 
-$(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02_mkII: $(BENCHMARKS00_DIR)/inner_product_gmp_13_1_mpblas_openmp.cpp $(HEADERS)
+$(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02_mkII: $(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
-$(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02_mkIISR: $(BENCHMARKS00_DIR)/inner_product_gmp_13_1_mpblas_openmp.cpp $(HEADERS)
+$(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02_mkIISR: $(BENCHMARKS00_DIR)/inner_product_gmp_kernel_openmp_02.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+
+$(BENCHMARKS01_DIR)/%: $(BENCHMARKS01_DIR)/%.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
 $(BENCHMARKS03_DIR)/%: $(BENCHMARKS03_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS)

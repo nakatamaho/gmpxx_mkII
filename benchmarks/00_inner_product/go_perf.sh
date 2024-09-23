@@ -19,6 +19,12 @@ executables=(
     "inner_product_gmp_kernel_04_orig"
     "inner_product_gmp_kernel_04_mkII"
     "inner_product_gmp_kernel_04_mkIISR"
+    "inner_product_gmp_kernel_openmp_01_orig"
+    "inner_product_gmp_kernel_openmp_01_mkII"
+    "inner_product_gmp_kernel_openmp_01_mkIISR"
+    "inner_product_gmp_kernel_openmp_02_orig"
+    "inner_product_gmp_kernel_openmp_02_mkII"
+    "inner_product_gmp_kernel_openmp_02_mkIISR"
 )
 
 args="500000000 512"

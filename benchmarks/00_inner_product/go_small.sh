@@ -16,6 +16,12 @@ executables=(
     "inner_product_gmp_kernel_04_orig"
     "inner_product_gmp_kernel_04_mkII"
     "inner_product_gmp_kernel_04_mkIISR"
+    "inner_product_gmp_kernel_openmp_01_orig"
+    "inner_product_gmp_kernel_openmp_01_mkII"
+    "inner_product_gmp_kernel_openmp_01_mkIISR"
+    "inner_product_gmp_kernel_openmp_02_orig"
+    "inner_product_gmp_kernel_openmp_02_mkII"
+    "inner_product_gmp_kernel_openmp_02_mkIISR"
 )
 for exe in "${executables[@]}"; do
     COMMAND_LINE="/usr/bin/time ./$exe 100000000 512"
