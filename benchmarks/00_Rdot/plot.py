@@ -117,9 +117,9 @@ for file_path in file_paths:
     plt.title(f'MFLOPS for Various GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
     plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
     plt.yticks(fontsize=12, fontweight='bold')
-    plt.ylim(0, max(flops) * 1.1)
+    plt.ylim(0, max(onecore_flops) * 1.1)
 
-    for bar, flop in zip(bars, flops):
+    for bar, flop in zip(bars, onecore_flops):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width()/2, yval, f"{flop:.1f}", ha='center', va='bottom', fontsize=16, fontweight='bold')
 
