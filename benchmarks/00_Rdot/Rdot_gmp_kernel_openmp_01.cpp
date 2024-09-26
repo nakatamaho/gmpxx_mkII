@@ -13,44 +13,33 @@ using namespace gmp;
 
 gmp_randstate_t state;
 
-inline mpf_class Rdot(long n, mpf_class *dx, long incx, mpf_class *dy, long incy) {
-    long ix = 0;
-    long iy = 0;
-    long i;
+mpf_class _Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t incy) {
+    int64_t i;
+
+    if (incx != 1 || incy != 1) {
+        printf("Not supported, exitting\n");
+        exit(-1);
+    }
+
     mpf_class temp, templ;
-
     temp = 0.0;
 
-    if (incx < 0)
-        ix = (-n + 1) * incx;
-    if (incy < 0)
-        iy = (-n + 1) * incy;
-
-    temp = 0.0;
-    if (incx == 1 && incy == 1) {
 // no reduction for multiple precision
 #ifdef _OPENMP
 #pragma omp parallel private(i, templ) shared(temp, dx, dy, n)
 #endif
-        {
-            templ = 0.0;
+    {
+        templ = 0.0;
 #ifdef _OPENMP
 #pragma omp for
 #endif
-            for (i = 0; i < n; i++) {
-                templ += dx[i] * dy[i];
-            }
+        for (i = 0; i < n; i++) {
+            templ += dx[i] * dy[i];
+        }
 #ifdef _OPENMP
 #pragma omp critical
 #endif
-            temp += templ;
-        }
-    } else {
-        for (i = 0; i < n; i++) {
-            temp += dx[ix] * dy[iy];
-            ix = ix + incx;
-            iy = iy + incy;
-        }
+        temp += templ;
     }
     return temp;
 }
@@ -100,7 +89,7 @@ int main(int argc, char **argv) {
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    ans = Rdot(N, vec1_mpf_class, 1, vec2_mpf_class, 1);
+    ans = _Rdot(N, vec1_mpf_class, 1, vec2_mpf_class, 1);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;

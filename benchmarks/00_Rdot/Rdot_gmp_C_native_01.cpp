@@ -6,25 +6,28 @@ gmp_randstate_t state;
 
 void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *ans, mp_bitcnt_t prec) {
     int64_t i;
-    mpf_t templ;
-    mpf_t temp;
+    mpf_t temp, templ;
 
     if (incx != 1 || incy != 1) {
         printf("Not supported, exitting\n");
         exit(-1);
     }
+
     mpf_set_d(*ans, 0.0);
     mpf_init2(temp, prec);
     mpf_init2(templ, prec);
     mpf_set_d(temp, 0.0);
     mpf_set_d(templ, 0.0);
+
     for (i = 0; i < n; i++) {
         mpf_mul(templ, dx[i], dy[i]);
         mpf_add(temp, temp, templ);
     }
-    mpf_clear(templ);
+
     mpf_swap(*ans, temp);
+
     mpf_clear(temp);
+    mpf_clear(templ);
 }
 
 void init_mpf_vec(mpf_t *vec, int n, int prec) {
