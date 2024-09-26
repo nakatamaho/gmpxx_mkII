@@ -4,17 +4,10 @@
 
 gmp_randstate_t state;
 
-void Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *ans, mp_bitcnt_t prec) {
-    int64_t ix = 0;
-    int64_t iy = 0;
+void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *ans, mp_bitcnt_t prec) {
     int64_t i;
     mpf_t templ;
     mpf_t temp;
-
-    if (incx < 0)
-        ix = (-n + 1) * incx;
-    if (incy < 0)
-        iy = (-n + 1) * incy;
 
     if (incx != 1 || incy != 1) {
         printf("Not supported, exitting\n");
@@ -70,7 +63,7 @@ int main(int argc, char **argv) {
     init_mpf_vec(vec2, N, prec);
 
     auto start = std::chrono::high_resolution_clock::now();
-    Rdot(N, vec1, 1, vec2, 1, &ans, prec);
+    _Rdot(N, vec1, 1, vec2, 1, &ans, prec);
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
