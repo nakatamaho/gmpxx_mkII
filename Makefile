@@ -59,7 +59,7 @@ BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_20_mpblas_orig gemm_g
 BENCHMARKS03_2 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_21_mpblas_openmp_orig gemm_gmp_21_mpblas_openmp_mkII gemm_gmp_21_mpblas_openmp_mkIISR)
 BENCHMARKS03_3 = $(addprefix $(BENCHMARKS03_DIR)/,gemm_gmp_30_mpblaslike_naive_ijl_orig gemm_gmp_30_mpblaslike_naive_ijl_mkII gemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
 
-all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
+all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
 
 includedir = $(PREFIX)/include
 
