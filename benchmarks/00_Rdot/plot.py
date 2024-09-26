@@ -95,6 +95,7 @@ for file_path in file_paths:
     onecore_times = [times[i] for i, op in enumerate(operations) if 'openmp' not in op]
     onecore_flops = [flops[i] for i, op in enumerate(operations) if 'openmp' not in op]
 
+    print
     # Determine colors for onecore operations
     onecore_colors = []
     for op in onecore_operations:
@@ -124,7 +125,7 @@ for file_path in file_paths:
         plt.text(bar.get_x() + bar.get_width()/2, yval, f"{flop:.1f}", ha='center', va='bottom', fontsize=16, fontweight='bold')
 
     # Adjust the subplot parameters to give more space at the bottom
-    plt.subplots_adjust(bottom=0.4)
+    plt.subplots_adjust(bottom=0.4, right=0.75)
 
     # Add legend bars on the right side
     legend_labels = ['native C', 'orig(gmpxx.h)', 'mkII(gmpxx_mkII.h)', 'mkIISR(gmpxx_mkII.h)']
