@@ -1,0 +1,243 @@
+Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Jan 16 14:32:32 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
+
+Profiling Rdot_gmp_C_native_01
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 35.7362 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 93 times to write data ]
+[ perf record: Captured and wrote 23.358 MB perf.data_Rdot_gmp_C_native_01 (244910 samples) ]
+Execution time: 142544 ms
+Flamegraph for Rdot_gmp_C_native_01 generated.
+Annotation for Rdot_gmp_C_native_01 saved.
+Perf report for Rdot_gmp_C_native_01 generated and saved to report_Rdot_gmp_C_native_01.txt.
+
+Profiling Rdot_gmp_C_native_openmp_01
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 1.61756 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 80 times to write data ]
+[ perf record: Captured and wrote 32.411 MB perf.data_Rdot_gmp_C_native_openmp_01 (359310 samples) ]
+Execution time: 111523 ms
+Flamegraph for Rdot_gmp_C_native_openmp_01 generated.
+Annotation for Rdot_gmp_C_native_openmp_01 saved.
+Perf report for Rdot_gmp_C_native_openmp_01 generated and saved to report_Rdot_gmp_C_native_openmp_01.txt.
+
+Profiling Rdot_gmp_kernel_01_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 61.5274 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 193 times to write data ]
+[ perf record: Captured and wrote 48.599 MB perf.data_Rdot_gmp_kernel_01_orig (475289 samples) ]
+Execution time: 274689 ms
+Flamegraph for Rdot_gmp_kernel_01_orig generated.
+Annotation for Rdot_gmp_kernel_01_orig saved.
+Perf report for Rdot_gmp_kernel_01_orig generated and saved to report_Rdot_gmp_kernel_01_orig.txt.
+
+Profiling Rdot_gmp_kernel_01_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 47.7532 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 175 times to write data ]
+[ perf record: Captured and wrote 44.799 MB perf.data_Rdot_gmp_kernel_01_mkII (450586 samples) ]
+Execution time: 259663 ms
+Flamegraph for Rdot_gmp_kernel_01_mkII generated.
+Annotation for Rdot_gmp_kernel_01_mkII saved.
+Perf report for Rdot_gmp_kernel_01_mkII generated and saved to report_Rdot_gmp_kernel_01_mkII.txt.
+
+Profiling Rdot_gmp_kernel_01_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 43.241 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 173 times to write data ]
+[ perf record: Captured and wrote 43.605 MB perf.data_Rdot_gmp_kernel_01_mkIISR (434779 samples) ]
+Execution time: 250672 ms
+Flamegraph for Rdot_gmp_kernel_01_mkIISR generated.
+Annotation for Rdot_gmp_kernel_01_mkIISR saved.
+Perf report for Rdot_gmp_kernel_01_mkIISR generated and saved to report_Rdot_gmp_kernel_01_mkIISR.txt.
+
+Profiling Rdot_gmp_kernel_02_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 59.996 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 189 times to write data ]
+[ perf record: Captured and wrote 47.373 MB perf.data_Rdot_gmp_kernel_02_orig (469647 samples) ]
+Execution time: 270684 ms
+Flamegraph for Rdot_gmp_kernel_02_orig generated.
+Annotation for Rdot_gmp_kernel_02_orig saved.
+Perf report for Rdot_gmp_kernel_02_orig generated and saved to report_Rdot_gmp_kernel_02_orig.txt.
+
+Profiling Rdot_gmp_kernel_02_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 47.9589 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 180 times to write data ]
+[ perf record: Captured and wrote 45.295 MB perf.data_Rdot_gmp_kernel_02_mkII (454765 samples) ]
+Execution time: 262679 ms
+Flamegraph for Rdot_gmp_kernel_02_mkII generated.
+Annotation for Rdot_gmp_kernel_02_mkII saved.
+Perf report for Rdot_gmp_kernel_02_mkII generated and saved to report_Rdot_gmp_kernel_02_mkII.txt.
+
+Profiling Rdot_gmp_kernel_02_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 43.6737 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 174 times to write data ]
+[ perf record: Captured and wrote 43.612 MB perf.data_Rdot_gmp_kernel_02_mkIISR (437735 samples) ]
+Execution time: 252656 ms
+Flamegraph for Rdot_gmp_kernel_02_mkIISR generated.
+Annotation for Rdot_gmp_kernel_02_mkIISR saved.
+Perf report for Rdot_gmp_kernel_02_mkIISR generated and saved to report_Rdot_gmp_kernel_02_mkIISR.txt.
+
+Profiling Rdot_gmp_kernel_03_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 46.4924 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 183 times to write data ]
+[ perf record: Captured and wrote 45.969 MB perf.data_Rdot_gmp_kernel_03_orig (448747 samples) ]
+Execution time: 258676 ms
+Flamegraph for Rdot_gmp_kernel_03_orig generated.
+Annotation for Rdot_gmp_kernel_03_orig saved.
+Perf report for Rdot_gmp_kernel_03_orig generated and saved to report_Rdot_gmp_kernel_03_orig.txt.
+
+Profiling Rdot_gmp_kernel_03_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 56.951 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 184 times to write data ]
+[ perf record: Captured and wrote 46.160 MB perf.data_Rdot_gmp_kernel_03_mkII (469649 samples) ]
+Execution time: 270681 ms
+Flamegraph for Rdot_gmp_kernel_03_mkII generated.
+Annotation for Rdot_gmp_kernel_03_mkII saved.
+Perf report for Rdot_gmp_kernel_03_mkII generated and saved to report_Rdot_gmp_kernel_03_mkII.txt.
+
+Profiling Rdot_gmp_kernel_03_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 46.8284 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 177 times to write data ]
+[ perf record: Captured and wrote 44.174 MB perf.data_Rdot_gmp_kernel_03_mkIISR (444274 samples) ]
+Execution time: 256676 ms
+Flamegraph for Rdot_gmp_kernel_03_mkIISR generated.
+Annotation for Rdot_gmp_kernel_03_mkIISR saved.
+Perf report for Rdot_gmp_kernel_03_mkIISR generated and saved to report_Rdot_gmp_kernel_03_mkIISR.txt.
+
+Profiling Rdot_gmp_kernel_04_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 48.3575 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 181 times to write data ]
+[ perf record: Captured and wrote 45.382 MB perf.data_Rdot_gmp_kernel_04_orig (445444 samples) ]
+Execution time: 257677 ms
+Flamegraph for Rdot_gmp_kernel_04_orig generated.
+Annotation for Rdot_gmp_kernel_04_orig saved.
+Perf report for Rdot_gmp_kernel_04_orig generated and saved to report_Rdot_gmp_kernel_04_orig.txt.
+
+Profiling Rdot_gmp_kernel_04_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 33.3719 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 170 times to write data ]
+[ perf record: Captured and wrote 42.604 MB perf.data_Rdot_gmp_kernel_04_mkII (426402 samples) ]
+Execution time: 246682 ms
+Flamegraph for Rdot_gmp_kernel_04_mkII generated.
+Annotation for Rdot_gmp_kernel_04_mkII saved.
+Perf report for Rdot_gmp_kernel_04_mkII generated and saved to report_Rdot_gmp_kernel_04_mkII.txt.
+
+Profiling Rdot_gmp_kernel_04_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 33.0756 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 166 times to write data ]
+[ perf record: Captured and wrote 41.986 MB perf.data_Rdot_gmp_kernel_04_mkIISR (416034 samples) ]
+Execution time: 240651 ms
+Flamegraph for Rdot_gmp_kernel_04_mkIISR generated.
+Annotation for Rdot_gmp_kernel_04_mkIISR saved.
+Perf report for Rdot_gmp_kernel_04_mkIISR generated and saved to report_Rdot_gmp_kernel_04_mkIISR.txt.
+
+Profiling Rdot_gmp_kernel_openmp_01_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 1.76997 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 163 times to write data ]
+[ perf record: Captured and wrote 57.491 MB perf.data_Rdot_gmp_kernel_openmp_01_orig (555549 samples) ]
+Execution time: 210639 ms
+Flamegraph for Rdot_gmp_kernel_openmp_01_orig generated.
+Annotation for Rdot_gmp_kernel_openmp_01_orig saved.
+Perf report for Rdot_gmp_kernel_openmp_01_orig generated and saved to report_Rdot_gmp_kernel_openmp_01_orig.txt.
+
+Profiling Rdot_gmp_kernel_openmp_01_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 1.58462 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 178 times to write data ]
+[ perf record: Captured and wrote 56.165 MB perf.data_Rdot_gmp_kernel_openmp_01_mkII (568334 samples) ]
+Execution time: 231650 ms
+Flamegraph for Rdot_gmp_kernel_openmp_01_mkII generated.
+Annotation for Rdot_gmp_kernel_openmp_01_mkII saved.
+Perf report for Rdot_gmp_kernel_openmp_01_mkII generated and saved to report_Rdot_gmp_kernel_openmp_01_mkII.txt.
+
+Profiling Rdot_gmp_kernel_openmp_01_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 1.58822 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 165 times to write data ]
+[ perf record: Captured and wrote 53.190 MB perf.data_Rdot_gmp_kernel_openmp_01_mkIISR (540644 samples) ]
+Execution time: 215632 ms
+Flamegraph for Rdot_gmp_kernel_openmp_01_mkIISR generated.
+Annotation for Rdot_gmp_kernel_openmp_01_mkIISR saved.
+Perf report for Rdot_gmp_kernel_openmp_01_mkIISR generated and saved to report_Rdot_gmp_kernel_openmp_01_mkIISR.txt.
+
+Profiling Rdot_gmp_kernel_openmp_02_orig
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 1.59502 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 178 times to write data ]
+[ perf record: Captured and wrote 53.852 MB perf.data_Rdot_gmp_kernel_openmp_02_orig (527894 samples) ]
+Execution time: 208189 ms
+Flamegraph for Rdot_gmp_kernel_openmp_02_orig generated.
+Annotation for Rdot_gmp_kernel_openmp_02_orig saved.
+Perf report for Rdot_gmp_kernel_openmp_02_orig generated and saved to report_Rdot_gmp_kernel_openmp_02_orig.txt.
+
+Profiling Rdot_gmp_kernel_openmp_02_mkII
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 1.60411 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 154 times to write data ]
+[ perf record: Captured and wrote 53.435 MB perf.data_Rdot_gmp_kernel_openmp_02_mkII (543249 samples) ]
+Execution time: 217625 ms
+Flamegraph for Rdot_gmp_kernel_openmp_02_mkII generated.
+Annotation for Rdot_gmp_kernel_openmp_02_mkII saved.
+Perf report for Rdot_gmp_kernel_openmp_02_mkII generated and saved to report_Rdot_gmp_kernel_openmp_02_mkII.txt.
+
+Profiling Rdot_gmp_kernel_openmp_02_mkIISR
+Lowering default frequency rate from 4000 to 1750.
+Please consider tweaking /proc/sys/kernel/perf_event_max_sample_rate.
+Elapsed time: 1.56764 s
+Dot product: 125000027.76162322627866361081868801695027830603679346166564238819996560194910519247930054174396097079327846514673773418169552547574465147
+[ perf record: Woken up 149 times to write data ]
+[ perf record: Captured and wrote 53.121 MB perf.data_Rdot_gmp_kernel_openmp_02_mkIISR (539248 samples) ]
+Execution time: 215633 ms
+Flamegraph for Rdot_gmp_kernel_openmp_02_mkIISR generated.
+Annotation for Rdot_gmp_kernel_openmp_02_mkIISR saved.
+Perf report for Rdot_gmp_kernel_openmp_02_mkIISR generated and saved to report_Rdot_gmp_kernel_openmp_02_mkIISR.txt.
+

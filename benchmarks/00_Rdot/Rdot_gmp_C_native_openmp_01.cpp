@@ -19,25 +19,26 @@ void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *a
 #ifdef _OPENMP
 #pragma omp parallel private(i, temp, templ) shared(ans, dx, dy, n)
 #endif
-    mpf_init2(temp, prec);
-    mpf_init2(templ, prec);
-    mpf_set_d(temp, 0.0);
-    mpf_set_d(templ, 0.0);
+    {
+        mpf_init2(temp, prec);
+        mpf_init2(templ, prec);
+        mpf_set_d(temp, 0.0);
+        mpf_set_d(templ, 0.0);
 
 #ifdef _OPENMP
 #pragma omp for
 #endif
-    for (i = 0; i < n; i++) {
-        mpf_mul(templ, dx[i], dy[i]);
-        mpf_add(temp, temp, templ);
-    }
+        for (i = 0; i < n; i++) {
+            mpf_mul(templ, dx[i], dy[i]);
+            mpf_add(temp, temp, templ);
+        }
 #ifdef _OPENMP
 #pragma omp critical
 #endif
-    mpf_add(*ans, *ans, temp);
-
-    mpf_clear(temp);
-    mpf_clear(templ);
+        mpf_add(*ans, *ans, temp);
+        mpf_clear(temp);
+        mpf_clear(templ);
+    }
 }
 
 void init_mpf_vec(mpf_t *vec, int n, int prec) {
