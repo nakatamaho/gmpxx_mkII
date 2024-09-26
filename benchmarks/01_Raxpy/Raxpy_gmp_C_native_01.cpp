@@ -7,7 +7,7 @@
 
 gmp_randstate_t state;
 
-void axpy(int64_t n, const mpf_t alpha, const mpf_t *x, int64_t incx, mpf_t *y, int64_t incy);
+void Raxpy(int64_t n, const mpf_t alpha, const mpf_t *x, int64_t incx, mpf_t *y, int64_t incy);
 mpf_class L1Norm(int64_t n, const mpf_class *y_r, const mpf_t *y_o, int64_t incy_o);
 
 void init_mpf_class_vec(mpf_class *vec, int64_t n);

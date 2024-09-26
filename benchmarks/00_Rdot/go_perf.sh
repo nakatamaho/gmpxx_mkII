@@ -27,7 +27,7 @@ executables=(
     "Rdot_gmp_kernel_openmp_02_mkIISR"
 )
 
-args="500000000 512"
+args="100000000 512"
 for exe in "${executables[@]}"; do
     echo "Profiling $exe"
     start_time=$(date +%s%N)
