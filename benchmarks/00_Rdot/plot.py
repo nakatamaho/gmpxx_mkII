@@ -90,14 +90,31 @@ for file_path in file_paths:
         else:
             openmp_colors.append('gray')  # Default color for operations that do not match any condition
 
-    # Plotting all operations
+    # Filter data for operations that do not contain "openmp"
+    onecore_operations = [op for op in operations if 'openmp' not in op]
+    onecore_times = [times[i] for i, op in enumerate(operations) if 'openmp' not in op]
+    onecore_flops = [flops[i] for i, op in enumerate(operations) if 'openmp' not in op]
+
+    # Determine colors for onecore operations
+    onecore_colors = []
+    for op in onecore_operations:
+        if 'mkIISR' in op:
+            onecore_colors.append('red')
+        elif 'mkII' in op:
+            onecore_colors.append('green')
+        elif 'orig' in op:
+            onecore_colors.append('blue')
+        else:
+            onecore_colors.append('gray')  # Default color for operations that do not match any condition
+
+    # Plotting onecore operations
     plt.figure(figsize=(15, 8))
-    bars = plt.bar(operations, flops, color=colors)
+    bars = plt.bar(onecore_operations, onecore_flops, color=onecore_colors)
 
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
     plt.ylabel('MFLOPS', fontsize=16, fontweight='bold')
     formatted_dim = "{:,}".format(int(dim))
-    plt.title(f'MFlops for Various GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
+    plt.title(f'MFLOPS for Various GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
     plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
     plt.yticks(fontsize=12, fontweight='bold')
     plt.ylim(0, max(flops) * 1.1)
@@ -118,7 +135,7 @@ for file_path in file_paths:
     for text in legend.get_texts():
         text.set_fontweight('bold')
 
-    filename = f'all_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
+    filename = f'onecore_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
     plt.savefig(filename)
     plt.close()
 
@@ -129,8 +146,8 @@ for file_path in file_paths:
 
         plt.bar(openmp_operations, openmp_flops, color=openmp_colors)
         plt.xlabel('Operation', fontsize=14, fontweight='bold')
-        plt.ylabel('MFlops', fontsize=17, fontweight='bold')
-        plt.title(f'MFlops for OpenMP GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
+        plt.ylabel('MFLOPS', fontsize=17, fontweight='bold')
+        plt.title(f'MFLOPS for OpenMP GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
         plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
         plt.yticks(fontsize=12, fontweight='bold')
         plt.ylim(0, max(openmp_flops) * 1.1)
