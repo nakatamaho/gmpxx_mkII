@@ -52,13 +52,13 @@ for file_path in file_paths:
     cpu_model_filename = cpu_model.replace(' ', '_')  # Prepare CPU model for filename usage
 
     # Define the pattern to extract operations and their elapsed times
-    pattern = re.compile(r'/usr/bin/time\s+(\./inner_product_gmp_[\w]+)\s+\d+\s+\d+\nElapsed time:\s+([\d.]+)\s+s')
+    pattern = re.compile(r'/usr/bin/time\s+(\./Rdot_gmp_[\w]+)\s+\d+\s+\d+\nElapsed time:\s+([\d.]+)\s+s')
 
     # Extract data using the defined pattern
     data = pattern.findall(''.join(lines))
 
-    # Organize data, removing 'inner_product' from the operation names
-    operations = [op.replace('./inner_product_gmp_', '') for op, _ in data]
+    # Organize data, removing './Rdot_gmp_' from the operation names
+    operations = [op.replace('./Rdot_gmp_', '') for op, _ in data]
     times = [float(time) for _, time in data]
 
     # Determine colors based on operation types
