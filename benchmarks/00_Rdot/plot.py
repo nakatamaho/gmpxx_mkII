@@ -91,26 +91,26 @@ for file_path in file_paths:
             openmp_colors.append('gray')  # Default color for operations that do not match any condition
 
     # Filter data for operations that do not contain "openmp"
-    onecore_operations = [op for op in operations if 'openmp' not in op]
-    onecore_times = [times[i] for i, op in enumerate(operations) if 'openmp' not in op]
-    onecore_flops = [flops[i] for i, op in enumerate(operations) if 'openmp' not in op]
+    singlecore_operations = [op for op in operations if 'openmp' not in op]
+    singlecore_times = [times[i] for i, op in enumerate(operations) if 'openmp' not in op]
+    singlecore_flops = [flops[i] for i, op in enumerate(operations) if 'openmp' not in op]
 
     print
-    # Determine colors for onecore operations
-    onecore_colors = []
-    for op in onecore_operations:
+    # Determine colors for singlecore operations
+    singlecore_colors = []
+    for op in singlecore_operations:
         if 'mkIISR' in op:
-            onecore_colors.append('red')
+            singlecore_colors.append('red')
         elif 'mkII' in op:
-            onecore_colors.append('green')
+            singlecore_colors.append('green')
         elif 'orig' in op:
-            onecore_colors.append('blue')
+            singlecore_colors.append('blue')
         else:
-            onecore_colors.append('gray')  # Default color for operations that do not match any condition
+            singlecore_colors.append('gray')  # Default color for operations that do not match any condition
 
-    # Plotting onecore operations
+    # Plotting singlecore operations
     plt.figure(figsize=(15, 8))
-    bars = plt.bar(onecore_operations, onecore_flops, color=onecore_colors)
+    bars = plt.bar(singlecore_operations, singlecore_flops, color=singlecore_colors)
 
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
     plt.ylabel('MFLOPS', fontsize=16, fontweight='bold')
@@ -118,9 +118,9 @@ for file_path in file_paths:
     plt.title(f'MFLOPS for Various GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
     plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
     plt.yticks(fontsize=12, fontweight='bold')
-    plt.ylim(0, max(onecore_flops) * 1.1)
+    plt.ylim(0, max(singlecore_flops) * 1.1)
 
-    for bar, flop in zip(bars, onecore_flops):
+    for bar, flop in zip(bars, singlecore_flops):
         yval = bar.get_height()
         plt.text(bar.get_x() + bar.get_width()/2, yval, f"{flop:.1f}", ha='center', va='bottom', fontsize=16, fontweight='bold')
 
@@ -136,7 +136,7 @@ for file_path in file_paths:
     for text in legend.get_texts():
         text.set_fontweight('bold')
 
-    filename = f'onecore_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
+    filename = f'singlecore_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
     plt.savefig(filename)
     plt.close()
 
