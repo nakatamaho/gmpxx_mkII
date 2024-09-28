@@ -51,7 +51,7 @@ Rdot_gmp_kernel_openmp_01_orig Rdot_gmp_kernel_openmp_01_mkII Rdot_gmp_kernel_op
 Rdot_gmp_kernel_openmp_02_orig Rdot_gmp_kernel_openmp_02_mkII Rdot_gmp_kernel_openmp_02_mkIISR)
 
 BENCHMARKS01_DIR = benchmarks/01_Raxpy
-BENCHMARKS01_0 = $(addprefix $(BENCHMARKS01_DIR)/,Raxpy_gmp_C_native_01 Raxpy_gmp_C_native_01_openmp)
+BENCHMARKS01_0 = $(addprefix $(BENCHMARKS01_DIR)/,Raxpy_gmp_C_native_01 Raxpy_gmp_C_native_openmp_01)
 
 BENCHMARKS03_DIR = benchmarks/03_Rgemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_10_naive_ijl Rgemm_gmp_11_naive_jli Rgemm_gmp_12_naive_jli_openmp)
