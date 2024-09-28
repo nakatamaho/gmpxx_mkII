@@ -7,6 +7,15 @@ executables=(
     "Raxpy_gmp_kernel_01_orig"
     "Raxpy_gmp_kernel_01_mkII"
     "Raxpy_gmp_kernel_01_mkIISR"
+    "Raxpy_gmp_kernel_02_orig"
+    "Raxpy_gmp_kernel_02_mkII"
+    "Raxpy_gmp_kernel_02_mkIISR"
+    "Raxpy_gmp_kernel_openmp_01_orig"
+    "Raxpy_gmp_kernel_openmp_01_mkII"
+    "Raxpy_gmp_kernel_openmp_01_mkIISR"
+    "Raxpy_gmp_kernel_openmp_02_orig"
+    "Raxpy_gmp_kernel_openmp_02_mkII"
+    "Raxpy_gmp_kernel_openmp_02_mkIISR"
 )
 for exe in "${executables[@]}"; do
     COMMAND_LINE="/usr/bin/time ./$exe 100000000 512"
