@@ -53,7 +53,10 @@ Rdot_gmp_kernel_openmp_02_orig Rdot_gmp_kernel_openmp_02_mkII Rdot_gmp_kernel_op
 BENCHMARKS01_DIR = benchmarks/01_Raxpy
 BENCHMARKS01_0 = $(addprefix $(BENCHMARKS01_DIR)/,Raxpy_gmp_C_native_01 Raxpy_gmp_C_native_openmp_01)
 BENCHMARKS01_1 = $(addprefix $(BENCHMARKS01_DIR)/,\
-Raxpy_gmp_kernel_01_orig Raxpy_gmp_kernel_01_mkII Raxpy_gmp_kernel_01_mkIISR)
+Raxpy_gmp_kernel_01_orig Raxpy_gmp_kernel_01_mkII Raxpy_gmp_kernel_01_mkIISR \
+Raxpy_gmp_kernel_02_orig Raxpy_gmp_kernel_02_mkII Raxpy_gmp_kernel_02_mkIISR \
+Raxpy_gmp_kernel_openmp_01_orig Raxpy_gmp_kernel_openmp_01_mkII Raxpy_gmp_kernel_openmp_01_mkIISR \
+Raxpy_gmp_kernel_openmp_02_orig Raxpy_gmp_kernel_openmp_02_mkII Raxpy_gmp_kernel_openmp_02_mkIISR)
 
 BENCHMARKS03_DIR = benchmarks/03_Rgemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_10_naive_ijl Rgemm_gmp_11_naive_jli Rgemm_gmp_12_naive_jli_openmp)
@@ -194,6 +197,42 @@ $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_01_mkII: $(BENCHMARKS01_DIR)/Raxpy_gmp_kern
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
 $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_01_mkIISR: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_02_orig: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_02.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< -lgmpxx $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_02_mkII: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_02.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_02_mkIISR: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_02.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_01_orig: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< -lgmpxx $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_01_mkII: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_01_mkIISR: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_02_orig: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_02.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< -lgmpxx $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_02_mkII: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_02.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_02_mkIISR: $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_02.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
