@@ -26,7 +26,7 @@ void _Raxpy(int64_t n, const mpf_class &alpha, mpf_class *x, int64_t incx, mpf_c
 
     mpf_class temp;
 
-#pragma omp parallel for private(temp)
+#pragma omp parallel for private(temp) schedule(static, 1000)
     for (int64_t i = 0; i < n; ++i) {
         temp = alpha;
         temp *= x[i];
