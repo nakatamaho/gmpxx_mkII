@@ -2,114 +2,114 @@ Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue J
 model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
 /usr/bin/time ./Raxpy_gmp_C_native_01 100000000 512
-Elapsed time: 6.88229 s
-MFLOPS: 29.0601
+Elapsed time: 6.78586 s
+MFLOPS: 29.4731
 L1 Norm of difference: 0
 Result OK
-54.45user 19.82system 1:14.35elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+54.18user 19.75system 1:14.01elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
 0inputs+0outputs (0major+11718908minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_C_native_openmp_01 100000000 512
-Elapsed time: 0.492986 s
-MFLOPS: 405.691
+Elapsed time: 0.514435 s
+MFLOPS: 388.776
 L1 Norm of difference: 0
 Result OK
-79.04user 20.28system 1:08.45elapsed 145%CPU (0avgtext+0avgdata 46879232maxresident)k
-0inputs+0outputs (0major+11719167minor)pagefaults 0swaps
+78.23user 20.36system 1:07.87elapsed 145%CPU (0avgtext+0avgdata 46878720maxresident)k
+0inputs+0outputs (0major+11719164minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_01_orig 100000000 512
-Elapsed time: 12.091 s
-MFLOPS: 16.5413
+Elapsed time: 11.5726 s
+MFLOPS: 17.2822
 L1 Norm of difference: 0
 Result OK
-49.77user 15.47system 1:05.40elapsed 99%CPU (0avgtext+0avgdata 35159552maxresident)k
-0inputs+0outputs (0major+8789229minor)pagefaults 0swaps
+48.15user 14.93system 1:03.16elapsed 99%CPU (0avgtext+0avgdata 35160064maxresident)k
+0inputs+0outputs (0major+8789223minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_01_mkII 100000000 512
-Elapsed time: 10.1481 s
-MFLOPS: 19.7081
+Elapsed time: 10.1587 s
+MFLOPS: 19.6876
 L1 Norm of difference: 0
 Result OK
-54.51user 15.38system 1:09.97elapsed 99%CPU (0avgtext+0avgdata 35159040maxresident)k
-0inputs+0outputs (0major+8789219minor)pagefaults 0swaps
+53.91user 15.03system 1:09.03elapsed 99%CPU (0avgtext+0avgdata 35159552maxresident)k
+0inputs+0outputs (0major+8789218minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_01_mkIISR 100000000 512
-Elapsed time: 8.51746 s
-MFLOPS: 23.4812
+Elapsed time: 8.53741 s
+MFLOPS: 23.4263
 L1 Norm of difference: 0
 Result OK
-46.51user 15.09system 1:01.68elapsed 99%CPU (0avgtext+0avgdata 35159552maxresident)k
-0inputs+0outputs (0major+8789221minor)pagefaults 0swaps
+46.55user 14.98system 1:01.60elapsed 99%CPU (0avgtext+0avgdata 35159552maxresident)k
+0inputs+0outputs (0major+8789225minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_02_orig 100000000 512
-Elapsed time: 9.30241 s
-MFLOPS: 21.4998
+Elapsed time: 9.21166 s
+MFLOPS: 21.7116
 L1 Norm of difference: 0
 Result OK
-47.70user 15.51system 1:03.37elapsed 99%CPU (0avgtext+0avgdata 35158528maxresident)k
+47.39user 15.34system 1:02.90elapsed 99%CPU (0avgtext+0avgdata 35159552maxresident)k
 0inputs+0outputs (0major+8789227minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_02_mkII 100000000 512
-Elapsed time: 6.53635 s
-MFLOPS: 30.5981
+Elapsed time: 6.64656 s
+MFLOPS: 30.0907
 L1 Norm of difference: 0
 Result OK
-49.30user 15.10system 1:04.48elapsed 99%CPU (0avgtext+0avgdata 35159552maxresident)k
-0inputs+0outputs (0major+8789222minor)pagefaults 0swaps
+50.33user 15.02system 1:05.43elapsed 99%CPU (0avgtext+0avgdata 35159040maxresident)k
+0inputs+0outputs (0major+8789220minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_02_mkIISR 100000000 512
-Elapsed time: 6.65016 s
-MFLOPS: 30.0745
+Elapsed time: 6.60718 s
+MFLOPS: 30.2701
 L1 Norm of difference: 0
 Result OK
-44.92user 15.13system 1:00.13elapsed 99%CPU (0avgtext+0avgdata 35160064maxresident)k
-0inputs+0outputs (0major+8789223minor)pagefaults 0swaps
+44.94user 14.90system 0:59.92elapsed 99%CPU (0avgtext+0avgdata 35159040maxresident)k
+0inputs+0outputs (0major+8789220minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_openmp_01_orig 100000000 512
-Elapsed time: 0.509674 s
-MFLOPS: 392.408
+Elapsed time: 0.493817 s
+MFLOPS: 405.009
 L1 Norm of difference: 0
 Result OK
-68.58user 15.26system 0:52.95elapsed 158%CPU (0avgtext+0avgdata 35160064maxresident)k
-0inputs+0outputs (0major+8789486minor)pagefaults 0swaps
+69.16user 14.81system 0:52.91elapsed 158%CPU (0avgtext+0avgdata 35160064maxresident)k
+0inputs+0outputs (0major+8789488minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_openmp_01_mkII 100000000 512
-Elapsed time: 0.544415 s
-MFLOPS: 367.367
+Elapsed time: 0.496261 s
+MFLOPS: 403.014
 L1 Norm of difference: 0
 Result OK
-76.83user 15.14system 1:01.35elapsed 149%CPU (0avgtext+0avgdata 35160064maxresident)k
-0inputs+0outputs (0major+8789487minor)pagefaults 0swaps
+75.86user 15.49system 1:00.36elapsed 151%CPU (0avgtext+0avgdata 35160064maxresident)k
+0inputs+0outputs (0major+8789481minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_openmp_01_mkIISR 100000000 512
-Elapsed time: 0.498108 s
-MFLOPS: 401.52
+Elapsed time: 0.689788 s
+MFLOPS: 289.944
 L1 Norm of difference: 0
 Result OK
-69.61user 15.34system 0:54.13elapsed 156%CPU (0avgtext+0avgdata 35160576maxresident)k
-0inputs+0outputs (0major+8789483minor)pagefaults 0swaps
+82.12user 14.98system 0:54.32elapsed 178%CPU (0avgtext+0avgdata 35160576maxresident)k
+0inputs+0outputs (0major+8789481minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_openmp_02_orig 100000000 512
-Elapsed time: 0.49286 s
-MFLOPS: 405.795
+Elapsed time: 0.492761 s
+MFLOPS: 405.877
 L1 Norm of difference: 0
 Result OK
-68.47user 15.33system 0:53.03elapsed 158%CPU (0avgtext+0avgdata 35160576maxresident)k
-0inputs+0outputs (0major+8789489minor)pagefaults 0swaps
+70.11user 15.63system 0:54.78elapsed 156%CPU (0avgtext+0avgdata 35160064maxresident)k
+0inputs+0outputs (0major+8789490minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_openmp_02_mkII 100000000 512
-Elapsed time: 0.582569 s
-MFLOPS: 343.307
+Elapsed time: 0.492884 s
+MFLOPS: 405.775
 L1 Norm of difference: 0
 Result OK
-83.07user 15.03system 1:07.62elapsed 145%CPU (0avgtext+0avgdata 35160064maxresident)k
-0inputs+0outputs (0major+8789478minor)pagefaults 0swaps
+74.97user 15.16system 0:59.30elapsed 151%CPU (0avgtext+0avgdata 35160064maxresident)k
+0inputs+0outputs (0major+8789466minor)pagefaults 0swaps
 
 /usr/bin/time ./Raxpy_gmp_kernel_openmp_02_mkIISR 100000000 512
-Elapsed time: 0.537935 s
-MFLOPS: 371.792
+Elapsed time: 0.555111 s
+MFLOPS: 360.288
 L1 Norm of difference: 0
 Result OK
-68.60user 15.38system 0:53.62elapsed 156%CPU (0avgtext+0avgdata 35160064maxresident)k
-0inputs+0outputs (0major+8789475minor)pagefaults 0swaps
+69.50user 14.92system 0:54.33elapsed 155%CPU (0avgtext+0avgdata 35160576maxresident)k
+0inputs+0outputs (0major+8789446minor)pagefaults 0swaps
 
