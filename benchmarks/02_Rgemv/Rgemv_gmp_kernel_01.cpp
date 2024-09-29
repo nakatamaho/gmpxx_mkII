@@ -84,7 +84,6 @@ int main(int argc, char **argv) {
     double mflops = (2.0 * double(M) * double(N)) / (elapsed.count() * MFLOPS);
 
     // Output performance metrics
-    std::cout << "Reference Implementation:" << std::endl;
     std::cout << "Elapsed time: " << elapsed.count() << " s" << std::endl;
     std::cout << "MFLOPS: " << mflops << std::endl;
 
