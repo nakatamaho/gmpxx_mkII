@@ -29,6 +29,7 @@ for file_path in file_paths:
         parts = dimension_line.split()
         if len(parts) >= 2:
             dim = parts[-2]  # Second to last element
+            dimx = parts[-3]  # Second to last element
             prec = parts[-1]  # Last element
         else:
             print("Error: Dimension and precision data is malformed or not enough elements.")
@@ -52,7 +53,12 @@ for file_path in file_paths:
     cpu_model_filename = cpu_model.replace(' ', '_')  # Prepare CPU model for filename usage
 
     # Define the pattern to extract operations and their elapsed times
-    pattern = re.compile(r'/usr/bin/time\s+(\./Rgemv_gmp_[\w]+)\s+\d+\s+\d+\nElapsed time:\s+([\d.]+)\s+s\nMFLOPS:\s+([\d.]+)')
+    pattern = re.compile(
+    r'/usr/bin/time\s+(\./Rgemv_gmp_\w+)\s+\d+\s+\d+\s+\d+\n'
+    r'Elapsed time:\s+([\d.]+)\s+s\n'
+    r'MFLOPS:\s+([\d.]+)',
+    re.MULTILINE
+    )
 
     # Extract data using the defined pattern
     data = pattern.findall(''.join(lines))
@@ -114,7 +120,8 @@ for file_path in file_paths:
     plt.xlabel('Operation', fontsize=14, fontweight='bold')
     plt.ylabel('MFLOPS', fontsize=16, fontweight='bold')
     formatted_dim = "{:,}".format(int(dim))
-    plt.title(f'MFLOPS for Various GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
+    formatted_dimx = "{:,}".format(int(dimx))
+    plt.title(f'MFLOPS for Various GMP Operations on {cpu_model} (dimx={formatted_dimx}, dimy={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
     plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
     plt.yticks(fontsize=12, fontweight='bold')
     plt.ylim(0, max(singlecore_flops) * 1.1)
@@ -147,7 +154,7 @@ for file_path in file_paths:
         plt.bar(openmp_operations, openmp_flops, color=openmp_colors)
         plt.xlabel('Operation', fontsize=14, fontweight='bold')
         plt.ylabel('MFLOPS', fontsize=17, fontweight='bold')
-        plt.title(f'MFLOPS for OpenMP GMP Operations on {cpu_model} (dim={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
+        plt.title(f'MFLOPS for OpenMP GMP Operations on {cpu_model} (dimx={formatted_dimx}, dimy={formatted_dim}, prec={prec})', fontsize=16, fontweight='bold')
         plt.xticks(rotation=55, fontsize=12, fontweight='bold', ha='right')
         plt.yticks(fontsize=12, fontweight='bold')
         plt.ylim(0, max(openmp_flops) * 1.1)
