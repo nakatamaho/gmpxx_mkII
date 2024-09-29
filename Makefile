@@ -60,11 +60,9 @@ Raxpy_gmp_kernel_openmp_02_orig Raxpy_gmp_kernel_openmp_02_mkII Raxpy_gmp_kernel
 
 BENCHMARKS02_DIR = benchmarks/02_Rgemv
 BENCHMARKS02_0 = $(addprefix $(BENCHMARKS02_DIR)/,Rgemv_gmp_C_native_01 Rgemv_gmp_C_native_openmp_01)
-#BENCHMARKS02_1 = $(addprefix $(BENCHMARKS02_DIR)/,\
-#Rgemv_gmp_kernel_02_orig Rgemv_gmp_kernel_02_mkII Rgemv_gmp_kernel_02_mkIISR \
-#Rgemv_gmp_kernel_02_orig Rgemv_gmp_kernel_02_mkII Rgemv_gmp_kernel_02_mkIISR \
-#Rgemv_gmp_kernel_openmp_02_orig Rgemv_gmp_kernel_openmp_02_mkII Rgemv_gmp_kernel_openmp_02_mkIISR \
-#Rgemv_gmp_kernel_openmp_02_orig Rgemv_gmp_kernel_openmp_02_mkII Rgemv_gmp_kernel_openmp_02_mkIISR)
+BENCHMARKS02_1 = $(addprefix $(BENCHMARKS02_DIR)/,\
+Rgemv_gmp_kernel_01_orig Rgemv_gmp_kernel_01_mkII Rgemv_gmp_kernel_01_mkIISR \
+Rgemv_gmp_kernel_openmp_01_orig Rgemv_gmp_kernel_openmp_01_mkII Rgemv_gmp_kernel_openmp_01_mkIISR)
 
 BENCHMARKS03_DIR = benchmarks/03_Rgemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_10_naive_ijl Rgemm_gmp_11_naive_jli Rgemm_gmp_12_naive_jli_openmp)
@@ -247,6 +245,30 @@ $(BENCHMARKS01_DIR)/Raxpy_gmp_kernel_openmp_02_mkIISR: $(BENCHMARKS01_DIR)/Raxpy
 $(BENCHMARKS02_DIR)/%: $(BENCHMARKS02_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_01_orig: $(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< -lgmpxx $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_01_mkII: $(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_01_mkIISR: $(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_openmp_01_orig: $(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_openmp_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< -lgmpxx $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_openmp_01_mkII: $(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_openmp_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
+
+$(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_openmp_01_mkIISR: $(BENCHMARKS02_DIR)/Rgemv_gmp_kernel_openmp_01.cpp $(HEADERS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
+	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
 $(BENCHMARKS03_DIR)/%: $(BENCHMARKS03_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) -o $@ $< $(LDFLAGS)
