@@ -59,8 +59,7 @@ Raxpy_gmp_kernel_openmp_01_orig Raxpy_gmp_kernel_openmp_01_mkII Raxpy_gmp_kernel
 Raxpy_gmp_kernel_openmp_02_orig Raxpy_gmp_kernel_openmp_02_mkII Raxpy_gmp_kernel_openmp_02_mkIISR)
 
 BENCHMARKS02_DIR = benchmarks/02_Rgemv
-BENCHMARKS02_0 = $(addprefix $(BENCHMARKS02_DIR)/,Rgemv_gmp_C_native_01)
-#BENCHMARKS02_0 = $(addprefix $(BENCHMARKS02_DIR)/,Rgemv_gmp_C_native_01 Rgemv_gmp_C_native_openmp_01)
+BENCHMARKS02_0 = $(addprefix $(BENCHMARKS02_DIR)/,Rgemv_gmp_C_native_01 Rgemv_gmp_C_native_openmp_01)
 #BENCHMARKS02_1 = $(addprefix $(BENCHMARKS02_DIR)/,\
 #Rgemv_gmp_kernel_02_orig Rgemv_gmp_kernel_02_mkII Rgemv_gmp_kernel_02_mkIISR \
 #Rgemv_gmp_kernel_02_orig Rgemv_gmp_kernel_02_mkII Rgemv_gmp_kernel_02_mkIISR \

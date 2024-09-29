@@ -17,7 +17,9 @@ using namespace gmp;
 
 gmp_randstate_t state;
 
-// Reference implementation using mpf_t
+#include <omp.h>
+
+// Reference implementation using mpf_t with OpenMP parallelization
 void _Rgemv(int64_t m, int64_t n, const mpf_t alpha, const mpf_t *A, int64_t lda, const mpf_t *x, int64_t incx, const mpf_t beta, mpf_t *y, int64_t incy) {
 
     if (incx != 1 || incy != 1) {
@@ -25,25 +27,39 @@ void _Rgemv(int64_t m, int64_t n, const mpf_t alpha, const mpf_t *A, int64_t lda
         exit(EXIT_FAILURE);
     }
 
-    mpf_t temp;
-    mpf_init(temp);
-
-    // Scale y by beta
+// Parallelize the scaling of y by beta
+#pragma omp parallel for schedule(static)
     for (int64_t i = 0; i < m; ++i) {
-        mpf_mul(temp, beta, y[i]); // temp = beta * y[i]
-        mpf_set(y[i], temp);       // y[i] = temp
+        mpf_mul(y[i], beta, y[i]); // y[i] = beta * y[i]
     }
 
-    // Compute alpha * A * x and add to y
-    for (int64_t j = 0; j < n; ++j) {
-        for (int64_t i = 0; i < m; ++i) {
-            mpf_mul(temp, alpha, A[i + j * lda]); // temp = alpha * A[i + j*lda]
-            mpf_mul(temp, temp, x[j]);            // temp = temp * x[j]
-            mpf_add(y[i], y[i], temp);            // y[i] += temp
+#pragma omp parallel
+    {
+        // Initialize a temporary variable for each thread
+        mpf_t temp;
+        mpf_init(temp);
+
+#pragma omp for schedule(static)
+        for (int64_t j = 0; j < n; ++j) {
+            // Compute alpha * x[j] once per column to reduce repeated multiplications
+            mpf_t alpha_xj;
+            mpf_init(alpha_xj);
+            mpf_mul(alpha_xj, alpha, x[j]); // alpha_xj = alpha * x[j]
+
+            for (int64_t i = 0; i < m; ++i) {
+                // temp = alpha * A[i + j * lda] * x[j]
+                mpf_mul(temp, A[i + j * lda], alpha_xj); // temp = A[i + j*lda] * (alpha * x[j])
+
+// Update y[i] += temp in a thread-safe manner
+#pragma omp critical
+                {
+                    mpf_add(y[i], y[i], temp); // y[i] += temp
+                }
+            }
+            mpf_clear(alpha_xj);
         }
+        mpf_clear(temp);
     }
-
-    mpf_clear(temp);
 }
 
 // Initialize a matrix with random values

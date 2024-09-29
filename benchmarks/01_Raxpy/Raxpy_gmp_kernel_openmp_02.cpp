@@ -77,7 +77,8 @@ int main(int argc, char **argv) {
         l1_norm += diff;
     }
 
-    std::cout << "L1 Norm of difference: " << l1_norm << std::endl;
+    std::cout << "L1 Norm of difference: " << l1_norm;
+    gmp_printf("%.4Fg\n", l1_norm.get_mpf_t());
 
     mpf_class threshold = 1e-5;
     if (l1_norm < threshold) {
