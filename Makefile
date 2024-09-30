@@ -65,8 +65,7 @@ Rgemv_gmp_kernel_01_orig Rgemv_gmp_kernel_01_mkII Rgemv_gmp_kernel_01_mkIISR \
 Rgemv_gmp_kernel_openmp_01_orig Rgemv_gmp_kernel_openmp_01_mkII Rgemv_gmp_kernel_openmp_01_mkIISR)
 
 BENCHMARKS03_DIR = benchmarks/03_Rgemm
-#BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_C_native_01 Rgemm_gmp_C_native_openmp_01)
-BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_C_native_01 Rgemm_gmp_C_native_02)
+BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_C_native_01 Rgemm_gmp_C_native_openmp_01 Rgemm_gmp_C_native_02 Rgemm_gmp_C_native_openmp_02)
 
 #BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_20_mpblas_orig Rgemm_gmp_20_mpblas_mkII Rgemm_gmp_20_mpblas_mkIISR)
 #BENCHMARKS03_2 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_21_mpblas_openmp_orig Rgemm_gmp_21_mpblas_openmp_mkII Rgemm_gmp_21_mpblas_openmp_mkIISR)
