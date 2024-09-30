@@ -32,7 +32,7 @@ double flops_gemm(int k_i, int m_i, int n_i) {
 
 // Reference implementation using mpf_class for C = alpha * A * B + beta * C
 void _Rgemm(int64_t m, int64_t k, int64_t n, const mpf_class &alpha, const mpf_class *A, int64_t lda, const mpf_class *B, int64_t ldb, const mpf_class &beta, mpf_class *C, int64_t ldc) {
-// Scale C by beta: C = beta * C
+    // Scale C by beta: C = beta * C
 #pragma omp parallel for collapse(2) schedule(static)
     for (int64_t j = 0; j < n; ++j) {
         for (int64_t i = 0; i < m; ++i) {
@@ -40,12 +40,13 @@ void _Rgemm(int64_t m, int64_t k, int64_t n, const mpf_class &alpha, const mpf_c
         }
     }
 
-    // Compute alpha * A * B and add to C: C += alpha * A * B
+// Compute alpha * A * B and add to C: C += alpha * A * B
 #pragma omp parallel for schedule(static)
     for (int64_t j = 0; j < n; ++j) { // Corrected loop bound from 'm' to 'n'
         for (int64_t l = 0; l < k; ++l) {
+            mpf_class temp = alpha * B[l + j * ldb];
             for (int64_t i = 0; i < m; ++i) {
-                C[i + j * ldc] += alpha * A[i + l * lda] * B[l + j * ldb];
+                C[i + j * ldc] += temp * A[i + l * lda];
             }
         }
     }

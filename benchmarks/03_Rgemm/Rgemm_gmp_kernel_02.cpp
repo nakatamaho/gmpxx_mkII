@@ -40,8 +40,9 @@ void _Rgemm(int64_t m, int64_t k, int64_t n, const mpf_class &alpha, const mpf_c
     // Compute alpha * A * B and add to C: C += alpha * A * B
     for (int64_t j = 0; j < m; ++j) {
         for (int64_t l = 0; l < k; ++l) {
+            mpf_class temp = alpha * B[l + j * ldb];
             for (int64_t i = 0; i < m; ++i) {
-                C[i + j * ldc] += alpha * A[i + l * lda] * B[l + j * ldb];
+                C[i + j * ldc] += temp * A[i + l * lda];
             }
         }
     }
