@@ -66,10 +66,7 @@ Rgemv_gmp_kernel_openmp_01_orig Rgemv_gmp_kernel_openmp_01_mkII Rgemv_gmp_kernel
 
 BENCHMARKS03_DIR = benchmarks/03_Rgemm
 BENCHMARKS03_0 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_C_native_01 Rgemm_gmp_C_native_openmp_01 Rgemm_gmp_C_native_02 Rgemm_gmp_C_native_openmp_02)
-
-#BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_20_mpblas_orig Rgemm_gmp_20_mpblas_mkII Rgemm_gmp_20_mpblas_mkIISR)
-#BENCHMARKS03_2 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_21_mpblas_openmp_orig Rgemm_gmp_21_mpblas_openmp_mkII Rgemm_gmp_21_mpblas_openmp_mkIISR)
-#BENCHMARKS03_3 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_30_mpblaslike_naive_ijl_orig Rgemm_gmp_30_mpblaslike_naive_ijl_mkII Rgemm_gmp_30_mpblaslike_naive_ijl_mkIISR)
+BENCHMARKS03_1 = $(addprefix $(BENCHMARKS03_DIR)/,Rgemm_gmp_kernel_01_orig Rgemm_gmp_kernel_01_mkII Rgemm_gmp_kernel_01_mkIISR)
 
 all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
 
@@ -283,22 +280,13 @@ $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl_mkII: $(BENCHMARKS03_DIR)/
 $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl_mkIISR: $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
-$(BENCHMARKS03_DIR)/Rgemm_gmp_20_mpblas_orig: $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+$(BENCHMARKS03_DIR)/Rgemm_gmp_kernel_01_orig: $(BENCHMARKS03_DIR)/Rgemm_gmp_kernel_01.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
 
-$(BENCHMARKS03_DIR)/Rgemm_gmp_20_mpblas_mkII: $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+$(BENCHMARKS03_DIR)/Rgemm_gmp_kernel_01_mkII: $(BENCHMARKS03_DIR)/Rgemm_gmp_kernel_01.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKII) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
-$(BENCHMARKS03_DIR)/Rgemm_gmp_20_mpblas_mkIISR: $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
-
-$(BENCHMARKS03_DIR)/Rgemm_gmp_21_mpblas_openmp_orig: $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_ORIGINAL) -o $@ $< $(LDFLAGS)
-
-$(BENCHMARKS03_DIR)/Rgemm_gmp_21_mpblas_openmp_mkII: $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKII) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
-
-$(BENCHMARKS03_DIR)/Rgemm_gmp_21_mpblas_openmp_mkIISR: $(BENCHMARKS03_DIR)/Rgemm_gmp_30_mpblaslike_naive_ijl.cpp $(HEADERS)
+$(BENCHMARKS03_DIR)/Rgemm_gmp_kernel_01_mkIISR: $(BENCHMARKS03_DIR)/Rgemm_gmp_kernel_01.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 
 check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG_TESTS)
