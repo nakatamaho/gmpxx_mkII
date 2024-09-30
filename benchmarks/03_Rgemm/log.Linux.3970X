@@ -1,131 +1,131 @@
 Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Jan 16 14:32:32 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
 model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
-/usr/bin/time ./Rgemm_gmp_C_native_01 300 300 300 512
-Elapsed time: 1.99572 s
-MFLOPS: 27.1481
-L1 Norm of difference: 7.1445e-148
+/usr/bin/time ./Rgemm_gmp_C_native_01 500 500 500 512
+Elapsed time: 9.38962 s
+MFLOPS: 26.6784
+L1 Norm of difference: 3.4018e-147
 Result OK
-4.89user 0.04system 0:04.94elapsed 99%CPU (0avgtext+0avgdata 66560maxresident)k
-0inputs+0outputs (0major+15984minor)pagefaults 0swaps
+23.47user 0.07system 0:23.56elapsed 99%CPU (0avgtext+0avgdata 179712maxresident)k
+0inputs+0outputs (0major+44105minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_C_native_02 300 300 300 512
-Elapsed time: 1.80149 s
-MFLOPS: 30.0751
+/usr/bin/time ./Rgemm_gmp_C_native_02 500 500 500 512
+Elapsed time: 8.43515 s
+MFLOPS: 29.6972
 L1 Norm of difference: 0.0000e+00
 Result OK
-4.73user 0.02system 0:04.76elapsed 99%CPU (0avgtext+0avgdata 67584maxresident)k
-0inputs+0outputs (0major+15985minor)pagefaults 0swaps
+22.04user 0.07system 0:22.13elapsed 99%CPU (0avgtext+0avgdata 179200maxresident)k
+0inputs+0outputs (0major+44106minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_C_native_openmp_01 300 300 300 512
-Elapsed time: 0.0630765 s
-MFLOPS: 858.957
-L1 Norm of difference: 7.1445e-148
+/usr/bin/time ./Rgemm_gmp_C_native_openmp_01 500 500 500 512
+Elapsed time: 0.284095 s
+MFLOPS: 881.749
+L1 Norm of difference: 3.4018e-147
 Result OK
-7.16user 0.10system 0:03.09elapsed 234%CPU (0avgtext+0avgdata 67584maxresident)k
-0inputs+0outputs (0major+16233minor)pagefaults 0swaps
+31.97user 0.08system 0:14.06elapsed 227%CPU (0avgtext+0avgdata 179712maxresident)k
+0inputs+0outputs (0major+44346minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_C_native_openmp_02 300 300 300 512
-Elapsed time: 0.067352 s
-MFLOPS: 804.431
-L1 Norm of difference: 3.1790e-150
+/usr/bin/time ./Rgemm_gmp_C_native_openmp_02 500 500 500 512
+Elapsed time: 0.261407 s
+MFLOPS: 958.277
+L1 Norm of difference: 5.0606e-150
 Result OK
-7.15user 0.28system 0:03.09elapsed 240%CPU (0avgtext+0avgdata 67584maxresident)k
-0inputs+0outputs (0major+16243minor)pagefaults 0swaps
+30.50user 0.34system 0:14.31elapsed 215%CPU (0avgtext+0avgdata 179712maxresident)k
+0inputs+0outputs (0major+44361minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_01_orig 300 300 300 512
-Elapsed time: 3.37129 s
-MFLOPS: 16.071
-L1 Norm of difference: 7.142e-148
+/usr/bin/time ./Rgemm_gmp_kernel_01_orig 500 500 500 512
+Elapsed time: 15.588 s
+MFLOPS: 16.0701
+L1 Norm of difference: 3.401e-147
 Result OK
-6.86user 0.02system 0:06.89elapsed 99%CPU (0avgtext+0avgdata 45568maxresident)k
-0inputs+0outputs (0major+10703minor)pagefaults 0swaps
+31.24user 0.05system 0:31.31elapsed 99%CPU (0avgtext+0avgdata 120832maxresident)k
+0inputs+0outputs (0major+29455minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_01_mkII 300 300 300 512
-Elapsed time: 2.81626 s
-MFLOPS: 19.2382
-L1 Norm of difference: 7.142e-148
+/usr/bin/time ./Rgemm_gmp_kernel_01_mkII 500 500 500 512
+Elapsed time: 13.4116 s
+MFLOPS: 18.6778
+L1 Norm of difference: 3.401e-147
 Result OK
-5.61user 0.01system 0:05.63elapsed 99%CPU (0avgtext+0avgdata 45568maxresident)k
-0inputs+0outputs (0major+10705minor)pagefaults 0swaps
+26.38user 0.05system 0:26.46elapsed 99%CPU (0avgtext+0avgdata 120832maxresident)k
+0inputs+0outputs (0major+29453minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_01_mkIISR 300 300 300 512
-Elapsed time: 2.54779 s
-MFLOPS: 21.2655
-L1 Norm of difference: 7.142e-148
+/usr/bin/time ./Rgemm_gmp_kernel_01_mkIISR 500 500 500 512
+Elapsed time: 12.0529 s
+MFLOPS: 20.7834
+L1 Norm of difference: 3.401e-147
 Result OK
-5.18user 0.02system 0:05.21elapsed 99%CPU (0avgtext+0avgdata 45568maxresident)k
-0inputs+0outputs (0major+10705minor)pagefaults 0swaps
+23.80user 0.06system 0:23.89elapsed 99%CPU (0avgtext+0avgdata 120320maxresident)k
+0inputs+0outputs (0major+29452minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_02_orig 300 300 300 512
-Elapsed time: 5.01623 s
-MFLOPS: 10.8009
+/usr/bin/time ./Rgemm_gmp_kernel_02_orig 500 500 500 512
+Elapsed time: 23.1366 s
+MFLOPS: 10.827
 L1 Norm of difference: 0
 Result OK
-8.39user 0.02system 0:08.42elapsed 99%CPU (0avgtext+0avgdata 46080maxresident)k
-0inputs+0outputs (0major+10709minor)pagefaults 0swaps
+38.66user 0.05system 0:38.74elapsed 99%CPU (0avgtext+0avgdata 120832maxresident)k
+0inputs+0outputs (0major+29452minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_02_mkII 300 300 300 512
-Elapsed time: 4.75314 s
-MFLOPS: 11.3988
+/usr/bin/time ./Rgemm_gmp_kernel_02_mkII 500 500 500 512
+Elapsed time: 22.5248 s
+MFLOPS: 11.1211
 L1 Norm of difference: 0
 Result OK
-7.52user 0.02system 0:07.54elapsed 99%CPU (0avgtext+0avgdata 45568maxresident)k
-0inputs+0outputs (0major+10707minor)pagefaults 0swaps
+35.38user 0.03system 0:35.44elapsed 99%CPU (0avgtext+0avgdata 120832maxresident)k
+0inputs+0outputs (0major+29457minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_02_mkIISR 300 300 300 512
-Elapsed time: 4.26034 s
-MFLOPS: 12.7173
+/usr/bin/time ./Rgemm_gmp_kernel_02_mkIISR 500 500 500 512
+Elapsed time: 19.9272 s
+MFLOPS: 12.5707
 L1 Norm of difference: 0
 Result OK
-6.84user 0.02system 0:06.87elapsed 99%CPU (0avgtext+0avgdata 45568maxresident)k
-0inputs+0outputs (0major+10704minor)pagefaults 0swaps
+32.04user 0.06system 0:32.13elapsed 99%CPU (0avgtext+0avgdata 120320maxresident)k
+0inputs+0outputs (0major+29453minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_openmp_01_orig 300 300 300 512
-Elapsed time: 0.101495 s
-MFLOPS: 533.819
-L1 Norm of difference: 7.142e-148
+/usr/bin/time ./Rgemm_gmp_kernel_openmp_01_orig 500 500 500 512
+Elapsed time: 0.456366 s
+MFLOPS: 548.901
+L1 Norm of difference: 3.401e-147
 Result OK
-9.80user 0.26system 0:03.56elapsed 282%CPU (0avgtext+0avgdata 46592maxresident)k
-0inputs+0outputs (0major+10960minor)pagefaults 0swaps
+44.30user 0.37system 0:15.87elapsed 281%CPU (0avgtext+0avgdata 120832maxresident)k
+0inputs+0outputs (0major+29715minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_openmp_01_mkII 300 300 300 512
-Elapsed time: 0.085409 s
-MFLOPS: 634.359
-L1 Norm of difference: 7.142e-148
+/usr/bin/time ./Rgemm_gmp_kernel_openmp_01_mkII 500 500 500 512
+Elapsed time: 0.398029 s
+MFLOPS: 629.351
+L1 Norm of difference: 3.401e-147
 Result OK
-8.66user 0.04system 0:03.11elapsed 279%CPU (0avgtext+0avgdata 46592maxresident)k
-0inputs+0outputs (0major+10966minor)pagefaults 0swaps
+39.09user 0.08system 0:13.94elapsed 280%CPU (0avgtext+0avgdata 121344maxresident)k
+0inputs+0outputs (0major+29716minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_openmp_01_mkIISR 300 300 300 512
-Elapsed time: 0.0811261 s
-MFLOPS: 667.849
-L1 Norm of difference: 7.142e-148
+/usr/bin/time ./Rgemm_gmp_kernel_openmp_01_mkIISR 500 500 500 512
+Elapsed time: 0.35733 s
+MFLOPS: 701.032
+L1 Norm of difference: 3.401e-147
 Result OK
-7.69user 0.28system 0:02.70elapsed 294%CPU (0avgtext+0avgdata 46592maxresident)k
-0inputs+0outputs (0major+10969minor)pagefaults 0swaps
+34.56user 0.39system 0:12.32elapsed 283%CPU (0avgtext+0avgdata 120832maxresident)k
+0inputs+0outputs (0major+29720minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_openmp_02_orig 300 300 300 512
-Elapsed time: 0.150543 s
-MFLOPS: 359.896
+/usr/bin/time ./Rgemm_gmp_kernel_openmp_02_orig 500 500 500 512
+Elapsed time: 0.652305 s
+MFLOPS: 384.023
 L1 Norm of difference: 0
 Result OK
-12.55user 0.04system 0:03.49elapsed 360%CPU (0avgtext+0avgdata 46592maxresident)k
-0inputs+0outputs (0major+10947minor)pagefaults 0swaps
+55.76user 0.31system 0:16.33elapsed 343%CPU (0avgtext+0avgdata 121344maxresident)k
+0inputs+0outputs (0major+29715minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_openmp_02_mkII 300 300 300 512
-Elapsed time: 0.150076 s
-MFLOPS: 361.016
+/usr/bin/time ./Rgemm_gmp_kernel_openmp_02_mkII 500 500 500 512
+Elapsed time: 0.641236 s
+MFLOPS: 390.652
 L1 Norm of difference: 0
 Result OK
-11.66user 0.27system 0:02.94elapsed 405%CPU (0avgtext+0avgdata 46592maxresident)k
-0inputs+0outputs (0major+10967minor)pagefaults 0swaps
+52.40user 0.31system 0:13.47elapsed 391%CPU (0avgtext+0avgdata 121344maxresident)k
+0inputs+0outputs (0major+29715minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemm_gmp_kernel_openmp_02_mkIISR 300 300 300 512
-Elapsed time: 0.177514 s
-MFLOPS: 305.215
+/usr/bin/time ./Rgemm_gmp_kernel_openmp_02_mkIISR 500 500 500 512
+Elapsed time: 0.55992 s
+MFLOPS: 447.385
 L1 Norm of difference: 0
 Result OK
-12.87user 0.28system 0:02.56elapsed 512%CPU (0avgtext+0avgdata 46080maxresident)k
-0inputs+0outputs (0major+10970minor)pagefaults 0swaps
+45.57user 0.30system 0:11.61elapsed 394%CPU (0avgtext+0avgdata 121344maxresident)k
+0inputs+0outputs (0major+29716minor)pagefaults 0swaps
 

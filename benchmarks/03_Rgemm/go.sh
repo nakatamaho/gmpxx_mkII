@@ -20,7 +20,7 @@ executables=(
     "Rgemm_gmp_kernel_openmp_02_mkIISR"
 )
 for exe in "${executables[@]}"; do
-    COMMAND_LINE="/usr/bin/time ./$exe 300 300 300 512"
+    COMMAND_LINE="/usr/bin/time ./$exe 500 500 500 512"
     echo $COMMAND_LINE
     $COMMAND_LINE
     if [ -f gmon.out ]; then
