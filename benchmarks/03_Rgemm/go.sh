@@ -2,25 +2,27 @@ uname -a
 cat /proc/cpuinfo | grep 'model name' | head -1
 echo
 executables=(
-"gemm_gmp_10_naive_ijl"
-"gemm_gmp_11_naive_jli"
-"gemm_gmp_12_naive_jli_openmp"
-"gemm_gmp_20_mpblas_orig"
-"gemm_gmp_20_mpblas_compat"
-"gemm_gmp_20_mpblas_mkII"
-"gemm_gmp_20_mpblas_mkIISR"
-"gemm_gmp_21_mpblas_openmp_orig"
-"gemm_gmp_21_mpblas_openmp_compat"
-"gemm_gmp_21_mpblas_openmp_mkII"
-"gemm_gmp_21_mpblas_openmp_mkIISR"
-"gemm_gmp_30_mpblaslike_naive_ijl_compat"
-"gemm_gmp_30_mpblaslike_naive_ijl_mkII"
-"gemm_gmp_30_mpblaslike_naive_ijl_mkIISR"
-"gemm_gmp_30_mpblaslike_naive_ijl_orig"
+    "Rgemm_gmp_C_native_01"
+    "Rgemm_gmp_C_native_02"
+    "Rgemm_gmp_C_native_openmp_01"
+    "Rgemm_gmp_C_native_openmp_02"
+    "Rgemm_gmp_kernel_01_orig"
+    "Rgemm_gmp_kernel_01_mkII"
+    "Rgemm_gmp_kernel_01_mkIISR"
+    "Rgemm_gmp_kernel_02_orig"
+    "Rgemm_gmp_kernel_02_mkII"
+    "Rgemm_gmp_kernel_02_mkIISR"
+    "Rgemm_gmp_kernel_openmp_01_orig"
+    "Rgemm_gmp_kernel_openmp_01_mkII"
+    "Rgemm_gmp_kernel_openmp_01_mkIISR"
+    "Rgemm_gmp_kernel_openmp_02_orig"
+    "Rgemm_gmp_kernel_openmp_02_mkII"
+    "Rgemm_gmp_kernel_openmp_02_mkIISR"
 )
 for exe in "${executables[@]}"; do
-    echo "./$exe 1000 1000 1000 512"
-    ./$exe 1000 1000 1000 512
+    COMMAND_LINE="/usr/bin/time ./$exe 300 300 300 512"
+    echo $COMMAND_LINE
+    $COMMAND_LINE
     if [ -f gmon.out ]; then
         mv gmon.out "gmon_${exe}.out"
         gprof ./$exe "gmon_${exe}.out" > "gprof_${exe}.txt"
