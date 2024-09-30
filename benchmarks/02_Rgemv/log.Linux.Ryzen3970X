@@ -2,66 +2,66 @@ Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue J
 model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
 /usr/bin/time ./Rgemv_gmp_C_native_01 4000 4000 512
-Elapsed time: 1.88417 s
-MFLOPS: 16.9836
+Elapsed time: 1.89777 s
+MFLOPS: 16.8619
 L1 Norm of difference: 0.0000e+00
 Result OK
-5.72user 1.65system 0:07.38elapsed 99%CPU (0avgtext+0avgdata 3755520maxresident)k
-0inputs+0outputs (0major+938130minor)pagefaults 0swaps
+5.70user 1.67system 0:07.37elapsed 99%CPU (0avgtext+0avgdata 3755520maxresident)k
+0inputs+0outputs (0major+938129minor)pagefaults 0swaps
 
 /usr/bin/time ./Rgemv_gmp_C_native_openmp_01 4000 4000 512
-Elapsed time: 4.43669 s
-MFLOPS: 7.21259
-L1 Norm of difference: 4.0931e-151
+Elapsed time: 4.90655 s
+MFLOPS: 6.52189
+L1 Norm of difference: 4.0969e-151
 Result OK
-179.98user 2.67system 0:10.14elapsed 1800%CPU (0avgtext+0avgdata 3755520maxresident)k
-0inputs+0outputs (0major+938393minor)pagefaults 0swaps
+208.64user 3.32system 0:10.62elapsed 1995%CPU (0avgtext+0avgdata 3755520maxresident)k
+0inputs+0outputs (0major+938392minor)pagefaults 0swaps
 
 /usr/bin/time ./Rgemv_gmp_kernel_01_orig 4000 4000 512
-Elapsed time: 4.61368 s
-MFLOPS: 6.93589
+Elapsed time: 2.94106 s
+MFLOPS: 10.8804
 L1 Norm of difference: 4.51e-148
 Result OK
-11.13user 1.14system 0:12.28elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
-0inputs+0outputs (0major+469261minor)pagefaults 0swaps
-
-/usr/bin/time ./Rgemv_gmp_kernel_01_mkII 4000 4000 512
-Elapsed time: 3.12542 s
-MFLOPS: 10.2386
-L1 Norm of difference: 4.51e-148
-Result OK
-7.28user 0.84system 0:08.14elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+7.82user 0.85system 0:08.68elapsed 99%CPU (0avgtext+0avgdata 1879552maxresident)k
 0inputs+0outputs (0major+469258minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemv_gmp_kernel_01_mkIISR 4000 4000 512
-Elapsed time: 3.02104 s
-MFLOPS: 10.5924
+/usr/bin/time ./Rgemv_gmp_kernel_01_mkII 4000 4000 512
+Elapsed time: 3.12177 s
+MFLOPS: 10.2506
 L1 Norm of difference: 4.51e-148
 Result OK
-6.82user 0.79system 0:07.62elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
-0inputs+0outputs (0major+469259minor)pagefaults 0swaps
+6.96user 0.81system 0:07.78elapsed 99%CPU (0avgtext+0avgdata 1880576maxresident)k
+0inputs+0outputs (0major+469261minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_01_mkIISR 4000 4000 512
+Elapsed time: 2.94869 s
+MFLOPS: 10.8523
+L1 Norm of difference: 4.51e-148
+Result OK
+6.66user 0.82system 0:07.49elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469262minor)pagefaults 0swaps
 
 /usr/bin/time ./Rgemv_gmp_kernel_openmp_01_orig 4000 4000 512
-Elapsed time: 0.1386 s
-MFLOPS: 230.88
+Elapsed time: 0.138614 s
+MFLOPS: 230.857
 L1 Norm of difference: 4.51e-148
 Result OK
-13.00user 1.04system 0:05.42elapsed 258%CPU (0avgtext+0avgdata 1880576maxresident)k
-0inputs+0outputs (0major+469516minor)pagefaults 0swaps
-
-/usr/bin/time ./Rgemv_gmp_kernel_openmp_01_mkII 4000 4000 512
-Elapsed time: 0.13041 s
-MFLOPS: 245.379
-L1 Norm of difference: 4.51e-148
-Result OK
-12.94user 0.97system 0:05.88elapsed 236%CPU (0avgtext+0avgdata 1880576maxresident)k
+12.92user 1.05system 0:05.33elapsed 262%CPU (0avgtext+0avgdata 1880064maxresident)k
 0inputs+0outputs (0major+469521minor)pagefaults 0swaps
 
-/usr/bin/time ./Rgemv_gmp_kernel_openmp_01_mkIISR 4000 4000 512
-Elapsed time: 0.122489 s
-MFLOPS: 261.248
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_01_mkII 4000 4000 512
+Elapsed time: 0.131663 s
+MFLOPS: 243.045
 L1 Norm of difference: 4.51e-148
 Result OK
-11.94user 1.06system 0:05.48elapsed 237%CPU (0avgtext+0avgdata 1880576maxresident)k
-0inputs+0outputs (0major+469522minor)pagefaults 0swaps
+13.29user 0.80system 0:05.85elapsed 240%CPU (0avgtext+0avgdata 1880576maxresident)k
+0inputs+0outputs (0major+469512minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_01_mkIISR 4000 4000 512
+Elapsed time: 0.122355 s
+MFLOPS: 261.534
+L1 Norm of difference: 4.51e-148
+Result OK
+12.41user 0.83system 0:05.51elapsed 240%CPU (0avgtext+0avgdata 1880576maxresident)k
+0inputs+0outputs (0major+469501minor)pagefaults 0swaps
 

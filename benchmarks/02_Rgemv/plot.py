@@ -142,7 +142,7 @@ for file_path in file_paths:
     for text in legend.get_texts():
         text.set_fontweight('bold')
 
-    filename = f'singlecore_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
+    filename = f'singlecore_operations_{cpu_model_filename}_{dimx}_{dim}_{prec}.pdf'
     plt.savefig(filename)
     plt.close()
 
@@ -170,6 +170,6 @@ for file_path in file_paths:
         for text in legend.get_texts():
             text.set_fontweight('bold')
 
-        filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
+        filename_openmp = f'openmp_operations_{cpu_model_filename}_{dimx}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp, bbox_inches='tight')
         plt.close()
