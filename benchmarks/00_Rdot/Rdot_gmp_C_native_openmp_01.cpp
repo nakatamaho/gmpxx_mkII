@@ -18,37 +18,31 @@ using namespace gmp;
 gmp_randstate_t state;
 
 void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *ans) {
+    if (incx != 1 || incy != 1) {
+        std::cerr << "Increments other than 1 are not supported." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     int64_t i;
     mpf_t temp, templ;
-
-    if (incx != 1 || incy != 1) {
-        printf("Not supported, exitting\n");
-        exit(-1);
-    }
 
     mpf_set_d(*ans, 0.0);
 
 // no reduction for multiple precision
-#ifdef _OPENMP
-#pragma omp parallel private(i, temp, templ) shared(ans, dx, dy, n)
-#endif
+#pragma omp parallel private(i, temp, templ)
     {
         mpf_init(temp);
         mpf_init(templ);
         mpf_set_d(temp, 0.0);
         mpf_set_d(templ, 0.0);
 
-#ifdef _OPENMP
 #pragma omp for
-#endif
         for (i = 0; i < n; i++) {
             mpf_mul(templ, dx[i], dy[i]);
             mpf_add(temp, temp, templ);
         }
-#ifdef _OPENMP
 #pragma omp critical
-#endif
-        mpf_add(*ans, *ans, temp);
+        { mpf_add(*ans, *ans, temp); }
         mpf_clear(temp);
         mpf_clear(templ);
     }

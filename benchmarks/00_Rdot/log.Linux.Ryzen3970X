@@ -2,142 +2,142 @@ Linux f5c4030dcd84 6.5.0-17-generic #17~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue J
 model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
 
 /usr/bin/time ./Rdot_gmp_C_native_01 100000000 512
-Elapsed time: 7.14423 s
-MFLOPS: 27.9946
+Elapsed time: 7.23106 s
+MFLOPS: 27.6585
 DIFF: 2.397e-147 OK
-43.11user 19.87system 1:03.05elapsed 99%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11718910minor)pagefaults 0swaps
+43.18user 20.27system 1:03.52elapsed 99%CPU (0avgtext+0avgdata 46877696maxresident)k
+0inputs+0outputs (0major+11718908minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_C_native_openmp_01 100000000 512
-Elapsed time: 0.341436 s
-MFLOPS: 585.761
+Elapsed time: 0.316309 s
+MFLOPS: 632.292
 DIFF: 2.397e-147 OK
-56.46user 20.05system 0:56.68elapsed 134%CPU (0avgtext+0avgdata 46879232maxresident)k
-0inputs+0outputs (0major+11719170minor)pagefaults 0swaps
+56.59user 20.05system 0:56.79elapsed 134%CPU (0avgtext+0avgdata 46879232maxresident)k
+0inputs+0outputs (0major+11719164minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_01_orig 100000000 512
-Elapsed time: 12.1133 s
-MFLOPS: 16.5107
+Elapsed time: 11.8947 s
+MFLOPS: 16.8142
 DIFF: 2.397e-147 OK
-46.40user 19.82system 1:06.30elapsed 99%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11718905minor)pagefaults 0swaps
+46.47user 19.95system 1:06.49elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+0inputs+0outputs (0major+11718908minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_01_mkII 100000000 512
-Elapsed time: 9.79414 s
-MFLOPS: 20.4204
+Elapsed time: 18.6999 s
+MFLOPS: 10.6952
 DIFF: 2.397e-147 OK
-47.61user 20.11system 1:07.79elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
-0inputs+0outputs (0major+11718909minor)pagefaults 0swaps
+86.29user 34.83system 2:01.19elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+0inputs+0outputs (0major+11718910minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_01_mkIISR 100000000 512
-Elapsed time: 8.40097 s
-MFLOPS: 23.8068
+Elapsed time: 8.55031 s
+MFLOPS: 23.391
 DIFF: 2.397e-147 OK
-43.25user 19.78system 1:03.10elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
-0inputs+0outputs (0major+11718907minor)pagefaults 0swaps
+43.41user 19.77system 1:03.25elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+0inputs+0outputs (0major+11718908minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_02_orig 100000000 512
-Elapsed time: 12.1196 s
-MFLOPS: 16.5022
+Elapsed time: 14.0644 s
+MFLOPS: 14.2203
 DIFF: 2.397e-147 OK
-46.82user 20.02system 1:06.91elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
-0inputs+0outputs (0major+11718911minor)pagefaults 0swaps
+66.78user 33.52system 1:40.38elapsed 99%CPU (0avgtext+0avgdata 46878720maxresident)k
+0inputs+0outputs (0major+11718908minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_02_mkII 100000000 512
-Elapsed time: 9.99401 s
-MFLOPS: 20.012
+Elapsed time: 9.44007 s
+MFLOPS: 21.1863
 DIFF: 2.397e-147 OK
-48.29user 19.60system 1:07.96elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
-0inputs+0outputs (0major+11718907minor)pagefaults 0swaps
+46.94user 19.41system 1:06.42elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+0inputs+0outputs (0major+11718910minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_02_mkIISR 100000000 512
-Elapsed time: 8.49318 s
-MFLOPS: 23.5483
+Elapsed time: 8.63044 s
+MFLOPS: 23.1738
 DIFF: 2.397e-147 OK
-43.86user 19.68system 1:03.61elapsed 99%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11718911minor)pagefaults 0swaps
+43.31user 20.01system 1:03.39elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+0inputs+0outputs (0major+11718908minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_03_orig 100000000 512
-Elapsed time: 9.61685 s
-MFLOPS: 20.7968
+Elapsed time: 9.7203 s
+MFLOPS: 20.5755
 DIFF: 2.397e-147 OK
-44.52user 19.94system 1:04.53elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+44.12user 19.95system 1:04.15elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
 0inputs+0outputs (0major+11718909minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_03_mkII 100000000 512
-Elapsed time: 11.2757 s
-MFLOPS: 17.7372
+Elapsed time: 11.5837 s
+MFLOPS: 17.2657
 DIFF: 2.397e-147 OK
-49.25user 20.00system 1:09.32elapsed 99%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11718911minor)pagefaults 0swaps
+50.00user 20.13system 1:10.19elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+0inputs+0outputs (0major+11718907minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_03_mkIISR 100000000 512
-Elapsed time: 9.41267 s
-MFLOPS: 21.2479
+Elapsed time: 9.18884 s
+MFLOPS: 21.7655
 DIFF: 2.397e-147 OK
-44.26user 19.90system 1:04.24elapsed 99%CPU (0avgtext+0avgdata 46878720maxresident)k
+44.58user 19.66system 1:04.31elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
 0inputs+0outputs (0major+11718908minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_04_orig 100000000 512
-Elapsed time: 10.0846 s
-MFLOPS: 19.8323
+Elapsed time: 10.2671 s
+MFLOPS: 19.4796
 DIFF: 2.397e-147 OK
-44.11user 19.79system 1:03.98elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
-0inputs+0outputs (0major+11718910minor)pagefaults 0swaps
-
-/usr/bin/time ./Rdot_gmp_kernel_04_mkII 100000000 512
-Elapsed time: 6.84435 s
-MFLOPS: 29.2212
-DIFF: 2.397e-147 OK
-45.53user 19.91system 1:05.50elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+44.85user 19.78system 1:04.70elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
 0inputs+0outputs (0major+11718909minor)pagefaults 0swaps
 
-/usr/bin/time ./Rdot_gmp_kernel_04_mkIISR 100000000 512
-Elapsed time: 7.15452 s
-MFLOPS: 27.9544
+/usr/bin/time ./Rdot_gmp_kernel_04_mkII 100000000 512
+Elapsed time: 6.7695 s
+MFLOPS: 29.5443
 DIFF: 2.397e-147 OK
-41.89user 20.26system 1:02.22elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+44.38user 19.92system 1:04.37elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
 0inputs+0outputs (0major+11718910minor)pagefaults 0swaps
 
-/usr/bin/time ./Rdot_gmp_kernel_openmp_01_orig 100000000 512
-Elapsed time: 0.367146 s
-MFLOPS: 544.742
+/usr/bin/time ./Rdot_gmp_kernel_04_mkIISR 100000000 512
+Elapsed time: 6.8826 s
+MFLOPS: 29.0588
 DIFF: 2.397e-147 OK
-58.80user 20.50system 0:56.13elapsed 141%CPU (0avgtext+0avgdata 46879232maxresident)k
-0inputs+0outputs (0major+11719168minor)pagefaults 0swaps
+41.48user 19.87system 1:01.42elapsed 99%CPU (0avgtext+0avgdata 46878208maxresident)k
+0inputs+0outputs (0major+11718907minor)pagefaults 0swaps
+
+/usr/bin/time ./Rdot_gmp_kernel_openmp_01_orig 100000000 512
+Elapsed time: 0.373847 s
+MFLOPS: 534.978
+DIFF: 2.397e-147 OK
+58.37user 20.14system 0:55.21elapsed 142%CPU (0avgtext+0avgdata 46879232maxresident)k
+0inputs+0outputs (0major+11719169minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_openmp_01_mkII 100000000 512
-Elapsed time: 0.322192 s
-MFLOPS: 620.748
+Elapsed time: 0.321796 s
+MFLOPS: 621.512
 DIFF: 2.397e-147 OK
-57.33user 20.10system 0:57.58elapsed 134%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11719173minor)pagefaults 0swaps
+58.56user 19.73system 0:58.30elapsed 134%CPU (0avgtext+0avgdata 46878720maxresident)k
+0inputs+0outputs (0major+11719170minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_openmp_01_mkIISR 100000000 512
-Elapsed time: 0.320893 s
-MFLOPS: 623.26
+Elapsed time: 0.321213 s
+MFLOPS: 622.64
 DIFF: 2.397e-147 OK
-54.66user 20.64system 0:55.68elapsed 135%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11719160minor)pagefaults 0swaps
+55.81user 20.61system 0:56.66elapsed 134%CPU (0avgtext+0avgdata 46879232maxresident)k
+0inputs+0outputs (0major+11719174minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_openmp_02_orig 100000000 512
-Elapsed time: 0.323173 s
-MFLOPS: 618.864
+Elapsed time: 0.324839 s
+MFLOPS: 615.69
 DIFF: 2.397e-147 OK
-55.30user 20.28system 0:55.80elapsed 135%CPU (0avgtext+0avgdata 46879232maxresident)k
-0inputs+0outputs (0major+11719171minor)pagefaults 0swaps
+54.64user 20.21system 0:55.05elapsed 135%CPU (0avgtext+0avgdata 46879232maxresident)k
+0inputs+0outputs (0major+11719170minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_openmp_02_mkII 100000000 512
-Elapsed time: 0.317091 s
-MFLOPS: 630.734
+Elapsed time: 0.315888 s
+MFLOPS: 633.135
 DIFF: 2.397e-147 OK
-57.89user 19.86system 0:57.96elapsed 134%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11719171minor)pagefaults 0swaps
+58.77user 19.64system 0:58.62elapsed 133%CPU (0avgtext+0avgdata 46879232maxresident)k
+0inputs+0outputs (0major+11719169minor)pagefaults 0swaps
 
 /usr/bin/time ./Rdot_gmp_kernel_openmp_02_mkIISR 100000000 512
-Elapsed time: 0.316308 s
-MFLOPS: 632.295
+Elapsed time: 0.316526 s
+MFLOPS: 631.859
 DIFF: 2.397e-147 OK
-54.80user 20.18system 0:55.06elapsed 136%CPU (0avgtext+0avgdata 46878720maxresident)k
-0inputs+0outputs (0major+11719166minor)pagefaults 0swaps
+55.52user 20.07system 0:55.76elapsed 135%CPU (0avgtext+0avgdata 46879232maxresident)k
+0inputs+0outputs (0major+11719164minor)pagefaults 0swaps
 

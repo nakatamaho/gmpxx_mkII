@@ -18,12 +18,12 @@ using namespace gmp;
 gmp_randstate_t state;
 
 mpf_class _Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t incy) {
-    int64_t i;
-
     if (incx != 1 || incy != 1) {
-        printf("Not supported, exitting\n");
-        exit(-1);
+        std::cerr << "Increments other than 1 are not supported." << std::endl;
+        exit(EXIT_FAILURE);
     }
+
+    int64_t i;
 
     mpf_class temp, templ;
     temp = 0.0;

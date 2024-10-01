@@ -18,13 +18,13 @@ using namespace gmp;
 gmp_randstate_t state;
 
 void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *ans) {
+    if (incx != 1 || incy != 1) {
+        std::cerr << "Increments other than 1 are not supported." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
     int64_t i;
     mpf_t temp, templ;
-
-    if (incx != 1 || incy != 1) {
-        printf("Not supported, exitting\n");
-        exit(-1);
-    }
 
     mpf_set_d(*ans, 0.0);
     mpf_init(temp);
