@@ -19,46 +19,35 @@ gmp_randstate_t state;
 
 #include <omp.h>
 
-// Reference implementation using mpf_t with OpenMP parallelization
 void _Rgemv(int64_t m, int64_t n, const mpf_t alpha, const mpf_t *A, int64_t lda, const mpf_t *x, int64_t incx, const mpf_t beta, mpf_t *y, int64_t incy) {
-
     if (incx != 1 || incy != 1) {
         std::cerr << "Increments other than 1 are not supported." << std::endl;
         exit(EXIT_FAILURE);
     }
 
-// Parallelize the scaling of y by beta
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
     for (int64_t i = 0; i < m; ++i) {
-        mpf_mul(y[i], beta, y[i]); // y[i] = beta * y[i]
+        mpf_mul(y[i], y[i], beta);
     }
 
-#pragma omp parallel
-    {
-        // Initialize a temporary variable for each thread
+#pragma omp parallel for
+    for (int64_t i = 0; i < m; ++i) {
         mpf_t temp;
         mpf_init(temp);
-
-#pragma omp for schedule(static)
+        mpf_set_ui(temp, 0);
         for (int64_t j = 0; j < n; ++j) {
-            // Compute alpha * x[j] once per column to reduce repeated multiplications
-            mpf_t alpha_xj;
-            mpf_init(alpha_xj);
-            mpf_mul(alpha_xj, alpha, x[j]); // alpha_xj = alpha * x[j]
-
-            for (int64_t i = 0; i < m; ++i) {
-                // temp = alpha * A[i + j * lda] * x[j]
-                mpf_mul(temp, A[i + j * lda], alpha_xj); // temp = A[i + j*lda] * (alpha * x[j])
-
-// Update y[i] += temp in a thread-safe manner
-#pragma omp critical
-                {
-                    mpf_add(y[i], y[i], temp); // y[i] += temp
-                }
-            }
-            mpf_clear(alpha_xj);
+            mpf_t prod;
+            mpf_init(prod);
+            mpf_mul(prod, A[i + j * lda], x[j]);
+            mpf_add(temp, temp, prod);
+            mpf_clear(prod);
         }
+        mpf_t scaled_temp;
+        mpf_init(scaled_temp);
+        mpf_mul(scaled_temp, alpha, temp);
+        mpf_add(y[i], y[i], scaled_temp);
         mpf_clear(temp);
+        mpf_clear(scaled_temp);
     }
 }
 
