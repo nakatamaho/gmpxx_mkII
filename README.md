@@ -1,4 +1,4 @@
-# gmpxx_mkII.h: A GMP C++ Wrapper for High-Precision Calculations
+# gmpxx_mkII.h: Yet another GMP C++ Wrapper for High-Precision Calculations
 
 ## Overview
 
