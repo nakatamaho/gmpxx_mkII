@@ -66,9 +66,13 @@ The default precision is 512 bits = 154 decimal significant digits. We also intr
 
 In Compatibility Mode, do not use `using namespace gmpxx;` to avoid namespace conflicts. This mode ensures that your existing code that relies on older `gmpxx.h` features works without modifications.
 
-## Link
+## How to Link
 
 When linking your project with `gmpxx_mkII.h`, removing the -lgmpxx link option used with the original GMP C++ wrapper is advisable. While keeping it may not cause immediate harm, removing it ensures that you link specifically against the correct library version provided by gmpxx_mkII, avoiding potential conflicts or ambiguities.
+
+README.mdでの画像表示をより美しく、視覚的に整った形にするためには、Markdownの書き方を少し調整して、画像を直接見せる形式にすることができます。また、箇条書き（`-`）を使わない形にすることで、よりシンプルで読みやすく見せられるはずです。以下はその改善案です。
+
+---
 
 ## Improvements from original gmpxx.h
 
@@ -78,27 +82,25 @@ The new implementation of `gmpxx_mkII.h` has demonstrated significant performanc
 
 In multi-core scenarios using OpenMP, the performance of `gmpxx_mkII.h` is comparable to that of the original `gmpxx.h`. Although significant gains were not observed in this case, the implementation still performs efficiently.
 
-It should be noted, however, that certain operations, such as matrix-matrix computations, have not yet been fully optimized. Preliminary results indicate that performance in these cases may be inferior to the original `gmpxx.h`. Further investigation and tuning are ongoing to address these issues.
+It should be noted, however, that certain operations have not yet been fully optimized. Preliminary results indicate that performance in these cases may be inferior to the original `gmpxx.h`. Further investigation and tuning are ongoing to address these issues.
 
-#### Rdot (innter product)
+Below are the benchmark results of Rdot (inner product), Raxpy (daxpy), Rgemv (matrix-vector operation like dgemv), and Rgemm (matrix-matrix operation like gemm).
 
-- ![Single-core operations on Ryzen 3970X (100 million length vector, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.png)
-- ![OpenMP multi-core operations on Ryzen 3970X (100 million vector, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/openmp_operations_Ryzen_3970X_32-Core_100000000_512.png)
+### Rdot (Inner Product)
 
-#### Raxpy (daxpy or axpy like operation)
+**Single-core operations on Ryzen 3970X (100 million length vector, 512 bits)**  
+![Single-core operations on Ryzen 3970X (100 million length vector, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.png)
 
-- ![Single-core operations on Ryzen 3970X (100 million vectors, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/01_Raxpy/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.png)
-- ![OpenMP multi-core operations on Ryzen 3970X (100 million vectors, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/01_Raxpy/openmp_operations_Ryzen_3970X_32-Core_100000000_512.png)
+**OpenMP multi-core operations on Ryzen 3970X (100 million length vector, 512 bits)**  
+![OpenMP multi-core operations on Ryzen 3970X (100 million length vector, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/openmp_operations_Ryzen_3970X_32-Core_100000000_512.png)
 
-#### Rgemv (matrix-vector multipliciation; dgemv like operation)
+### Raxpy (daxpy or axpy like operation)
 
-- ![Singl-Core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/02_Rgemv/singlecore_operations_Ryzen_3970X_32-Core_4000_4000_512.png)
-- ![OpenMP multi-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/02_Rgemv/openmp_operations_Ryzen_3970X_32-Core_4000_4000_512.png)
+**Single-core operations on Ryzen 3970X (100 million vectors, 512 bits)**  
+![Single-core operations on Ryzen 3970X (100 million vectors, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/01_Raxpy/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.png)
 
-#### Rgemm (matrix-matrix multipliciation; dgemm like operation)
-
-- ![Single-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/03_Rgemm/singlecore_operations_Ryzen_3970X_32-Core_700_700_700_512.png)
-- ![OpenMP multi-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/03_Rgemm/openmp_operations_Ryzen_3970X_32-Core_700_700_700_512.png)
+**OpenMP multi-core operations on Ryzen 3970X (100 million vectors, 512 bits)**  
+![OpenMP multi-core operations on Ryzen 3970X (100 million vectors, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/01_Raxpy/openmp_operations_Ryzen_3970X_32-Core_100000000_512.png)
 
 ### Enhanced Mathematical Functions
 
