@@ -100,6 +100,9 @@ Below are the benchmark results of Rdot (inner product), Raxpy (daxpy), Rgemv (m
 
 ### Rgemv (Matrix-Vector Multiplication)
 
+**Single-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)**  
+![Single-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/02_Rgemv/singlecore_operations_Ryzen_3970X_32-Core_4000_4000_512.png)
+
 **OpenMP multi-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)**  
 ![OpenMP multi-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/02_Rgemv/openmp_operations_Ryzen_3970X_32-Core_4000_4000_512.png)
 
