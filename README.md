@@ -70,10 +70,6 @@ In Compatibility Mode, do not use `using namespace gmpxx;` to avoid namespace co
 
 When linking your project with `gmpxx_mkII.h`, removing the -lgmpxx link option used with the original GMP C++ wrapper is advisable. While keeping it may not cause immediate harm, removing it ensures that you link specifically against the correct library version provided by gmpxx_mkII, avoiding potential conflicts or ambiguities.
 
-README.mdでの画像表示をより美しく、視覚的に整った形にするためには、Markdownの書き方を少し調整して、画像を直接見せる形式にすることができます。また、箇条書き（`-`）を使わない形にすることで、よりシンプルで読みやすく見せられるはずです。以下はその改善案です。
-
----
-
 ## Improvements from original gmpxx.h
 
 ### Performance Improvements and Benchmarks
