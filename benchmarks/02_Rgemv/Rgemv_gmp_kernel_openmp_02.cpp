@@ -30,12 +30,13 @@ void _Rgemv(int64_t m, int64_t n, const mpf_class &alpha, const mpf_class *A, in
     }
 
     // Compute alpha * A * x and add to y: y += alpha * A * x
+    mpf_class temp, templ;
 #pragma omp parallel for private(temp, templ)
     for (int64_t j = 0; j < n; ++j) {
-        mpf_class temp = alpha;
+        temp = alpha;
         temp *= x[j];
         for (int64_t i = 0; i < m; ++i) {
-            mpf_class templ = temp;
+            templ = temp;
             templ *= A[i + j * lda];
             y[i] += templ;
         }
