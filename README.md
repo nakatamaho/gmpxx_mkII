@@ -82,8 +82,8 @@ It should be noted, however, that certain operations, such as matrix-matrix comp
 
 #### Rdot (innter product)
 
-- [Single-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.png)
-- [OpenMP multi-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/openmp_operations_Ryzen_3970X_32-Core_100000000_512.png)
+- ![Single-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.png)
+- ![OpenMP multi-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/openmp_operations_Ryzen_3970X_32-Core_100000000_512.png)
 
 #### Raxpy (daxpy or axpy like operation)
 
