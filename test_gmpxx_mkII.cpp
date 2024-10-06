@@ -39,7 +39,7 @@
 #else
 #include "gmpxx_mkII.h"
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
-using namespace gmp;
+using namespace gmpxx;
 #endif
 #endif
 

@@ -4,8 +4,8 @@
 #include <iomanip>
 
 int main() {
-    gmp::mpf_class num(2.0);
-    gmp::mpf_class result;
+    gmpxx::mpf_class num(2.0);
+    gmpxx::mpf_class result;
     result = sqrt(num);
     std::cout << "Square root of 2.0 = " << std::setprecision(50) << result << std::endl;
     return 0;

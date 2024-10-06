@@ -37,13 +37,13 @@ This will copy `gmpxx_mkII.h` to the appropriate location on your system.
 ## Usage
 
 To effectively use `gmpxx_mkII.h` in your C++ projects, you must adjust your include directives and possibly namespace usage depending on the mode you choose to operate in.
-The default precision is 512 bits = 154 decimal significant digits. We also introduced `namespace gmp` to avoid conflicts.
+The default precision is 512 bits = 154 decimal significant digits. We also introduced `namespace gmpxx` to avoid conflicts.
 
 - **mkII mode (Default)**: This mode provides enhanced functionalities and optimizations over the original `gmpxx.h`.
   
   ```cpp
   #include <gmpxx_mkII.h>
-  using namespace gmp;  // Simplifies access to the library's functionalities
+  using namespace gmpxx;  // Simplifies access to the library's functionalities
   ```
   
   This setup allows you to use all the functions and classes in `gmpxx_mkII.h` without prefixing them with `gmp::`.
@@ -53,7 +53,7 @@ The default precision is 512 bits = 154 decimal significant digits. We also intr
   ```cpp
   #include <gmpxx_mkII.h>
   #define ___GMPXX_MKII_NOPRECCHANGE___  // Enable mkIISR mode at the preprocessor level
-  using namespace gmp;
+  using namespace gmpxx;
   ```
   
   In this mode, make sure to define `___GMPXX_MKII_NOPRECCHANGE___` before including the header file to activate the specific functionalities.
@@ -64,7 +64,7 @@ The default precision is 512 bits = 154 decimal significant digits. We also intr
   ```
   Compatibility Mode is designed for those who require strict backward compatibility with older versions of the `gmpxx.h` library. When compiling your project, ensure to include the flags `-D___GMPXX_POSSIBLE_BUGS___` and `-D___GMPXX_STRICT_COMPATIBILITY___` to activate this mode. This setup avoids using namespaces and maintains behavior consistent with earlier library versions.
 
-In Compatibility Mode, do not use `using namespace gmp;` to avoid namespace conflicts. This mode ensures that your existing code that relies on older `gmpxx.h` features works without modifications.
+In Compatibility Mode, do not use `using namespace gmpxx;` to avoid namespace conflicts. This mode ensures that your existing code that relies on older `gmpxx.h` features works without modifications.
 
 ## Link
 

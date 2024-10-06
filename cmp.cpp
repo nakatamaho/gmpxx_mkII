@@ -2,7 +2,7 @@
 #include <gmpxx.h>
 #else
 #include "gmpxx_mkII.h"
-using namespace gmp;
+using namespace gmpxx;
 #endif
 
 #include <ostream>

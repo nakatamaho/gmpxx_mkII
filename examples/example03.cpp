@@ -10,9 +10,9 @@ int main() {
     mpf_set_default_prec(bit_precision);
 
     // Initialization and precision setting
-    gmp::mpf_class x(1.0); // initial guess
-    gmp::mpf_class prev_x;
-    gmp::mpf_class two(2.0); // Constant 2
+    gmpxx::mpf_class x(1.0); // initial guess
+    gmpxx::mpf_class prev_x;
+    gmpxx::mpf_class two(2.0); // Constant 2
 
     std::cout << std::fixed << std::setprecision(decimal_precision); // Set output to fixed point notation with desired digits
 
@@ -24,11 +24,11 @@ int main() {
         x = (x + two / x) / two; // Newton's method formula
         std::cout << "Iteration" << std::setw(14) << iteration + 1 << ": " << x << std::endl;
         iteration++;
-    } while (gmp::abs(x - prev_x) > gmp::mpf_class(pow(10, -decimal_precision))); // Continue until convergence
+    } while (gmpxx::abs(x - prev_x) > gmpxx::mpf_class(pow(10, -decimal_precision))); // Continue until convergence
 
-    // Comparison with gmp::sqrt
-    gmp::mpf_class sqrt2 = gmp::sqrt(two); // Calculate sqrt(2) using GMP
-    std::cout << "Result using gmp::sqrt:  " << sqrt2 << std::endl;
+    // Comparison with gmpxx::sqrt
+    gmpxx::mpf_class sqrt2 = gmpxx::sqrt(two); // Calculate sqrt(2) using GMP
+    std::cout << "Result using gmpxx::sqrt:  " << sqrt2 << std::endl;
 
     return 0;
 }

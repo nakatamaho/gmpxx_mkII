@@ -61,7 +61,7 @@
 #define NON_GMP_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value && !std::is_same<T, mpq_class>::value && !std::is_same<T, mpz_class>::value, X>::type
 
 #if !defined ___GMPXX_DONT_USE_NAMESPACE___
-namespace gmp {
+namespace gmpxx {
 #endif
 
 class mpz_class;
@@ -4619,17 +4619,17 @@ inline mpz_class operator"" _mpz(unsigned long long int val) { return mpz_class(
 inline mpq_class operator"" _mpq(unsigned long long int val) { return mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
 inline mpf_class operator"" _mpf(long double val) { return mpf_class(static_cast<double>(val)); }
 #else
-inline gmp::mpz_class operator"" _mpz(unsigned long long int val) { return gmp::mpz_class(static_cast<unsigned long int>(val)); }
-inline gmp::mpq_class operator"" _mpq(unsigned long long int val) { return gmp::mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
-inline gmp::mpf_class operator"" _mpf(long double val) { return gmp::mpf_class(static_cast<double>(val)); }
+inline gmpxx::mpz_class operator"" _mpz(unsigned long long int val) { return gmpxx::mpz_class(static_cast<unsigned long int>(val)); }
+inline gmpxx::mpq_class operator"" _mpq(unsigned long long int val) { return gmpxx::mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
+inline gmpxx::mpf_class operator"" _mpf(long double val) { return gmpxx::mpf_class(static_cast<double>(val)); }
 #endif
 // in the manual, the following functions are avilable, but actually not.
 // cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
 // "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
 #if !defined ___GMPXX_UDL_CHAR___
-inline gmp::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpz_class(str); }
-inline gmp::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpq_class(str); }
-inline gmp::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmp::mpf_class(str); }
+inline gmpxx::mpz_class operator"" _mpz(const char *str, [[maybe_unused]] std::size_t length) { return gmpxx::mpz_class(str); }
+inline gmpxx::mpq_class operator"" _mpq(const char *str, [[maybe_unused]] std::size_t length) { return gmpxx::mpq_class(str); }
+inline gmpxx::mpf_class operator"" _mpf(const char *str, [[maybe_unused]] std::size_t length) { return gmpxx::mpf_class(str); }
 #endif
 
 #if defined ___GMPXX_STRICT_COMPATIBILITY___
@@ -4643,7 +4643,7 @@ template <>
 #if defined ___GMPXX_DONT_USE_NAMESPACE___
 class numeric_limits<mpz_class> {
 #else
-class numeric_limits<gmp::mpz_class> {
+class numeric_limits<gmpxx::mpz_class> {
 #endif
   public:
     static constexpr bool is_specialized = true;
@@ -4675,22 +4675,22 @@ class numeric_limits<gmp::mpz_class> {
     static mpz_class signaling_NaN() noexcept { return mpz_class(0); }
     static mpz_class denorm_min() noexcept { return mpz_class(0); }
 #else
-    static gmp::mpz_class min() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class max() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class lowest() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class epsilon() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class round_error() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class infinity() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class quiet_NaN() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class signaling_NaN() noexcept { return gmp::mpz_class(0); }
-    static gmp::mpz_class denorm_min() noexcept { return gmp::mpz_class(0); }
+    static gmpxx::mpz_class min() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class max() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class lowest() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class epsilon() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class round_error() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class infinity() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class quiet_NaN() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class signaling_NaN() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class denorm_min() noexcept { return gmpxx::mpz_class(0); }
 #endif
 };
 template <>
 #if defined ___GMPXX_DONT_USE_NAMESPACE___
 class numeric_limits<mpq_class> {
 #else
-class numeric_limits<gmp::mpq_class> {
+class numeric_limits<gmpxx::mpq_class> {
 #endif
   public:
     static constexpr bool is_specialized = true;
@@ -4722,22 +4722,22 @@ class numeric_limits<gmp::mpq_class> {
     static mpq_class signaling_NaN() noexcept { return mpq_class(0); }
     static mpq_class denorm_min() noexcept { return mpq_class(0); }
 #else
-    static gmp::mpq_class min() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class max() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class lowest() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class epsilon() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class round_error() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class infinity() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class quiet_NaN() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class signaling_NaN() noexcept { return gmp::mpq_class(0); }
-    static gmp::mpq_class denorm_min() noexcept { return gmp::mpq_class(0); }
+    static gmpxx::mpq_class min() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class max() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class lowest() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class epsilon() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class round_error() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class infinity() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class quiet_NaN() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class signaling_NaN() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class denorm_min() noexcept { return gmpxx::mpq_class(0); }
 #endif
 };
 template <>
 #if defined ___GMPXX_DONT_USE_NAMESPACE___
 class numeric_limits<mpf_class> {
 #else
-class numeric_limits<gmp::mpf_class> {
+class numeric_limits<gmpxx::mpf_class> {
 #endif
   public:
     static constexpr bool is_specialized = true;
@@ -4769,15 +4769,15 @@ class numeric_limits<gmp::mpf_class> {
     static mpf_class signaling_NaN() noexcept { return mpf_class(0); }
     static mpf_class denorm_min() noexcept { return mpf_class(0); }
 #else
-    static gmp::mpf_class min() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class max() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class lowest() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class epsilon() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class round_error() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class infinity() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class quiet_NaN() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class signaling_NaN() noexcept { return gmp::mpf_class(0); }
-    static gmp::mpf_class denorm_min() noexcept { return gmp::mpf_class(0); }
+    static gmpxx::mpf_class min() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class max() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class lowest() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class epsilon() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class round_error() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class infinity() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class quiet_NaN() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class signaling_NaN() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class denorm_min() noexcept { return gmpxx::mpf_class(0); }
 #endif
 };
 } // namespace std
