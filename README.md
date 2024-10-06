@@ -98,6 +98,19 @@ Below are the benchmark results of Rdot (inner product), Raxpy (daxpy), Rgemv (m
 **OpenMP multi-core operations on Ryzen 3970X (100 million vectors, 512 bits)**  
 ![OpenMP multi-core operations on Ryzen 3970X (100 million vectors, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/01_Raxpy/openmp_operations_Ryzen_3970X_32-Core_100000000_512.png)
 
+### Rgemv (Matrix-Vector Multiplication)
+
+**OpenMP multi-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)**  
+![OpenMP multi-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/02_Rgemv/openmp_operations_Ryzen_3970X_32-Core_4000_4000_512.png)
+
+### Rgemm (Matrix-Matrix Multiplication)
+
+**Single-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)**  
+![Single-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/03_Rgemm/singlecore_operations_Ryzen_3970X_32-Core_700_700_700_512.png)
+
+**OpenMP multi-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)**  
+![OpenMP multi-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/03_Rgemm/openmp_operations_Ryzen_3970X_32-Core_700_700_700_512.png)
+
 ### Enhanced Mathematical Functions
 
 One of the major enhancements introduced with `gmpxx_mkII.h` over the original `gmpxx.h` is the significant expansion of available mathematical functions. These functions include:
