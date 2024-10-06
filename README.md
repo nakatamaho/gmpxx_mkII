@@ -72,13 +72,33 @@ When linking your project with `gmpxx_mkII.h`, removing the -lgmpxx link option 
 
 ## Improvements from original gmpxx.h
 
-### Performance Improvements
+### Performance Improvements and Benchmarks
 
-In gmpxx_mkII.h, we have observed significant performance improvements, particularly in single-core computations for inner products. When operating in mkIISR mode, enhancements of up to 25% compared to gmpxx.h have been documented. This increase in efficiency is primarily attributed to the elimination of complex macro expansions, which are not required in the new implementation. However, in multi-core scenarios, the performance of gmpxx_mkII.h is roughly equivalent to that of the original gmpxx.h.
+The new implementation of `gmpxx_mkII.h` has demonstrated significant performance improvements, particularly in single-core operations. In benchmarks comparing inner product computations on a Ryzen 3970X 32-core processor, single-core operations in `mkIISR` mode showed up to a 25% increase in speed over the original `gmpxx.h`. This improvement is largely due to the removal of complex macro expansions, which were a source of overhead in the previous implementation.
 
-For detailed benchmarking results, particularly those conducted on a Ryzen 3970X 32-core processor, please refer to the following [benchmark report](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_inner_product/all_operations_Ryzen_3970X_32-Core_500000000_512.pdf).
+In multi-core scenarios using OpenMP, the performance of `gmpxx_mkII.h` is comparable to that of the original `gmpxx.h`. Although significant gains were not observed in this case, the implementation still performs efficiently.
 
-While our benchmarking efforts have been extensive, we acknowledge that not all performance areas have been thoroughly explored yet. Notably, in some cases, such as matrix-matrix operations, the performance has been observed to be  inferior to that of the original `gmpxx.h`. Further investigation and optimization are underway to address these discrepancies.
+It should be noted, however, that certain operations, such as matrix-matrix computations, have not yet been fully optimized. Preliminary results indicate that performance in these cases may be inferior to the original `gmpxx.h`. Further investigation and tuning are ongoing to address these issues.
+
+#### Rdot (innter product)
+
+- [Single-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.pdf)
+- [OpenMP multi-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/00_Rdot/openmp_operations_Ryzen_3970X_32-Core_100000000_512.pdf)
+
+#### Raxpy (daxpy or axpy like operation)
+
+- [Single-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/01_Raxpy/singlecore_operations_Ryzen_3970X_32-Core_100000000_512.pdf)
+- [OpenMP multi-core operations on Ryzen 3970X (100 million iterations, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/01_Raxpy/openmp_operations_Ryzen_3970X_32-Core_100000000_512.pdf)
+
+#### Rgemv (matrix-vector multipliciation; dgemv like operation)
+
+- [OpenMP multi-core operations on Ryzen 3970X (4000x4000 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/02_Rgemv/openmp_operations_Ryzen_3970X_32-Core_4000_4000_512.pdf)
+
+#### Rgemm (matrix-matrix multipliciation; dgemm like operation)
+
+- [Single-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/03_Rgemm/singlecore_operations_Ryzen_3970X_32-Core_700_700_700_512.pdf)
+- [OpenMP multi-core operations on Ryzen 3970X (700x700x700 matrix, 512 bits)](https://github.com/nakatamaho/gmpxx_mkII/blob/main/benchmarks/03_Rgemm/openmp_operations_Ryzen_3970X_32-Core_700_700_700_512.pdf)
+
 
 ### Enhanced Mathematical Functions
 
