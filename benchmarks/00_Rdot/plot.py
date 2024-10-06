@@ -138,7 +138,10 @@ for file_path in file_paths:
 
     filename = f'singlecore_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
     plt.savefig(filename)
+    filename = f'singlecore_operations_{cpu_model_filename}_{dim}_{prec}.png'
+    plt.savefig(filename)
     plt.close()
+
 
     # Plotting only "openmp" operations if any exist
     if openmp_operations:
@@ -165,5 +168,7 @@ for file_path in file_paths:
             text.set_fontweight('bold')
 
         filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.pdf'
+        plt.savefig(filename_openmp, bbox_inches='tight')
+        filename_openmp = f'openmp_operations_{cpu_model_filename}_{dim}_{prec}.png'
         plt.savefig(filename_openmp, bbox_inches='tight')
         plt.close()
