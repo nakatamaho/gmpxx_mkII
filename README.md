@@ -1,4 +1,4 @@
-# gmpxx_mkII.h: A GMP C++ Wrapper for High-Precision Calculations
+# gmpxx_mkII.h: Yet another GMP C++ Wrapper for High-Precision Calculations
 
 ## Overview
 
@@ -207,7 +207,7 @@ This project is licensed under the 2-clause BSD License.
 ## History
 
 * 2024-09-16 Released 1.0.0
-* 2024-10-16 Released 1.1 (namespace has been changed to gmpxx)
+* 2024-10-06 Released 1.1 (namespace has been changed to gmpxx)
 
 ## ChatGPT4 (memo)
 
