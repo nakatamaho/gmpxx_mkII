@@ -70,7 +70,6 @@ class mpf_class;
 
 struct gmpxx_defaults {
     static void set_default_prec(int prec) { mpf_set_default_prec(prec); }
-    static void set_default_prec_raw(int prec) { mpf_set_default_prec(prec); }
     static mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
     inline static int base = 10;
 };
@@ -78,10 +77,8 @@ class mpf_class_initializer {
   public:
     mpf_class_initializer() {
         int prec = 512;
-        int prec_raw = 512;
 
         const char *prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
-        const char *prec_raw_env = std::getenv("GMPXX_MKII_DEFAULT_PREC_RAW");
 
         if (prec_env) {
             if (is_positive_integer(prec_env)) {
@@ -95,20 +92,7 @@ class mpf_class_initializer {
             }
         }
 
-        if (prec_raw_env) {
-            if (is_positive_integer(prec_raw_env)) {
-                int prec_raw_val = std::stoi(prec_raw_env);
-                if (prec_raw_val > 0) {
-                    prec_raw = prec_raw_val;
-                }
-            } else {
-                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC_RAW value: must be a positive integer." << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
-        }
-
-        gmpxx_defaults::set_default_prec(prec);
-        gmpxx_defaults::set_default_prec_raw(prec_raw);
+        mpf_set_default_prec(prec);
         gmpxx_defaults::base = 10;
     }
 
