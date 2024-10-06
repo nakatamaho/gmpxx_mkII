@@ -10,6 +10,12 @@ executables=(
     "Rgemv_gmp_kernel_openmp_01_orig"
     "Rgemv_gmp_kernel_openmp_01_mkII"
     "Rgemv_gmp_kernel_openmp_01_mkIISR"
+    "Rgemv_gmp_kernel_02_orig"
+    "Rgemv_gmp_kernel_02_mkII"
+    "Rgemv_gmp_kernel_02_mkIISR"
+    "Rgemv_gmp_kernel_openmp_02_orig"
+    "Rgemv_gmp_kernel_openmp_02_mkII"
+    "Rgemv_gmp_kernel_openmp_02_mkIISR"
 )
 for exe in "${executables[@]}"; do
     COMMAND_LINE="/usr/bin/time ./$exe 4000 4000 512"
