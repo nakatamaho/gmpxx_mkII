@@ -922,7 +922,7 @@ void testInitializationAndAssignmentDouble_mpz_class() {
     std::cout << "testInitializationAndAssignmentDouble_mpz_class passed." << std::endl;
 }
 void testInitializationAndAssignmentInt_mpz_class() {
-    signed long int testValue = -31415926535;
+    signed long long int testValue = -31415926535LL;
     const char *expectedValue = "-31415926535";
 
     mpz_class a = (mpz_class)testValue;
@@ -934,7 +934,7 @@ void testInitializationAndAssignmentInt_mpz_class() {
     assert(Is_mpz_class_Equals(b, expectedValue, true));
     std::cout << "Substitution from signed long int using assignment test passed." << std::endl;
 
-    unsigned long int testValue2 = 31415926535;
+    unsigned long long int testValue2 = 31415926535LLU;
     const char *expectedValue2 = "31415926535";
 
     mpz_class c = (mpz_class)testValue2;
