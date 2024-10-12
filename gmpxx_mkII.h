@@ -3133,9 +3133,11 @@ inline std::string mpf_to_base_string_fixed(const mpf_t value, int base, int fla
             formatted_base.insert(0, "0x0");
         } else if (base == 10) {
             formatted_base.insert(0, "0");
-            if (is_showpoint && prec == 0) {
-                formatted_base += ".";
-            } else if (!prec == 0) {
+            if (prec == 0) {
+                if (is_showpoint) {
+                    formatted_base += ".";
+                }
+            } else {
                 formatted_base += ".";
                 formatted_base += std::string(effective_prec, '0');
             }
