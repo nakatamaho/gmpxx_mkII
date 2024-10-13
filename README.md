@@ -28,6 +28,12 @@
 - 64bit linux and 64bit macOS (LP64 environments)
 - C++17 or higher
 
+## Suuported GMP and MPIR
+- GMP 6.2.1
+- MPIR master March 2018 or newer
+
+Patches are always welcome via pull request.
+
 ## Installation
 
 To install this library, first clone the repository and then use the make install command:
