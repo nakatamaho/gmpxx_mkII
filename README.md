@@ -2,8 +2,9 @@
 
 ## News
 
-* 2024-09-16 Released 1.0.0
+* 2024-10-13 License has been changed according to the original GMP. Cleanups will be done later.
 * 2024-10-06 Released 1.1.0 (namespace has been changed to gmpxx)
+* 2024-09-16 Released 1.0.0
 
 ## Overview
 
