@@ -8,7 +8,7 @@
 
 ## Overview
 
-`gmpxx_mkII.h` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, licensed under the 2-clause BSD license. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
+`gmpxx_mkII.h` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, licensed under the LGPLv2 or later. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
 ## Features
 
