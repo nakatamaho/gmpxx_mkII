@@ -29,6 +29,10 @@
 - 64bit linux and 64bit macOS (LP64 environments)
 - C++17 or higher
 
+## License
+
+- LGPLv3 (Note: The LICENSE.GPLv3 file is included for reference)
+
 ## Suuported GMP and MPIR
 - GMP 6.2.1
 - MPIR master March 2018 or newer
@@ -212,10 +216,6 @@ To ensure the reliability and stability of `gmpxx_mkII.h`, we have implemented a
 ## Contributing
 
 Contributions to the gmpxx_mkII.h are welcome. Please submit pull requests or open issues to suggest improvements or report bugs.
-
-## License
-
-This project is licensed under the 2-clause BSD License.
 
 ## History
 
