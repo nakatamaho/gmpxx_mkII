@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the gmpxx_mkII.h; see the file LICENSE.  If not, see
  * http://www.gnu.org/licenses/ or write to the Free Software Foundation, Inc.,
- * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA. */
+ * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
 #ifndef ___GMPXX_MKII_H___
