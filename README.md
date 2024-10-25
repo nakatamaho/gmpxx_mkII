@@ -2,13 +2,14 @@
 
 ## News
 
-* 2024-10-13 License has been changed according to the LGPLv2 or later. Cleanups will be done later.
+* 2024-10-25 License has been changed according to the LGPLv3+. Cleanups will be done later.
+* 2024-10-13 License has been changed according to the LGPLv2+. Cleanups will be done later.
 * 2024-10-06 Released 1.1.0 (namespace has been changed to gmpxx)
 * 2024-09-16 Released 1.0.0
 
 ## Overview
 
-`gmpxx_mkII.h` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, licensed under the LGPLv2 or later. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
+`gmpxx_mkII.h` is a C++ class designed to facilitate high-precision arithmetic operations using the GMP library, licensed under the LGPLv3+. GMP is a C library for multiple-precision floating-point computations. This class provides a convenient, alternative C++ wrapper around the GMP library's functionalities.
 
 ## Features
 
@@ -19,7 +20,7 @@
 - **Comprehensive Mathematical Functions:** This includes implementations of trigonometric functions (sin, cos, tan, asin, acos, atan etc) and transcendental functions (log, exp), enhancing the library's utility for complex calculations.
 - **Header-Only Library:** This library eliminates the need for the `libgmpxx` library, simplifying integration and deployment.
 - **Quality assurance:** Enhanced with our own rigorous tests and building on the foundation of proven GMP tests
-- **Licensing:** Distributed under the LGPLv2 or later License, offering flexibility for both open-source and proprietary use.
+- **Licensing:** Distributed under the LGPLv3+, offering flexibility for both open-source and proprietary use.
 - **Platform Support:** Optimized for 64-bit Linux and macOS in LP64 environments, ensuring reliable performance across major systems.
 - **Original Development:** Written entirely from scratch, providing a clean, optimized, and maintainable code base.
 
@@ -218,8 +219,10 @@ This project is licensed under the 2-clause BSD License.
 
 ## History
 
-* 2024-09-16 Released 1.0.0
+* 2024-10-25 License has been changed according to the LGPLv3+. Cleanups will be done later.
+* 2024-10-13 License has been changed according to the LGPLv2+. Cleanups will be done later.
 * 2024-10-06 Released 1.1.0 (namespace has been changed to gmpxx)
+* 2024-09-16 Released 1.0.0
 
 ## ChatGPT4 (memo)
 
