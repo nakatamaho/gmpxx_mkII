@@ -375,25 +375,17 @@ check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG
 
 check_env: $(TARGET)
 	@unset GMPXX_MKII_DEFAULT_PREC; \
-	 unset GMPXX_MKII_DEFAULT_PREC_RAW; \
 	 ./$(TARGET) > output.txt; \
 	 grep "Default precision: 512" output.txt && echo "Test 1 passed!" || echo "Test 1 failed!"
 	@export GMPXX_MKII_DEFAULT_PREC=256; \
-	 export GMPXX_MKII_DEFAULT_PREC_RAW=256; \
 	 ./$(TARGET) > output.txt; \
 	 grep "Default precision: 256" output.txt && echo "Test 2 passed!" || echo "Test 2 failed!"
 	@export GMPXX_MKII_DEFAULT_PREC=1024; \
-	 export GMPXX_MKII_DEFAULT_PREC_RAW=1024; \
 	 ./$(TARGET) > output.txt; \
 	 grep "Default precision: 1024" output.txt && echo "Test 3 passed!" || echo "Test 3 failed!"
 	@export GMPXX_MKII_DEFAULT_PREC=0.5; \
-	 export GMPXX_MKII_DEFAULT_PREC_RAW=HOGE; \
 	 ./$(TARGET) > output.txt 2>&1 || true; \
 	 grep "Error: Invalid GMPXX_MKII_DEFAULT_PREC value" output.txt && echo "Test 4 passed!" || echo "Test 4 failed!"
-	@export GMPXX_MKII_DEFAULT_PREC=3; \
-	 export GMPXX_MKII_DEFAULT_PREC_RAW=0.5; \
-	 ./$(TARGET) > output.txt 2>&1 || true; \
-	 grep "Error: Invalid GMPXX_MKII_DEFAULT_PREC_RAW value" output.txt && echo "Test 5 passed!" || echo "Test 5 failed!"
 
 examples: $(EXAMPLES_EXECUTABLES)
 
