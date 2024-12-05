@@ -102,7 +102,6 @@ for file_path in file_paths:
     singlecore_times = [times[i] for i, op in enumerate(operations) if 'openmp' not in op]
     singlecore_flops = [flops[i] for i, op in enumerate(operations) if 'openmp' not in op]
 
-    print
     # Determine colors for singlecore operations
     singlecore_colors = []
     for op in singlecore_operations:
