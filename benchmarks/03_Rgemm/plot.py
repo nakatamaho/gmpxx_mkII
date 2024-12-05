@@ -181,8 +181,8 @@ for file_path in file_paths:
         for text in legend.get_texts():
             text.set_fontweight('bold')
 
-        filename_openmp = f'openmp_operations_{os_cpu_model_filename}_{dim}_{prec}.pdf'
+        filename_openmp = f'openmp_operations_{os_cpu_model_filename}_{os_cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp, bbox_inches='tight')
-        filename_openmp = f'openmp_operations_{os_cpu_model_filename}_{dim}_{prec}.png'
+        filename_openmp = f'openmp_operations_{os_cpu_model_filename}_{os_cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.png'
         plt.savefig(filename_openmp, bbox_inches='tight')
         plt.close()
