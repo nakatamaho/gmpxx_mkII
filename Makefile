@@ -390,10 +390,10 @@ check_env: $(TARGET)
 examples: $(EXAMPLES_EXECUTABLES)
 
 OS_NAME = $(shell uname -a | awk '{print $$1}')
-LOG00_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS00_DIR)).`python ../../cpumodel.py`
-LOG01_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS01_DIR)).`python ../../cpumodel.py`
-LOG02_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS02_DIR)).`python ../../cpumodel.py`
-LOG03_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS03_DIR)).`python ../../cpumodel.py`
+LOG00_NAME = log.$(shell basename $(BENCHMARKS00_DIR)).$(OS_NAME).`python ../../cpumodel.py`
+LOG01_NAME = log.$(shell basename $(BENCHMARKS01_DIR)).$(OS_NAME).`python ../../cpumodel.py`
+LOG02_NAME = log.$(shell basename $(BENCHMARKS02_DIR)).$(OS_NAME).`python ../../cpumodel.py`
+LOG03_NAME = log.$(shell basename $(BENCHMARKS03_DIR)).$(OS_NAME).`python ../../cpumodel.py`
 
 benchmark: $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1)
 	cd $(BENCHMARKS00_DIR); bash go.sh 2>&1 | tee ../../$(LOG00_NAME) | tee $(LOG00_NAME) ; python plot.py $(LOG00_NAME)
