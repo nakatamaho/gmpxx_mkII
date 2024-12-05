@@ -1,0 +1,115 @@
+Linux 77bc7858bed8 6.8.0-45-generic #45~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Sep 11 15:25:05 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
+
+/usr/bin/time ./Rgemv_gmp_C_native_01 4000 4000 512
+Elapsed time: 1.92747 s
+MFLOPS: 16.602
+L1 Norm of difference: 0.0000e+00
+Result OK
+5.79user 1.95system 0:07.77elapsed 99%CPU (0avgtext+0avgdata 3755520maxresident)k
+0inputs+0outputs (0major+938126minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_C_native_openmp_01 4000 4000 512
+Elapsed time: 0.114885 s
+MFLOPS: 278.539
+L1 Norm of difference: 4.5107e-148
+Result OK
+11.31user 1.91system 0:05.98elapsed 221%CPU (0avgtext+0avgdata 3756032maxresident)k
+0inputs+0outputs (0major+938386minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_01_orig 4000 4000 512
+Elapsed time: 2.76561 s
+MFLOPS: 11.5707
+L1 Norm of difference: 4.51e-148
+Result OK
+7.55user 0.97system 0:08.53elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469260minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_01_mkII 4000 4000 512
+Elapsed time: 3.25228 s
+MFLOPS: 9.83925
+L1 Norm of difference: 4.51e-148
+Result OK
+7.13user 0.99system 0:08.13elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469261minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_01_mkIISR 4000 4000 512
+Elapsed time: 3.27344 s
+MFLOPS: 9.77566
+L1 Norm of difference: 4.51e-148
+Result OK
+6.97user 0.97system 0:07.95elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469262minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_01_orig 4000 4000 512
+Elapsed time: 0.138046 s
+MFLOPS: 231.806
+L1 Norm of difference: 4.51e-148
+Result OK
+12.93user 1.10system 0:05.54elapsed 253%CPU (0avgtext+0avgdata 1880576maxresident)k
+0inputs+0outputs (0major+469512minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_01_mkII 4000 4000 512
+Elapsed time: 0.136917 s
+MFLOPS: 233.717
+L1 Norm of difference: 4.51e-148
+Result OK
+12.92user 1.10system 0:06.01elapsed 233%CPU (0avgtext+0avgdata 1880576maxresident)k
+0inputs+0outputs (0major+469520minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_01_mkIISR 4000 4000 512
+Elapsed time: 0.120902 s
+MFLOPS: 264.678
+L1 Norm of difference: 4.51e-148
+Result OK
+12.09user 1.11system 0:05.67elapsed 232%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469521minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_02_orig 4000 4000 512
+Elapsed time: 2.87327 s
+MFLOPS: 11.1371
+L1 Norm of difference: 4.51e-148
+Result OK
+7.85user 0.97system 0:08.85elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469261minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_02_mkII 4000 4000 512
+Elapsed time: 3.39508 s
+MFLOPS: 9.4254
+L1 Norm of difference: 4.51e-148
+Result OK
+7.34user 1.03system 0:08.39elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469257minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_02_mkIISR 4000 4000 512
+Elapsed time: 3.17553 s
+MFLOPS: 10.0771
+L1 Norm of difference: 4.51e-148
+Result OK
+6.84user 0.96system 0:07.81elapsed 99%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469260minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_02_orig 4000 4000 512
+Elapsed time: 0.148951 s
+MFLOPS: 214.836
+L1 Norm of difference: 4.51e-148
+Result OK
+13.41user 1.06system 0:05.82elapsed 248%CPU (0avgtext+0avgdata 1880576maxresident)k
+0inputs+0outputs (0major+469499minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_02_mkII 4000 4000 512
+Elapsed time: 0.133542 s
+MFLOPS: 239.625
+L1 Norm of difference: 4.51e-148
+Result OK
+13.22user 1.08system 0:05.98elapsed 239%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469498minor)pagefaults 0swaps
+
+/usr/bin/time ./Rgemv_gmp_kernel_openmp_02_mkIISR 4000 4000 512
+Elapsed time: 0.122951 s
+MFLOPS: 260.266
+L1 Norm of difference: 4.51e-148
+Result OK
+12.19user 1.09system 0:05.70elapsed 232%CPU (0avgtext+0avgdata 1880064maxresident)k
+0inputs+0outputs (0major+469520minor)pagefaults 0swaps
+
