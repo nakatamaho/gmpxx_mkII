@@ -389,11 +389,17 @@ check_env: $(TARGET)
 
 examples: $(EXAMPLES_EXECUTABLES)
 
+OS_NAME = $(shell uname -a | awk '{print $$1}')
+LOG00_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS00_DIR)).`python ../../cpumodel.py`
+LOG01_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS01_DIR)).`python ../../cpumodel.py`
+LOG02_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS02_DIR)).`python ../../cpumodel.py`
+LOG03_NAME = log.$(OS_NAME).$(shell basename $(BENCHMARKS03_DIR)).`python ../../cpumodel.py`
+
 benchmark: $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1)
-	cd $(BENCHMARKS00_DIR); bash -x go.sh
-	cd $(BENCHMARKS01_DIR); bash -x go.sh
-	cd $(BENCHMARKS02_DIR); bash -x go.sh
-	cd $(BENCHMARKS03_DIR); bash -x go.sh
+	cd $(BENCHMARKS00_DIR); bash go.sh 2>&1 | tee ../../$(LOG00_NAME) | tee $(LOG00_NAME) ; python plot.py $(LOG00_NAME)
+	cd $(BENCHMARKS01_DIR); bash go.sh 2>&1 | tee ../../$(LOG01_NAME) | tee $(LOG01_NAME) ; python plot.py $(LOG01_NAME)
+	cd $(BENCHMARKS02_DIR); bash go.sh 2>&1 | tee ../../$(LOG02_NAME) | tee $(LOG02_NAME) ; python plot.py $(LOG02_NAME)
+	cd $(BENCHMARKS03_DIR); bash go.sh 2>&1 | tee ../../$(LOG03_NAME) | tee $(LOG03_NAME) ; python plot.py $(LOG03_NAME)
 
 clean:
 	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_COMPAT) $(OBJECTS_MKIISR) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS00_DIR)/gmon* $(BENCHMARKS00_DIR)/gprof* $(BENCHMARKS03_DIR)/gmon* $(BENCHMARKS03_DIR)/gprof* $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3) $(TARGETS_TESTS) $(EXAMPLES_OBJECTS) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS)*~
