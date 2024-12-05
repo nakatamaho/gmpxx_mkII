@@ -57,6 +57,30 @@ void _Rgemm(int64_t m, int64_t k, int64_t n, const mpf_class &alpha, const mpf_c
     }
 }
 
+void _Rgemm_wo_openmp(int64_t m, int64_t k, int64_t n, const mpf_class &alpha, const mpf_class *A, int64_t lda, const mpf_class *B, int64_t ldb, const mpf_class &beta, mpf_class *C, int64_t ldc) {
+
+    // Scale C by beta: C = beta * C
+    for (int64_t j = 0; j < n; ++j) {
+        for (int64_t i = 0; i < m; ++i) {
+            C[i + j * ldc] *= beta;
+        }
+    }
+
+    // Compute alpha * A * B and add to C: C += alpha * A * B
+    mpf_class temp, templ;
+    for (int64_t j = 0; j < n; ++j) {
+        for (int64_t l = 0; l < k; ++l) {
+            temp = alpha;
+            temp *= B[l + j * ldb];
+            for (int64_t i = 0; i < m; ++i) {
+                templ = temp;
+                templ *= A[i + l * lda];
+                C[i + j * ldc] += templ;
+            }
+        }
+    }
+}
+
 int main(int argc, char **argv) {
     // Initialize random state
     gmp_randclass r(gmp_randinit_default);
@@ -79,6 +103,7 @@ int main(int argc, char **argv) {
     mpf_class *B = new mpf_class[K * N];
     mpf_class *C = new mpf_class[M * N];
     mpf_class *C_ref = new mpf_class[M * N];
+    mpf_class *C_wo_openmp = new mpf_class[M * N];
 
     // Initialize scalars alpha and beta with random values
     mpf_class alpha = r.get_f(prec);
@@ -103,6 +128,7 @@ int main(int argc, char **argv) {
         for (int64_t j = 0; j < N; ++j) {
             C[i + j * M] = r.get_f(prec);    // Column-major order
             C_ref[i + j * M] = C[i + j * M]; // Copy for reference
+            C_wo_openmp[i + j * M] = C[i + j * M]; // Copy for reference
         }
     }
 
@@ -119,9 +145,15 @@ int main(int argc, char **argv) {
     // For matrix-matrix multiply, number of floating-point operations is 2 * M * N * K
     double mflops = flops_gemm(M, N, K) / (elapsed.count() * MFLOPS);
 
+    auto start_wo_openmp = std::chrono::high_resolution_clock::now();
+    _Rgemm_wo_openmp(M, K, N, alpha, A, M, B, K, beta, C_wo_openmp, M);
+    auto end_wo_openmp = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_wo_openmp = end_wo_openmp - start_wo_openmp;
+    double mflops_wo_openmp = flops_gemm(M, N, K) / (elapsed_wo_openmp.count() * MFLOPS);
+
     // Output performance metrics
     std::cout << "Elapsed time: " << elapsed.count() << " s" << std::endl;
-    std::cout << "MFLOPS: " << mflops << std::endl;
+    std::cout << "MFLOPS: " << mflops << " " << mflops_wo_openmp << std::endl;
 
     // Compute L1 norm of the difference between C and C_ref
     mpf_class l1_norm = 0;
@@ -149,6 +181,7 @@ int main(int argc, char **argv) {
     delete[] B;
     delete[] C;
     delete[] C_ref;
+    delete[] C_wo_openmp;
 
     return EXIT_SUCCESS;
 }

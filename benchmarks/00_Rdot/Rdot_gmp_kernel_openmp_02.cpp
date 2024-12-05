@@ -31,7 +31,7 @@ mpf_class _Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t i
         mpf_class tmpl = 0.0;
         mpf_class templl;
 
-#pragma omp for
+#pragma omp for schedule(static)
         for (int64_t i = 0; i < n; ++i) {
             templl = dx[i];
             templl *= dy[i];

@@ -39,7 +39,7 @@ EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/exampl
 EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
 EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
-CXXFLAGS_BENCH = -g -fno-unroll-loops -fopenmp -Wall -Wextra
+CXXFLAGS_BENCH = -fopenmp -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_Rdot
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,Rdot_gmp_C_native_01 Rdot_gmp_C_native_openmp_01)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,\
@@ -388,6 +388,12 @@ check_env: $(TARGET)
 	 grep "Error: Invalid GMPXX_MKII_DEFAULT_PREC value" output.txt && echo "Test 4 passed!" || echo "Test 4 failed!"
 
 examples: $(EXAMPLES_EXECUTABLES)
+
+benchmark: $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1)
+	cd $(BENCHMARKS00_DIR); bash -x go.sh
+	cd $(BENCHMARKS01_DIR); bash -x go.sh
+	cd $(BENCHMARKS02_DIR); bash -x go.sh
+	cd $(BENCHMARKS03_DIR); bash -x go.sh
 
 clean:
 	rm -f $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(OBJECTS) $(OBJECTS_ORIG) $(OBJECTS_COMPAT) $(OBJECTS_MKIISR) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS00_DIR)/gmon* $(BENCHMARKS00_DIR)/gprof* $(BENCHMARKS03_DIR)/gmon* $(BENCHMARKS03_DIR)/gprof* $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3) $(TARGETS_TESTS) $(EXAMPLES_OBJECTS) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS)*~
