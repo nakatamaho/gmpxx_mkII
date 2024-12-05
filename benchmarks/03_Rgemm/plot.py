@@ -20,6 +20,9 @@ for file_path in file_paths:
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
+    # Extract OS from the first word of lines[0]
+    os_name = lines[0].strip().split()[0] if lines else "Unknown OS"
+
     # Extract CPU model and execution parameters from the log file
     cpu_model_line = lines[1].strip() if len(lines) > 1 else "Unknown CPU Model"
 
@@ -51,7 +54,11 @@ for file_path in file_paths:
     cpu_model = re.sub(r':', '', cpu_model)  # Remove :
     cpu_model = re.sub(r'\s+', ' ', cpu_model).strip()  # Replace multiple spaces with a single space
 
-    cpu_model_filename = cpu_model.replace(' ', '_')  # Prepare CPU model for filename usage
+    # Prepare OS and CPU model for filename usage
+    os_cleaned = os_name.replace(' ', '_')  # Replace spaces with underscores in OS name
+    cpu_model_cleaned = cpu_model.replace(' ', '_')  # Replace spaces with underscores in CPU model
+
+    os_cpu_model_filename = f"{os_cleaned}_{cpu_model_cleaned}"  # Combine OS and CPU model
 
     # Define the pattern to extract operations and their elapsed times
     pattern = re.compile(
@@ -144,9 +151,9 @@ for file_path in file_paths:
     for text in legend.get_texts():
         text.set_fontweight('bold')
 
-    filename = f'singlecore_operations_{cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.pdf'
+    filename = f'singlecore_operations_{os_cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.pdf'
     plt.savefig(filename)
-    filename = f'singlecore_operations_{cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.png'
+    filename = f'singlecore_operations_{os_cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.png'
     plt.savefig(filename)
     plt.close()
 
@@ -174,8 +181,8 @@ for file_path in file_paths:
         for text in legend.get_texts():
             text.set_fontweight('bold')
 
-        filename_openmp = f'openmp_operations_{cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.pdf'
+        filename_openmp = f'openmp_operations_{os_cpu_model_filename}_{dim}_{prec}.pdf'
         plt.savefig(filename_openmp, bbox_inches='tight')
-        filename_openmp = f'openmp_operations_{cpu_model_filename}_{dimx}_{dimy}_{dim}_{prec}.png'
+        filename_openmp = f'openmp_operations_{os_cpu_model_filename}_{dim}_{prec}.png'
         plt.savefig(filename_openmp, bbox_inches='tight')
         plt.close()
