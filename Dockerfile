@@ -27,6 +27,7 @@ RUN apt install -y gdb valgrind linux-tools-`uname -r` google-perftools linux-he
 RUN apt install -y git wget ccache time parallel bc
 RUN apt install -y pkg-config clangd clang-format unifdef octave
 RUN apt install -y ng-common ng-cjk emacs-nox
+RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 ARG DOCKER_UID=1000
