@@ -1,0 +1,115 @@
+Linux 55e784f0651b 6.8.0-48-generic #48~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct  7 11:24:13 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+model name	: AMD Ryzen 9 7950X 16-Core Processor
+
+/usr/bin/time ./Raxpy_gmp_C_native_01 100000000 512
+Elapsed time: 4.4712 s
+MFLOPS: 44.7307
+L1 Norm of difference: 0.0000e+00
+Result OK
+34.72user 13.01system 0:47.75elapsed 99%CPU (0avgtext+0avgdata 46878464maxresident)k
+0inputs+0outputs (0major+11718909minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_C_native_openmp_01 100000000 512
+Elapsed time: 0.821831 s
+MFLOPS: 243.359
+L1 Norm of difference: 0.0000e+00
+Result OK
+56.63user 13.02system 0:44.53elapsed 156%CPU (0avgtext+0avgdata 46879744maxresident)k
+0inputs+0outputs (0major+11719022minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_01_orig 100000000 512
+Elapsed time: 7.50588 s
+MFLOPS: 26.6458
+L1 Norm of difference: 00
+Result OK
+32.10user 9.61system 0:41.71elapsed 99%CPU (0avgtext+0avgdata 35159808maxresident)k
+0inputs+0outputs (0major+8789227minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_01_mkII 100000000 512
+Elapsed time: 6.19106 s
+MFLOPS: 32.3047
+L1 Norm of difference: 00
+Result OK
+32.99user 9.65system 0:42.65elapsed 99%CPU (0avgtext+0avgdata 35160064maxresident)k
+0inputs+0outputs (0major+8789219minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_01_mkIISR 100000000 512
+Elapsed time: 5.38993 s
+MFLOPS: 37.1062
+L1 Norm of difference: 00
+Result OK
+29.05user 9.73system 0:38.78elapsed 99%CPU (0avgtext+0avgdata 35160320maxresident)k
+0inputs+0outputs (0major+8789221minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_02_orig 100000000 512
+Elapsed time: 6.42382 s
+MFLOPS: 31.1341
+L1 Norm of difference: 00
+Result OK
+31.71user 9.67system 0:41.38elapsed 99%CPU (0avgtext+0avgdata 35160320maxresident)k
+0inputs+0outputs (0major+8789227minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_02_mkII 100000000 512
+Elapsed time: 4.56713 s
+MFLOPS: 43.7912
+L1 Norm of difference: 00
+Result OK
+31.13user 9.57system 0:40.71elapsed 99%CPU (0avgtext+0avgdata 35160064maxresident)k
+0inputs+0outputs (0major+8789221minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_02_mkIISR 100000000 512
+Elapsed time: 4.60119 s
+MFLOPS: 43.467
+L1 Norm of difference: 00
+Result OK
+28.51user 9.75system 0:38.26elapsed 99%CPU (0avgtext+0avgdata 35160320maxresident)k
+0inputs+0outputs (0major+8789220minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_01_orig 100000000 512
+Elapsed time: 0.886879 s
+MFLOPS: 225.51
+L1 Norm of difference: 00
+Result OK
+50.60user 9.65system 0:35.20elapsed 171%CPU (0avgtext+0avgdata 35160320maxresident)k
+0inputs+0outputs (0major+8789333minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_01_mkII 100000000 512
+Elapsed time: 0.820713 s
+MFLOPS: 243.691
+L1 Norm of difference: 00
+Result OK
+53.65user 9.87system 0:38.40elapsed 165%CPU (0avgtext+0avgdata 35160576maxresident)k
+0inputs+0outputs (0major+8789330minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_01_mkIISR 100000000 512
+Elapsed time: 0.823514 s
+MFLOPS: 242.862
+L1 Norm of difference: 00
+Result OK
+49.37user 9.53system 0:33.66elapsed 174%CPU (0avgtext+0avgdata 35160576maxresident)k
+0inputs+0outputs (0major+8789340minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_02_orig 100000000 512
+Elapsed time: 0.840803 s
+MFLOPS: 237.868
+L1 Norm of difference: 00
+Result OK
+52.68user 9.83system 0:36.85elapsed 169%CPU (0avgtext+0avgdata 35160832maxresident)k
+0inputs+0outputs (0major+8789343minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_02_mkII 100000000 512
+Elapsed time: 0.861008 s
+MFLOPS: 232.286
+L1 Norm of difference: 00
+Result OK
+53.56user 9.79system 0:37.81elapsed 167%CPU (0avgtext+0avgdata 35160576maxresident)k
+0inputs+0outputs (0major+8789331minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_02_mkIISR 100000000 512
+Elapsed time: 0.835932 s
+MFLOPS: 239.254
+L1 Norm of difference: 00
+Result OK
+51.00user 9.95system 0:35.33elapsed 172%CPU (0avgtext+0avgdata 35160576maxresident)k
+0inputs+0outputs (0major+8789334minor)pagefaults 0swaps
+
