@@ -39,7 +39,7 @@ EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/exampl
 EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
 EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
-CXXFLAGS_BENCH = -fopenmp -Wall -Wextra
+CXXFLAGS_BENCH = -O2 -fopenmp -Wall -Wextra
 BENCHMARKS00_DIR = benchmarks/00_Rdot
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,Rdot_gmp_C_native_01 Rdot_gmp_C_native_openmp_01)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,\
