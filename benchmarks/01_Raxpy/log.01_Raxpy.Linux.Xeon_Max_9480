@@ -1,0 +1,115 @@
+Linux bwmpc169 4.18.0-477.21.1.el8_8.x86_64 #1 SMP Tue Aug 8 21:30:09 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux
+model name	: Intel(R) Xeon(R) CPU Max 9480
+
+/usr/bin/time ./Raxpy_gmp_C_native_01 100000000 512
+Elapsed time: 15.5167 s
+MFLOPS: 12.8894
+L1 Norm of difference: 0.0000e+00
+Result OK
+66.78user 22.76system 2:07.28elapsed 70%CPU (0avgtext+0avgdata 46877324maxresident)k
+6156920inputs+8outputs (206321major+23015579minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_C_native_openmp_01 100000000 512
+Elapsed time: 0.415125 s
+MFLOPS: 481.783
+L1 Norm of difference: 0.0000e+00
+Result OK
+70.29user 24.29system 1:25.07elapsed 111%CPU (0avgtext+0avgdata 46879180maxresident)k
+9448inputs+8outputs (595major+26125276minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_01_orig 100000000 512
+Elapsed time: 11.7185 s
+MFLOPS: 17.067
+L1 Norm of difference: 00
+Result OK
+44.18user 21.29system 2:39.68elapsed 41%CPU (0avgtext+0avgdata 35158488maxresident)k
+12950872inputs+8outputs (591760major+16920916minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_01_mkII 100000000 512
+Elapsed time: 10.5819 s
+MFLOPS: 18.9001
+L1 Norm of difference: 00
+Result OK
+51.70user 20.78system 2:12.18elapsed 54%CPU (0avgtext+0avgdata 35158340maxresident)k
+9607248inputs+8outputs (227880major+18863192minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_01_mkIISR 100000000 512
+Elapsed time: 10.103 s
+MFLOPS: 19.7962
+L1 Norm of difference: 00
+Result OK
+46.87user 15.26system 1:05.14elapsed 95%CPU (0avgtext+0avgdata 35159396maxresident)k
+9400inputs+8outputs (81major+17258802minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_02_orig 100000000 512
+Elapsed time: 7.12564 s
+MFLOPS: 28.0677
+L1 Norm of difference: 00
+Result OK
+38.91user 14.77system 0:57.69elapsed 93%CPU (0avgtext+0avgdata 35159196maxresident)k
+12088inputs+8outputs (88major+16290299minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_02_mkII 100000000 512
+Elapsed time: 17.276 s
+MFLOPS: 11.5767
+L1 Norm of difference: 00
+Result OK
+52.50user 16.26system 1:45.37elapsed 65%CPU (0avgtext+0avgdata 35158324maxresident)k
+4716648inputs+8outputs (102501major+17186775minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_02_mkIISR 100000000 512
+Elapsed time: 9.0407 s
+MFLOPS: 22.1222
+L1 Norm of difference: 00
+Result OK
+48.24user 14.85system 1:09.07elapsed 91%CPU (0avgtext+0avgdata 35158652maxresident)k
+655016inputs+8outputs (16811major+16288219minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_01_orig 100000000 512
+Elapsed time: 0.940405 s
+MFLOPS: 212.674
+L1 Norm of difference: 00
+Result OK
+84.29user 17.64system 1:01.83elapsed 164%CPU (0avgtext+0avgdata 35159892maxresident)k
+1254808inputs+0outputs (33140major+17754907minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_01_mkII 100000000 512
+Elapsed time: 1.34204 s
+MFLOPS: 149.026
+L1 Norm of difference: 00
+Result OK
+93.07user 27.46system 1:14.14elapsed 162%CPU (0avgtext+0avgdata 35159812maxresident)k
+672728inputs+8outputs (15241major+23533421minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_01_mkIISR 100000000 512
+Elapsed time: 1.60657 s
+MFLOPS: 124.488
+L1 Norm of difference: 00
+Result OK
+58.04user 20.84system 1:10.59elapsed 111%CPU (0avgtext+0avgdata 35159884maxresident)k
+138368inputs+8outputs (5977major+23436743minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_02_orig 100000000 512
+Elapsed time: 1.12306 s
+MFLOPS: 178.085
+L1 Norm of difference: 00
+Result OK
+85.94user 40.97system 1:00.04elapsed 211%CPU (0avgtext+0avgdata 35160956maxresident)k
+534832inputs+8outputs (15815major+21544552minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_02_mkII 100000000 512
+Elapsed time: 1.13618 s
+MFLOPS: 176.029
+L1 Norm of difference: 00
+Result OK
+63.43user 65.00system 1:40.95elapsed 127%CPU (0avgtext+0avgdata 35160428maxresident)k
+5206136inputs+8outputs (207923major+23660930minor)pagefaults 0swaps
+
+/usr/bin/time ./Raxpy_gmp_kernel_openmp_02_mkIISR 100000000 512
+Elapsed time: 1.09807 s
+MFLOPS: 182.137
+L1 Norm of difference: 00
+Result OK
+59.01user 66.59system 2:41.22elapsed 77%CPU (0avgtext+0avgdata 35160152maxresident)k
+14324352inputs+8outputs (476626major+25579205minor)pagefaults 0swaps
+
