@@ -916,7 +916,7 @@ void testInitializationAndAssignmentDouble_mpz_class() {
     std::cout << "testInitializationAndAssignmentDouble_mpz_class passed." << std::endl;
 }
 void testInitializationAndAssignmentInt_mpz_class() {
-    signed long int testValue = -31415926535L;
+    signed long long int testValue = -31415926535LL;
     const char *expectedValue = "-31415926535";
 
     mpz_class a = (mpz_class)testValue;
