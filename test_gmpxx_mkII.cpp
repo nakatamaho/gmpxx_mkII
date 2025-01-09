@@ -3226,7 +3226,70 @@ void test_int32_t_uint32_t_constructor() {
     }
 #endif
 }
+void test_int64_t_uint64_t_int32_t_uint32_t_assignment() {
+#if !defined USE_ORIGINAL_GMPXX
+    {
+        int64_t testValue = INT64_C(-0x7EDCBA9876543210);
+        mpz_class value;
+        value = testValue;
 
+        std::string expected = std::to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing int64_t assignment:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "int64_t assignment test failed.");
+        std::cout << "int64_t assignment test passed!" << std::endl;
+    }
+    {
+        uint64_t testValue = UINT64_C(0xFEDCBA9876543210);
+        mpz_class value;
+        value = testValue;
+
+        std::string expected = std::to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing uint64_t assignment:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "uint64_t assignment test failed.");
+        std::cout << "uint64_t assignment test passed!" << std::endl;
+    }
+    {
+        int32_t testValue = INT32_C(-0x7FFCBA98);
+        mpz_class value;
+        value = testValue;
+
+        std::string expected = std::to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing int32_t assignment:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "int32_t assignment test failed.");
+        std::cout << "int32_t assignment test passed!" << std::endl;
+    }
+    {
+        uint32_t testValue = UINT32_C(0xFEDCBA98);
+        mpz_class value;
+        value = testValue;
+
+        std::string expected = std::to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing uint32_t assignment:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "uint32_t assignment test failed.");
+        std::cout << "uint32_t assignment test passed!" << std::endl;
+    }
+#endif
+}
 int main() {
 #if defined USE_ORIGINAL_GMPXX
     mpf_set_default_prec(512);
@@ -3344,6 +3407,7 @@ int main() {
 
     test_int64_t_uint64_t_constructor();
     test_int32_t_uint32_t_constructor();
+    test_int64_t_uint64_t_int32_t_uint32_t_assignment();
 
     std::cout << "All tests passed." << std::endl;
 

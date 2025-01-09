@@ -204,7 +204,7 @@ class mpz_class {
     mpz_class(int64_t op) {
         if constexpr (__gmpxx__is_long_same_as_int64) {
             mpz_init_set_si(value, op);
-        } else if constexpr (__gmpxx__is_llong_same_as_int64) {
+        } else {
             mpz_init(value);
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
             mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
@@ -213,24 +213,12 @@ class mpz_class {
 #else
 #error "gmpxx_mkII: Unsupported endianness"
 #endif
-        } else if constexpr (__gmpxx__is_long_same_as_int32) {
-            mpz_init(value);
-            int64_t abs_op = (op < 0) ? -op : op;
-            uint32_t low = static_cast<uint32_t>(abs_op & 0xFFFFFFFF);
-            uint32_t high = static_cast<uint32_t>((abs_op >> 32) & 0xFFFFFFFF);
-            mpz_set_ui(value, high);
-            mpz_mul_2exp(value, value, 32);
-            mpz_add_ui(value, value, low);
-            if (op < 0)
-                mpz_neg(value, value);
-        } else {
-            static_assert("Compilation error: unknown relationship between int64_t and long.");
         }
     }
     mpz_class(uint64_t op) {
         if constexpr (__gmpxx__is_ulong_same_as_uint64) {
             mpz_init_set_ui(value, op);
-        } else if constexpr (__gmpxx__is_ullong_same_as_uint64) {
+        } else {
             mpz_init(value);
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
             mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
@@ -239,15 +227,6 @@ class mpz_class {
 #else
 #error "gmpxx_mkII: Unsupported endianness"
 #endif
-        } else if constexpr (__gmpxx__is_ulong_same_as_uint32) {
-            mpz_init(value);
-            uint32_t low = static_cast<uint32_t>(op & 0xFFFFFFFF);
-            uint32_t high = static_cast<uint32_t>((op >> 32) & 0xFFFFFFFF);
-            mpz_set_ui(value, high);
-            mpz_mul_2exp(value, value, 32);
-            mpz_add_ui(value, value, low);
-        } else {
-            static_assert("Compilation error: unknown relationship between uint64_t and unsigned long.");
         }
     }
     mpz_class(int32_t op) {
@@ -283,10 +262,10 @@ class mpz_class {
         }
         return *this;
     }
-    mpz_class &operator=(const signed long int op);
-    mpz_class &operator=(const unsigned long int op);
-    mpz_class &operator=(const signed int op);
-    mpz_class &operator=(const unsigned int op);
+    mpz_class &operator=(const int64_t op);
+    mpz_class &operator=(const uint64_t op);
+    mpz_class &operator=(const int32_t op);
+    mpz_class &operator=(const uint32_t op);
     mpz_class &operator=(const signed char op);
     mpz_class &operator=(const unsigned char op);
     mpz_class &operator=(const char op);
@@ -1112,20 +1091,48 @@ template <typename T> inline NON_INT_COND(T, mpz_class) operator^(const T op1, c
 }
 
 /////
-inline mpz_class &mpz_class::operator=(const signed long int op) {
-    mpz_set_si(this->value, op);
+inline mpz_class &mpz_class::operator=(const int64_t op) {
+    if constexpr (__gmpxx__is_long_same_as_int64) {
+        mpz_set_si(this->value, op);
+    } else {
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+        mpz_import(this->value, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        mpz_import(this->value, 1, 1, sizeof(op), 0, 0, &op);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
+    }
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const unsigned long int op) {
-    mpz_set_ui(this->value, op);
+inline mpz_class &mpz_class::operator=(const uint64_t op) {
+    if constexpr (__gmpxx__is_ulong_same_as_uint64) {
+        mpz_set_ui(this->value, op);
+    } else {
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+        mpz_import(this->value, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        mpz_import(this->value, 1, 1, sizeof(op), 0, 0, &op);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
+    }
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const signed int op) {
-    mpz_set_si(this->value, static_cast<signed long int>(op));
+inline mpz_class &mpz_class::operator=(const int32_t op) {
+    if constexpr (__gmpxx__is_long_same_as_int32) {
+        mpz_set_si(this->value, op);
+    } else {
+        mpz_set_si(this->value, static_cast<signed long int>(op));
+    }
     return *this;
 }
-inline mpz_class &mpz_class::operator=(const unsigned int op) {
-    mpz_set_ui(this->value, static_cast<unsigned long int>(op));
+inline mpz_class &mpz_class::operator=(const uint32_t op) {
+    if constexpr (__gmpxx__is_ulong_same_as_uint32) {
+        mpz_set_ui(this->value, op);
+    } else {
+        mpz_set_ui(this->value, static_cast<unsigned long int>(op));
+    }
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const signed char op) {
