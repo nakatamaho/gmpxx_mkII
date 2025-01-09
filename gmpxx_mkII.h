@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024
+ * Copyright (c) 2024, 2025
  *      Nakata, Maho
  *      All rights reserved.
  *
@@ -39,6 +39,7 @@
 #include <cstdarg>
 #include <tuple>
 #include <iomanip>
+#include <type_traits>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -53,6 +54,23 @@
 #define SIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, X>::type
 #define NON_INT_COND(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
 #define NON_GMP_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value && !std::is_same<T, mpq_class>::value && !std::is_same<T, mpz_class>::value, X>::type
+
+constexpr bool __gmpxx__is_int_same_as_int32 = std::is_same<int, int32_t>::value;
+constexpr bool __gmpxx__is_uint_same_as_uint32 = std::is_same<unsigned int, uint32_t>::value;
+constexpr bool __gmpxx__is_long_same_as_int32 = std::is_same<long, int32_t>::value;
+constexpr bool __gmpxx__is_ulong_same_as_uint32 = std::is_same<unsigned long, uint32_t>::value;
+constexpr bool __gmpxx__is_llong_same_as_int32 = std::is_same<long long, int32_t>::value;
+constexpr bool __gmpxx__is_ullong_same_as_uint32 = std::is_same<unsigned long long, uint32_t>::value;
+
+constexpr bool __gmpxx__is_int_same_as_int64 = std::is_same<int, int64_t>::value;
+constexpr bool __gmpxx__is_uint_same_as_uint64 = std::is_same<unsigned int, uint64_t>::value;
+constexpr bool __gmpxx__is_long_same_as_int64 = std::is_same<long, int64_t>::value;
+constexpr bool __gmpxx__is_ulong_same_as_uint64 = std::is_same<unsigned long, uint64_t>::value;
+constexpr bool __gmpxx__is_llong_same_as_int64 = std::is_same<long long, int64_t>::value;
+constexpr bool __gmpxx__is_ullong_same_as_uint64 = std::is_same<unsigned long long, uint64_t>::value;
+
+constexpr bool __gmpxx__is_pointer_64 = (sizeof(void *) == 8);
+constexpr bool __gmpxx__is_pointer_32 = (sizeof(void *) == 4);
 
 #if !defined ___GMPXX_DONT_USE_NAMESPACE___
 namespace gmpxx {
@@ -183,11 +201,65 @@ class mpz_class {
             throw std::invalid_argument("");
         }
     }
-    mpz_class(unsigned long int op) { mpz_init_set_ui(value, op); }
-    mpz_class(signed long int op) { mpz_init_set_si(value, op); }
+    mpz_class(int64_t op) {
+        if constexpr (__gmpxx__is_long_same_as_int64) {
+            mpz_init_set_si(value, op);
+        } else if constexpr (__gmpxx__is_llong_same_as_int64) {
+            mpz_init(value);
+            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
+        } else if constexpr (__gmpxx__is_long_same_as_int32) {
+            mpz_init(value);
+            int64_t abs_op = (op < 0) ? -op : op;
+            uint32_t low = static_cast<uint32_t>(abs_op & 0xFFFFFFFF);
+            uint32_t high = static_cast<uint32_t>((abs_op >> 32) & 0xFFFFFFFF);
+            mpz_set_ui(value, high);
+            mpz_mul_2exp(value, value, 32);
+            mpz_add_ui(value, value, low);
+            if (op < 0)
+                mpz_neg(value, value);
+        } else {
+            static_assert("Compilation error: unknown relationship between int64_t and long.");
+        }
+    }
+    mpz_class(uint64_t op) {
+        if constexpr (__gmpxx__is_ulong_same_as_uint64) {
+            mpz_init_set_ui(value, op);
+        } else if constexpr (__gmpxx__is_ullong_same_as_uint64) {
+            mpz_init(value);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
+        } else if constexpr (__gmpxx__is_ulong_same_as_uint32) {
+            mpz_init(value);
+            uint32_t low = static_cast<uint32_t>(op & 0xFFFFFFFF);
+            uint32_t high = static_cast<uint32_t>((op >> 32) & 0xFFFFFFFF);
+            mpz_set_ui(value, high);
+            mpz_mul_2exp(value, value, 32);
+            mpz_add_ui(value, value, low);
+        } else {
+            static_assert("Compilation error: unknown relationship between uint64_t and unsigned long.");
+        }
+    }
+    mpz_class(int32_t op) {
+        if constexpr (__gmpxx__is_long_same_as_int32) {
+            mpz_init_set_si(value, op);
+        } else {
+            mpz_init_set_si(value, static_cast<signed long int>(op));
+        }
+    }
+    mpz_class(uint32_t op) {
+        if constexpr (__gmpxx__is_ulong_same_as_uint32) {
+            mpz_init_set_ui(value, op);
+        } else {
+            mpz_init_set_ui(value, static_cast<unsigned long int>(op));
+        }
+    }
     mpz_class(double op) { mpz_init_set_d(value, op); }
-    mpz_class(unsigned int op) { mpz_init_set_ui(value, static_cast<unsigned long int>(op)); }
-    mpz_class(signed int op) { mpz_init_set_si(value, static_cast<signed long int>(op)); }
+
     // assignments from other objects
     mpz_class &operator=(double d) noexcept {
         mpz_set_d(value, d);

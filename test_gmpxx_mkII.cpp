@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <cmath>
 #include <vector>
+#include <cstdint>
 
 #if defined USE_ORIGINAL_GMPXX
 #include <gmpxx.h>
@@ -3158,6 +3159,74 @@ void test_atan2() {
     std::cout << "test_atan2 passed." << std::endl;
 #endif
 }
+
+void test_int64_t_uint64_t_constructor() {
+#if !defined USE_ORIGINAL_GMPXX
+    {
+        int64_t testValue = INT64_C(-0x6EDCBA9876543210);
+        mpz_class value(testValue);
+
+        std::string expected = std::to_string(testValue);
+
+        std::string actual = value.get_str();
+
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "Comparison failed: The strings do not match.");
+        std::cout << "Comparison passed: The strings match." << std::endl;
+    }
+    {
+        uint64_t testValue = UINT64_C(0xFEDCBA9876543210);
+        mpz_class value(testValue);
+
+        std::string expected = std::to_string(testValue);
+
+        std::string actual = value.get_str();
+
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "Comparison failed: The strings do not match.");
+        std::cout << "Comparison passed: The strings match." << std::endl;
+    }
+#endif
+}
+
+void test_int32_t_uint32_t_constructor() {
+#if !defined USE_ORIGINAL_GMPXX
+    {
+        int32_t testValue = INT32_C(-0x12345678);
+        mpz_class value(testValue);
+
+        std::string expected = std::to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing int32_t constructor:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "int32_t constructor test failed: The strings do not match.");
+        std::cout << "int32_t constructor test passed!" << std::endl;
+    }
+    {
+        uint32_t testValue = UINT32_C(0xFEDCBA98);
+        mpz_class value(testValue);
+
+        std::string expected = std::to_string(testValue);
+
+        std::string actual = value.get_str();
+
+        std::cout << "Testing uint32_t constructor:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "uint32_t constructor test failed: The strings do not match.");
+        std::cout << "uint32_t constructor test passed!" << std::endl;
+    }
+#endif
+}
+
 int main() {
 #if defined USE_ORIGINAL_GMPXX
     mpf_set_default_prec(512);
@@ -3272,6 +3341,10 @@ int main() {
     test_log10();
     test_atan();
     test_atan2();
+
+    test_int64_t_uint64_t_constructor();
+    test_int32_t_uint32_t_constructor();
+
     std::cout << "All tests passed." << std::endl;
 
     return 0;
