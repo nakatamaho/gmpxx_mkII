@@ -206,7 +206,13 @@ class mpz_class {
             mpz_init_set_si(value, op);
         } else if constexpr (__gmpxx__is_llong_same_as_int64) {
             mpz_init(value);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
             mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
         } else if constexpr (__gmpxx__is_long_same_as_int32) {
             mpz_init(value);
             int64_t abs_op = (op < 0) ? -op : op;
