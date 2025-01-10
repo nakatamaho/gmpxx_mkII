@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024
+ * Copyright (c) 2024, 2025
  *      Nakata, Maho
  *      All rights reserved.
  *
@@ -916,9 +916,13 @@ void testInitializationAndAssignmentDouble_mpz_class() {
     std::cout << "Substitution from double using assignment test passed." << std::endl;
     std::cout << "testInitializationAndAssignmentDouble_mpz_class passed." << std::endl;
 }
-void testInitializationAndAssignmentInt_mpz_class() {
-    signed long int testValue = -31415926535L;
-    const char *expectedValue = "-31415926535";
+// deprecated, must be replaced with the following tests.
+//     test_int64_t_uint64_t_constructor();
+//     test_int32_t_uint32_t_constructor();
+//     test_int64_t_uint64_t_int32_t_uint32_t_assignment();
+void testInitializationAndAssignment_int64_t_uint64_t_mpz_class() {
+    int64_t testValue = INT64_C(-9223372036854775807);
+    const char *expectedValue = "-9223372036854775807";
 
     mpz_class a = (mpz_class)testValue;
     assert(Is_mpz_class_Equals(a, expectedValue, true));
@@ -929,8 +933,8 @@ void testInitializationAndAssignmentInt_mpz_class() {
     assert(Is_mpz_class_Equals(b, expectedValue, true));
     std::cout << "Substitution from signed long int using assignment test passed." << std::endl;
 
-    unsigned long int testValue2 = 31415926535LU;
-    const char *expectedValue2 = "31415926535";
+    uint64_t testValue2 = UINT64_C(18446744073709551614);
+    const char *expectedValue2 = "18446744073709551614";
 
     mpz_class c = (mpz_class)testValue2;
     assert(Is_mpz_class_Equals(c, expectedValue2, true));
@@ -939,9 +943,10 @@ void testInitializationAndAssignmentInt_mpz_class() {
     mpz_class d;
     d = testValue2;
     assert(Is_mpz_class_Equals(d, expectedValue2, true));
-    std::cout << "Substitution from unsigned long int using assignment test passed." << std::endl;
-    std::cout << "testInitializationAndAssignmentInt_mpz_class passed." << std::endl;
+    std::cout << "Substitution from int64_t using assignment test passed." << std::endl;
+    std::cout << "testInitializationAndAssignment_int64_t_uint64_t_mpz_class passed." << std::endl;
 }
+
 void testInitializationAndAssignment_mpz_class_mpf_class() {
     mpf_class testValue("-31415926535");
     const char *expectedValue = "-31415926535";
@@ -1309,7 +1314,7 @@ void testOutputOperator_mpz_class() {
 void test_mpz_class_addition() {
     {
         mpz_class a(1), c;
-        unsigned long int b = 2;
+        uint64_t b = 2;
         const char *expectedValue = "3";
 
         c = a + b;
@@ -1396,7 +1401,7 @@ void test_mpz_class_addition() {
 void test_mpz_class_subtraction() {
     {
         mpz_class a(1), c;
-        unsigned long int b = 2;
+        uint64_t b = 2;
         const char *expectedValue = "-1";
         const char *expectedValue1 = "1";
 
@@ -1491,7 +1496,7 @@ void test_mpz_class_multiplication() {
     {
         mpz_class a(3), c;
         const char *expectedValue = "6";
-        unsigned long int b = 2;
+        uint64_t b = 2;
 
         c = a * b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1593,7 +1598,7 @@ void test_mpz_class_division() {
     {
         mpz_class a(6), c, d;
         const char *expectedValue = "3";
-        unsigned long int b = 2;
+        uint64_t b = 2;
 
         c = a / b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1725,7 +1730,7 @@ void test_mpz_class_modulus() {
     {
         mpz_class a(5), c, d;
         const char *expectedValue = "1";
-        unsigned long int b(2);
+        uint64_t b(2);
 
         c = a % b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -3343,7 +3348,8 @@ int main() {
     testCopyConstructor_mpz_class();
     testAssignmentOperator_mpz_class();
     testInitializationAndAssignmentDouble_mpz_class();
-    testInitializationAndAssignmentInt_mpz_class();
+    testInitializationAndAssignment_int64_t_uint64_t_mpz_class();
+
     testInitializationAndAssignment_mpf_class_mpz_class();
     testInitializationAndAssignment_mpz_class_mpf_class();
     testInitializationAndAssignmentString_mpz_class();
