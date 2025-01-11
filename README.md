@@ -2,7 +2,7 @@
 
 ## News
 
-* 2024-10-25 License has been changed according to the LGPLv3. Cleanups will be done later.
+* 2024-10-25 License has been changed according to the LGPLv3.
 * 2024-10-13 License has been changed according to the LGPLv2+. Cleanups will be done later.
 * 2024-10-06 Released 1.1.0 (namespace has been changed to gmpxx)
 * 2024-09-16 Released 1.0.0
@@ -219,7 +219,7 @@ Contributions to the gmpxx_mkII.h are welcome. Please submit pull requests or op
 
 ## History
 
-* 2024-10-25 License has been changed according to the LGPLv3+. Cleanups will be done later.
+* 2024-10-25 License has been changed according to the LGPLv3+.
 * 2024-10-13 License has been changed according to the LGPLv2+. Cleanups will be done later.
 * 2024-10-06 Released 1.1.0 (namespace has been changed to gmpxx)
 * 2024-09-16 Released 1.0.0
