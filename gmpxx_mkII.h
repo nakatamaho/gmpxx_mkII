@@ -200,12 +200,12 @@ class mpz_class {
             throw std::invalid_argument("");
         }
     }
-    mpz_class(int64_t op) {
+    template <typename T = int64_t, typename = std::enable_if_t<!std::is_same_v<long, T>>> mpz_class(int64_t op) {
         if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
             mpz_init_set_si(value, op);
         } else if constexpr (___gmpxx_mkII___long_is_greater_than_int64_v) {
             mpz_init_set_si(value, static_cast<long>(op));
-        } else { // long is strictly shorter than int64_t
+        } else {
             mpz_init(value);
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
             mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
@@ -216,12 +216,12 @@ class mpz_class {
 #endif
         }
     }
-    mpz_class(uint64_t op) {
+    template <typename T = uint64_t, typename = std::enable_if_t<!std::is_same_v<unsigned long, T>>> mpz_class(uint64_t op) {
         if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
             mpz_init_set_ui(value, op);
         } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
             mpz_init_set_ui(value, static_cast<unsigned long>(op));
-        } else { // unsigned long is strictly shorter than int64_t
+        } else {
             mpz_init(value);
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
             mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
@@ -232,24 +232,10 @@ class mpz_class {
 #endif
         }
     }
-    mpz_class(int32_t op) {
-        if constexpr (___gmpxx_mkII___long_is_same_as_int32_v) {
-            mpz_init_set_si(value, op);
-        } else if constexpr (___gmpxx_mkII___long_is_greater_than_int32_v) {
-            mpz_init_set_si(value, static_cast<long>(op));
-        } else {
-            throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
-        }
-    }
-    mpz_class(uint32_t op) {
-        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint32_v) {
-            mpz_init_set_ui(value, op);
-        } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint32_v) {
-            mpz_init_set_ui(value, static_cast<unsigned long int>(op));
-        } else {
-            throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
-        }
-    }
+    mpz_class(long int op) { mpz_init_set_si(value, op); }
+    mpz_class(unsigned long int op) { mpz_init_set_ui(value, op); }
+    mpz_class(int op) { mpz_init_set_si(value, static_cast<long int>(op)); }
+    mpz_class(unsigned int op) { mpz_init_set_ui(value, static_cast<unsigned long int>(op)); }
     mpz_class(double op) { mpz_init_set_d(value, op); }
 
     // assignments from other objects
