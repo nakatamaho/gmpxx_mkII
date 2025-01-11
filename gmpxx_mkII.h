@@ -20,8 +20,7 @@
  * 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef ___GMPXX_MKII_H___
-#define ___GMPXX_MKII_H___
+#pragma once
 
 #if __cplusplus < 201703L
 #error "This class only runs on C++ 17 and later"
@@ -55,22 +54,23 @@
 #define NON_INT_COND(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
 #define NON_GMP_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value && !std::is_same<T, mpq_class>::value && !std::is_same<T, mpz_class>::value, X>::type
 
-constexpr bool __gmpxx__is_int_same_as_int32 = std::is_same<int, int32_t>::value;
-constexpr bool __gmpxx__is_uint_same_as_uint32 = std::is_same<unsigned int, uint32_t>::value;
-constexpr bool __gmpxx__is_long_same_as_int32 = std::is_same<long, int32_t>::value;
-constexpr bool __gmpxx__is_ulong_same_as_uint32 = std::is_same<unsigned long, uint32_t>::value;
-constexpr bool __gmpxx__is_llong_same_as_int32 = std::is_same<long long, int32_t>::value;
-constexpr bool __gmpxx__is_ullong_same_as_uint32 = std::is_same<unsigned long long, uint32_t>::value;
+template <typename T1, typename T2> struct ___is_same_representation : std::bool_constant<(sizeof(T1) == sizeof(T2)) && (std::numeric_limits<T1>::min() == std::numeric_limits<T2>::min()) && (std::numeric_limits<T1>::max() == std::numeric_limits<T2>::max())> {};
+template <typename T1, typename T2> struct ___is_numeric_range_greater : std::bool_constant<(sizeof(T1) > sizeof(T2)) || (sizeof(T1) == sizeof(T2) && ((std::numeric_limits<T1>::min() < std::numeric_limits<T2>::min()) || (std::numeric_limits<T1>::max() > std::numeric_limits<T2>::max())))> {};
 
-constexpr bool __gmpxx__is_int_same_as_int64 = std::is_same<int, int64_t>::value;
-constexpr bool __gmpxx__is_uint_same_as_uint64 = std::is_same<unsigned int, uint64_t>::value;
-constexpr bool __gmpxx__is_long_same_as_int64 = std::is_same<long, int64_t>::value;
-constexpr bool __gmpxx__is_ulong_same_as_uint64 = std::is_same<unsigned long, uint64_t>::value;
-constexpr bool __gmpxx__is_llong_same_as_int64 = std::is_same<long long, int64_t>::value;
-constexpr bool __gmpxx__is_ullong_same_as_uint64 = std::is_same<unsigned long long, uint64_t>::value;
+inline constexpr bool ___gmpxx_mkII___long_is_greater_than_int64_v = ___is_numeric_range_greater<long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_greater_than_uint64_v = ___is_numeric_range_greater<unsigned long, uint64_t>::value;
+inline constexpr bool ___gmpxx_mkII___long_is_same_as_int64_v = ___is_same_representation<long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_same_as_uint64_v = ___is_same_representation<unsigned long, uint64_t>::value;
 
-constexpr bool __gmpxx__is_pointer_64 = (sizeof(void *) == 8);
-constexpr bool __gmpxx__is_pointer_32 = (sizeof(void *) == 4);
+inline constexpr bool ___gmpxx_mkII___long_is_greater_than_int32_v = ___is_numeric_range_greater<long, int32_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_greater_than_uint32_v = ___is_numeric_range_greater<unsigned long, uint32_t>::value;
+inline constexpr bool ___gmpxx_mkII___long_is_same_as_int32_v = ___is_same_representation<long, int32_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_same_as_uint32_v = ___is_same_representation<unsigned long, uint32_t>::value;
+
+inline constexpr bool ___gmpxx_mkII___llong_is_greater_than_int64_v = ___is_numeric_range_greater<long long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ullong_is_greater_than_uint64_v = ___is_numeric_range_greater<unsigned long long, uint64_t>::value;
+inline constexpr bool ___gmpxx_mkII___llong_is_same_as_int64_v = ___is_same_representation<long long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ullong_is_same_as_uint64_v = ___is_same_representation<unsigned long long, uint64_t>::value;
 
 #if !defined ___GMPXX_DONT_USE_NAMESPACE___
 namespace gmpxx {
@@ -103,7 +103,6 @@ class mpf_class_initializer {
                 std::exit(EXIT_FAILURE);
             }
         }
-
         mpf_set_default_prec(prec);
         gmpxx_defaults::base = 10;
     }
@@ -202,45 +201,53 @@ class mpz_class {
         }
     }
     mpz_class(int64_t op) {
-        if constexpr (__gmpxx__is_long_same_as_int64) {
+        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
             mpz_init_set_si(value, op);
-        } else {
+        } else if constexpr (___gmpxx_mkII___long_is_greater_than_int64_v) {
+            mpz_init_set_si(value, static_cast<long>(op));
+        } else { // long is strictly shorter than int64_t
             mpz_init(value);
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
             mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
 #elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
             mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
 #else
-#error "gmpxx_mkII: Unsupported endianness"
+            static_assert(false, "Unsupported endianness");
 #endif
         }
     }
     mpz_class(uint64_t op) {
-        if constexpr (__gmpxx__is_ulong_same_as_uint64) {
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
             mpz_init_set_ui(value, op);
-        } else {
+        } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+            mpz_init_set_ui(value, static_cast<unsigned long>(op));
+        } else { // unsigned long is strictly shorter than int64_t
             mpz_init(value);
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
             mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
 #elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
             mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
 #else
-#error "gmpxx_mkII: Unsupported endianness"
+            static_assert(false, "Unsupported endianness");
 #endif
         }
     }
     mpz_class(int32_t op) {
-        if constexpr (__gmpxx__is_long_same_as_int32) {
+        if constexpr (___gmpxx_mkII___long_is_same_as_int32_v) {
             mpz_init_set_si(value, op);
+        } else if constexpr (___gmpxx_mkII___long_is_greater_than_int32_v) {
+            mpz_init_set_si(value, static_cast<long>(op));
         } else {
-            mpz_init_set_si(value, static_cast<signed long int>(op));
+            throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
         }
     }
     mpz_class(uint32_t op) {
-        if constexpr (__gmpxx__is_ulong_same_as_uint32) {
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint32_v) {
             mpz_init_set_ui(value, op);
-        } else {
+        } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint32_v) {
             mpz_init_set_ui(value, static_cast<unsigned long int>(op));
+        } else {
+            throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
         }
     }
     mpz_class(double op) { mpz_init_set_d(value, op); }
@@ -1092,8 +1099,10 @@ template <typename T> inline NON_INT_COND(T, mpz_class) operator^(const T op1, c
 
 /////
 inline mpz_class &mpz_class::operator=(const int64_t op) {
-    if constexpr (__gmpxx__is_long_same_as_int64) {
+    if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
         mpz_set_si(this->value, op);
+    } else if constexpr (___gmpxx_mkII___long_is_greater_than_int64_v) {
+        mpz_set_si(this->value, static_cast<long>(op));
     } else {
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
         mpz_import(this->value, 1, -1, sizeof(op), 0, 0, &op);
@@ -1106,8 +1115,10 @@ inline mpz_class &mpz_class::operator=(const int64_t op) {
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const uint64_t op) {
-    if constexpr (__gmpxx__is_ulong_same_as_uint64) {
+    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
         mpz_set_ui(this->value, op);
+    } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+        mpz_set_ui(this->value, static_cast<unsigned long>(op));
     } else {
 #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
         mpz_import(this->value, 1, -1, sizeof(op), 0, 0, &op);
@@ -1120,18 +1131,22 @@ inline mpz_class &mpz_class::operator=(const uint64_t op) {
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const int32_t op) {
-    if constexpr (__gmpxx__is_long_same_as_int32) {
+    if constexpr (___gmpxx_mkII___long_is_same_as_int32_v) {
         mpz_set_si(this->value, op);
+    } else if constexpr (___gmpxx_mkII___long_is_greater_than_int32_v) {
+        mpz_set_si(this->value, static_cast<long>(op));
     } else {
-        mpz_set_si(this->value, static_cast<signed long int>(op));
+        throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
     }
     return *this;
 }
 inline mpz_class &mpz_class::operator=(const uint32_t op) {
-    if constexpr (__gmpxx__is_ulong_same_as_uint32) {
+    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint32_v) {
         mpz_set_ui(this->value, op);
+    } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint32_v) {
+        mpz_set_ui(this->value, static_cast<unsigned long>(op));
     } else {
-        mpz_set_ui(this->value, static_cast<unsigned long int>(op));
+        throw std::runtime_error("gmpxx_mkII: Unsupported uint32 size");
     }
     return *this;
 }
@@ -1479,29 +1494,113 @@ class mpq_class {
             throw std::invalid_argument("");
         }
     }
-    mpq_class(unsigned long int op1, unsigned long int op2) {
-        mpq_init(value);
-        mpq_set_ui(value, op1, op2);
+    mpq_class(int64_t op1, int64_t op2) {
+        mpq_init(this->value);
+        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
+            mpq_set_si(this->value, op1, op2);
+        } else {
+            mpz_t num, den;
+            mpz_init(num);
+            mpz_init(den);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+            mpz_import(num, 1, -1, sizeof(op1), 0, 0, &op1);
+            mpz_import(den, 1, -1, sizeof(op2), 0, 0, &op2);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(num, 1, 1, sizeof(op1), 0, 0, &op1);
+            mpz_import(den, 1, 1, sizeof(op2), 0, 0, &op2);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
+            mpq_set_num(this->value, num);
+            mpq_set_den(this->value, den);
+            mpz_clear(num);
+            mpz_clear(den);
+        }
     }
-    mpq_class(signed long int op1, signed long int op2) {
-        mpq_init(value);
-        mpq_set_si(value, op1, op2);
+    mpq_class(uint64_t op1, uint64_t op2) {
+        mpq_init(this->value);
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
+            mpq_set_ui(this->value, op1, op2);
+        } else {
+            mpz_t num, den;
+            mpz_init(num);
+            mpz_init(den);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+            mpz_import(num, 1, -1, sizeof(op1), 0, 0, &op1);
+            mpz_import(den, 1, -1, sizeof(op2), 0, 0, &op2);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(num, 1, 1, sizeof(op1), 0, 0, &op1);
+            mpz_import(den, 1, 1, sizeof(op2), 0, 0, &op2);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
+            mpq_set_num(this->value, num);
+            mpq_set_den(this->value, den);
+            mpz_clear(num);
+            mpz_clear(den);
+        }
     }
-    mpq_class(unsigned int op1, unsigned int op2) {
-        mpq_init(value);
-        mpq_set_ui(value, static_cast<unsigned long int>(op1), static_cast<unsigned long int>(op2));
+    mpq_class(int32_t op1, int32_t op2) {
+        mpq_init(this->value);
+        if constexpr (___gmpxx_mkII___long_is_same_as_int32_v) {
+            mpq_set_si(this->value, op1, op2);
+        } else if constexpr (___gmpxx_mkII___long_is_greater_than_int32_v) {
+            mpq_set_si(this->value, static_cast<long>(op1), static_cast<long>(op2));
+        } else {
+            throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
+        }
     }
-    mpq_class(int op1, int op2) {
-        mpq_init(value);
-        mpq_set_si(value, static_cast<signed long int>(op1), static_cast<signed long int>(op2));
+    mpq_class(uint32_t op1, uint32_t op2) {
+        mpq_init(this->value);
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint32_v) {
+            mpq_set_ui(this->value, op1, op2);
+        } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint32_v) {
+            mpq_set_ui(this->value, static_cast<unsigned long>(op1), static_cast<unsigned long>(op2));
+        } else {
+            throw std::runtime_error("gmpxx_mkII: Unsupported uint32 size");
+        }
     }
-    mpq_class(unsigned long int op) {
-        mpq_init(value);
-        mpq_set_ui(value, op, static_cast<unsigned long int>(1));
+    mpq_class(int64_t op) {
+        mpq_init(this->value);
+        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
+            mpq_set_si(this->value, op, 1);
+        } else {
+            mpz_t num, den;
+            mpz_init(num);
+            mpz_init_set_ui(den, 1);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+            mpz_import(num, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(num, 1, 1, sizeof(op), 0, 0, &op);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
+            mpq_set_num(this->value, num);
+            mpq_set_den(this->value, den);
+            mpz_clear(num);
+            mpz_clear(den);
+        }
     }
-    mpq_class(signed long int op) {
-        mpq_init(value);
-        mpq_set_si(value, op, static_cast<unsigned long int>(1));
+    mpq_class(uint64_t op) {
+        mpq_init(this->value);
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
+            mpq_set_ui(this->value, op, 1);
+        } else {
+            mpz_t num, den;
+            mpz_init(num);
+            mpz_init_set_ui(den, 1);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+            mpz_import(num, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(num, 1, 1, sizeof(op), 0, 0, &op);
+#else
+#error "gmpxx_mkII: Unsupported endianness"
+#endif
+            mpq_set_num(this->value, num);
+            mpq_set_den(this->value, den);
+            mpz_clear(num);
+            mpz_clear(den);
+        }
     }
     mpq_class(unsigned int op) {
         mpq_init(value);
@@ -4680,13 +4779,47 @@ class gmp_randclass {
 // mpz_class operator"" _mpz (const char *str)
 // mpq_class operator"" _mpq (const char *str)
 #if defined ___GMPXX_DONT_USE_NAMESPACE___
-inline mpz_class operator"" _mpz(unsigned long long int val) { return mpz_class(static_cast<unsigned long int>(val)); }
-inline mpq_class operator"" _mpq(unsigned long long int val) { return mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
-inline mpf_class operator"" _mpf(long double val) { return mpf_class(static_cast<double>(val)); }
+inline mpz_class operator"" _mpz(unsigned long long int val) {
+    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
+        return mpz_class(static_cast<uint64_t>(val));
+    } else {
+        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
+    }
+}
+inline mpq_class operator"" _mpq(unsigned long long int val) {
+    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
+        return mpq_class(static_cast<uint64_t>(val), static_cast<uint64_t>(1));
+    } else {
+        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
+    }
+}
+inline mpf_class operator"" _mpf(long double val) {
+    if (val < -std::numeric_limits<double>::max() || val > std::numeric_limits<double>::max()) {
+        throw std::overflow_error("gmpxx_mkII.h: Values beyond the range of a double are currently unsupported.");
+    }
+    return mpf_class(static_cast<double>(val));
+}
 #else
-inline gmpxx::mpz_class operator"" _mpz(unsigned long long int val) { return gmpxx::mpz_class(static_cast<unsigned long int>(val)); }
-inline gmpxx::mpq_class operator"" _mpq(unsigned long long int val) { return gmpxx::mpq_class(static_cast<unsigned long int>(val), static_cast<unsigned long int>(1)); }
-inline gmpxx::mpf_class operator"" _mpf(long double val) { return gmpxx::mpf_class(static_cast<double>(val)); }
+inline gmpxx::mpz_class operator"" _mpz(unsigned long long int val) {
+    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
+       return gmpxx::mpz_class(static_cast<uint64_t>(val));
+    } else {
+       throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
+    }
+}
+inline gmpxx::mpq_class operator"" _mpq(unsigned long long int val) {
+    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v) {
+        return gmpxx::mpq_class(static_cast<uint64_t>(val), static_cast<uint64_t>(1));
+    } else {
+        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
+    }
+}
+inline gmpxx::mpf_class operator"" _mpf(long double val) {
+    if (val < -std::numeric_limits<double>::max() || val > std::numeric_limits<double>::max()) {
+        throw std::overflow_error("gmpxx_mkII.h: Values beyond the range of a double are currently unsupported.");
+    }
+    return gmpxx::mpf_class(static_cast<double>(val));
+}
 #endif
 // in the manual, the following functions are avilable, but actually not.
 // cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
@@ -4846,5 +4979,3 @@ class numeric_limits<gmpxx::mpf_class> {
 #endif
 };
 } // namespace std
-
-#endif // ___GMPXX_MKII_H___
