@@ -4802,9 +4802,9 @@ inline mpf_class operator"" _mpf(long double val) {
 #else
 inline gmpxx::mpz_class operator"" _mpz(unsigned long long int val) {
     if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
-       return gmpxx::mpz_class(static_cast<uint64_t>(val));
+        return gmpxx::mpz_class(static_cast<uint64_t>(val));
     } else {
-       throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
+        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
     }
 }
 inline gmpxx::mpq_class operator"" _mpq(unsigned long long int val) {
