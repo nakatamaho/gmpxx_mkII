@@ -57,6 +57,9 @@
 template <typename T1, typename T2> struct ___is_same_representation : std::bool_constant<(sizeof(T1) == sizeof(T2)) && (std::numeric_limits<T1>::min() == std::numeric_limits<T2>::min()) && (std::numeric_limits<T1>::max() == std::numeric_limits<T2>::max())> {};
 template <typename T1, typename T2> struct ___is_numeric_range_greater : std::bool_constant<(sizeof(T1) > sizeof(T2)) || (sizeof(T1) == sizeof(T2) && ((std::numeric_limits<T1>::min() < std::numeric_limits<T2>::min()) || (std::numeric_limits<T1>::max() > std::numeric_limits<T2>::max())))> {};
 
+template <typename T> struct ___gmpxx_mkII__smaller_or_equal_than_long : std::bool_constant<!___is_numeric_range_greater<T, long int>::value> {};
+template <typename T> struct ___gmpxx_mkII__smaller_or_equal_than_unsigned_long : std::bool_constant<!___is_numeric_range_greater<T, unsigned long int>::value> {};
+
 inline constexpr bool ___gmpxx_mkII___long_is_greater_than_int64_v = ___is_numeric_range_greater<long, int64_t>::value;
 inline constexpr bool ___gmpxx_mkII___ulong_is_greater_than_uint64_v = ___is_numeric_range_greater<unsigned long, uint64_t>::value;
 inline constexpr bool ___gmpxx_mkII___long_is_same_as_int64_v = ___is_same_representation<long, int64_t>::value;
@@ -211,31 +214,62 @@ class mpz_class {
         static_assert(false, "gmpxx_mkII.h: mpz_init_import: Unsupported endianness");
 #endif
     }
-    template <typename T = int64_t, typename = std::enable_if_t<!std::is_same_v<long, T>>> mpz_class(int64_t op) {
-        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
-            mpz_init_set_si(value, op);
-        } else if constexpr (___gmpxx_mkII___long_is_greater_than_int64_v) {
-            mpz_init_set_si(value, static_cast<long>(op));
-        } else {
+    // constructor for various integer types
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpz_class(T op) {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+                mpz_init_set_si(value, static_cast<long int>(op));
+            } else {
+                mpz_init_import(value, op);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+                mpz_init_set_ui(value, static_cast<unsigned long int>(op));
+            } else {
+                mpz_init_import(value, op);
+            }
+        }
+        else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpz_init_set_si(value, static_cast<long int>(op));
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpz_init_set_ui(value, static_cast<unsigned long int>(op));
+        }
+        // For larger types, use mpz_import
+        else {
             mpz_init_import(value, op);
         }
     }
-    template <typename T = uint64_t, typename = std::enable_if_t<!std::is_same_v<unsigned long, T>>> mpz_class(uint64_t op) {
-        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
-            mpz_init_set_ui(value, op);
-        } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
-            mpz_init_set_ui(value, static_cast<unsigned long>(op));
-        } else {
-            mpz_init_import(value, op);
-        }
-    }
-    mpz_class(long int op) { mpz_init_set_si(value, op); }
-    mpz_class(unsigned long int op) { mpz_init_set_ui(value, op); }
-    mpz_class(int op) { mpz_init_set_si(value, static_cast<long int>(op)); }
-    mpz_class(unsigned int op) { mpz_init_set_ui(value, static_cast<unsigned long int>(op)); }
     mpz_class(double op) { mpz_init_set_d(value, op); }
 
     // assignments from other objects
+    // assignments from various integers
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpz_class &operator=(T op) {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+                mpz_set_si(value, static_cast<long int>(op));
+            } else {
+                mpz_class temp(op);
+                mpz_set(value, temp.value);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+                mpz_set_ui(value, static_cast<unsigned long int>(op));
+            } else {
+                mpz_class temp(op);
+                mpz_set(value, temp.value);
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpz_set_si(value, static_cast<long int>(op));
+        } else if constexpr (!std::is_signed_v <T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpz_set_ui(value, static_cast<unsigned long int>(op));
+        }
+        else {
+        // For larger types, use mpz_import
+	    mpz_class temp(op);
+            mpz_set(value, temp.value);
+        }
+        return *this;
+    }
     mpz_class &operator=(double d) noexcept {
         mpz_set_d(value, d);
         return *this;
@@ -250,52 +284,6 @@ class mpz_class {
         if (mpz_set_str(value, str.c_str(), 0) != 0) {
             throw std::invalid_argument("");
         }
-        return *this;
-    }
-    template <typename T = int64_t, typename = std::enable_if_t<!std::is_same_v<long, T>>> mpz_class &operator=(const int64_t op) {
-        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
-            mpz_set_si(value, static_cast<long>(op));
-        } else {
-            mpz_set_ui(value, 0);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
-#else
-            static_assert(false, "Unsupported endianness");
-#endif
-        }
-        return *this;
-    }
-    template <typename T = uint64_t, typename = std::enable_if_t<!std::is_same_v<unsigned long, T>>> mpz_class &operator=(const uint64_t op) {
-        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
-            mpz_set_ui(value, op);
-        } else {
-            mpz_set_ui(value, 0);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
-#else
-            static_assert(false, "Unsupported endianness");
-#endif
-        }
-        return *this;
-    }
-    mpz_class &operator=(long int op) {
-        mpz_set_si(value, op);
-        return *this;
-    }
-    mpz_class &operator=(unsigned long int op) {
-        mpz_set_ui(value, op);
-        return *this;
-    }
-    mpz_class &operator=(int op) {
-        mpz_set_si(value, static_cast<long int>(op));
-        return *this;
-    }
-    mpz_class &operator=(unsigned int op) {
-        mpz_set_ui(value, static_cast<unsigned long int>(op));
         return *this;
     }
     // operators
