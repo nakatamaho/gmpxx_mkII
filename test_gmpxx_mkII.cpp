@@ -922,7 +922,7 @@ void testInitializationAndAssignmentDouble_mpz_class() {
 //     test_int64_t_uint64_t_int32_t_uint32_t_assignment();
 void testInitializationAndAssignment_int64_t_uint64_t_mpz_class() {
 #if !defined USE_ORIGINAL_GMPXX
-  int64_t testValue = INT64_C(-9223372036854775807);
+    int64_t testValue = INT64_C(-9223372036854775807);
     const char *expectedValue = "-9223372036854775807";
 
     mpz_class a = (mpz_class)testValue;
