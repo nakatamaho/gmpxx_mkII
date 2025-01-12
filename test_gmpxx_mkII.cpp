@@ -1498,6 +1498,7 @@ void test_mpz_class_subtraction() {
     std::cout << "test_mpz_class_subtraction passed." << std::endl;
 }
 void test_mpz_class_multiplication() {
+#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(3), c;
         const char *expectedValue = "6";
@@ -1510,6 +1511,7 @@ void test_mpz_class_multiplication() {
         a *= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
+#endif
     {
         mpz_class a(3), c;
         const char *expectedValue = "6";
@@ -1600,6 +1602,7 @@ void test_mpz_class_division() {
         a /= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
+#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(6), c, d;
         const char *expectedValue = "3";
@@ -1614,6 +1617,7 @@ void test_mpz_class_division() {
         a /= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
+#endif
     {
         mpz_class a(6), c, d;
         const char *expectedValue = "3";
@@ -1732,6 +1736,7 @@ void test_mpz_class_modulus() {
         a %= b;
         assert(Is_mpz_class_Equals(a, expectedValue2));
     }
+#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(5), c, d;
         const char *expectedValue = "1";
@@ -1746,6 +1751,7 @@ void test_mpz_class_modulus() {
         a %= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
+#endif
     {
         mpz_class a(5), c, d;
         const char *expectedValue = "1";
@@ -2644,8 +2650,9 @@ void test_misc() {
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
+#if !defined USE_ORIGINAL_GMPXX
     {
-        mpz_class a(2862933555777941757);
+        mpz_class a(UINT64_C(2862933555777941757));
         unsigned long c = 0, m2exp = 32;
         gmp_randclass r2(gmp_randinit_lc_2exp, a, c, m2exp);
         std::cout << "Using gmp_randinit_lc_2exp:" << std::endl;
@@ -2655,6 +2662,7 @@ void test_misc() {
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
+#endif
     {
         unsigned long m2exp_size = 64;
         gmp_randclass r3(gmp_randinit_lc_2exp_size, m2exp_size);

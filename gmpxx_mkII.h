@@ -200,20 +200,24 @@ class mpz_class {
             throw std::invalid_argument("");
         }
     }
+    // helper function for mpz_import from various integer types
+    template <typename U> void mpz_init_import(mpz_t &value, const U &op) {
+        mpz_init(value);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+        mpz_import(value, 1, -1, sizeof(U), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        mpz_import(value, 1, 1, sizeof(U), 0, 0, &op);
+#else
+        static_assert(false, "gmpxx_mkII.h: mpz_init_import: Unsupported endianness");
+#endif
+    }
     template <typename T = int64_t, typename = std::enable_if_t<!std::is_same_v<long, T>>> mpz_class(int64_t op) {
         if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
             mpz_init_set_si(value, op);
         } else if constexpr (___gmpxx_mkII___long_is_greater_than_int64_v) {
             mpz_init_set_si(value, static_cast<long>(op));
         } else {
-            mpz_init(value);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
-#else
-            static_assert(false, "Unsupported endianness");
-#endif
+            mpz_init_import(value, op);
         }
     }
     template <typename T = uint64_t, typename = std::enable_if_t<!std::is_same_v<unsigned long, T>>> mpz_class(uint64_t op) {
@@ -222,14 +226,7 @@ class mpz_class {
         } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
             mpz_init_set_ui(value, static_cast<unsigned long>(op));
         } else {
-            mpz_init(value);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
-#else
-            static_assert(false, "Unsupported endianness");
-#endif
+            mpz_init_import(value, op);
         }
     }
     mpz_class(long int op) { mpz_init_set_si(value, op); }
