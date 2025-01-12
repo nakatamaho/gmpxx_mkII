@@ -255,13 +255,52 @@ class mpz_class {
         }
         return *this;
     }
-    mpz_class &operator=(const int64_t op);
-    mpz_class &operator=(const uint64_t op);
-    mpz_class &operator=(const int32_t op);
-    mpz_class &operator=(const uint32_t op);
-    mpz_class &operator=(const signed char op);
-    mpz_class &operator=(const unsigned char op);
-    mpz_class &operator=(const char op);
+    template <typename T = int64_t, typename = std::enable_if_t<!std::is_same_v<long, T>>> mpz_class &operator=(const int64_t op) {
+        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+            mpz_set_si(value, static_cast<long>(op));
+        } else {
+            mpz_set_ui(value, 0);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
+#else
+            static_assert(false, "Unsupported endianness");
+#endif
+        }
+        return *this;
+    }
+    template <typename T = uint64_t, typename = std::enable_if_t<!std::is_same_v<unsigned long, T>>> mpz_class &operator=(const uint64_t op) {
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+            mpz_set_ui(value, op);
+        } else {
+            mpz_set_ui(value, 0);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+            mpz_import(value, 1, -1, sizeof(op), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            mpz_import(value, 1, 1, sizeof(op), 0, 0, &op);
+#else
+            static_assert(false, "Unsupported endianness");
+#endif
+        }
+        return *this;
+    }
+    mpz_class &operator=(long int op) {
+        mpz_set_si(value, op);
+        return *this;
+    }
+    mpz_class &operator=(unsigned long int op) {
+        mpz_set_ui(value, op);
+        return *this;
+    }
+    mpz_class &operator=(int op) {
+        mpz_set_si(value, static_cast<long int>(op));
+        return *this;
+    }
+    mpz_class &operator=(unsigned int op) {
+        mpz_set_ui(value, static_cast<unsigned long int>(op));
+        return *this;
+    }
     // operators
     mpz_class operator~() const {
         mpz_class result;
@@ -388,9 +427,15 @@ class mpz_class {
     template <typename T> inline friend NON_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; }
 
     // mpz_class arithmetic and logical operators (template version)
+    inline friend mpz_class &operator+=(mpz_class &lhs, const int64_t rhs);
+    inline friend mpz_class &operator+=(mpz_class &lhs, const uint64_t rhs);
     template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
     template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
     template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
+    inline friend mpz_class operator+(const mpz_class &op1, const int64_t op2);
+    inline friend mpz_class operator+(const int64_t op1, const mpz_class &op2);
+    inline friend mpz_class operator+(const mpz_class &op1, const uint64_t op2);
+    inline friend mpz_class operator+(const uint64_t op1, const mpz_class &op2);
     template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2);
     template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2);
     template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2);
@@ -678,8 +723,29 @@ inline mpz_class operator^(const mpz_class &op1, const mpz_class &op2) {
     mpz_xor(result.value, op1.value, op2.value);
     return result;
 }
-
 // +=
+inline mpz_class &operator+=(mpz_class &lhs, const int64_t rhs) {
+    if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+        if (rhs >= 0) {
+            mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long>(rhs));
+        } else {
+            mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long>(-rhs));
+        }
+    } else {
+        mpz_class temp(rhs);
+        mpz_add(lhs.value, lhs.value, temp.value);
+    }
+    return lhs;
+}
+inline mpz_class &operator+=(mpz_class &lhs, const uint64_t rhs) {
+    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+        mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long>(rhs));
+    } else {
+        mpz_class temp(rhs);
+        mpz_add(lhs.value, lhs.value, temp.value);
+    }
+    return lhs;
+}
 template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
     mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
     return lhs;
@@ -698,6 +764,30 @@ template <typename T> inline NON_INT_COND(T, mpz_class &) operator+=(mpz_class &
     return lhs;
 }
 // +
+inline mpz_class operator+(const mpz_class &op1, const int64_t op2) {
+    mpz_class result(op1);
+    if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+        if (op2 >= 0) {
+            mpz_add_ui(result.value, result.value, static_cast<unsigned long>(op2));
+        } else {
+            mpz_sub_ui(result.value, result.value, static_cast<unsigned long>(-op2));
+        }
+    } else {
+        result += mpz_class(op2);
+    }
+    return result;
+}
+inline mpz_class operator+(const int64_t op1, const mpz_class &op2) { return op2 + op1; }
+inline mpz_class operator+(const mpz_class &op1, const uint64_t op2) {
+    mpz_class result(op1);
+    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+        mpz_add_ui(result.value, result.value, static_cast<unsigned long>(op2));
+    } else {
+        result += mpz_class(op2);
+    }
+    return result;
+}
+inline mpz_class operator+(const uint64_t op1, const mpz_class &op2) { return op2 + op1; }
 template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op2));
@@ -1083,73 +1173,6 @@ template <typename T> inline NON_INT_COND(T, mpz_class) operator^(const T op1, c
     return result;
 }
 
-/////
-inline mpz_class &mpz_class::operator=(const int64_t op) {
-    if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
-        mpz_set_si(this->value, op);
-    } else if constexpr (___gmpxx_mkII___long_is_greater_than_int64_v) {
-        mpz_set_si(this->value, static_cast<long>(op));
-    } else {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-        mpz_import(this->value, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-        mpz_import(this->value, 1, 1, sizeof(op), 0, 0, &op);
-#else
-#error "gmpxx_mkII: Unsupported endianness"
-#endif
-    }
-    return *this;
-}
-inline mpz_class &mpz_class::operator=(const uint64_t op) {
-    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
-        mpz_set_ui(this->value, op);
-    } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
-        mpz_set_ui(this->value, static_cast<unsigned long>(op));
-    } else {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-        mpz_import(this->value, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-        mpz_import(this->value, 1, 1, sizeof(op), 0, 0, &op);
-#else
-#error "gmpxx_mkII: Unsupported endianness"
-#endif
-    }
-    return *this;
-}
-inline mpz_class &mpz_class::operator=(const int32_t op) {
-    if constexpr (___gmpxx_mkII___long_is_same_as_int32_v) {
-        mpz_set_si(this->value, op);
-    } else if constexpr (___gmpxx_mkII___long_is_greater_than_int32_v) {
-        mpz_set_si(this->value, static_cast<long>(op));
-    } else {
-        throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
-    }
-    return *this;
-}
-inline mpz_class &mpz_class::operator=(const uint32_t op) {
-    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint32_v) {
-        mpz_set_ui(this->value, op);
-    } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint32_v) {
-        mpz_set_ui(this->value, static_cast<unsigned long>(op));
-    } else {
-        throw std::runtime_error("gmpxx_mkII: Unsupported uint32 size");
-    }
-    return *this;
-}
-inline mpz_class &mpz_class::operator=(const signed char op) {
-    mpz_set_si(this->value, static_cast<signed long int>(op));
-    return *this;
-}
-inline mpz_class &mpz_class::operator=(const unsigned char op) {
-    mpz_set_ui(this->value, static_cast<unsigned long int>(op));
-    return *this;
-}
-inline mpz_class &mpz_class::operator=(const char op) {
-    if (std::is_signed<char>::value)
-        return *this = static_cast<signed char>(op);
-    else
-        return *this = static_cast<unsigned char>(op);
-}
 inline mpz_class abs(const mpz_class &op) {
     mpz_class result;
     mpz_abs(result.value, op.value);

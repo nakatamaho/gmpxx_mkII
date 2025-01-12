@@ -1313,6 +1313,7 @@ void testOutputOperator_mpz_class() {
     std::cout << "testOutputOperator_mpz_class passed." << std::endl;
 }
 void test_mpz_class_addition() {
+#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(1), c;
         uint64_t b = 2;
@@ -1325,6 +1326,7 @@ void test_mpz_class_addition() {
         a += b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
+#endif
     {
         mpz_class a(-1), c;
         signed long int b = 2;
@@ -1400,6 +1402,7 @@ void test_mpz_class_addition() {
     std::cout << "test_mpz_class_addition passed." << std::endl;
 }
 void test_mpz_class_subtraction() {
+#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(1), c;
         uint64_t b = 2;
@@ -1413,6 +1416,7 @@ void test_mpz_class_subtraction() {
         a -= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
+#endif
     {
         mpz_class a(-1), c;
         signed long int b = 2;
