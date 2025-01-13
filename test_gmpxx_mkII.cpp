@@ -3393,6 +3393,20 @@ void test_int128_t_uint128_t_constructor() {
         std::cout << "__int128_t construction test passed!" << std::endl;
     }
     {
+        __int128_t testValue = -(__int128_t)0x0123456789ABCDEF * 0xFEDCBA9876543210;
+        mpz_class value(testValue);
+
+        std::string expected = int128_to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing __int128_t construction:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "__int128_t construction test failed.");
+        std::cout << "__int128_t construction test passed!" << std::endl;
+    }
+    {
         __uint128_t testValue = (__uint128_t)0xFEDCBA9876543210 * 0xFFFFFFFFFFFFFFFF;
         mpz_class value(testValue);
 

@@ -240,30 +240,19 @@ class mpz_class {
             throw std::invalid_argument("");
         }
     }
-    // helper function for mpz_import from various integer types
-    template <typename U> void mpz_init_import(mpz_t &value, const U &op) {
-        mpz_init(value);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-        mpz_import(value, 1, -1, sizeof(U), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-        mpz_import(value, 1, 1, sizeof(U), 0, 0, &op);
-#else
-        static_assert(false, "gmpxx_mkII.h: mpz_init_import: Unsupported endianness");
-#endif
-    }
     // constructor for various integer types
     template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpz_class(T op) {
         if constexpr (std::is_same_v<T, int64_t>) {
             if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
                 mpz_init_set_si(value, static_cast<long int>(op));
             } else {
-                mpz_init_import(value, op);
+                helper::mpz_init_import(value, op);
             }
         } else if constexpr (std::is_same_v<T, uint64_t>) {
             if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
                 mpz_init_set_ui(value, static_cast<unsigned long int>(op));
             } else {
-                mpz_init_import(value, op);
+                helper::mpz_init_import(value, op);
             }
         } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
             mpz_init_set_si(value, static_cast<long int>(op));
@@ -272,7 +261,7 @@ class mpz_class {
         }
         // For larger types, use mpz_import
         else {
-            mpz_init_import(value, op);
+            helper::mpz_init_import(value, op);
         }
     }
     mpz_class(double op) { mpz_init_set_d(value, op); }
