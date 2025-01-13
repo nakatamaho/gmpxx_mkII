@@ -26,6 +26,15 @@
 #error "This class only runs on C++ 17 and later"
 #endif
 
+#define GMPXX_MKII_VERSION_MAJOR 1
+#define GMPXX_MKII_VERSION_MINOR 0
+#define GMPXX_MKII_VERSION_PATCH 0
+
+#define GMPXX_MKII_STRINGIFY_HELPER(x) #x
+#define GMPXX_MKII_STRINGIFY(x) GMPXX_MKII_STRINGIFY_HELPER(x)
+
+#define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
+
 #include <gmp.h>
 #include <limits>
 #include <iostream>
@@ -228,8 +237,7 @@ class mpz_class {
             } else {
                 mpz_init_import(value, op);
             }
-        }
-        else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
             mpz_init_set_si(value, static_cast<long int>(op));
         } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
             mpz_init_set_ui(value, static_cast<unsigned long int>(op));
@@ -260,12 +268,11 @@ class mpz_class {
             }
         } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
             mpz_set_si(value, static_cast<long int>(op));
-        } else if constexpr (!std::is_signed_v <T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
             mpz_set_ui(value, static_cast<unsigned long int>(op));
-        }
-        else {
-        // For larger types, use mpz_import
-	    mpz_class temp(op);
+        } else {
+            // For larger types, use mpz_import
+            mpz_class temp(op);
             mpz_set(value, temp.value);
         }
         return *this;

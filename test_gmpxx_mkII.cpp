@@ -3308,9 +3308,114 @@ void test_int64_t_uint64_t_int32_t_uint32_t_assignment() {
     }
 #endif
 }
+#ifdef __SIZEOF_INT128__
+std::string int128_to_string(__int128_t value) {
+    bool isNegative = value < 0;
+    if (isNegative) {
+        value = -value;
+    }
+    std::string result;
+    do {
+        int digit = value % 10;
+        result.push_back('0' + digit);
+        value /= 10;
+    } while (value != 0);
+
+    if (isNegative) {
+        result.push_back('-');
+    }
+
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+std::string uint128_to_string(__uint128_t value) {
+    if (value == 0)
+        return "0";
+    std::string result;
+    while (value > 0) {
+        char digit = '0' + static_cast<char>(value % 10);
+        result.insert(result.begin(), digit);
+        value /= 10;
+    }
+    return result;
+}
+#endif
+void test_int128_t_uint128_t_assignment() {
+#if !defined USE_ORIGINAL_GMPXX
+#ifdef __SIZEOF_INT128__
+    {
+        __int128_t testValue = (__int128_t)0x0123456789ABCDEF * 0xFEDCBA9876543210;
+        mpz_class value;
+        value = testValue;
+
+        std::string expected = int128_to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing __int128_t assignment:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "__int128_t assignment test failed.");
+        std::cout << "__int128_t assignment test passed!" << std::endl;
+    }
+    {
+        __uint128_t testValue = (__uint128_t)0xFEDCBA9876543210 * 0xFFFFFFFFFFFFFFFF;
+        mpz_class value;
+        value = testValue;
+        std::string expected = uint128_to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing __uint128_t assignment:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "__uint128_t assignment test failed.");
+        std::cout << "__uint128_t assignment test passed!" << std::endl;
+    }
+#endif
+#endif
+}
+void test_int128_t_uint128_t_constructor() {
+#if !defined USE_ORIGINAL_GMPXX
+#ifdef __SIZEOF_INT128__
+    {
+        __int128_t testValue = (__int128_t)0x0123456789ABCDEF * 0xFEDCBA9876543210;
+        mpz_class value(testValue);
+
+        std::string expected = int128_to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing __int128_t construction:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "__int128_t construction test failed.");
+        std::cout << "__int128_t construction test passed!" << std::endl;
+    }
+    {
+        __uint128_t testValue = (__uint128_t)0xFEDCBA9876543210 * 0xFFFFFFFFFFFFFFFF;
+        mpz_class value(testValue);
+
+        std::string expected = uint128_to_string(testValue);
+        std::string actual = value.get_str();
+
+        std::cout << "Testing __uint128_t construction:" << std::endl;
+        std::cout << "Expected: " << expected << std::endl;
+        std::cout << "Actual  : " << actual << std::endl;
+
+        assert(actual == expected && "__uint128_t construction test failed.");
+        std::cout << "__uint128_t construction test passed!" << std::endl;
+    }
+#endif
+#endif
+}
+
 int main() {
 #if defined USE_ORIGINAL_GMPXX
     mpf_set_default_prec(512);
+#endif
+#if !defined USE_ORIGINAL_GMPXX
+    std::cout << "GMPXX_MKII version: " << GMPXX_MKII_VERSION << std::endl;
 #endif
     // mpf_class
     testDefaultPrecision();
@@ -3427,6 +3532,9 @@ int main() {
     test_int64_t_uint64_t_constructor();
     test_int32_t_uint32_t_constructor();
     test_int64_t_uint64_t_int32_t_uint32_t_assignment();
+
+    test_int128_t_uint128_t_constructor();
+    test_int128_t_uint128_t_assignment();
 
     std::cout << "All tests passed." << std::endl;
 
