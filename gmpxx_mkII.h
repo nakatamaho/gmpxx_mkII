@@ -152,6 +152,34 @@ template <typename T> mpf_class caches<T>::e_cached;
 template <typename T> mpf_class caches<T>::log_cached;
 template <typename T> mpf_class caches<T>::log2_cached;
 
+namespace helper {
+// helper function for mpz_import from various integer types
+template <typename U, std::enable_if_t<std::is_integral_v<U>, int> = 0> void mpz_init_import(mpz_t &value, const U &op) {
+    mpz_init(value);
+    if constexpr (std::is_signed_v<U>) {
+        using UnsignedT = std::make_unsigned_t<U>;
+        UnsignedT absOp = static_cast<UnsignedT>(op < 0 ? -op : op);
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+        mpz_import(value, 1, -1, sizeof(U), 0, 0, &absOp);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        mpz_import(value, 1, 1, sizeof(U), 0, 0, &absOp);
+#else
+        static_assert(false, "mpz_init_import: Unsupported endianness");
+#endif
+        if (op < 0) {
+            mpz_neg(value, value);
+        }
+    } else {
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+        mpz_import(value, 1, -1, sizeof(U), 0, 0, &op);
+#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        mpz_import(value, 1, 1, sizeof(U), 0, 0, &op);
+#else
+        static_assert(false, "mpz_init_import: Unsupported endianness");
+#endif
+    }
+}
+} // namespace helper
 class mpz_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
