@@ -337,25 +337,84 @@ class mpz_class {
     }
 
     // mpz_class arithmetic operators
-    inline friend mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class &operator/=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class &operator%=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class &operator&=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class &operator|=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class &operator^=(mpz_class &lhs, const mpz_class &rhs);
-    inline friend mpz_class operator+(const mpz_class &op);
-    inline friend mpz_class operator-(const mpz_class &op);
-    inline friend mpz_class operator+(const mpz_class &op1, const mpz_class &op2);
-    inline friend mpz_class operator-(const mpz_class &op1, const mpz_class &op2);
-    inline friend mpz_class operator*(const mpz_class &op1, const mpz_class &op2);
-    inline friend mpz_class operator/(const mpz_class &op1, const mpz_class &op2);
-    inline friend mpz_class operator%(const mpz_class &op1, const mpz_class &op2);
-    inline friend mpz_class operator&(const mpz_class &op1, const mpz_class &op2);
-    inline friend mpz_class operator|(const mpz_class &op1, const mpz_class &op2);
-    inline friend mpz_class operator^(const mpz_class &op1, const mpz_class &op2);
-
+    inline friend mpz_class &operator+=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_add(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class &operator-=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_sub(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class &operator*=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_mul(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class &operator/=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_tdiv_q(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class &operator%=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_tdiv_r(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class &operator&=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_and(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class &operator|=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_ior(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class &operator^=(mpz_class &lhs, const mpz_class &rhs) {
+        mpz_xor(lhs.value, lhs.value, rhs.value);
+        return lhs;
+    }
+    inline friend mpz_class operator+(const mpz_class &op) { return mpz_class(op); }
+    inline friend mpz_class operator-(const mpz_class &op) {
+        mpz_class result;
+        mpz_neg(result.value, op.value);
+        return result;
+    }
+    inline friend mpz_class operator+(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result += op2;
+        return result;
+    }
+    inline friend mpz_class operator-(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result -= op2;
+        return result;
+    }
+    inline friend mpz_class operator*(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result *= op2;
+        return result;
+    }
+    inline friend mpz_class operator/(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result /= op2;
+        return result;
+    }
+    inline friend mpz_class operator%(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result %= op2;
+        return result;
+    }
+    inline friend mpz_class operator&(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result &= op2;
+        return result;
+    }
+    inline friend mpz_class operator|(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result |= op2;
+        return result;
+    }
+    inline friend mpz_class operator^(const mpz_class &op1, const mpz_class &op2) {
+        mpz_class result(op1);
+        result ^= op2;
+        return result;
+    }
     // mpz_class comparison operators
     inline friend bool operator==(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) == 0; }
     inline friend bool operator!=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) != 0; }
@@ -379,31 +438,19 @@ class mpz_class {
     inline friend bool operator>=(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
 
     // mpz_class comparison operators (template version)
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
-
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) == 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) != 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) < 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) > 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) <= 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp_si(op1.value, static_cast<signed long int>(op2)) >= 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) == 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) != 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) > 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) < 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
+    // the following comparisons should be rewritten using mpz_cmp_si or mpz_cmp_ui.
+    template <typename T> inline friend INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) < 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) > 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) <= 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) >= 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator==(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) == 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator!=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) != 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) > 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) < 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) >= 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; }
 
     template <typename T> inline friend NON_INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; }
     template <typename T> inline friend NON_INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; }
@@ -637,84 +684,6 @@ class mpz_class {
   private:
     mpz_t value;
 };
-inline mpz_class &operator+=(mpz_class &op1, const mpz_class &op2) {
-    mpz_add(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpz_class &operator-=(mpz_class &op1, const mpz_class &op2) {
-    mpz_sub(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpz_class &operator*=(mpz_class &op1, const mpz_class &op2) {
-    mpz_mul(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpz_class &operator/=(mpz_class &op1, const mpz_class &op2) {
-    mpz_tdiv_q(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpz_class &operator&=(mpz_class &lhs, const mpz_class &rhs) {
-    mpz_and(lhs.value, lhs.value, rhs.value);
-    return lhs;
-}
-inline mpz_class &operator|=(mpz_class &lhs, const mpz_class &rhs) {
-    mpz_ior(lhs.value, lhs.value, rhs.value);
-    return lhs;
-}
-inline mpz_class &operator^=(mpz_class &lhs, const mpz_class &rhs) {
-    mpz_xor(lhs.value, lhs.value, rhs.value);
-    return lhs;
-}
-inline mpz_class &operator%=(mpz_class &op1, const mpz_class &op2) {
-    mpz_tdiv_r(op1.value, op1.value, op2.value);
-    return op1;
-}
-inline mpz_class operator+(const mpz_class &op) { return op; }
-inline mpz_class operator-(const mpz_class &op) {
-    mpz_class result;
-    mpz_neg(result.value, op.value);
-    return result;
-}
-inline mpz_class operator+(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_add(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpz_class operator-(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_sub(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpz_class operator*(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_mul(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpz_class operator/(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_tdiv_q(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpz_class operator%(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_tdiv_r(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpz_class operator&(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_and(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpz_class operator|(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_ior(result.value, op1.value, op2.value);
-    return result;
-}
-inline mpz_class operator^(const mpz_class &op1, const mpz_class &op2) {
-    mpz_class result;
-    mpz_xor(result.value, op1.value, op2.value);
-    return result;
-}
 // +=
 inline mpz_class &operator+=(mpz_class &lhs, const int64_t rhs) {
     if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
