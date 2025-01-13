@@ -466,15 +466,71 @@ class mpz_class {
     template <typename T> inline friend NON_INT_COND(T, bool) operator>=(T op1, const mpz_class &op2) { return mpz_cmp(op2.value, mpz_class(op1).get_mpz_t()) <= 0; }
 
     // mpz_class arithmetic and logical operators (template version)
-    inline friend mpz_class &operator+=(mpz_class &lhs, const int64_t rhs);
-    inline friend mpz_class &operator+=(mpz_class &lhs, const uint64_t rhs);
-    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
-    template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs);
-    inline friend mpz_class operator+(const mpz_class &op1, const int64_t op2);
-    inline friend mpz_class operator+(const int64_t op1, const mpz_class &op2);
-    inline friend mpz_class operator+(const mpz_class &op1, const uint64_t op2);
-    inline friend mpz_class operator+(const uint64_t op1, const mpz_class &op2);
+    //+=
+    inline friend mpz_class &operator+=(mpz_class &lhs, const int64_t rhs) {
+        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+            if (rhs >= 0) {
+                mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long>(rhs));
+            } else {
+                mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long>(-rhs));
+            }
+        } else {
+            mpz_class temp(rhs);
+            mpz_add(lhs.value, lhs.value, temp.value);
+        }
+        return lhs;
+    }
+    inline friend mpz_class &operator+=(mpz_class &lhs, const uint64_t rhs) {
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+            mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long>(rhs));
+        } else {
+            mpz_class temp(rhs);
+            mpz_add(lhs.value, lhs.value, temp.value);
+        }
+        return lhs;
+    }
+    template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
+        mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
+        return lhs;
+    }
+    template <typename T> inline friend SIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
+        if (rhs >= 0)
+            mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
+        else {
+            mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
+        }
+        return lhs;
+    }
+    template <typename T> inline friend NON_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
+        mpz_class _rhs(rhs);
+        mpz_add(lhs.value, lhs.value, _rhs.value);
+        return lhs;
+    }
+    //+
+    inline friend mpz_class operator+(const mpz_class &op1, const int64_t op2) {
+        mpz_class result(op1);
+        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+            if (op2 >= 0) {
+                mpz_add_ui(result.value, result.value, static_cast<unsigned long>(op2));
+            } else {
+                mpz_sub_ui(result.value, result.value, static_cast<unsigned long>(-op2));
+            }
+        } else {
+            result += mpz_class(op2);
+        }
+        return result;
+    }
+    inline friend mpz_class operator+(const int64_t op1, const mpz_class &op2) { return op2 + op1; }
+    inline friend mpz_class operator+(const mpz_class &op1, const uint64_t op2) {
+        mpz_class result(op1);
+        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+            mpz_add_ui(result.value, result.value, static_cast<unsigned long>(op2));
+        } else {
+            result += mpz_class(op2);
+        }
+        return result;
+    }
+    inline friend mpz_class operator+(const uint64_t op1, const mpz_class &op2) { return op2 + op1; }
     template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2);
     template <typename T> inline friend UNSIGNED_INT_COND(T, mpz_class) operator+(const T op1, const mpz_class &op2);
     template <typename T> inline friend SIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2);
@@ -684,71 +740,7 @@ class mpz_class {
   private:
     mpz_t value;
 };
-// +=
-inline mpz_class &operator+=(mpz_class &lhs, const int64_t rhs) {
-    if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
-        if (rhs >= 0) {
-            mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long>(rhs));
-        } else {
-            mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long>(-rhs));
-        }
-    } else {
-        mpz_class temp(rhs);
-        mpz_add(lhs.value, lhs.value, temp.value);
-    }
-    return lhs;
-}
-inline mpz_class &operator+=(mpz_class &lhs, const uint64_t rhs) {
-    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
-        mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long>(rhs));
-    } else {
-        mpz_class temp(rhs);
-        mpz_add(lhs.value, lhs.value, temp.value);
-    }
-    return lhs;
-}
-template <typename T> inline UNSIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
-    mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
-    return lhs;
-}
-template <typename T> inline SIGNED_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
-    if (rhs >= 0)
-        mpz_add_ui(lhs.value, lhs.value, static_cast<unsigned long int>(rhs));
-    else {
-        mpz_sub_ui(lhs.value, lhs.value, static_cast<unsigned long int>(-rhs));
-    }
-    return lhs;
-}
-template <typename T> inline NON_INT_COND(T, mpz_class &) operator+=(mpz_class &lhs, const T rhs) {
-    mpz_class _rhs(rhs);
-    mpz_add(lhs.value, lhs.value, _rhs.value);
-    return lhs;
-}
 // +
-inline mpz_class operator+(const mpz_class &op1, const int64_t op2) {
-    mpz_class result(op1);
-    if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
-        if (op2 >= 0) {
-            mpz_add_ui(result.value, result.value, static_cast<unsigned long>(op2));
-        } else {
-            mpz_sub_ui(result.value, result.value, static_cast<unsigned long>(-op2));
-        }
-    } else {
-        result += mpz_class(op2);
-    }
-    return result;
-}
-inline mpz_class operator+(const int64_t op1, const mpz_class &op2) { return op2 + op1; }
-inline mpz_class operator+(const mpz_class &op1, const uint64_t op2) {
-    mpz_class result(op1);
-    if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
-        mpz_add_ui(result.value, result.value, static_cast<unsigned long>(op2));
-    } else {
-        result += mpz_class(op2);
-    }
-    return result;
-}
-inline mpz_class operator+(const uint64_t op1, const mpz_class &op2) { return op2 + op1; }
 template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator+(const mpz_class &op1, const T op2) {
     mpz_class result(op1);
     mpz_add_ui(result.value, result.value, static_cast<unsigned long int>(op2));
