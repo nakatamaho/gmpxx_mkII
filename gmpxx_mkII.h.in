@@ -2222,10 +2222,34 @@ class mpf_class {
         mpf_init(value);
         mpf_set_q(value, op);
     }
-    mpf_class(const unsigned long int op) noexcept { mpf_init_set_ui(value, op); }
-    mpf_class(const unsigned int op) noexcept : mpf_class(static_cast<unsigned long int>(op)) {}
-    mpf_class(const signed long int op) noexcept { mpf_init_set_si(value, op); }
-    mpf_class(const signed int op) noexcept { mpf_init_set_si(value, static_cast<signed long int>(op)); }
+    // constructor for various integer types
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpf_class(T op) {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+                mpf_init_set_si(value, static_cast<long int>(op));
+            } else {
+                mpz_class temp(op);
+                mpf_init(value);
+                mpf_set_z(value, temp.get_mpz_t());
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+                mpf_init_set_ui(value, static_cast<unsigned long int>(op));
+            } else {
+                mpz_class temp(op);
+                mpf_init(value);
+                mpf_set_z(value, temp.get_mpz_t());
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpf_init_set_si(value, static_cast<long int>(op));
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpf_init_set_ui(value, static_cast<unsigned long int>(op));
+        } else {
+            mpz_class temp(op);
+            mpf_init(value);
+            mpf_set_z(value, temp.get_mpz_t());
+        }
+    }
     mpf_class(const double op) noexcept { mpf_init_set_d(value, op); }
     mpf_class(const char *str) {
         if (mpf_init_set_str(value, str, gmpxx_defaults::base) != 0) {
@@ -2239,7 +2263,6 @@ class mpf_class {
             throw std::invalid_argument("");
         }
     }
-
     explicit mpf_class(const mpf_t op, mp_bitcnt_t prec) {
         mpf_init2(value, prec);
         mpf_set(value, op);
@@ -2286,35 +2309,44 @@ class mpf_class {
     }
 
     // assignments from other objects
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpf_class &operator=(T op) {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+                mpf_set_si(this->value, static_cast<long int>(op));
+            } else {
+                mpf_class temp(op);
+                mpf_set(this->value, temp.value);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+                mpf_set_ui(this->value, static_cast<unsigned long int>(op));
+            } else {
+                mpf_class temp(op);
+                mpf_set(this->value, temp.value);
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpf_set_si(this->value, static_cast<long int>(op));
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpf_set_ui(this->value, static_cast<unsigned long int>(op));
+        } else {
+            mpf_class temp(op);
+            mpf_set(this->value, temp.value);
+        }
+        return *this;
+    }
     mpf_class &operator=(double d) noexcept {
         mpf_set_d(value, d);
         return *this;
     }
-    mpf_class &operator=(unsigned long int d) noexcept {
-        mpf_set_ui(value, d);
-        return *this;
-    }
-    mpf_class &operator=(signed long int d) noexcept {
-        mpf_set_si(value, d);
-        return *this;
-    }
-    mpf_class &operator=(unsigned int d) noexcept {
-        mpf_set_ui(value, static_cast<unsigned long int>(d));
-        return *this;
-    }
-    mpf_class &operator=(signed int d) noexcept {
-        mpf_set_si(value, static_cast<signed long int>(d));
-        return *this;
-    }
     mpf_class &operator=(const char *str) {
         if (mpf_set_str(value, str, gmpxx_defaults::base) != 0) {
-            throw std::invalid_argument("");
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
         return *this;
     }
     mpf_class &operator=(const std::string &str) {
         if (mpf_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
-            throw std::invalid_argument("");
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
         return *this;
     }
@@ -2483,31 +2515,19 @@ class mpf_class {
     inline friend bool operator>=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) <= 0; }
 
     // mpf_class comparison operators (template version)
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator!=(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<=(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>=(const mpf_class &op1, T op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator==(T op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator!=(T op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<(T op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>(T op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator<=(T op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
-    template <typename T> inline friend UNSIGNED_INT_COND(T, bool) operator>=(T op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
-
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator==(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)) == 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator!=(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)) != 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)) < 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)) > 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)) <= 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(const mpf_class &op1, T op2) { return mpf_cmp_si(op1.value, static_cast<signed long int>(op2)) >= 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator==(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) == 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator!=(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) != 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) > 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) < 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator<=(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) >= 0; }
-    template <typename T> inline friend SIGNED_INT_COND(T, bool) operator>=(T op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<signed long int>(op1)) <= 0; }
+    // the following comparisons should be rewritten using mpf_cmp_si or mpf_cmp_ui.
+    template <typename T> inline friend INT_COND(T, bool) operator==(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) == 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator!=(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) != 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) < 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) > 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<=(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) <= 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>=(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) >= 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator==(T op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, mpz_class(op1).get_mpz_t()) == 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator!=(T op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, mpz_class(op1).get_mpz_t()) != 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<(T op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, mpz_class(op1).get_mpz_t()) > 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>(T op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, mpz_class(op1).get_mpz_t()) < 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator<=(T op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, mpz_class(op1).get_mpz_t()) >= 0; }
+    template <typename T> inline friend INT_COND(T, bool) operator>=(T op1, const mpf_class &op2) { return mpf_cmp_z(op2.value, mpz_class(op1).get_mpz_t()) <= 0; }
 
     // mpf_class abs (mpf_class op)
     // mpf_class ceil (mpf_class op)

@@ -546,10 +546,6 @@ void check_mpf(void) {
         b = a;
         ASSERT_ALWAYS(b == 123);
     }
-
-    // template <class T, class U> operator=(const __gmp_expr<T, U> &)
-    // not tested here, see t-unary.cc, t-binary.cc
-
     // operator=(signed char)
     {
         signed char a = -127;
@@ -637,6 +633,88 @@ void check_mpf(void) {
         b = a;
         ASSERT_ALWAYS(b == 3456789012UL);
     }
+    // operator=(int32_t)
+    {
+        int32_t a = INT32_C(0);
+        mpf_class b;
+        b = a;
+        ASSERT_ALWAYS(b == 0);
+
+        a = INT32_C(-123456);
+        b = a;
+        ASSERT_ALWAYS(b == -123456);
+
+        a = INT32_C(123456);
+        b = a;
+        ASSERT_ALWAYS(b == 123456);
+    }
+    // operator=(uint32_t)
+    {
+        uint32_t a = UINT32_C(0);
+        mpf_class b;
+        b = a;
+        ASSERT_ALWAYS(b == 0);
+
+        a = UINT32_C(1234567890);
+        b = a;
+        ASSERT_ALWAYS(b == 1234567890);
+    }
+    // operator=(int64_t)
+    {
+        int64_t a = INT64_C(0);
+        mpf_class b;
+        b = a;
+        ASSERT_ALWAYS(b == 0);
+
+        a = INT64_C(-987654321098765432);
+        b = a;
+        ASSERT_ALWAYS(b == INT64_C(-987654321098765432));
+
+        a = INT64_C(987654321098765432);
+        b = a;
+        ASSERT_ALWAYS(b == INT64_C(987654321098765432));
+    }
+    // operator=(uint64_t)
+    {
+        uint64_t a = UINT64_C(0);
+        mpf_class b;
+        b = a;
+        ASSERT_ALWAYS(b == 0);
+
+        a = UINT64_C(9876543210987654321);
+        b = a;
+        ASSERT_ALWAYS(b == UINT64_C(9876543210987654321));
+    }
+#ifdef __SIZEOF_INT128__
+    // operator=(__int128_t)
+    {
+        __int128_t a = 0;
+        mpf_class b;
+        b = a;
+        ASSERT_ALWAYS(b == 0);
+
+        __int128_t pos_val = (__int128_t)UINT64_C(0x0123456789ABCDEF) * (__int128_t)UINT64_C(0xFEDCBA9876543210);
+        a = pos_val;
+        b = a;
+	ASSERT_ALWAYS(b == a);
+
+        a = -pos_val;
+        b = a;
+	gmp_printf("Value of b: %.Ff\n", b.get_mpf_t());
+        ASSERT_ALWAYS(b == a);
+    }
+    // operator=(__uint128_t)
+    {
+        __uint128_t a = 0;
+        mpf_class b;
+        b = a;
+        ASSERT_ALWAYS(b == 0);
+
+        a = (__uint128_t)UINT64_C(0xFEDCBA9876543210) * (__uint128_t)UINT64_C(0xFFFFFFFFFFFFFFFF);
+        b = a;
+        ASSERT_ALWAYS(b == a);
+    }
+#endif // __SIZEOF_INT128__
 
     // operator=(float)
     {
