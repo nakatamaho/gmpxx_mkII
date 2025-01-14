@@ -1525,7 +1525,7 @@ class mpq_class {
                 mpq_set_ui(this->value, op1, op2);
             } else {
                 mpz_t num, den;
-		helper::mpz_init_import(num, op1);
+                helper::mpz_init_import(num, op1);
                 helper::mpz_init_import(den, op2);
                 mpq_set_num(this->value, num);
                 mpq_set_den(this->value, den);
@@ -1578,8 +1578,7 @@ class mpq_class {
             mpq_set_si(this->value, static_cast<long int>(op), 1);
         } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
             mpq_set_ui(this->value, static_cast<unsigned long int>(op), 1);
-        }
-        else {
+        } else {
             mpz_t num, den;
             mpz_init(num);
             mpz_init_set_ui(den, 1);
@@ -1596,19 +1595,52 @@ class mpq_class {
     }
 
     // assignments from other objects
-    inline mpq_class &operator=(const mpz_class &op);
-    inline mpq_class &operator=(const signed long int op);
-    inline mpq_class &operator=(const unsigned long int op);
-    inline mpq_class &operator=(const signed int op);
-    inline mpq_class &operator=(const unsigned int op);
-    inline mpq_class &operator=(const signed char op);
-    inline mpq_class &operator=(const unsigned char op);
-    inline mpq_class &operator=(const char op);
-    inline mpq_class &operator=(const float op);
-    inline mpq_class &operator=(const double op);
-    inline mpq_class &operator=(const char *op);
-    inline mpq_class &operator=(const std::string &op);
-
+    // assignments from various integers
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpq_class &operator=(T op) {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+                mpq_set_si(this->value, static_cast<long int>(op), 1);
+            } else {
+                mpq_class temp(op);
+                mpq_set(this->value, temp.value);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+                mpq_set_ui(this->value, static_cast<unsigned long int>(op), 1);
+            } else {
+                mpq_class temp(op);
+                mpq_set(this->value, temp.value);
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpq_set_si(this->value, static_cast<long int>(op), 1);
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpq_set_ui(this->value, static_cast<unsigned long int>(op), 1);
+        } else {
+            mpq_class temp(op);
+            mpq_set(this->value, temp.value);
+        }
+        return *this;
+    }
+    inline mpq_class &operator=(const mpz_class &op) {
+        mpq_set_z(this->value, op.get_mpz_t());
+        return *this;
+    }
+    inline mpq_class &operator=(double op) noexcept {
+        mpq_set_d(this->value, op);
+        return *this;
+    }
+    inline mpq_class &operator=(const char *op) {
+        if (mpq_set_str(value, op, 10) != 0) {
+            throw std::invalid_argument("Invalid string format for mpq_class");
+        }
+        return *this;
+    }
+    inline mpq_class &operator=(const std::string &op) {
+        if (mpq_set_str(value, op.c_str(), 10) != 0) {
+            throw std::invalid_argument("Invalid string format for mpq_class");
+        }
+        return *this;
+    }
     // operators
     mpq_class &operator++() {
         mpq_class one = 1;
@@ -1817,62 +1849,6 @@ class mpq_class {
   private:
     mpq_t value;
 };
-
-inline mpq_class &mpq_class::operator=(const mpz_class &op) {
-    mpq_set_z(this->value, op.get_mpz_t());
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(signed long int op) {
-    mpq_set_si(this->value, op, (signed long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(unsigned long int op) {
-    mpq_set_ui(this->value, op, (unsigned long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(signed int op) {
-    mpq_set_si(this->value, (signed long int)op, (signed long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(unsigned int op) {
-    mpq_set_ui(this->value, (unsigned long int)op, (unsigned long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(signed char op) {
-    mpq_set_si(this->value, (signed long int)op, (signed long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(unsigned char op) {
-    mpq_set_ui(this->value, (unsigned long int)op, (unsigned long int)1);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(char op) {
-    if (std::is_signed<char>::value)
-        return *this = static_cast<signed char>(op);
-    else
-        return *this = static_cast<unsigned char>(op);
-}
-inline mpq_class &mpq_class::operator=(float op) {
-    mpq_set_d(this->value, (double)op);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(double op) {
-    mpq_set_d(this->value, op);
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(const char *op) {
-    if (mpq_set_str(value, op, 10) != 0) {
-        throw std::invalid_argument("Invalid string format for mpq_class");
-    }
-    return *this;
-}
-inline mpq_class &mpq_class::operator=(const std::string &op) {
-    if (mpq_set_str(value, op.c_str(), 10) != 0) {
-        throw std::invalid_argument("Invalid string format for mpq_class");
-    }
-    return *this;
-}
-
 inline mpq_class &operator+=(mpq_class &op1, const mpq_class &op2) {
     mpq_add(op1.value, op1.value, op2.value);
     return op1;
