@@ -179,6 +179,38 @@ template <typename U, std::enable_if_t<std::is_integral_v<U>, int> = 0> void mpz
 #endif
     }
 }
+#ifdef __SIZEOF_INT128__
+std::string int128_to_string(__int128_t value) {
+    bool isNegative = value < 0;
+    if (isNegative) {
+        value = -value;
+    }
+    std::string result;
+    do {
+        int digit = value % 10;
+        result.push_back('0' + digit);
+        value /= 10;
+    } while (value != 0);
+
+    if (isNegative) {
+        result.push_back('-');
+    }
+
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+std::string uint128_to_string(__uint128_t value) {
+    if (value == 0)
+        return "0";
+    std::string result;
+    while (value > 0) {
+        char digit = '0' + static_cast<char>(value % 10);
+        result.insert(result.begin(), digit);
+        value /= 10;
+    }
+    return result;
+}
+#endif
 } // namespace helper
 class mpz_class {
   public:

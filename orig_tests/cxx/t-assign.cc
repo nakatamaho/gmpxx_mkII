@@ -134,6 +134,59 @@ void check_mpz(void) {
         ASSERT_ALWAYS(b == 3456789012UL);
     }
 
+    // operator=(int32_t)
+    {
+        int32_t a = INT32_C(-123456789);
+        mpz_class b;
+        b = a;
+        ASSERT_ALWAYS(b == INT32_C(-123456789));
+    }
+
+    // operator=(uint32_t)
+    {
+        uint32_t a = UINT32_C(1234567890);
+        mpz_class b;
+        b = a;
+        ASSERT_ALWAYS(b == UINT32_C(1234567890));
+    }
+
+    // operator=(int64_t)
+    {
+        int64_t a = INT64_C(-987654321098765432);
+        mpz_class b;
+        b = a;
+        ASSERT_ALWAYS(b == INT64_C(-987654321098765432));
+    }
+
+    // operator=(uint64_t)
+    {
+        uint64_t a = UINT64_C(9876543210987654321);
+        mpz_class b;
+        b = a;
+        ASSERT_ALWAYS(b == UINT64_C(9876543210987654321));
+    }
+
+#ifdef __SIZEOF_INT128__
+    // operator=(negative __int128_t)
+    {
+        __int128_t pos_val = (__int128_t)UINT64_C(0x0123456789ABCDEF) * (__int128_t)UINT64_C(0xFEDCBA9876543210);
+        __int128_t a = -pos_val;
+
+        mpz_class b;
+        b = a;
+        ASSERT_ALWAYS(b == a);
+    }
+
+    // operator=(__uint128_t)
+    {
+        __uint128_t a = (__uint128_t)UINT64_C(0xFEDCBA9876543210) * (__uint128_t)UINT64_C(0xFFFFFFFFFFFFFFFF);
+
+        mpz_class b;
+        b = a;
+
+        ASSERT_ALWAYS(b == a);
+    }
+#endif //__SIZEOF_INT128__
     // operator=(float)
     {
         float a = 123.0;
