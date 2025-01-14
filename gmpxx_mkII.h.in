@@ -473,6 +473,7 @@ class mpz_class {
     inline friend bool operator<=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) <= 0; }
     inline friend bool operator>=(const mpz_class &op1, const mpz_class &op2) { return mpz_cmp(op1.value, op2.value) >= 0; }
 
+    // Comparison with double
     inline friend bool operator==(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) == 0; }
     inline friend bool operator!=(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) != 0; }
     inline friend bool operator<(const mpz_class &op1, const double &op2) { return mpz_cmp_d(op1.value, op2) < 0; }
@@ -487,8 +488,63 @@ class mpz_class {
     inline friend bool operator<=(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) >= 0; }
     inline friend bool operator>=(double &op1, const mpz_class &op2) { return mpz_cmp_d(op2.value, op1) <= 0; }
 
+    // Comparison with long int
+    friend bool operator==(const mpz_class &op1, long int op2) { return mpz_cmp_si(op1.value, op2) == 0; }
+    friend bool operator!=(const mpz_class &op1, long int op2) { return mpz_cmp_si(op1.value, op2) != 0; }
+    friend bool operator<(const mpz_class &op1, long int op2) { return mpz_cmp_si(op1.value, op2) < 0; }
+    friend bool operator>(const mpz_class &op1, long int op2) { return mpz_cmp_si(op1.value, op2) > 0; }
+    friend bool operator<=(const mpz_class &op1, long int op2) { return mpz_cmp_si(op1.value, op2) <= 0; }
+    friend bool operator>=(const mpz_class &op1, long int op2) { return mpz_cmp_si(op1.value, op2) >= 0; }
+    friend bool operator==(long int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, op1) == 0; }
+    friend bool operator!=(long int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, op1) != 0; }
+    friend bool operator<(long int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, op1) > 0; }
+    friend bool operator>(long int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, op1) < 0; }
+    friend bool operator<=(long int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, op1) >= 0; }
+    friend bool operator>=(long int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, op1) <= 0; }
+
+    // Comparison with unsigned long int
+    friend bool operator==(const mpz_class &op1, unsigned long int op2) { return mpz_cmp_ui(op1.value, op2) == 0; }
+    friend bool operator!=(const mpz_class &op1, unsigned long int op2) { return mpz_cmp_ui(op1.value, op2) != 0; }
+    friend bool operator<(const mpz_class &op1, unsigned long int op2) { return mpz_cmp_ui(op1.value, op2) < 0; }
+    friend bool operator>(const mpz_class &op1, unsigned long int op2) { return mpz_cmp_ui(op1.value, op2) > 0; }
+    friend bool operator<=(const mpz_class &op1, unsigned long int op2) { return mpz_cmp_ui(op1.value, op2) <= 0; }
+    friend bool operator>=(const mpz_class &op1, unsigned long int op2) { return mpz_cmp_ui(op1.value, op2) >= 0; }
+    friend bool operator==(unsigned long int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, op1) == 0; }
+    friend bool operator!=(unsigned long int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, op1) != 0; }
+    friend bool operator<(unsigned long int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, op1) > 0; }
+    friend bool operator>(unsigned long int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, op1) < 0; }
+    friend bool operator<=(unsigned long int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, op1) >= 0; }
+    friend bool operator>=(unsigned long int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, op1) <= 0; }
+
+    // Comparison with int (cast to long int)
+    friend bool operator==(const mpz_class &op1, int op2) { return mpz_cmp_si(op1.value, static_cast<long int>(op2)) == 0; }
+    friend bool operator!=(const mpz_class &op1, int op2) { return mpz_cmp_si(op1.value, static_cast<long int>(op2)) != 0; }
+    friend bool operator<(const mpz_class &op1, int op2) { return mpz_cmp_si(op1.value, static_cast<long int>(op2)) < 0; }
+    friend bool operator>(const mpz_class &op1, int op2) { return mpz_cmp_si(op1.value, static_cast<long int>(op2)) > 0; }
+    friend bool operator<=(const mpz_class &op1, int op2) { return mpz_cmp_si(op1.value, static_cast<long int>(op2)) <= 0; }
+    friend bool operator>=(const mpz_class &op1, int op2) { return mpz_cmp_si(op1.value, static_cast<long int>(op2)) >= 0; }
+    friend bool operator==(int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<long int>(op1)) == 0; }
+    friend bool operator!=(int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<long int>(op1)) != 0; }
+    friend bool operator<(int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<long int>(op1)) > 0; }
+    friend bool operator>(int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<long int>(op1)) < 0; }
+    friend bool operator<=(int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<long int>(op1)) >= 0; }
+    friend bool operator>=(int op1, const mpz_class &op2) { return mpz_cmp_si(op2.value, static_cast<long int>(op1)) <= 0; }
+
+    // Comparison with unsigned int (cast to unsigned long int)
+    friend bool operator==(const mpz_class &op1, unsigned int op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
+    friend bool operator!=(const mpz_class &op1, unsigned int op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
+    friend bool operator<(const mpz_class &op1, unsigned int op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
+    friend bool operator>(const mpz_class &op1, unsigned int op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
+    friend bool operator<=(const mpz_class &op1, unsigned int op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
+    friend bool operator>=(const mpz_class &op1, unsigned int op2) { return mpz_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
+    friend bool operator==(unsigned int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
+    friend bool operator!=(unsigned int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
+    friend bool operator<(unsigned int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
+    friend bool operator>(unsigned int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
+    friend bool operator<=(unsigned int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
+    friend bool operator>=(unsigned int op1, const mpz_class &op2) { return mpz_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
+
     // mpz_class comparison operators (template version)
-    // the following comparisons should be rewritten using mpz_cmp_si or mpz_cmp_ui.
     template <typename T> inline friend INT_COND(T, bool) operator==(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) == 0; }
     template <typename T> inline friend INT_COND(T, bool) operator!=(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) != 0; }
     template <typename T> inline friend INT_COND(T, bool) operator<(const mpz_class &op1, T op2) { return mpz_cmp(op1.value, mpz_class(op2).get_mpz_t()) < 0; }
@@ -2514,8 +2570,63 @@ class mpf_class {
     inline friend bool operator<=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) >= 0; }
     inline friend bool operator>=(double op1, const mpf_class &op2) { return mpf_cmp_d(op2.value, op1) <= 0; }
 
+    // Comparison with long int
+    friend bool operator==(const mpf_class &op1, long int op2) { return mpf_cmp_si(op1.value, op2) == 0; }
+    friend bool operator!=(const mpf_class &op1, long int op2) { return mpf_cmp_si(op1.value, op2) != 0; }
+    friend bool operator<(const mpf_class &op1, long int op2) { return mpf_cmp_si(op1.value, op2) < 0; }
+    friend bool operator>(const mpf_class &op1, long int op2) { return mpf_cmp_si(op1.value, op2) > 0; }
+    friend bool operator<=(const mpf_class &op1, long int op2) { return mpf_cmp_si(op1.value, op2) <= 0; }
+    friend bool operator>=(const mpf_class &op1, long int op2) { return mpf_cmp_si(op1.value, op2) >= 0; }
+    friend bool operator==(long int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, op1) == 0; }
+    friend bool operator!=(long int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, op1) != 0; }
+    friend bool operator<(long int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, op1) > 0; }
+    friend bool operator>(long int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, op1) < 0; }
+    friend bool operator<=(long int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, op1) >= 0; }
+    friend bool operator>=(long int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, op1) <= 0; }
+
+    // Comparison with unsigned long int
+    friend bool operator==(const mpf_class &op1, unsigned long int op2) { return mpf_cmp_ui(op1.value, op2) == 0; }
+    friend bool operator!=(const mpf_class &op1, unsigned long int op2) { return mpf_cmp_ui(op1.value, op2) != 0; }
+    friend bool operator<(const mpf_class &op1, unsigned long int op2) { return mpf_cmp_ui(op1.value, op2) < 0; }
+    friend bool operator>(const mpf_class &op1, unsigned long int op2) { return mpf_cmp_ui(op1.value, op2) > 0; }
+    friend bool operator<=(const mpf_class &op1, unsigned long int op2) { return mpf_cmp_ui(op1.value, op2) <= 0; }
+    friend bool operator>=(const mpf_class &op1, unsigned long int op2) { return mpf_cmp_ui(op1.value, op2) >= 0; }
+    friend bool operator==(unsigned long int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, op1) == 0; }
+    friend bool operator!=(unsigned long int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, op1) != 0; }
+    friend bool operator<(unsigned long int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, op1) > 0; }
+    friend bool operator>(unsigned long int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, op1) < 0; }
+    friend bool operator<=(unsigned long int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, op1) >= 0; }
+    friend bool operator>=(unsigned long int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, op1) <= 0; }
+
+    // Comparison with int
+    friend bool operator==(const mpf_class &op1, int op2) { return mpf_cmp_si(op1.value, static_cast<long int>(op2)) == 0; }
+    friend bool operator!=(const mpf_class &op1, int op2) { return mpf_cmp_si(op1.value, static_cast<long int>(op2)) != 0; }
+    friend bool operator<(const mpf_class &op1, int op2) { return mpf_cmp_si(op1.value, static_cast<long int>(op2)) < 0; }
+    friend bool operator>(const mpf_class &op1, int op2) { return mpf_cmp_si(op1.value, static_cast<long int>(op2)) > 0; }
+    friend bool operator<=(const mpf_class &op1, int op2) { return mpf_cmp_si(op1.value, static_cast<long int>(op2)) <= 0; }
+    friend bool operator>=(const mpf_class &op1, int op2) { return mpf_cmp_si(op1.value, static_cast<long int>(op2)) >= 0; }
+    friend bool operator==(int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<long int>(op1)) == 0; }
+    friend bool operator!=(int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<long int>(op1)) != 0; }
+    friend bool operator<(int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<long int>(op1)) > 0; }
+    friend bool operator>(int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<long int>(op1)) < 0; }
+    friend bool operator<=(int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<long int>(op1)) >= 0; }
+    friend bool operator>=(int op1, const mpf_class &op2) { return mpf_cmp_si(op2.value, static_cast<long int>(op1)) <= 0; }
+
+    // Comparison with unsigned int
+    friend bool operator==(const mpf_class &op1, unsigned int op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) == 0; }
+    friend bool operator!=(const mpf_class &op1, unsigned int op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) != 0; }
+    friend bool operator<(const mpf_class &op1, unsigned int op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) < 0; }
+    friend bool operator>(const mpf_class &op1, unsigned int op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) > 0; }
+    friend bool operator<=(const mpf_class &op1, unsigned int op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) <= 0; }
+    friend bool operator>=(const mpf_class &op1, unsigned int op2) { return mpf_cmp_ui(op1.value, static_cast<unsigned long int>(op2)) >= 0; }
+    friend bool operator==(unsigned int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) == 0; }
+    friend bool operator!=(unsigned int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) != 0; }
+    friend bool operator<(unsigned int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) > 0; }
+    friend bool operator>(unsigned int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) < 0; }
+    friend bool operator<=(unsigned int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) >= 0; }
+    friend bool operator>=(unsigned int op1, const mpf_class &op2) { return mpf_cmp_ui(op2.value, static_cast<unsigned long int>(op1)) <= 0; }
+
     // mpf_class comparison operators (template version)
-    // the following comparisons should be rewritten using mpf_cmp_si or mpf_cmp_ui.
     template <typename T> inline friend INT_COND(T, bool) operator==(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) == 0; }
     template <typename T> inline friend INT_COND(T, bool) operator!=(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) != 0; }
     template <typename T> inline friend INT_COND(T, bool) operator<(const mpf_class &op1, T op2) { return mpf_cmp_z(op1.value, mpz_class(op2).get_mpz_t()) < 0; }

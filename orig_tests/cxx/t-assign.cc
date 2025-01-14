@@ -700,7 +700,6 @@ void check_mpf(void) {
 
         a = -pos_val;
         b = a;
-	gmp_printf("Value of b: %.Ff\n", b.get_mpf_t());
         ASSERT_ALWAYS(b == a);
     }
     // operator=(__uint128_t)
