@@ -263,13 +263,13 @@ class mpz_class {
     mpz_class(const char *str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str, base) != 0) {
-            throw std::invalid_argument("");
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
     }
     mpz_class(const std::string &str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str.c_str(), base) != 0) {
-            throw std::invalid_argument("");
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
     }
     // constructor for various integer types
@@ -332,13 +332,13 @@ class mpz_class {
     }
     mpz_class &operator=(const char *str) {
         if (mpz_set_str(value, str, 0) != 0) {
-            throw std::invalid_argument("");
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
         return *this;
     }
     mpz_class &operator=(const std::string &str) {
         if (mpz_set_str(value, str.c_str(), 0) != 0) {
-            throw std::invalid_argument("");
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
         return *this;
     }
