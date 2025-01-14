@@ -12,6 +12,8 @@ TARGET_COMPAT = test_gmpxx_compat
 TARGET_MKIISR = test_gmpxx_mkIISR
 TARGET_TEST_ENV = test_env
 
+COMMIT_HASH := $(shell git rev-parse HEAD)
+
 GMPXX_MODE_ORIGINAL = -DUSE_ORIGINAL_GMPXX
 GMPXX_MODE_COMPAT = -D___GMPXX_POSSIBLE_BUGS___ -D___GMPXX_STRICT_COMPATIBILITY___
 GMPXX_MODE_MKII =
@@ -76,7 +78,7 @@ Rgemm_gmp_kernel_openmp_01_orig Rgemm_gmp_kernel_openmp_01_mkII Rgemm_gmp_kernel
 Rgemm_gmp_kernel_openmp_02_orig Rgemm_gmp_kernel_openmp_02_mkII Rgemm_gmp_kernel_openmp_02_mkIISR \
 Rgemm_gmp_kernel_openmp_03_orig Rgemm_gmp_kernel_openmp_03_mkII Rgemm_gmp_kernel_openmp_03_mkIISR)
 
-all: $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
+all: gmpxx_mkII.h $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
 
 includedir = $(PREFIX)/include
 
@@ -86,6 +88,9 @@ install-headers: $(HEADERS)
 	@mkdir -p $(includedir)
 	@install -m 644 $(HEADERS) $(includedir)
 	@echo "Installed headers to $(includedir)"
+
+gmpxx_mkII.h: gmpxx_mkII.h.in
+	sed 's/@GIT_COMMIT_HASH@/$(COMMIT_HASH)/g' gmpxx_mkII.h.in > gmpxx_mkII.h
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET) $(OBJECTS) $(LDFLAGS) $(RPATH_FLAGS)
