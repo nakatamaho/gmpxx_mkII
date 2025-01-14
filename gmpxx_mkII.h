@@ -1505,121 +1505,90 @@ class mpq_class {
             throw std::invalid_argument("");
         }
     }
-    mpq_class(int64_t op1, int64_t op2) {
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpq_class(T op1, T op2) {
         mpq_init(this->value);
-        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
-            mpq_set_si(this->value, op1, op2);
+
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
+                mpq_set_si(this->value, op1, op2);
+            } else {
+                mpz_t num, den;
+                helper::mpz_init_import(num, op1);
+                helper::mpz_init_import(den, op2);
+                mpq_set_num(this->value, num);
+                mpq_set_den(this->value, den);
+                mpz_clear(num);
+                mpz_clear(den);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
+                mpq_set_ui(this->value, op1, op2);
+            } else {
+                mpz_t num, den;
+		helper::mpz_init_import(num, op1);
+                helper::mpz_init_import(den, op2);
+                mpq_set_num(this->value, num);
+                mpq_set_den(this->value, den);
+                mpz_clear(num);
+                mpz_clear(den);
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpq_set_si(this->value, static_cast<long int>(op1), static_cast<long int>(op2));
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpq_set_ui(this->value, static_cast<unsigned long int>(op1), static_cast<unsigned long int>(op2));
         } else {
             mpz_t num, den;
-            mpz_init(num);
-            mpz_init(den);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(num, 1, -1, sizeof(op1), 0, 0, &op1);
-            mpz_import(den, 1, -1, sizeof(op2), 0, 0, &op2);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(num, 1, 1, sizeof(op1), 0, 0, &op1);
-            mpz_import(den, 1, 1, sizeof(op2), 0, 0, &op2);
-#else
-#error "gmpxx_mkII: Unsupported endianness"
-#endif
+            helper::mpz_init_import(num, op1);
+            helper::mpz_init_import(den, op2);
             mpq_set_num(this->value, num);
             mpq_set_den(this->value, den);
             mpz_clear(num);
             mpz_clear(den);
         }
     }
-    mpq_class(uint64_t op1, uint64_t op2) {
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpq_class(T op) {
         mpq_init(this->value);
-        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
-            mpq_set_ui(this->value, op1, op2);
-        } else {
-            mpz_t num, den;
-            mpz_init(num);
-            mpz_init(den);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(num, 1, -1, sizeof(op1), 0, 0, &op1);
-            mpz_import(den, 1, -1, sizeof(op2), 0, 0, &op2);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(num, 1, 1, sizeof(op1), 0, 0, &op1);
-            mpz_import(den, 1, 1, sizeof(op2), 0, 0, &op2);
-#else
-#error "gmpxx_mkII: Unsupported endianness"
-#endif
-            mpq_set_num(this->value, num);
-            mpq_set_den(this->value, den);
-            mpz_clear(num);
-            mpz_clear(den);
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
+                mpq_set_si(this->value, op, 1);
+            } else {
+                mpz_t num, den;
+                mpz_init(num);
+                mpz_init_set_ui(den, 1);
+                helper::mpz_init_import(num, op);
+                mpq_set_num(this->value, num);
+                mpq_set_den(this->value, den);
+                mpz_clear(num);
+                mpz_clear(den);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
+                mpq_set_ui(this->value, op, 1);
+            } else {
+                mpz_t num, den;
+                mpz_init(num);
+                mpz_init_set_ui(den, 1);
+                helper::mpz_init_import(num, op);
+                mpq_set_num(this->value, num);
+                mpq_set_den(this->value, den);
+                mpz_clear(num);
+                mpz_clear(den);
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpq_set_si(this->value, static_cast<long int>(op), 1);
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpq_set_ui(this->value, static_cast<unsigned long int>(op), 1);
         }
-    }
-    mpq_class(int32_t op1, int32_t op2) {
-        mpq_init(this->value);
-        if constexpr (___gmpxx_mkII___long_is_same_as_int32_v) {
-            mpq_set_si(this->value, op1, op2);
-        } else if constexpr (___gmpxx_mkII___long_is_greater_than_int32_v) {
-            mpq_set_si(this->value, static_cast<long>(op1), static_cast<long>(op2));
-        } else {
-            throw std::runtime_error("gmpxx_mkII: Unsupported int32 size");
-        }
-    }
-    mpq_class(uint32_t op1, uint32_t op2) {
-        mpq_init(this->value);
-        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint32_v) {
-            mpq_set_ui(this->value, op1, op2);
-        } else if constexpr (___gmpxx_mkII___ulong_is_greater_than_uint32_v) {
-            mpq_set_ui(this->value, static_cast<unsigned long>(op1), static_cast<unsigned long>(op2));
-        } else {
-            throw std::runtime_error("gmpxx_mkII: Unsupported uint32 size");
-        }
-    }
-    mpq_class(int64_t op) {
-        mpq_init(this->value);
-        if constexpr (___gmpxx_mkII___long_is_same_as_int64_v) {
-            mpq_set_si(this->value, op, 1);
-        } else {
-            mpz_t num, den;
-            mpz_init(num);
-            mpz_init_set_ui(den, 1);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(num, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(num, 1, 1, sizeof(op), 0, 0, &op);
-#else
-#error "gmpxx_mkII: Unsupported endianness"
-#endif
-            mpq_set_num(this->value, num);
-            mpq_set_den(this->value, den);
-            mpz_clear(num);
-            mpz_clear(den);
-        }
-    }
-    mpq_class(uint64_t op) {
-        mpq_init(this->value);
-        if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v) {
-            mpq_set_ui(this->value, op, 1);
-        } else {
+        else {
             mpz_t num, den;
             mpz_init(num);
             mpz_init_set_ui(den, 1);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-            mpz_import(num, 1, -1, sizeof(op), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-            mpz_import(num, 1, 1, sizeof(op), 0, 0, &op);
-#else
-#error "gmpxx_mkII: Unsupported endianness"
-#endif
+            helper::mpz_init_import(num, op);
             mpq_set_num(this->value, num);
             mpq_set_den(this->value, den);
             mpz_clear(num);
             mpz_clear(den);
         }
-    }
-    mpq_class(unsigned int op) {
-        mpq_init(value);
-        mpq_set_ui(value, static_cast<unsigned long int>(op), static_cast<unsigned long int>(1));
-    }
-    mpq_class(int op) {
-        mpq_init(value);
-        mpq_set_si(value, static_cast<signed long int>(op), static_cast<signed long int>(1));
     }
     mpq_class(double op) {
         mpq_init(value);
