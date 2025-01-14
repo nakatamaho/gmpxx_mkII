@@ -19,8 +19,4 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include "gmpxx_mkII.h"
 
-int
-main (void)
-{
-  return 0;
-}
+int main(void) { return 0; }

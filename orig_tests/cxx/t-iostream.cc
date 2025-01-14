@@ -29,74 +29,68 @@ using namespace std;
 // ones tested in t-istream.cc and t-ostream.cc; we rely on those for
 // advanced tests and only check the syntax here.
 
-void
-checki ()
-{
-  {
-    istringstream i("123");
-    mpz_class x;
-    i >> x;
-    ASSERT_ALWAYS (x == 123);
-  }
-  {
-    istringstream i("3/4");
-    mpq_class x;
-    i >> x;
-    ASSERT_ALWAYS (x == .75);
-  }
-  {
-    istringstream i("1.5");
-    mpf_class x;
-    i >> x;
-    ASSERT_ALWAYS (x == 1.5);
-  }
+void checki() {
+    {
+        istringstream i("123");
+        mpz_class x;
+        i >> x;
+        ASSERT_ALWAYS(x == 123);
+    }
+    {
+        istringstream i("3/4");
+        mpq_class x;
+        i >> x;
+        ASSERT_ALWAYS(x == .75);
+    }
+    {
+        istringstream i("1.5");
+        mpf_class x;
+        i >> x;
+        ASSERT_ALWAYS(x == 1.5);
+    }
 }
 
-void
-checko ()
-{
-  {
-    ostringstream o;
-    mpz_class x=123;
-    o << x;
-    ASSERT_ALWAYS (o.str() == "123");
-  }
-  {
-    ostringstream o;
-    mpz_class x=123;
-    o << (x+1);
-    ASSERT_ALWAYS (o.str() == "124");
-  }
-  {
-    ostringstream o;
-    mpq_class x(3,4);
-    o << x;
-    ASSERT_ALWAYS (o.str() == "3/4");
-  }
-  {
-    ostringstream o;
-    mpq_class x(3,4);
-    o << (x+1);
-    ASSERT_ALWAYS (o.str() == "7/4");
-  }
-  {
-    ostringstream o;
-    mpf_class x=1.5;
-    o << x;
-    ASSERT_ALWAYS (o.str() == "1.5");
-  }
-  {
-    ostringstream o;
-    mpf_class x=1.5;
-    o << (x+1);
-    ASSERT_ALWAYS (o.str() == "2.5");
-  }
+void checko() {
+    {
+        ostringstream o;
+        mpz_class x = 123;
+        o << x;
+        ASSERT_ALWAYS(o.str() == "123");
+    }
+    {
+        ostringstream o;
+        mpz_class x = 123;
+        o << (x + 1);
+        ASSERT_ALWAYS(o.str() == "124");
+    }
+    {
+        ostringstream o;
+        mpq_class x(3, 4);
+        o << x;
+        ASSERT_ALWAYS(o.str() == "3/4");
+    }
+    {
+        ostringstream o;
+        mpq_class x(3, 4);
+        o << (x + 1);
+        ASSERT_ALWAYS(o.str() == "7/4");
+    }
+    {
+        ostringstream o;
+        mpf_class x = 1.5;
+        o << x;
+        ASSERT_ALWAYS(o.str() == "1.5");
+    }
+    {
+        ostringstream o;
+        mpf_class x = 1.5;
+        o << (x + 1);
+        ASSERT_ALWAYS(o.str() == "2.5");
+    }
 }
 
-int
-main ()
-{
-  checki ();
-  checko ();
-  return 0;
+int main() {
+    checki();
+    checko();
+    return 0;
 }

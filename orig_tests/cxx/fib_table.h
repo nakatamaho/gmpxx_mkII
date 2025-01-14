@@ -4,5 +4,5 @@
 Error, error, this data is for 64 bits
 #endif
 
-#define FIB_TABLE_LIMIT         93
-#define FIB_TABLE_LUCNUM_LIMIT  92
+#define FIB_TABLE_LIMIT 93
+#define FIB_TABLE_LUCNUM_LIMIT 92

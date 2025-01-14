@@ -19,20 +19,13 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include <stdexcept>
 
-inline void
-throw_expr ()
-{
-  throw std::invalid_argument ("Test");
-}
+inline void throw_expr() { throw std::invalid_argument("Test"); }
 
 using namespace std;
 
-int
-main ()
-{
-  try
-  {
-    throw_expr();
-  }
-  catch (invalid_argument&) { }
+int main() {
+    try {
+        throw_expr();
+    } catch (invalid_argument &) {
+    }
 }

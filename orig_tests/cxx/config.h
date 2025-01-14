@@ -36,7 +36,7 @@ see https://www.gnu.org/licenses/.
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* The gmp-mparam.h file (a string) the tune program should suggest updating.
-   */
+ */
 #define GMP_MPARAM_H_SUGGEST "./mpn/x86_64/zen2/gmp-mparam.h"
 
 /* Define to 1 if you have the `alarm' function. */
@@ -46,7 +46,7 @@ see https://www.gnu.org/licenses/.
 #define HAVE_ALLOCA 1
 
 /* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-   */
+ */
 #define HAVE_ALLOCA_H 1
 
 /* Define to 1 if the compiler accepts gcc style __attribute__ ((const)) */
@@ -56,7 +56,7 @@ see https://www.gnu.org/licenses/.
 #define HAVE_ATTRIBUTE_MALLOC 1
 
 /* Define to 1 if the compiler accepts gcc style __attribute__ ((mode (XX)))
-   */
+ */
 #define HAVE_ATTRIBUTE_MODE 1
 
 /* Define to 1 if the compiler accepts gcc style __attribute__ ((noreturn)) */
@@ -66,7 +66,7 @@ see https://www.gnu.org/licenses/.
 /* #undef HAVE_ATTR_GET */
 
 /* Define to 1 if tests/libtests has calling conventions checking for the CPU
-   */
+ */
 #define HAVE_CALLING_CONVENTIONS 1
 
 /* Define to 1 if you have the `clock' function. */
@@ -79,15 +79,15 @@ see https://www.gnu.org/licenses/.
 /* #undef HAVE_CPUTIME */
 
 /* Define to 1 if you have the declaration of `fgetc', and to 0 if you don't.
-   */
+ */
 #define HAVE_DECL_FGETC 1
 
 /* Define to 1 if you have the declaration of `fscanf', and to 0 if you don't.
-   */
+ */
 #define HAVE_DECL_FSCANF 1
 
 /* Define to 1 if you have the declaration of `optarg', and to 0 if you don't.
-   */
+ */
 #define HAVE_DECL_OPTARG 1
 
 /* Define to 1 if you have the declaration of `sys_errlist', and to 0 if you
@@ -99,7 +99,7 @@ see https://www.gnu.org/licenses/.
 #define HAVE_DECL_SYS_NERR 0
 
 /* Define to 1 if you have the declaration of `ungetc', and to 0 if you don't.
-   */
+ */
 #define HAVE_DECL_UNGETC 1
 
 /* Define to 1 if you have the declaration of `vfprintf', and to 0 if you
@@ -631,13 +631,13 @@ see https://www.gnu.org/licenses/.
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
-# if defined __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN 1
-# endif
+#if defined __BIG_ENDIAN__
+#define WORDS_BIGENDIAN 1
+#endif
 #else
-# ifndef WORDS_BIGENDIAN
+#ifndef WORDS_BIGENDIAN
 /* #  undef WORDS_BIGENDIAN */
-# endif
+#endif
 #endif
 
 /* Define to 1 if the assembler understands the mulx instruction */
@@ -663,8 +663,8 @@ see https://www.gnu.org/licenses/.
    previous line.  Perhaps some future version of Sun C++ will work with
    restrict; if so, hopefully it defines __RESTRICT like Sun C does.  */
 #if defined __SUNPRO_CC && !defined __RESTRICT
-# define _Restrict
-# define __restrict__
+#define _Restrict
+#define __restrict__
 #endif
 
 /* Define to empty if the keyword `volatile' does not work. Warning: valid

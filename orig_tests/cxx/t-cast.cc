@@ -19,38 +19,31 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include "gmpxx_mkII.h"
 
-
 /* This code doesn't do anything when run, it just expands various C macros
    to see that they don't trigger compile-time warnings from g++
    -Wold-style-cast.  This option isn't used in a normal build, it has to be
    added manually to make this test worthwhile.  */
 
-void
-check_macros (void)
-{
-  mpz_t          z;
-  long           l = 123;
-  unsigned long  u = 456;
-  int            i;
-  mp_limb_t      limb;
+void check_macros(void) {
+    mpz_t z;
+    long l = 123;
+    unsigned long u = 456;
+    int i;
+    mp_limb_t limb;
 
-  mpz_init_set_ui (z, 0L);
-  i = mpz_odd_p (z);
-  i = mpz_even_p (z);
-  i = mpz_cmp_si (z, l);
-  i = mpz_cmp_ui (z, u);
-  mpz_clear (z);
+    mpz_init_set_ui(z, 0L);
+    i = mpz_odd_p(z);
+    i = mpz_even_p(z);
+    i = mpz_cmp_si(z, l);
+    i = mpz_cmp_ui(z, u);
+    mpz_clear(z);
 
-  limb = GMP_NUMB_MASK;
-  limb = GMP_NUMB_MAX;
-  limb = GMP_NAIL_MASK;
+    limb = GMP_NUMB_MASK;
+    limb = GMP_NUMB_MAX;
+    limb = GMP_NAIL_MASK;
 
-  mpn_divmod (&limb, &limb, 1, &limb, 1);
-  mpn_divexact_by3 (&limb, &limb, 1);
+    mpn_divmod(&limb, &limb, 1, &limb, 1);
+    mpn_divexact_by3(&limb, &limb, 1);
 }
 
-int
-main (void)
-{
-  return 0;
-}
+int main(void) { return 0; }

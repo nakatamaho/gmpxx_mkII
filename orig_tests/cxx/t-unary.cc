@@ -21,118 +21,121 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include "gmpxx_mkII.h"
 
-using std::string;
 using std::invalid_argument;
+using std::string;
 
-void assert_always(bool condition, const char* message, int line) {
-  if (!condition) {
-    std::cerr << "Assertion failed at line " << line << ": " << message << std::endl;
-    std::abort();
-  }
+void assert_always(bool condition, const char *message, int line) {
+    if (!condition) {
+        std::cerr << "Assertion failed at line " << line << ": " << message << std::endl;
+        std::abort();
+    }
 }
 
 #define ASSERT_ALWAYS(cond) assert_always((cond), #cond, __LINE__)
 
 using namespace std;
 
+void check_mpz(void) {
+    // template <class T, class Op>
+    // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, T>, Op> >
+    {
+        mpz_class a(1);
+        mpz_class b(+a);
+        ASSERT_ALWAYS(b == 1);
+    }
+    {
+        mpz_class a(2);
+        mpz_class b;
+        b = -a;
+        ASSERT_ALWAYS(b == -2);
+    }
+    {
+        mpz_class a(3);
+        mpz_class b;
+        b = ~a;
+        ASSERT_ALWAYS(b == -4);
+    }
 
-void
-check_mpz (void)
-{
-  // template <class T, class Op>
-  // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, T>, Op> >
-  {
-    mpz_class a(1);
-    mpz_class b(+a); ASSERT_ALWAYS(b == 1);
-  }
-  {
-    mpz_class a(2);
-    mpz_class b;
-    b = -a; ASSERT_ALWAYS(b == -2);
-  }
-  {
-    mpz_class a(3);
-    mpz_class b;
-    b = ~a; ASSERT_ALWAYS(b == -4);
-  }
-
-  // template <class T, class U, class Op>
-  // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, U>, Op> >
-  {
-    mpz_class a(1);
-    mpz_class b(-(-a)); ASSERT_ALWAYS(b == 1);
-  }
-  {
-    mpz_class a(2);
-    mpz_class b;
-    b = -(-(-a)); ASSERT_ALWAYS(b == -2);
-  }
+    // template <class T, class U, class Op>
+    // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, U>, Op> >
+    {
+        mpz_class a(1);
+        mpz_class b(-(-a));
+        ASSERT_ALWAYS(b == 1);
+    }
+    {
+        mpz_class a(2);
+        mpz_class b;
+        b = -(-(-a));
+        ASSERT_ALWAYS(b == -2);
+    }
 }
 
-void
-check_mpq (void)
-{
-  // template <class T, class Op>
-  // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, T>, Op> >
-  {
-    mpq_class a(1);
-    mpq_class b(+a); ASSERT_ALWAYS(b == 1);
-  }
-  {
-    mpq_class a(2);
-    mpq_class b;
-    b = -a; ASSERT_ALWAYS(b == -2);
-  }
+void check_mpq(void) {
+    // template <class T, class Op>
+    // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, T>, Op> >
+    {
+        mpq_class a(1);
+        mpq_class b(+a);
+        ASSERT_ALWAYS(b == 1);
+    }
+    {
+        mpq_class a(2);
+        mpq_class b;
+        b = -a;
+        ASSERT_ALWAYS(b == -2);
+    }
 
-  // template <class T, class U, class Op>
-  // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, U>, Op> >
-  {
-    mpq_class a(1);
-    mpq_class b(-(-a)); ASSERT_ALWAYS(b == 1);
-  }
-  {
-    mpq_class a(2);
-    mpq_class b;
-    b = -(-(-a)); ASSERT_ALWAYS(b == -2);
-  }
+    // template <class T, class U, class Op>
+    // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, U>, Op> >
+    {
+        mpq_class a(1);
+        mpq_class b(-(-a));
+        ASSERT_ALWAYS(b == 1);
+    }
+    {
+        mpq_class a(2);
+        mpq_class b;
+        b = -(-(-a));
+        ASSERT_ALWAYS(b == -2);
+    }
 }
 
-void
-check_mpf (void)
-{
-  // template <class T, class Op>
-  // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, T>, Op> >
-  {
-    mpf_class a(1);
-    mpf_class b(+a); ASSERT_ALWAYS(b == 1);
-  }
-  {
-    mpf_class a(2);
-    mpf_class b;
-    b = -a; ASSERT_ALWAYS(b == -2);
-  }
+void check_mpf(void) {
+    // template <class T, class Op>
+    // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, T>, Op> >
+    {
+        mpf_class a(1);
+        mpf_class b(+a);
+        ASSERT_ALWAYS(b == 1);
+    }
+    {
+        mpf_class a(2);
+        mpf_class b;
+        b = -a;
+        ASSERT_ALWAYS(b == -2);
+    }
 
-  // template <class T, class U, class Op>
-  // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, U>, Op> >
-  {
-    mpf_class a(1);
-    mpf_class b(-(-a)); ASSERT_ALWAYS(b == 1);
-  }
-  {
-    mpf_class a(2);
-    mpf_class b;
-    b = -(-(-a)); ASSERT_ALWAYS(b == -2);
-  }
+    // template <class T, class U, class Op>
+    // __gmp_expr<T, __gmp_unary_expr<__gmp_expr<T, U>, Op> >
+    {
+        mpf_class a(1);
+        mpf_class b(-(-a));
+        ASSERT_ALWAYS(b == 1);
+    }
+    {
+        mpf_class a(2);
+        mpf_class b;
+        b = -(-(-a));
+        ASSERT_ALWAYS(b == -2);
+    }
 }
 
+int main(void) {
 
-int
-main (void)
-{
+    check_mpz();
+    check_mpq();
+    check_mpf();
 
-  check_mpz();
-  check_mpq();
-  check_mpf();
-
-  return 0;
+    return 0;
 }
