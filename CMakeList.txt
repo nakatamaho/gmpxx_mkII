@@ -1,0 +1,159 @@
+cmake_minimum_required(VERSION 3.12)
+project(gmpxx_mkII VERSION 2.0.0 LANGUAGES CXX)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Set default build type
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Compiler-specific options
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -DDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 -DDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /DDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /DNDEBUG")
+endif()
+
+# Find required packages
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GMP REQUIRED gmp)
+pkg_check_modules(GMPXX REQUIRED gmpxx)
+
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${GMP_INCLUDE_DIRS})
+
+# Configure header file
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/gmpxx_mkII.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII.h"
+    @ONLY
+)
+
+# Library target
+add_library(gmpxx_mkII INTERFACE)
+target_include_directories(gmpxx_mkII INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(gmpxx_mkII INTERFACE ${GMP_LIBRARIES} ${GMPXX_LIBRARIES})
+target_compile_definitions(gmpxx_mkII INTERFACE ${GMP_CFLAGS_OTHER})
+
+# Add source files for implementation
+set(GMPXX_SOURCES
+    src/mpz_functions.cpp
+    src/mpz_io.cpp
+)
+
+# Create implementation library
+add_library(gmpxx_mkII_impl ${GMPXX_SOURCES})
+target_include_directories(gmpxx_mkII_impl PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+target_link_libraries(gmpxx_mkII_impl PUBLIC ${GMP_LIBRARIES} ${GMPXX_LIBRARIES})
+
+# Examples
+option(BUILD_EXAMPLES "Build example programs" ON)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+# Tests
+option(BUILD_TESTS "Build test programs" ON)
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+# Documentation
+option(BUILD_DOCS "Build documentation" OFF)
+if(BUILD_DOCS)
+    find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
+        set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+        
+        configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+        
+        add_custom_target(docs
+            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM
+        )
+    else()
+        message(WARNING "Doxygen not found, cannot build documentation")
+    endif()
+endif()
+
+# Installation
+include(GNUInstallDirs)
+
+install(TARGETS gmpxx_mkII gmpxx_mkII_impl
+    EXPORT gmpxx_mkII_targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII.h"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# Export targets
+export(EXPORT gmpxx_mkII_targets
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_targets.cmake"
+    NAMESPACE gmpxx_mkII::
+)
+
+install(EXPORT gmpxx_mkII_targets
+    FILE gmpxx_mkII_targets.cmake
+    NAMESPACE gmpxx_mkII::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII
+)
+
+# Create config file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config_version.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/gmpxx_mkII_config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config_version.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII
+)
+
+# Packaging
+set(CPACK_PACKAGE_NAME "gmpxx_mkII")
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Modern C++ wrapper for GMP with expression templates")
+set(CPACK_PACKAGE_VENDOR "gmpxx_mkII Project")
+set(CPACK_PACKAGE_CONTACT "maintainer@example.com")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+
+include(CPack)
