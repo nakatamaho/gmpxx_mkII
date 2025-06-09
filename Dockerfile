@@ -30,46 +30,43 @@ RUN apt install -y ng-common ng-cjk emacs-nox
 RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
+# Create user
 ARG DOCKER_UID=1000
 ARG DOCKER_USER=docker
 ARG DOCKER_PASSWORD=docker
-RUN useradd -u $DOCKER_UID -m $DOCKER_USER --shell /bin/bash && echo "$DOCKER_USER:$DOCKER_PASSWORD" | chpasswd && echo "$DOCKER_USER ALL=(ALL) ALL" >> /etc/sudoers
-ARG WORK=/home/$DOCKER_USER
+RUN useradd -u $DOCKER_UID -m $DOCKER_USER --shell /bin/bash \
+    && echo "$DOCKER_USER:$DOCKER_PASSWORD" | chpasswd \
+    && echo "$DOCKER_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-USER docker
-USER ${DOCKER_USER}
+USER $DOCKER_USER
+WORKDIR /home/$DOCKER_USER
 
-# Authorize SSH Host
-RUN mkdir -p /home/$DOCKER_USER/.ssh && \
-    chmod 0700 /home/$DOCKER_USER/.ssh && \
-    ssh-keyscan github.com > /home/$DOCKER_USER/.ssh/known_hosts
-# Add the keys and set permissions
+# Setup SSH for GitHub
 ARG SSH_KEY
-RUN echo "$SSH_KEY" > /home/$DOCKER_USER/.ssh/id_ed25519
-RUN chmod 600 /home/$DOCKER_USER/.ssh/id_ed25519
+RUN mkdir -p ~/.ssh && chmod 700 ~/.ssh \
+    && ssh-keyscan github.com > ~/.ssh/known_hosts \
+    && echo "$SSH_KEY" > ~/.ssh/id_ed25519 \
+    && chmod 600 ~/.ssh/id_ed25519
 
-RUN cd ${WORK} && echo "cd /home/$DOCKER_USER" >> .bashrc
-RUN cd ${WORK} && echo 'eval "$(ssh-agent -s)"' >> .bashrc
-RUN cd ${WORK} && echo 'ssh-add ~/.ssh/id_ed25519' >> .bashrc
-
-# setup github and clone
-#git setting
+# Setup git
 ARG GIT_EMAIL="maho.nakata@gmail.com"
 ARG GIT_NAME="NAKATA Maho"
-RUN echo "\n\
-[user]\n\
-        email = ${GIT_EMAIL}\n\
-        name = ${GIT_NAME}\n\
-" > /home/$DOCKER_USER/.gitconfig
-SHELL ["/bin/bash", "-c"]
+RUN git config --global user.email "$GIT_EMAIL" \
+    && git config --global user.name "$GIT_NAME"
 
-RUN cd ${WORK} && git clone https://github.com/brendangregg/FlameGraph.git
+# Setup SSH agent in bashrc
+RUN echo 'eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519 2>/dev/null' >> ~/.bashrc
 
-# Clone your gmpxx_mkII repo and switch to expression_template branch
-RUN cd ${WORK} \
-    && git clone --branch expression_template --single-branch https://github.com/nakatamaho/gmpxx_mkII.git \
+# Clone repository and build GMP
+RUN git clone --branch expression_template --single-branch \
+    https://github.com/nakatamaho/gmpxx_mkII.git \
     && cd gmpxx_mkII \
     && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
 
-RUN cd ${WORK}/gmpxx_mkII/setup \
-    && bash -x setup_gmp.sh
+# Build GMP
+RUN cd gmpxx_mkII/setup && bash setup_gmp.sh
+
+# Set working directory
+WORKDIR /home/$DOCKER_USER/gmpxx_mkII
+
+CMD ["/bin/bash"]
