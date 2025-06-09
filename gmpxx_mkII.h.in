@@ -42,97 +42,73 @@
 
 // C++17: Nested namespace declaration
 namespace gmpxx::detail {
-    // C++17: inline variables for type traits
-    template<typename T>
-    inline constexpr bool is_gmp_type_v = false;
-    
-    template<typename T>
-    inline constexpr bool is_expression_v = false;
-    
-    template<typename T>
-    inline constexpr bool is_arithmetic_v = std::is_arithmetic_v<T>;
-}
+// C++17: inline variables for type traits
+template <typename T> inline constexpr bool is_gmp_type_v = false;
+
+template <typename T> inline constexpr bool is_expression_v = false;
+
+template <typename T> inline constexpr bool is_arithmetic_v = std::is_arithmetic_v<T>;
+} // namespace gmpxx::detail
 
 namespace gmpxx {
 
 // Forward declarations
 class mpz_class;
-class mpq_class;  
+class mpq_class;
 class mpf_class;
 
-template<typename Expr> class Expression;
+template <typename Expr> class Expression;
 
 // Expression tag types
 enum class OpType { Add, Sub, Mul, Div, Neg, Pow };
 
 // C++17: Specializations with inline variables
-template<> inline constexpr bool detail::is_gmp_type_v<mpz_class> = true;
-template<> inline constexpr bool detail::is_gmp_type_v<mpq_class> = true;
-template<> inline constexpr bool detail::is_gmp_type_v<mpf_class> = true;
+template <> inline constexpr bool detail::is_gmp_type_v<mpz_class> = true;
+template <> inline constexpr bool detail::is_gmp_type_v<mpq_class> = true;
+template <> inline constexpr bool detail::is_gmp_type_v<mpf_class> = true;
 
-template<typename Expr>
-inline constexpr bool detail::is_expression_v<Expression<Expr>> = true;
+template <typename Expr> inline constexpr bool detail::is_expression_v<Expression<Expr>> = true;
 
 // C++17: Convenient aliases
-template<typename T>
-inline constexpr bool is_gmp_type_v = detail::is_gmp_type_v<T>;
+template <typename T> inline constexpr bool is_gmp_type_v = detail::is_gmp_type_v<T>;
 
-template<typename T>
-inline constexpr bool is_expression_v = detail::is_expression_v<T>;
+template <typename T> inline constexpr bool is_expression_v = detail::is_expression_v<T>;
 
 // C++17: Fold expressions for result type deduction
-template<typename... Types>
-struct result_type {
-    using type = std::conditional_t<
-        (std::is_same_v<Types, mpf_class> || ...),
-        mpf_class,
-        std::conditional_t<
-            (std::is_same_v<Types, mpq_class> || ...),
-            mpq_class,
-            mpz_class
-        >
-    >;
+template <typename... Types> struct result_type {
+    using type = std::conditional_t<(std::is_same_v<Types, mpf_class> || ...), mpf_class, std::conditional_t<(std::is_same_v<Types, mpq_class> || ...), mpq_class, mpz_class>>;
 };
 
-template<typename... Types>
-using result_type_t = typename result_type<Types...>::type;
+template <typename... Types> using result_type_t = typename result_type<Types...>::type;
 
 // Base expression template with CRTP and C++17 features
-template<typename Derived>
-class ExpressionBase {
-public:
-    [[nodiscard]] constexpr const Derived& derived() const noexcept { 
-        return static_cast<const Derived&>(*this); 
-    }
-    
-    [[nodiscard]] constexpr Derived& derived() noexcept { 
-        return static_cast<Derived&>(*this); 
-    }
-    
+template <typename Derived> class ExpressionBase {
+  public:
+    [[nodiscard]] constexpr const Derived &derived() const noexcept { return static_cast<const Derived &>(*this); }
+
+    [[nodiscard]] constexpr Derived &derived() noexcept { return static_cast<Derived &>(*this); }
+
     // C++17: Auto conversion with SFINAE
-    template<typename T>
-    [[nodiscard]] operator T() const requires is_gmp_type_v<T> {
+    template <typename T>
+    [[nodiscard]] operator T() const
+        requires is_gmp_type_v<T>
+    {
         return T{derived()};
     }
-    
+
     // C++17: constexpr evaluation check
-    template<typename T>
-    [[nodiscard]] constexpr bool can_evaluate_to() const noexcept {
-        return is_gmp_type_v<T>;
-    }
+    template <typename T> [[nodiscard]] constexpr bool can_evaluate_to() const noexcept { return is_gmp_type_v<T>; }
 };
 
 // C++17: Auto template parameters for operations
-template<auto Op, typename Expr>
-class UnaryExpression : public ExpressionBase<UnaryExpression<Op, Expr>> {
-private:
-    const Expr& expr_;
-    
-public:
-    explicit constexpr UnaryExpression(const Expr& expr) noexcept : expr_(expr) {}
-    
-    template<typename T>
-    void evaluate_into(T& result) const {
+template <auto Op, typename Expr> class UnaryExpression : public ExpressionBase<UnaryExpression<Op, Expr>> {
+  private:
+    const Expr &expr_;
+
+  public:
+    explicit constexpr UnaryExpression(const Expr &expr) noexcept : expr_(expr) {}
+
+    template <typename T> void evaluate_into(T &result) const {
         if constexpr (Op == OpType::Neg) {
             if constexpr (is_expression_v<Expr>) {
                 T temp{};
@@ -143,22 +119,19 @@ public:
             }
         }
     }
-    
-    [[nodiscard]] constexpr const Expr& get_expr() const noexcept { return expr_; }
+
+    [[nodiscard]] constexpr const Expr &get_expr() const noexcept { return expr_; }
 };
 
-template<auto Op, typename LeftExpr, typename RightExpr>
-class BinaryExpression : public ExpressionBase<BinaryExpression<Op, LeftExpr, RightExpr>> {
-private:
-    const LeftExpr& left_;
-    const RightExpr& right_;
-    
-public:
-    constexpr BinaryExpression(const LeftExpr& left, const RightExpr& right) noexcept
-        : left_(left), right_(right) {}
-    
-    template<typename T>
-    void evaluate_into(T& result) const {
+template <auto Op, typename LeftExpr, typename RightExpr> class BinaryExpression : public ExpressionBase<BinaryExpression<Op, LeftExpr, RightExpr>> {
+  private:
+    const LeftExpr &left_;
+    const RightExpr &right_;
+
+  public:
+    constexpr BinaryExpression(const LeftExpr &left, const RightExpr &right) noexcept : left_(left), right_(right) {}
+
+    template <typename T> void evaluate_into(T &result) const {
         // C++17: if constexpr for compile-time branching
         if constexpr (is_expression_v<LeftExpr> && is_expression_v<RightExpr>) {
             T left_val{}, right_val{};
@@ -177,10 +150,9 @@ public:
             compute_result(result, left_, right_);
         }
     }
-    
-private:
-    template<typename T, typename L, typename R>
-    void compute_result(T& result, const L& left_val, const R& right_val) const {
+
+  private:
+    template <typename T, typename L, typename R> void compute_result(T &result, const L &left_val, const R &right_val) const {
         if constexpr (Op == OpType::Add) {
             result = left_val + right_val;
         } else if constexpr (Op == OpType::Sub) {
@@ -191,45 +163,41 @@ private:
             result = left_val / right_val;
         }
     }
-    
-public:
-    [[nodiscard]] constexpr const LeftExpr& get_left() const noexcept { return left_; }
-    [[nodiscard]] constexpr const RightExpr& get_right() const noexcept { return right_; }
+
+  public:
+    [[nodiscard]] constexpr const LeftExpr &get_left() const noexcept { return left_; }
+    [[nodiscard]] constexpr const RightExpr &get_right() const noexcept { return right_; }
 };
 
 // Wrapper for expression types
-template<typename Expr>
-class Expression : public ExpressionBase<Expression<Expr>> {
-private:
+template <typename Expr> class Expression : public ExpressionBase<Expression<Expr>> {
+  private:
     Expr expr_;
-    
-public:
-    explicit constexpr Expression(Expr expr) noexcept(std::is_nothrow_move_constructible_v<Expr>)
-        : expr_(std::move(expr)) {}
-    
-    template<typename T>
-    void evaluate_into(T& result) const {
-        expr_.evaluate_into(result);
-    }
-    
-    [[nodiscard]] constexpr const Expr& get_expr() const noexcept { return expr_; }
+
+  public:
+    explicit constexpr Expression(Expr expr) noexcept(std::is_nothrow_move_constructible_v<Expr>) : expr_(std::move(expr)) {}
+
+    template <typename T> void evaluate_into(T &result) const { expr_.evaluate_into(result); }
+
+    [[nodiscard]] constexpr const Expr &get_expr() const noexcept { return expr_; }
 };
 
 // C++17: Class template argument deduction guide
-template<typename Expr>
-Expression(Expr) -> Expression<Expr>;
+template <typename Expr> Expression(Expr) -> Expression<Expr>;
 
 // mpz_class with C++17 features
 class mpz_class : public ExpressionBase<mpz_class> {
-private:
+  private:
     mpz_t value_;
-    
-public:
+
+  public:
     mpz_class() { mpz_init(value_); }
-    
+
     // C++17: Multiple constructors with perfect forwarding
-    template<typename T>
-    mpz_class(T&& val) requires detail::is_arithmetic_v<std::decay_t<T>> {
+    template <typename T>
+    mpz_class(T &&val)
+        requires detail::is_arithmetic_v<std::decay_t<T>>
+    {
         mpz_init(value_);
         if constexpr (std::is_integral_v<std::decay_t<T>>) {
             if constexpr (std::is_signed_v<std::decay_t<T>>) {
@@ -239,179 +207,154 @@ public:
             }
         }
     }
-    
+
     mpz_class(std::string_view str, int base = 10) {
         mpz_init(value_);
         mpz_set_str(value_, std::string{str}.c_str(), base);
     }
-    
-    mpz_class(const mpz_class& other) {
+
+    mpz_class(const mpz_class &other) {
         mpz_init(value_);
         mpz_set(value_, other.value_);
     }
-    
-    mpz_class(mpz_class&& other) noexcept {
+
+    mpz_class(mpz_class &&other) noexcept {
         mpz_init(value_);
         mpz_swap(value_, other.value_);
     }
-    
+
     // C++17: Perfect forwarding with requires clause
-    template<typename Expr>
-    mpz_class(Expr&& expr) requires is_expression_v<std::decay_t<Expr>> {
+    template <typename Expr>
+    mpz_class(Expr &&expr)
+        requires is_expression_v<std::decay_t<Expr>>
+    {
         mpz_init(value_);
         std::forward<Expr>(expr).evaluate_into(*this);
     }
-    
+
     ~mpz_class() { mpz_clear(value_); }
-    
-    mpz_class& operator=(const mpz_class& other) {
+
+    mpz_class &operator=(const mpz_class &other) {
         if (this != &other) {
             mpz_set(value_, other.value_);
         }
         return *this;
     }
-    
-    mpz_class& operator=(mpz_class&& other) noexcept {
+
+    mpz_class &operator=(mpz_class &&other) noexcept {
         if (this != &other) {
             mpz_swap(value_, other.value_);
         }
         return *this;
     }
-    
-    template<typename Expr>
-    mpz_class& operator=(Expr&& expr) requires is_expression_v<std::decay_t<Expr>> {
+
+    template <typename Expr>
+    mpz_class &operator=(Expr &&expr)
+        requires is_expression_v<std::decay_t<Expr>>
+    {
         std::forward<Expr>(expr).evaluate_into(*this);
         return *this;
     }
-    
+
     // C++17: [[nodiscard]] attributes
-    [[nodiscard]] mpz_class operator+(const mpz_class& other) const {
+    [[nodiscard]] mpz_class operator+(const mpz_class &other) const {
         mpz_class result;
         mpz_add(result.value_, value_, other.value_);
         return result;
     }
-    
-    [[nodiscard]] mpz_class operator-(const mpz_class& other) const {
+
+    [[nodiscard]] mpz_class operator-(const mpz_class &other) const {
         mpz_class result;
         mpz_sub(result.value_, value_, other.value_);
         return result;
     }
-    
-    [[nodiscard]] mpz_class operator*(const mpz_class& other) const {
+
+    [[nodiscard]] mpz_class operator*(const mpz_class &other) const {
         mpz_class result;
         mpz_mul(result.value_, value_, other.value_);
         return result;
     }
-    
-    [[nodiscard]] mpz_class operator/(const mpz_class& other) const {
+
+    [[nodiscard]] mpz_class operator/(const mpz_class &other) const {
         mpz_class result;
         mpz_tdiv_q(result.value_, value_, other.value_);
         return result;
     }
-    
-    [[nodiscard]] mpz_class operator%(const mpz_class& other) const {
+
+    [[nodiscard]] mpz_class operator%(const mpz_class &other) const {
         mpz_class result;
         mpz_tdiv_r(result.value_, value_, other.value_);
         return result;
     }
-    
+
     [[nodiscard]] mpz_class operator-() const {
         mpz_class result;
         mpz_neg(result.value_, value_);
         return result;
     }
-    
-    [[nodiscard]] const mpz_t& get_mpz() const noexcept { return value_; }
-    [[nodiscard]] mpz_t& get_mpz() noexcept { return value_; }
-    
+
+    [[nodiscard]] const mpz_t &get_mpz() const noexcept { return value_; }
+    [[nodiscard]] mpz_t &get_mpz() noexcept { return value_; }
+
     // C++17: string_view and optional
     [[nodiscard]] std::string to_string(int base = 10) const {
-        char* str = mpz_get_str(nullptr, base, value_);
+        char *str = mpz_get_str(nullptr, base, value_);
         std::string result{str};
         free(str);
         return result;
     }
-    
+
     [[nodiscard]] std::optional<long> to_long() const noexcept {
         if (mpz_fits_slong_p(value_)) {
             return mpz_get_si(value_);
         }
         return std::nullopt;
     }
-    
+
     // C++17: Three-way comparison operator prep (for C++20)
-    [[nodiscard]] bool operator==(const mpz_class& other) const noexcept {
-        return mpz_cmp(value_, other.value_) == 0;
-    }
-    
-    [[nodiscard]] bool operator<(const mpz_class& other) const noexcept {
-        return mpz_cmp(value_, other.value_) < 0;
-    }
-    
-    [[nodiscard]] bool operator>(const mpz_class& other) const noexcept {
-        return mpz_cmp(value_, other.value_) > 0;
-    }
-    
-    [[nodiscard]] bool operator<=(const mpz_class& other) const noexcept {
-        return mpz_cmp(value_, other.value_) <= 0;
-    }
-    
-    [[nodiscard]] bool operator>=(const mpz_class& other) const noexcept {
-        return mpz_cmp(value_, other.value_) >= 0;
-    }
+    [[nodiscard]] bool operator==(const mpz_class &other) const noexcept { return mpz_cmp(value_, other.value_) == 0; }
+
+    [[nodiscard]] bool operator<(const mpz_class &other) const noexcept { return mpz_cmp(value_, other.value_) < 0; }
+
+    [[nodiscard]] bool operator>(const mpz_class &other) const noexcept { return mpz_cmp(value_, other.value_) > 0; }
+
+    [[nodiscard]] bool operator<=(const mpz_class &other) const noexcept { return mpz_cmp(value_, other.value_) <= 0; }
+
+    [[nodiscard]] bool operator>=(const mpz_class &other) const noexcept { return mpz_cmp(value_, other.value_) >= 0; }
 };
 
 // C++17: Class template argument deduction for mpz_class
-template<typename T>
-mpz_class(T) -> mpz_class;
+template <typename T> mpz_class(T)->mpz_class;
 
 // Similar modern implementation for mpq_class and mpf_class...
 // [mpq_class and mpf_class implementation would follow similar C++17 patterns]
 
 // C++17: Expression template operators with auto template parameters
-template<typename L, typename R>
-[[nodiscard]] constexpr auto operator+(const ExpressionBase<L>& left, const ExpressionBase<R>& right) noexcept {
-    return BinaryExpression<OpType::Add, L, R>{left.derived(), right.derived()};
-}
+template <typename L, typename R> [[nodiscard]] constexpr auto operator+(const ExpressionBase<L> &left, const ExpressionBase<R> &right) noexcept { return BinaryExpression<OpType::Add, L, R>{left.derived(), right.derived()}; }
 
-template<typename L, typename R>
-[[nodiscard]] constexpr auto operator-(const ExpressionBase<L>& left, const ExpressionBase<R>& right) noexcept {
-    return BinaryExpression<OpType::Sub, L, R>{left.derived(), right.derived()};
-}
+template <typename L, typename R> [[nodiscard]] constexpr auto operator-(const ExpressionBase<L> &left, const ExpressionBase<R> &right) noexcept { return BinaryExpression<OpType::Sub, L, R>{left.derived(), right.derived()}; }
 
-template<typename L, typename R>
-[[nodiscard]] constexpr auto operator*(const ExpressionBase<L>& left, const ExpressionBase<R>& right) noexcept {
-    return BinaryExpression<OpType::Mul, L, R>{left.derived(), right.derived()};
-}
+template <typename L, typename R> [[nodiscard]] constexpr auto operator*(const ExpressionBase<L> &left, const ExpressionBase<R> &right) noexcept { return BinaryExpression<OpType::Mul, L, R>{left.derived(), right.derived()}; }
 
-template<typename L, typename R>
-[[nodiscard]] constexpr auto operator/(const ExpressionBase<L>& left, const ExpressionBase<R>& right) noexcept {
-    return BinaryExpression<OpType::Div, L, R>{left.derived(), right.derived()};
-}
+template <typename L, typename R> [[nodiscard]] constexpr auto operator/(const ExpressionBase<L> &left, const ExpressionBase<R> &right) noexcept { return BinaryExpression<OpType::Div, L, R>{left.derived(), right.derived()}; }
 
-template<typename E>
-[[nodiscard]] constexpr auto operator-(const ExpressionBase<E>& expr) noexcept {
-    return UnaryExpression<OpType::Neg, E>{expr.derived()};
-}
+template <typename E> [[nodiscard]] constexpr auto operator-(const ExpressionBase<E> &expr) noexcept { return UnaryExpression<OpType::Neg, E>{expr.derived()}; }
 
 // C++17: Fold expressions for variadic template functions
-template<typename... Args>
-[[nodiscard]] constexpr auto make_sum(Args&&... args) noexcept {
+template <typename... Args> [[nodiscard]] constexpr auto make_sum(Args &&...args) noexcept {
     static_assert(sizeof...(args) > 0, "At least one argument required");
     return (std::forward<Args>(args) + ...);
 }
 
-template<typename... Args>
-[[nodiscard]] constexpr auto make_product(Args&&... args) noexcept {
+template <typename... Args> [[nodiscard]] constexpr auto make_product(Args &&...args) noexcept {
     static_assert(sizeof...(args) > 0, "At least one argument required");
     return (std::forward<Args>(args) * ...);
 }
 
 // C++17: if constexpr in stream operators
-template<typename T>
-std::ostream& operator<<(std::ostream& os, const ExpressionBase<T>& val) {
+template <typename T> std::ostream &operator<<(std::ostream &os, const ExpressionBase<T> &val) {
     if constexpr (std::is_same_v<T, mpz_class>) {
-        return os << static_cast<const mpz_class&>(val).to_string();
+        return os << static_cast<const mpz_class &>(val).to_string();
     } else {
         // For expressions, convert to appropriate concrete type
         auto concrete_val = result_type_t<T>{val.derived()};
@@ -420,11 +363,9 @@ std::ostream& operator<<(std::ostream& os, const ExpressionBase<T>& val) {
 }
 
 // C++17: constexpr template function helpers
-template<typename T>
-[[nodiscard]] constexpr bool is_gmp_expression_or_type_v = is_expression_v<T> || is_gmp_type_v<T>;
+template <typename T> [[nodiscard]] constexpr bool is_gmp_expression_or_type_v = is_expression_v<T> || is_gmp_type_v<T>;
 
-template<typename T>
-[[nodiscard]] constexpr auto resolve_gmp_expression(T&& val) noexcept {
+template <typename T> [[nodiscard]] constexpr auto resolve_gmp_expression(T &&val) noexcept {
     if constexpr (is_expression_v<std::decay_t<T>>) {
         using concrete_type = result_type_t<std::decay_t<T>>;
         return concrete_type{std::forward<T>(val)};
@@ -434,34 +375,36 @@ template<typename T>
 }
 
 // C++17: Concepts-like template constraints using requires
-template<typename T>
+template <typename T>
 concept GmpExpressionOrType = is_gmp_expression_or_type_v<T>;
 
 // Template function compatibility with C++17 features
-template<typename T>
-[[nodiscard]] T problematic_function(const T& a, const T& b) requires GmpExpressionOrType<T> {
+template <typename T>
+[[nodiscard]] T problematic_function(const T &a, const T &b)
+    requires GmpExpressionOrType<T>
+{
     return a + b;
 }
 
-template<typename T>
-[[nodiscard]] T complex_computation(const T& x, const T& y, const T& z) requires GmpExpressionOrType<T> {
-    return x * y + z * z;  // sqrt not available in basic GMP
+template <typename T>
+[[nodiscard]] T complex_computation(const T &x, const T &y, const T &z)
+    requires GmpExpressionOrType<T>
+{
+    return x * y + z * z; // sqrt not available in basic GMP
 }
 
 } // namespace gmpxx
 
 // C++17: Structured binding support (for future extensions)
 namespace std {
-    // Common type specializations remain the same...
-    template<>
-    struct common_type<gmpxx::mpz_class, gmpxx::mpq_class> {
-        using type = gmpxx::mpq_class;
-    };
-    
-    template<>
-    struct common_type<gmpxx::mpq_class, gmpxx::mpz_class> {
-        using type = gmpxx::mpq_class;
-    };
-    
-    // Additional specializations...
-}
+// Common type specializations remain the same...
+template <> struct common_type<gmpxx::mpz_class, gmpxx::mpq_class> {
+    using type = gmpxx::mpq_class;
+};
+
+template <> struct common_type<gmpxx::mpq_class, gmpxx::mpz_class> {
+    using type = gmpxx::mpq_class;
+};
+
+// Additional specializations...
+} // namespace std
