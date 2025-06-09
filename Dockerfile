@@ -6,7 +6,7 @@
 #  sudo sysctl -w kernel.perf_event_paranoid=-1 # to run perf
 #  docker run --privileged -it gmpxx_mkii /bin/bash
 #
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 LABEL maintainer="maho.nakata@gmail.com"
 
@@ -21,7 +21,7 @@ RUN echo "${TZ}" > /etc/timezone \
   && ln -s /usr/share/zoneinfo/Asia/Tokyo /etc/localtime \
   && dpkg-reconfigure -f noninteractive tzdata
 
-RUN apt install -y build-essential python3 gcc-12 g++-12 gfortran-12
+RUN apt install -y build-essential python3 gcc g++ gfortran
 RUN apt install -y autotools-dev automake libtool libtool-bin gnuplot
 RUN apt install -y gdb valgrind linux-tools-`uname -r` google-perftools linux-headers-`uname -r`
 RUN apt install -y git wget ccache time parallel bc
@@ -64,7 +64,12 @@ RUN echo "\n\
 SHELL ["/bin/bash", "-c"]
 
 RUN cd ${WORK} && git clone https://github.com/brendangregg/FlameGraph.git
-RUN cd ${WORK} && git clone https://github.com/nakatamaho/gmpxx_mkII.git
-RUN cd ${WORK}/gmpxx_mkII && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
-RUN cd ${WORK}/gmpxx_mkII/setup && bash -x setup_gmp.sh
-#RUN cd ${WORK}/gmpxx_mkII && make
+
+# Clone your gmpxx_mkII repo and switch to expression_template branch
+RUN cd ${WORK} \
+    && git clone --branch expression_template --single-branch https://github.com/nakatamaho/gmpxx_mkII.git \
+    && cd gmpxx_mkII \
+    && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
+
+RUN cd ${WORK}/gmpxx_mkII/setup \
+    && bash -x setup_gmp.sh
