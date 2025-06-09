@@ -15,7 +15,7 @@
 #   docker run -it --rm --privileged gmpxx_mkii
 #   # Inside container: perf record ./your_benchmark && perf report
 
-FROM ubuntu:24.04
+FROM debian:bookworm
 
 LABEL maintainer="maho.nakata@gmail.com"
 
@@ -47,6 +47,12 @@ RUN apt install -y pkg-config clangd clang-format unifdef octave
 RUN apt install -y ng-common ng-cjk emacs-nox
 RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
+#clang-format-19
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+RUN apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main"
+RUN apt update
+RUN apt install clang-format-19
 
 # Create user (use random password for security)
 ARG DOCKER_UID=1001

@@ -39,6 +39,12 @@ RUN apt install -y ng-common ng-cjk emacs-nox
 RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
+#clang-format-19
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+RUN apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main"
+RUN apt update
+RUN apt install clang-format-19
+
 # Create user (use random password for security)
 ARG DOCKER_UID=1001
 ARG DOCKER_USER=docker
