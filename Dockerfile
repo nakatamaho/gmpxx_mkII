@@ -39,23 +39,30 @@ RUN apt install -y ng-common ng-cjk emacs-nox
 RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
-# Create user
+# Create user (use random password for security)
 ARG DOCKER_UID=1001
 ARG DOCKER_USER=docker
-ARG DOCKER_PASSWORD=docker
 RUN useradd -u $DOCKER_UID -m $DOCKER_USER --shell /bin/bash \
-    && echo "$DOCKER_USER:$DOCKER_PASSWORD" | chpasswd \
     && echo "$DOCKER_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER $DOCKER_USER
 WORKDIR /home/$DOCKER_USER
 
-# Setup SSH for GitHub
-ARG SSH_KEY
+# Setup SSH for GitHub (supports both BuildKit secrets and legacy ARG)
 RUN mkdir -p ~/.ssh && chmod 700 ~/.ssh \
-    && ssh-keyscan github.com > ~/.ssh/known_hosts \
-    && echo "$SSH_KEY" > ~/.ssh/id_ed25519 \
-    && chmod 600 ~/.ssh/id_ed25519
+    && ssh-keyscan github.com > ~/.ssh/known_hosts
+
+# Method 1: BuildKit secrets (recommended)
+RUN --mount=type=secret,id=ssh_key,target=/tmp/ssh_key \
+    if [ -f /tmp/ssh_key ]; then \
+        cp /tmp/ssh_key ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519; \
+    fi
+
+# Method 2: Legacy ARG (fallback - less secure)
+ARG SSH_KEY=""
+RUN if [ -n "$SSH_KEY" ]; then \
+        echo "$SSH_KEY" > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519; \
+    fi
 
 # Setup git
 ARG GIT_EMAIL="maho.nakata@gmail.com"
