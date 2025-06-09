@@ -1,11 +1,20 @@
-# * How to build
-#  docker build -f Dockerfile --build-arg SSH_KEY="$(cat ~/.ssh/id_ed25519)" -t gmpxx_mkii .
-# * How to run
-#  sudo sh -c 'echo -1 >/proc/sys/kernel/perf_event_paranoid' # to run perf
-#  or
-#  sudo sysctl -w kernel.perf_event_paranoid=-1 # to run perf
-#  docker run --privileged -it gmpxx_mkii /bin/bash
+# Prerequisites:
+#   - SSH key for GitHub access: ~/.ssh/id_ed25519
 #
+# Build:
+#   docker build -f Dockerfile --build-arg SSH_KEY="$(cat ~/.ssh/id_ed25519)" -t gmpxx_mkii .
+#
+# Run:
+#   docker run -it --rm gmpxx_mkii
+#
+# Development:
+#   docker run -it --rm -v $(pwd):/workspace gmpxx_mkii
+#
+# Performance profiling with perf:
+#   sudo sysctl -w kernel.perf_event_paranoid=-1
+#   docker run -it --rm --privileged gmpxx_mkii
+#   # Inside container: perf record ./your_benchmark && perf report
+
 FROM ubuntu:24.04
 
 LABEL maintainer="maho.nakata@gmail.com"
@@ -31,7 +40,7 @@ RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 # Create user
-ARG DOCKER_UID=1000
+ARG DOCKER_UID=1001
 ARG DOCKER_USER=docker
 ARG DOCKER_PASSWORD=docker
 RUN useradd -u $DOCKER_UID -m $DOCKER_USER --shell /bin/bash \
