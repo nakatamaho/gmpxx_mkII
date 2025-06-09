@@ -1,5 +1,16 @@
-#ifndef GMPXX_MKII_H
-#define GMPXX_MKII_H
+#pragma once
+
+#if __cplusplus < 201703L
+#error "This class only runs on C++ 17 and later"
+#endif
+
+#define GMPXX_MKII_VERSION_MAJOR 2
+#define GMPXX_MKII_VERSION_MINOR 0
+#define GMPXX_MKII_VERSION_PATCH 0
+#define GMPXX_MKII_STRINGIFY_HELPER(x) #x
+#define GMPXX_MKII_STRINGIFY(x) GMPXX_MKII_STRINGIFY_HELPER(x)
+#define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
+#define GMPXX_MKII_COMMIT_HASH "@GIT_COMMIT_HASH@"
 
 #include <gmp.h>
 #include <string>
@@ -447,5 +458,3 @@ std::ostream& operator<<(std::ostream& os, const mpz_class& val);
 std::istream& operator>>(std::istream& is, mpz_class& val);
 
 } // namespace gmpxx
-
-#endif // GMPXX_MKII_H
