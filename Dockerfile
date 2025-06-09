@@ -22,7 +22,7 @@ RUN echo "${TZ}" > /etc/timezone \
   && dpkg-reconfigure -f noninteractive tzdata
 
 RUN apt install -y build-essential python3 gcc g++ gfortran
-RUN apt install -y autotools-dev automake libtool libtool-bin gnuplot
+RUN apt install -y autotools-dev automake libtool libtool-bin gnuplot cmake
 RUN apt install -y gdb valgrind linux-tools-`uname -r` google-perftools linux-headers-`uname -r`
 RUN apt install -y git wget ccache time parallel bc
 RUN apt install -y pkg-config clangd clang-format unifdef octave
