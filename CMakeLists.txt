@@ -5,7 +5,13 @@ project(gmpxx_mkII VERSION 2.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find GMP
+# Find GMP (prefer custom build if available)
+set(CUSTOM_GMP_PATH "${CMAKE_SOURCE_DIR}/i/GMP-6.3.0")
+if(EXISTS "${CUSTOM_GMP_PATH}")
+    list(PREPEND CMAKE_PREFIX_PATH "${CUSTOM_GMP_PATH}")
+    message(STATUS "Using custom GMP: ${CUSTOM_GMP_PATH}")
+endif()
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GMP REQUIRED gmp gmpxx)
 
@@ -36,8 +42,13 @@ target_include_directories(gmpxx_mkII INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(gmpxx_mkII INTERFACE ${GMP_LIBRARIES})
-target_compile_definitions(gmpxx_mkII INTERFACE ${GMP_CFLAGS_OTHER})
+
+# Link GMP libraries with full paths (avoids path issues)
+target_link_libraries(gmpxx_mkII INTERFACE 
+    ${GMP_LINK_LIBRARIES}
+    ${GMP_LIBRARIES}
+)
+target_compile_options(gmpxx_mkII INTERFACE ${GMP_CFLAGS_OTHER})
 
 # Optional examples and tests
 option(BUILD_EXAMPLES "Build examples" OFF)
@@ -72,17 +83,21 @@ install(EXPORT gmpxx_mkII_targets
 
 # Package config
 include(CMakePackageConfigHelpers)
-configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/gmpxx_mkII_config.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII
-)
-
 write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config_version.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
+
+# Create simple config file
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config.cmake" "
+include(CMakeFindDependencyMacro)
+find_dependency(PkgConfig)
+if(PkgConfig_FOUND)
+    pkg_check_modules(GMP REQUIRED gmp gmpxx)
+endif()
+include(\"\${CMAKE_CURRENT_LIST_DIR}/gmpxx_mkII_targets.cmake\")
+")
 
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII_config.cmake"
