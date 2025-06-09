@@ -94,8 +94,7 @@ namespace {
 const auto &initializer = mpf_class_initializer_singleton::instance();
 }
 
-template <typename T = void>
-struct caches {
+template <typename T = void> struct caches {
     static mpf_class pi_cached;
     static mpf_class e_cached;
     static mpf_class log_cached;
@@ -104,8 +103,7 @@ struct caches {
 
 namespace helper {
 // helper function for mpz_import from various integer types
-template <typename U, std::enable_if_t<std::is_integral_v<U>, int> = 0>
-void mpz_init_import(mpz_t &value, const U &op) {
+template <typename U, std::enable_if_t<std::is_integral_v<U>, int> = 0> void mpz_init_import(mpz_t &value, const U &op) {
     mpz_init(value);
     if constexpr (std::is_signed_v<U>) {
         using UnsignedT = std::make_unsigned_t<U>;
@@ -164,141 +162,99 @@ std::string uint128_to_string(__uint128_t value) {
 #endif
 } // namespace helper
 
-template <typename T>
-mpf_class caches<T>::pi_cached;
-template <typename T>
-mpf_class caches<T>::e_cached;
-template <typename T>
-mpf_class caches<T>::log_cached;
-template <typename T>
-mpf_class caches<T>::log2_cached;
+template <typename T> mpf_class caches<T>::pi_cached;
+template <typename T> mpf_class caches<T>::e_cached;
+template <typename T> mpf_class caches<T>::log_cached;
+template <typename T> mpf_class caches<T>::log2_cached;
 
-template <typename E>
-class mpz_expr;
-template <typename E>
-class mpq_expr;
-template <typename E>
-class mpf_expr;
+template <typename E> class mpz_expr;
+template <typename E> class mpq_expr;
+template <typename E> class mpf_expr;
 
 // Type traits for performance optimization and template compatibility
-template <typename T>
-struct is_gmp_type : std::false_type {};
-template <>
-struct is_gmp_type<mpz_class> : std::true_type {};
-template <>
-struct is_gmp_type<mpq_class> : std::true_type {};
-template <>
-struct is_gmp_type<mpf_class> : std::true_type {};
+template <typename T> struct is_gmp_type : std::false_type {};
+template <> struct is_gmp_type<mpz_class> : std::true_type {};
+template <> struct is_gmp_type<mpq_class> : std::true_type {};
+template <> struct is_gmp_type<mpf_class> : std::true_type {};
 
-template <typename T>
-inline constexpr bool is_gmp_type_v = is_gmp_type<T>::value;
+template <typename T> inline constexpr bool is_gmp_type_v = is_gmp_type<T>::value;
 
 // Expression type detection
-template <typename T>
-struct is_gmp_expression : std::false_type {};
-template <typename E>
-struct is_gmp_expression<mpz_expr<E>> : std::true_type {};
-template <typename E>
-struct is_gmp_expression<mpq_expr<E>> : std::true_type {};
-template <typename E>
-struct is_gmp_expression<mpf_expr<E>> : std::true_type {};
+template <typename T> struct is_gmp_expression : std::false_type {};
+template <typename E> struct is_gmp_expression<mpz_expr<E>> : std::true_type {};
+template <typename E> struct is_gmp_expression<mpq_expr<E>> : std::true_type {};
+template <typename E> struct is_gmp_expression<mpf_expr<E>> : std::true_type {};
 
-template <typename T>
-inline constexpr bool is_gmp_expression_v = is_gmp_expression<T>::value;
+template <typename T> inline constexpr bool is_gmp_expression_v = is_gmp_expression<T>::value;
 
 // Combined trait for GMP types and expressions
-template <typename T>
-struct is_gmp_compatible : std::bool_constant<is_gmp_type_v<T> || is_gmp_expression_v<T>> {};
-template <typename T>
-inline constexpr bool is_gmp_compatible_v = is_gmp_compatible<T>::value;
+template <typename T> struct is_gmp_compatible : std::bool_constant<is_gmp_type_v<T> || is_gmp_expression_v<T>> {};
+template <typename T> inline constexpr bool is_gmp_compatible_v = is_gmp_compatible<T>::value;
 
 // Extract underlying GMP type from expressions
-template <typename T>
-struct gmp_type_of {
+template <typename T> struct gmp_type_of {
     using type = T;
 };
-template <typename E>
-struct gmp_type_of<mpz_expr<E>> {
+template <typename E> struct gmp_type_of<mpz_expr<E>> {
     using type = mpz_class;
 };
-template <typename E>
-struct gmp_type_of<mpq_expr<E>> {
+template <typename E> struct gmp_type_of<mpq_expr<E>> {
     using type = mpq_class;
 };
-template <typename E>
-struct gmp_type_of<mpf_expr<E>> {
+template <typename E> struct gmp_type_of<mpf_expr<E>> {
     using type = mpf_class;
 };
 
-template <typename T>
-using gmp_type_of_t = typename gmp_type_of<T>::type;
+template <typename T> using gmp_type_of_t = typename gmp_type_of<T>::type;
 
 // Result type promotion for mixed operations
-template <typename T, typename U>
-struct result_type {
+template <typename T, typename U> struct result_type {
     using type = T;
 };
-template <>
-struct result_type<mpz_class, mpq_class> {
+template <> struct result_type<mpz_class, mpq_class> {
     using type = mpq_class;
 };
-template <>
-struct result_type<mpq_class, mpz_class> {
+template <> struct result_type<mpq_class, mpz_class> {
     using type = mpq_class;
 };
-template <>
-struct result_type<mpz_class, mpf_class> {
+template <> struct result_type<mpz_class, mpf_class> {
     using type = mpf_class;
 };
-template <>
-struct result_type<mpf_class, mpz_class> {
+template <> struct result_type<mpf_class, mpz_class> {
     using type = mpf_class;
 };
-template <>
-struct result_type<mpq_class, mpf_class> {
+template <> struct result_type<mpq_class, mpf_class> {
     using type = mpf_class;
 };
-template <>
-struct result_type<mpf_class, mpq_class> {
+template <> struct result_type<mpf_class, mpq_class> {
     using type = mpf_class;
 };
 
-template <typename T, typename U>
-using result_type_t = typename result_type<T, U>::type;
+template <typename T, typename U> using result_type_t = typename result_type<T, U>::type;
 
 // Common type deduction for expressions and GMP types
-template <typename T, typename U>
-struct common_gmp_type {
+template <typename T, typename U> struct common_gmp_type {
     using type = result_type_t<gmp_type_of_t<T>, gmp_type_of_t<U>>;
 };
 
-template <typename T, typename U>
-using common_gmp_type_t = typename common_gmp_type<T, U>::type;
+template <typename T, typename U> using common_gmp_type_t = typename common_gmp_type<T, U>::type;
 
 // SFINAE helper for template function compatibility
-template <typename T, typename U>
-using enable_if_gmp_compatible_t = std::enable_if_t<is_gmp_compatible_v<T> && is_gmp_compatible_v<U>, common_gmp_type_t<T, U>>;
+template <typename T, typename U> using enable_if_gmp_compatible_t = std::enable_if_t<is_gmp_compatible_v<T> && is_gmp_compatible_v<U>, common_gmp_type_t<T, U>>;
 
 // Auto-conversion trait for expressions
-template <typename T, typename TargetType>
-struct can_convert_to : std::false_type {};
-template <typename TargetType>
-struct can_convert_to<TargetType, TargetType> : std::true_type {};
-template <typename E, typename TargetType>
-struct can_convert_to<mpz_expr<E>, TargetType> : std::is_same<TargetType, mpz_class> {};
-template <typename E, typename TargetType>
-struct can_convert_to<mpq_expr<E>, TargetType> : std::is_same<TargetType, mpq_class> {};
-template <typename E, typename TargetType>
-struct can_convert_to<mpf_expr<E>, TargetType> : std::is_same<TargetType, mpf_class> {};
-template <typename T, typename TargetType>
-inline constexpr bool can_convert_to_v = can_convert_to<T, TargetType>::value;
+template <typename T, typename TargetType> struct can_convert_to : std::false_type {};
+template <typename TargetType> struct can_convert_to<TargetType, TargetType> : std::true_type {};
+template <typename E, typename TargetType> struct can_convert_to<mpz_expr<E>, TargetType> : std::is_same<TargetType, mpz_class> {};
+template <typename E, typename TargetType> struct can_convert_to<mpq_expr<E>, TargetType> : std::is_same<TargetType, mpq_class> {};
+template <typename E, typename TargetType> struct can_convert_to<mpf_expr<E>, TargetType> : std::is_same<TargetType, mpf_class> {};
+template <typename T, typename TargetType> inline constexpr bool can_convert_to_v = can_convert_to<T, TargetType>::value;
 
 //=============================================================================
 // Expression template base classes
 //=============================================================================
 
-template <typename E>
-class mpz_expr {
+template <typename E> class mpz_expr {
   public:
     const E &cast() const noexcept { return static_cast<const E &>(*this); }
     E &cast() noexcept { return static_cast<E &>(*this); }
@@ -307,8 +263,7 @@ class mpz_expr {
     operator mpz_class() const;
 };
 
-template <typename E>
-class mpq_expr {
+template <typename E> class mpq_expr {
   public:
     const E &cast() const noexcept { return static_cast<const E &>(*this); }
     E &cast() noexcept { return static_cast<E &>(*this); }
@@ -317,8 +272,7 @@ class mpq_expr {
     operator mpq_class() const;
 };
 
-template <typename E>
-class mpf_expr {
+template <typename E> class mpf_expr {
   public:
     const E &cast() const noexcept { return static_cast<const E &>(*this); }
     E &cast() noexcept { return static_cast<E &>(*this); }
@@ -418,8 +372,7 @@ struct mpf_sqrt_op {
 // Binary expression templates
 //=============================================================================
 
-template <typename L, typename R, typename Op>
-class mpz_binary_expr : public mpz_expr<mpz_binary_expr<L, R, Op>> {
+template <typename L, typename R, typename Op> class mpz_binary_expr : public mpz_expr<mpz_binary_expr<L, R, Op>> {
   private:
     const L &left_;
     const R &right_;
@@ -442,8 +395,7 @@ class mpz_binary_expr : public mpz_expr<mpz_binary_expr<L, R, Op>> {
     }
 
   private:
-    template <typename T>
-    void eval_operand(const T &operand, mpz_t result) const {
+    template <typename T> void eval_operand(const T &operand, mpz_t result) const {
         if constexpr (std::is_same_v<T, mpz_class>) {
             mpz_set(result, operand.get_mpz_t());
         } else {
@@ -452,8 +404,7 @@ class mpz_binary_expr : public mpz_expr<mpz_binary_expr<L, R, Op>> {
     }
 };
 
-template <typename L, typename R, typename Op>
-class mpq_binary_expr : public mpq_expr<mpq_binary_expr<L, R, Op>> {
+template <typename L, typename R, typename Op> class mpq_binary_expr : public mpq_expr<mpq_binary_expr<L, R, Op>> {
   private:
     const L &left_;
     const R &right_;
@@ -476,8 +427,7 @@ class mpq_binary_expr : public mpq_expr<mpq_binary_expr<L, R, Op>> {
     }
 
   private:
-    template <typename T>
-    void eval_operand(const T &operand, mpq_t result) const {
+    template <typename T> void eval_operand(const T &operand, mpq_t result) const {
         if constexpr (std::is_same_v<T, mpq_class>) {
             mpq_set(result, operand.get_mpq_t());
         } else if constexpr (std::is_same_v<T, mpz_class>) {
@@ -488,8 +438,7 @@ class mpq_binary_expr : public mpq_expr<mpq_binary_expr<L, R, Op>> {
     }
 };
 
-template <typename L, typename R, typename Op>
-class mpf_binary_expr : public mpf_expr<mpf_binary_expr<L, R, Op>> {
+template <typename L, typename R, typename Op> class mpf_binary_expr : public mpf_expr<mpf_binary_expr<L, R, Op>> {
   private:
     const L &left_;
     const R &right_;
@@ -513,8 +462,7 @@ class mpf_binary_expr : public mpf_expr<mpf_binary_expr<L, R, Op>> {
     }
 
   private:
-    template <typename T>
-    void eval_operand(const T &operand, mpf_t result) const {
+    template <typename T> void eval_operand(const T &operand, mpf_t result) const {
         if constexpr (std::is_same_v<T, mpf_class>) {
             mpf_set(result, operand.get_mpf_t());
         } else if constexpr (std::is_same_v<T, mpq_class>) {
@@ -531,8 +479,7 @@ class mpf_binary_expr : public mpf_expr<mpf_binary_expr<L, R, Op>> {
 // Unary expression templates
 //=============================================================================
 
-template <typename E, typename Op>
-class mpz_unary_expr : public mpz_expr<mpz_unary_expr<E, Op>> {
+template <typename E, typename Op> class mpz_unary_expr : public mpz_expr<mpz_unary_expr<E, Op>> {
   private:
     const E &expr_;
 
@@ -552,8 +499,7 @@ class mpz_unary_expr : public mpz_expr<mpz_unary_expr<E, Op>> {
     }
 };
 
-template <typename E, typename Op>
-class mpq_unary_expr : public mpq_expr<mpq_unary_expr<E, Op>> {
+template <typename E, typename Op> class mpq_unary_expr : public mpq_expr<mpq_unary_expr<E, Op>> {
   private:
     const E &expr_;
 
@@ -573,8 +519,7 @@ class mpq_unary_expr : public mpq_expr<mpq_unary_expr<E, Op>> {
     }
 };
 
-template <typename E, typename Op>
-class mpf_unary_expr : public mpf_expr<mpf_unary_expr<E, Op>> {
+template <typename E, typename Op> class mpf_unary_expr : public mpf_expr<mpf_unary_expr<E, Op>> {
   private:
     const E &expr_;
     mp_bitcnt_t prec_;
@@ -660,8 +605,7 @@ class mpz_class {
     }
 
     // Expression template constructor
-    template <typename E>
-    mpz_class(const mpz_expr<E> &expr) {
+    template <typename E> mpz_class(const mpz_expr<E> &expr) {
         mpz_init(mp_);
         expr.eval_to(mp_);
     }
@@ -684,8 +628,7 @@ class mpz_class {
         return *this;
     }
 
-    template <typename E>
-    mpz_class &operator=(const mpz_expr<E> &expr) {
+    template <typename E> mpz_class &operator=(const mpz_expr<E> &expr) {
         expr.eval_to(mp_);
         return *this;
     }
@@ -701,26 +644,22 @@ class mpz_class {
     }
 
     // Compound assignment operators
-    template <typename T>
-    mpz_class &operator+=(const T &other) {
+    template <typename T> mpz_class &operator+=(const T &other) {
         *this = *this + other;
         return *this;
     }
 
-    template <typename T>
-    mpz_class &operator-=(const T &other) {
+    template <typename T> mpz_class &operator-=(const T &other) {
         *this = *this - other;
         return *this;
     }
 
-    template <typename T>
-    mpz_class &operator*=(const T &other) {
+    template <typename T> mpz_class &operator*=(const T &other) {
         *this = *this * other;
         return *this;
     }
 
-    template <typename T>
-    mpz_class &operator/=(const T &other) {
+    template <typename T> mpz_class &operator/=(const T &other) {
         *this = *this / other;
         return *this;
     }
@@ -823,8 +762,7 @@ class mpq_class {
     }
 
     // Expression template constructor
-    template <typename E>
-    mpq_class(const mpq_expr<E> &expr) {
+    template <typename E> mpq_class(const mpq_expr<E> &expr) {
         mpq_init(mp_);
         expr.eval_to(mp_);
     }
@@ -847,8 +785,7 @@ class mpq_class {
         return *this;
     }
 
-    template <typename E>
-    mpq_class &operator=(const mpq_expr<E> &expr) {
+    template <typename E> mpq_class &operator=(const mpq_expr<E> &expr) {
         expr.eval_to(mp_);
         return *this;
     }
@@ -859,26 +796,22 @@ class mpq_class {
     }
 
     // Compound assignment operators
-    template <typename T>
-    mpq_class &operator+=(const T &other) {
+    template <typename T> mpq_class &operator+=(const T &other) {
         *this = *this + other;
         return *this;
     }
 
-    template <typename T>
-    mpq_class &operator-=(const T &other) {
+    template <typename T> mpq_class &operator-=(const T &other) {
         *this = *this - other;
         return *this;
     }
 
-    template <typename T>
-    mpq_class &operator*=(const T &other) {
+    template <typename T> mpq_class &operator*=(const T &other) {
         *this = *this * other;
         return *this;
     }
 
-    template <typename T>
-    mpq_class &operator/=(const T &other) {
+    template <typename T> mpq_class &operator/=(const T &other) {
         *this = *this / other;
         return *this;
     }
@@ -1007,8 +940,7 @@ class mpf_class {
     }
 
     // Expression template constructor
-    template <typename E>
-    mpf_class(const mpf_expr<E> &expr, mp_bitcnt_t prec = 0) {
+    template <typename E> mpf_class(const mpf_expr<E> &expr, mp_bitcnt_t prec = 0) {
         if (prec) {
             mpf_init2(mp_, prec);
         } else {
@@ -1035,8 +967,7 @@ class mpf_class {
         return *this;
     }
 
-    template <typename E>
-    mpf_class &operator=(const mpf_expr<E> &expr) {
+    template <typename E> mpf_class &operator=(const mpf_expr<E> &expr) {
         expr.eval_to(mp_);
         return *this;
     }
@@ -1057,26 +988,22 @@ class mpf_class {
     }
 
     // Compound assignment operators
-    template <typename T>
-    mpf_class &operator+=(const T &other) {
+    template <typename T> mpf_class &operator+=(const T &other) {
         *this = *this + other;
         return *this;
     }
 
-    template <typename T>
-    mpf_class &operator-=(const T &other) {
+    template <typename T> mpf_class &operator-=(const T &other) {
         *this = *this - other;
         return *this;
     }
 
-    template <typename T>
-    mpf_class &operator*=(const T &other) {
+    template <typename T> mpf_class &operator*=(const T &other) {
         *this = *this * other;
         return *this;
     }
 
-    template <typename T>
-    mpf_class &operator/=(const T &other) {
+    template <typename T> mpf_class &operator/=(const T &other) {
         *this = *this / other;
         return *this;
     }
@@ -1122,40 +1049,31 @@ class mpf_class {
 // Implementation of expression conversions
 //=============================================================================
 
-template <typename E>
-mpz_expr<E>::operator mpz_class() const { return mpz_class(*this); }
+template <typename E> mpz_expr<E>::operator mpz_class() const { return mpz_class(*this); }
 
-template <typename E>
-mpq_expr<E>::operator mpq_class() const { return mpq_class(*this); }
+template <typename E> mpq_expr<E>::operator mpq_class() const { return mpq_class(*this); }
 
-template <typename E>
-mpf_expr<E>::operator mpf_class() const { return mpf_class(*this); }
+template <typename E> mpf_expr<E>::operator mpf_class() const { return mpf_class(*this); }
 
 //=============================================================================
 // Binary operators with automatic type promotion
 //=============================================================================
 
 // mpz operators
-template <typename L, typename R>
-auto operator+(const mpz_expr<L> &left, const mpz_expr<R> &right) { return mpz_binary_expr<L, R, mpz_add_op>(left.cast(), right.cast()); }
+template <typename L, typename R> auto operator+(const mpz_expr<L> &left, const mpz_expr<R> &right) { return mpz_binary_expr<L, R, mpz_add_op>(left.cast(), right.cast()); }
 
 auto operator+(const mpz_class &left, const mpz_class &right) { return mpz_binary_expr<mpz_class, mpz_class, mpz_add_op>(left, right); }
 
-template <typename E>
-auto operator+(const mpz_expr<E> &left, const mpz_class &right) { return mpz_binary_expr<E, mpz_class, mpz_add_op>(left.cast(), right); }
+template <typename E> auto operator+(const mpz_expr<E> &left, const mpz_class &right) { return mpz_binary_expr<E, mpz_class, mpz_add_op>(left.cast(), right); }
 
-template <typename E>
-auto operator+(const mpz_class &left, const mpz_expr<E> &right) { return mpz_binary_expr<mpz_class, E, mpz_add_op>(left, right.cast()); }
+template <typename E> auto operator+(const mpz_class &left, const mpz_expr<E> &right) { return mpz_binary_expr<mpz_class, E, mpz_add_op>(left, right.cast()); }
 
 // Similar patterns for -, *, /, % for mpz
-#define DEFINE_MPZ_BINARY_OP(op, op_class)                                                                                                     \
-    template <typename L, typename R>                                                                                                          \
-    auto operator op(const mpz_expr<L> &left, const mpz_expr<R> &right) { return mpz_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
-    auto operator op(const mpz_class &left, const mpz_class &right) { return mpz_binary_expr<mpz_class, mpz_class, op_class>(left, right); }   \
-    template <typename E>                                                                                                                      \
-    auto operator op(const mpz_expr<E> &left, const mpz_class &right) { return mpz_binary_expr<E, mpz_class, op_class>(left.cast(), right); }  \
-    template <typename E>                                                                                                                      \
-    auto operator op(const mpz_class &left, const mpz_expr<E> &right) { return mpz_binary_expr<mpz_class, E, op_class>(left, right.cast()); }
+#define DEFINE_MPZ_BINARY_OP(op, op_class)                                                                                                                                       \
+    template <typename L, typename R> auto operator op(const mpz_expr<L> &left, const mpz_expr<R> &right) { return mpz_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
+    auto operator op(const mpz_class &left, const mpz_class &right) { return mpz_binary_expr<mpz_class, mpz_class, op_class>(left, right); }                                     \
+    template <typename E> auto operator op(const mpz_expr<E> &left, const mpz_class &right) { return mpz_binary_expr<E, mpz_class, op_class>(left.cast(), right); }              \
+    template <typename E> auto operator op(const mpz_class &left, const mpz_expr<E> &right) { return mpz_binary_expr<mpz_class, E, op_class>(left, right.cast()); }
 
 DEFINE_MPZ_BINARY_OP(-, mpz_sub_op)
 DEFINE_MPZ_BINARY_OP(*, mpz_mul_op)
@@ -1163,15 +1081,12 @@ DEFINE_MPZ_BINARY_OP(/, mpz_div_op)
 DEFINE_MPZ_BINARY_OP(%, mpz_mod_op)
 
 // mpq operators
-#define DEFINE_MPQ_BINARY_OP(op, op_class)                                                                                                     \
-    template <typename L, typename R>                                                                                                          \
-    auto operator op(const mpq_expr<L> &left, const mpq_expr<R> &right) { return mpq_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
-    auto operator op(const mpq_class &left, const mpq_class &right) { return mpq_binary_expr<mpq_class, mpq_class, op_class>(left, right); }   \
-    template <typename E>                                                                                                                      \
-    auto operator op(const mpq_expr<E> &left, const mpq_class &right) { return mpq_binary_expr<E, mpq_class, op_class>(left.cast(), right); }  \
-    template <typename E>                                                                                                                      \
-    auto operator op(const mpq_class &left, const mpq_expr<E> &right) { return mpq_binary_expr<mpq_class, E, op_class>(left, right.cast()); }  \
-    auto operator op(const mpz_class &left, const mpq_class &right) { return mpq_binary_expr<mpz_class, mpq_class, op_class>(left, right); }   \
+#define DEFINE_MPQ_BINARY_OP(op, op_class)                                                                                                                                       \
+    template <typename L, typename R> auto operator op(const mpq_expr<L> &left, const mpq_expr<R> &right) { return mpq_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
+    auto operator op(const mpq_class &left, const mpq_class &right) { return mpq_binary_expr<mpq_class, mpq_class, op_class>(left, right); }                                     \
+    template <typename E> auto operator op(const mpq_expr<E> &left, const mpq_class &right) { return mpq_binary_expr<E, mpq_class, op_class>(left.cast(), right); }              \
+    template <typename E> auto operator op(const mpq_class &left, const mpq_expr<E> &right) { return mpq_binary_expr<mpq_class, E, op_class>(left, right.cast()); }              \
+    auto operator op(const mpz_class &left, const mpq_class &right) { return mpq_binary_expr<mpz_class, mpq_class, op_class>(left, right); }                                     \
     auto operator op(const mpq_class &left, const mpz_class &right) { return mpq_binary_expr<mpq_class, mpz_class, op_class>(left, right); }
 
 DEFINE_MPQ_BINARY_OP(+, mpq_add_op)
@@ -1181,13 +1096,10 @@ DEFINE_MPQ_BINARY_OP(/, mpq_div_op)
 
 // mpf operators
 #define DEFINE_MPF_BINARY_OP(op, op_class)                                                                                                                                                \
-    template <typename L, typename R>                                                                                                                                                     \
-    auto operator op(const mpf_expr<L> &left, const mpf_expr<R> &right) { return mpf_binary_expr<L, R, op_class>(left.cast(), right.cast()); }                                            \
+    template <typename L, typename R> auto operator op(const mpf_expr<L> &left, const mpf_expr<R> &right) { return mpf_binary_expr<L, R, op_class>(left.cast(), right.cast()); }          \
     auto operator op(const mpf_class &left, const mpf_class &right) { return mpf_binary_expr<mpf_class, mpf_class, op_class>(left, right, std::max(left.get_prec(), right.get_prec())); } \
-    template <typename E>                                                                                                                                                                 \
-    auto operator op(const mpf_expr<E> &left, const mpf_class &right) { return mpf_binary_expr<E, mpf_class, op_class>(left.cast(), right); }                                             \
-    template <typename E>                                                                                                                                                                 \
-    auto operator op(const mpf_class &left, const mpf_expr<E> &right) { return mpf_binary_expr<mpf_class, E, op_class>(left, right.cast()); }                                             \
+    template <typename E> auto operator op(const mpf_expr<E> &left, const mpf_class &right) { return mpf_binary_expr<E, mpf_class, op_class>(left.cast(), right); }                       \
+    template <typename E> auto operator op(const mpf_class &left, const mpf_expr<E> &right) { return mpf_binary_expr<mpf_class, E, op_class>(left, right.cast()); }                       \
     auto operator op(const mpq_class &left, const mpf_class &right) { return mpf_binary_expr<mpq_class, mpf_class, op_class>(left, right); }                                              \
     auto operator op(const mpf_class &left, const mpq_class &right) { return mpf_binary_expr<mpf_class, mpq_class, op_class>(left, right); }                                              \
     auto operator op(const mpz_class &left, const mpf_class &right) { return mpf_binary_expr<mpz_class, mpf_class, op_class>(left, right); }                                              \
@@ -1203,40 +1115,33 @@ DEFINE_MPF_BINARY_OP(/, mpf_div_op)
 //=============================================================================
 
 // Unary minus
-template <typename E>
-auto operator-(const mpz_expr<E> &expr) { return mpz_unary_expr<E, mpz_neg_op>(expr.cast()); }
+template <typename E> auto operator-(const mpz_expr<E> &expr) { return mpz_unary_expr<E, mpz_neg_op>(expr.cast()); }
 
 auto operator-(const mpz_class &val) { return mpz_unary_expr<mpz_class, mpz_neg_op>(val); }
 
-template <typename E>
-auto operator-(const mpq_expr<E> &expr) { return mpq_unary_expr<E, mpq_neg_op>(expr.cast()); }
+template <typename E> auto operator-(const mpq_expr<E> &expr) { return mpq_unary_expr<E, mpq_neg_op>(expr.cast()); }
 
 auto operator-(const mpq_class &val) { return mpq_unary_expr<mpq_class, mpq_neg_op>(val); }
 
-template <typename E>
-auto operator-(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_neg_op>(expr.cast()); }
+template <typename E> auto operator-(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_neg_op>(expr.cast()); }
 
 auto operator-(const mpf_class &val) { return mpf_unary_expr<mpf_class, mpf_neg_op>(val); }
 
 // Absolute value
-template <typename E>
-auto abs(const mpz_expr<E> &expr) { return mpz_unary_expr<E, mpz_abs_op>(expr.cast()); }
+template <typename E> auto abs(const mpz_expr<E> &expr) { return mpz_unary_expr<E, mpz_abs_op>(expr.cast()); }
 
 auto abs(const mpz_class &val) { return mpz_unary_expr<mpz_class, mpz_abs_op>(val); }
 
-template <typename E>
-auto abs(const mpq_expr<E> &expr) { return mpq_unary_expr<E, mpq_abs_op>(expr.cast()); }
+template <typename E> auto abs(const mpq_expr<E> &expr) { return mpq_unary_expr<E, mpq_abs_op>(expr.cast()); }
 
 auto abs(const mpq_class &val) { return mpq_unary_expr<mpq_class, mpq_abs_op>(val); }
 
-template <typename E>
-auto abs(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_abs_op>(expr.cast()); }
+template <typename E> auto abs(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_abs_op>(expr.cast()); }
 
 auto abs(const mpf_class &val) { return mpf_unary_expr<mpf_class, mpf_abs_op>(val); }
 
 // Square root for mpf
-template <typename E>
-auto sqrt(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_sqrt_op>(expr.cast()); }
+template <typename E> auto sqrt(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_sqrt_op>(expr.cast()); }
 
 auto sqrt(const mpf_class &val) { return mpf_unary_expr<mpf_class, mpf_sqrt_op>(val); }
 
@@ -1324,8 +1229,7 @@ std::istream &operator>>(std::istream &is, mpf_class &val) {
 namespace gmpxx {
 
 // Helper functions for automatic expression conversion
-template <typename T>
-constexpr decltype(auto) resolve_gmp_value(T &&value) noexcept {
+template <typename T> constexpr decltype(auto) resolve_gmp_value(T &&value) noexcept {
     if constexpr (is_gmp_expression_v<std::decay_t<T>>) {
         return gmp_type_of_t<std::decay_t<T>>{std::forward<T>(value)};
     } else {
@@ -1334,8 +1238,7 @@ constexpr decltype(auto) resolve_gmp_value(T &&value) noexcept {
 }
 
 // Template function wrapper for automatic expression resolution
-template <template <typename> class Func, typename T, typename U>
-auto invoke_with_resolution(T &&t, U &&u) -> decltype(auto) {
+template <template <typename> class Func, typename T, typename U> auto invoke_with_resolution(T &&t, U &&u) -> decltype(auto) {
     using ResolvedT = decltype(resolve_gmp_value(std::forward<T>(t)));
     using ResolvedU = decltype(resolve_gmp_value(std::forward<U>(u)));
     using CommonType = common_gmp_type_t<ResolvedT, ResolvedU>;
@@ -1344,13 +1247,12 @@ auto invoke_with_resolution(T &&t, U &&u) -> decltype(auto) {
 }
 
 // Convenience macro for defining expression-compatible template functions
-#define GMPXX_DEFINE_COMPATIBLE_FUNCTION(func_name, impl)                                                                                                                                 \
-    template <typename T, typename U>                                                                                                                                                     \
-    auto func_name(T &&t, U &&u) -> std::enable_if_t<is_gmp_compatible_v<std::decay_t<T>> && is_gmp_compatible_v<std::decay_t<U>>, common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>> { \
-        using CommonType = common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>;                                                                                                           \
-        auto resolved_t = CommonType{resolve_gmp_value(std::forward<T>(t))};                                                                                                              \
-        auto resolved_u = CommonType{resolve_gmp_value(std::forward<U>(u))};                                                                                                              \
-        return impl(resolved_t, resolved_u);                                                                                                                                              \
+#define GMPXX_DEFINE_COMPATIBLE_FUNCTION(func_name, impl)                                                                                                                                                                   \
+    template <typename T, typename U> auto func_name(T &&t, U &&u) -> std::enable_if_t<is_gmp_compatible_v<std::decay_t<T>> && is_gmp_compatible_v<std::decay_t<U>>, common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>> { \
+        using CommonType = common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>;                                                                                                                                             \
+        auto resolved_t = CommonType{resolve_gmp_value(std::forward<T>(t))};                                                                                                                                                \
+        auto resolved_u = CommonType{resolve_gmp_value(std::forward<U>(u))};                                                                                                                                                \
+        return impl(resolved_t, resolved_u);                                                                                                                                                                                \
     }
 
 // Example usage of the macro for common functions
@@ -1366,141 +1268,114 @@ GMPXX_DEFINE_COMPATIBLE_FUNCTION(gmp_min, (resolved_t < resolved_u ? resolved_t 
 namespace std {
 
 // Specializations for GMP types
-template <>
-struct common_type<gmpxx::mpz_class, gmpxx::mpq_class> {
+template <> struct common_type<gmpxx::mpz_class, gmpxx::mpq_class> {
     using type = gmpxx::mpq_class;
 };
 
-template <>
-struct common_type<gmpxx::mpq_class, gmpxx::mpz_class> {
+template <> struct common_type<gmpxx::mpq_class, gmpxx::mpz_class> {
     using type = gmpxx::mpq_class;
 };
 
-template <>
-struct common_type<gmpxx::mpz_class, gmpxx::mpf_class> {
+template <> struct common_type<gmpxx::mpz_class, gmpxx::mpf_class> {
     using type = gmpxx::mpf_class;
 };
 
-template <>
-struct common_type<gmpxx::mpf_class, gmpxx::mpz_class> {
+template <> struct common_type<gmpxx::mpf_class, gmpxx::mpz_class> {
     using type = gmpxx::mpf_class;
 };
 
-template <>
-struct common_type<gmpxx::mpq_class, gmpxx::mpf_class> {
+template <> struct common_type<gmpxx::mpq_class, gmpxx::mpf_class> {
     using type = gmpxx::mpf_class;
 };
 
-template <>
-struct common_type<gmpxx::mpf_class, gmpxx::mpq_class> {
+template <> struct common_type<gmpxx::mpf_class, gmpxx::mpq_class> {
     using type = gmpxx::mpf_class;
 };
 
 // Specializations for expressions
-template <typename E>
-struct common_type<gmpxx::mpz_expr<E>, gmpxx::mpz_class> {
+template <typename E> struct common_type<gmpxx::mpz_expr<E>, gmpxx::mpz_class> {
     using type = gmpxx::mpz_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpz_class, gmpxx::mpz_expr<E>> {
+template <typename E> struct common_type<gmpxx::mpz_class, gmpxx::mpz_expr<E>> {
     using type = gmpxx::mpz_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpq_expr<E>, gmpxx::mpq_class> {
+template <typename E> struct common_type<gmpxx::mpq_expr<E>, gmpxx::mpq_class> {
     using type = gmpxx::mpq_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpq_class, gmpxx::mpq_expr<E>> {
+template <typename E> struct common_type<gmpxx::mpq_class, gmpxx::mpq_expr<E>> {
     using type = gmpxx::mpq_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpf_expr<E>, gmpxx::mpf_class> {
+template <typename E> struct common_type<gmpxx::mpf_expr<E>, gmpxx::mpf_class> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpf_class, gmpxx::mpf_expr<E>> {
+template <typename E> struct common_type<gmpxx::mpf_class, gmpxx::mpf_expr<E>> {
     using type = gmpxx::mpf_class;
 };
 
 // Cross-type expression specializations
-template <typename E>
-struct common_type<gmpxx::mpz_expr<E>, gmpxx::mpq_class> {
+template <typename E> struct common_type<gmpxx::mpz_expr<E>, gmpxx::mpq_class> {
     using type = gmpxx::mpq_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpq_class, gmpxx::mpz_expr<E>> {
+template <typename E> struct common_type<gmpxx::mpq_class, gmpxx::mpz_expr<E>> {
     using type = gmpxx::mpq_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpz_expr<E>, gmpxx::mpf_class> {
+template <typename E> struct common_type<gmpxx::mpz_expr<E>, gmpxx::mpf_class> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpf_class, gmpxx::mpz_expr<E>> {
+template <typename E> struct common_type<gmpxx::mpf_class, gmpxx::mpz_expr<E>> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpq_expr<E>, gmpxx::mpf_class> {
+template <typename E> struct common_type<gmpxx::mpq_expr<E>, gmpxx::mpf_class> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E>
-struct common_type<gmpxx::mpf_class, gmpxx::mpq_expr<E>> {
+template <typename E> struct common_type<gmpxx::mpf_class, gmpxx::mpq_expr<E>> {
     using type = gmpxx::mpf_class;
 };
 
 // Expression-expression specializations
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpz_expr<E1>, gmpxx::mpz_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpz_expr<E1>, gmpxx::mpz_expr<E2>> {
     using type = gmpxx::mpz_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpq_expr<E1>, gmpxx::mpq_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpq_expr<E1>, gmpxx::mpq_expr<E2>> {
     using type = gmpxx::mpq_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpf_expr<E1>, gmpxx::mpf_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpf_expr<E1>, gmpxx::mpf_expr<E2>> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpz_expr<E1>, gmpxx::mpq_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpz_expr<E1>, gmpxx::mpq_expr<E2>> {
     using type = gmpxx::mpq_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpq_expr<E1>, gmpxx::mpz_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpq_expr<E1>, gmpxx::mpz_expr<E2>> {
     using type = gmpxx::mpq_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpz_expr<E1>, gmpxx::mpf_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpz_expr<E1>, gmpxx::mpf_expr<E2>> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpf_expr<E1>, gmpxx::mpz_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpf_expr<E1>, gmpxx::mpz_expr<E2>> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpq_expr<E1>, gmpxx::mpf_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpq_expr<E1>, gmpxx::mpf_expr<E2>> {
     using type = gmpxx::mpf_class;
 };
 
-template <typename E1, typename E2>
-struct common_type<gmpxx::mpf_expr<E1>, gmpxx::mpq_expr<E2>> {
+template <typename E1, typename E2> struct common_type<gmpxx::mpf_expr<E1>, gmpxx::mpq_expr<E2>> {
     using type = gmpxx::mpf_class;
 };
 
@@ -1513,14 +1388,12 @@ struct common_type<gmpxx::mpf_expr<E1>, gmpxx::mpq_expr<E2>> {
 namespace gmpxx {
 
 // Example: Template function that now works seamlessly with expressions
-template <typename T>
-T example_function(const T &a, const T &b) {
+template <typename T> T example_function(const T &a, const T &b) {
     return a * a + b * b; // Works with both values and expressions
 }
 
 // Advanced template function with SFINAE for GMP compatibility
-template <typename T, typename U>
-auto advanced_operation(T &&t, U &&u) -> std::enable_if_t<is_gmp_compatible_v<std::decay_t<T>> && is_gmp_compatible_v<std::decay_t<U>>, common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>> {
+template <typename T, typename U> auto advanced_operation(T &&t, U &&u) -> std::enable_if_t<is_gmp_compatible_v<std::decay_t<T>> && is_gmp_compatible_v<std::decay_t<U>>, common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>> {
     using CommonType = common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>;
     CommonType resolved_t{resolve_gmp_value(std::forward<T>(t))};
     CommonType resolved_u{resolve_gmp_value(std::forward<U>(u))};
@@ -1529,8 +1402,7 @@ auto advanced_operation(T &&t, U &&u) -> std::enable_if_t<is_gmp_compatible_v<st
 }
 
 // Template function demonstrating no-cast usage
-template <typename T, typename U>
-auto no_cast_needed(T &&a, U &&b) -> std::common_type_t<std::decay_t<T>, std::decay_t<U>> {
+template <typename T, typename U> auto no_cast_needed(T &&a, U &&b) -> std::common_type_t<std::decay_t<T>, std::decay_t<U>> {
     using Result = std::common_type_t<std::decay_t<T>, std::decay_t<U>>;
     return Result{std::forward<T>(a)} + Result{std::forward<U>(b)};
 }
