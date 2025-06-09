@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <chrono>
+#include <vector>
 
 using namespace gmpxx;
 
@@ -153,7 +154,7 @@ TEST_CASE(compound_assignment) {
     
     // Test with expression templates
     temp = a;
-    temp += b * 2;
+    temp += b * mpz_class(2);
     TEST_ASSERT(temp.get_si() == 150, "Compound assignment with expression failed");
     
     std::cout << "✓ Compound assignment tests passed" << std::endl;
@@ -209,7 +210,7 @@ TEST_CASE(large_numbers) {
     TEST_ASSERT(big_sum.get_str() == expected_sum, "Large number addition failed");
     
     // Multiplication of large numbers
-    mpz_class big_prod = big1 * mpz_class(2);
+    mpz_class big_prod = big1 * mpz_class(2L);
     std::string expected_prod = "246913578024691357802469135780";
     TEST_ASSERT(big_prod.get_str() == expected_prod, "Large number multiplication failed");
     
@@ -278,12 +279,12 @@ TEST_CASE(memory_management) {
     const int count = 1000;
     
     for (int i = 0; i < count; ++i) {
-        mpz_class a(i);
-        mpz_class b(i * 2);
-        mpz_class c(i * 3);
+        mpz_class a(static_cast<long>(i));
+        mpz_class b(static_cast<long>(i * 2));
+        mpz_class c(static_cast<long>(i * 3));
         
         // Create complex expression with many temporaries
-        mpz_class result = a * b + c - (a + b) * (c - a) + b / (a + 1);
+        mpz_class result = a * b + c - (a + b) * (c - a) + b / (a + mpz_class(1L));
         
         // Force evaluation and prevent optimization
         volatile long val = result.get_si();
@@ -296,17 +297,17 @@ TEST_CASE(memory_management) {
 // Test edge cases
 TEST_CASE(edge_cases) {
     // Zero operations
-    mpz_class zero(0);
-    mpz_class one(1);
-    mpz_class neg_one(-1);
+    mpz_class zero(0L);
+    mpz_class one(1L);
+    mpz_class neg_one(-1L);
     
-    TEST_ASSERT((zero + zero).get_si() == 0, "Zero addition failed");
-    TEST_ASSERT((zero * one).get_si() == 0, "Zero multiplication failed");
-    TEST_ASSERT((one + zero).get_si() == 1, "Addition with zero failed");
+    TEST_ASSERT(mpz_class(zero + zero).get_si() == 0, "Zero addition failed");
+    TEST_ASSERT(mpz_class(zero * one).get_si() == 0, "Zero multiplication failed");
+    TEST_ASSERT(mpz_class(one + zero).get_si() == 1, "Addition with zero failed");
     
     // Negative numbers
-    TEST_ASSERT((neg_one * neg_one).get_si() == 1, "Negative multiplication failed");
-    TEST_ASSERT((one + neg_one).get_si() == 0, "Adding negative failed");
+    TEST_ASSERT(mpz_class(neg_one * neg_one).get_si() == 1, "Negative multiplication failed");
+    TEST_ASSERT(mpz_class(one + neg_one).get_si() == 0, "Adding negative failed");
     
     // Large negative numbers
     mpz_class big_neg("-123456789012345678901234567890");

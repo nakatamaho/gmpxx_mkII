@@ -148,6 +148,12 @@ public:
     // Constructors
     mpz_class() { mpz_init(mp_); }
     
+    // Integer constructors
+    mpz_class(int val) { 
+        mpz_init(mp_);
+        mpz_set_si(mp_, val);
+    }
+    
     mpz_class(long val) { 
         mpz_init(mp_);
         mpz_set_si(mp_, val);

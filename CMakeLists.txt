@@ -10,10 +10,24 @@ set(CUSTOM_GMP_PATH "${CMAKE_SOURCE_DIR}/i/GMP-6.3.0")
 if(EXISTS "${CUSTOM_GMP_PATH}")
     list(PREPEND CMAKE_PREFIX_PATH "${CUSTOM_GMP_PATH}")
     message(STATUS "Using custom GMP: ${CUSTOM_GMP_PATH}")
+    # Manually set paths for custom GMP
+    set(GMP_INCLUDE_DIRS "${CUSTOM_GMP_PATH}/include")
+    set(GMP_LIBRARY_DIRS "${CUSTOM_GMP_PATH}/lib")
+    set(GMP_CFLAGS "-I${CUSTOM_GMP_PATH}/include")
+    set(GMP_FOUND TRUE)
+    # Set full library paths
+    set(GMP_LIBRARIES "${CUSTOM_GMP_PATH}/lib/libgmp.so;${CUSTOM_GMP_PATH}/lib/libgmpxx.so")
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GMP REQUIRED gmp gmpxx)
 endif()
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GMP REQUIRED gmp gmpxx)
+# Debug: Print GMP variables
+message(STATUS "GMP_FOUND: ${GMP_FOUND}")
+message(STATUS "GMP_INCLUDE_DIRS: ${GMP_INCLUDE_DIRS}")
+message(STATUS "GMP_CFLAGS: ${GMP_CFLAGS}")
+message(STATUS "GMP_LIBRARIES: ${GMP_LIBRARIES}")
+message(STATUS "GMP_LIBRARY_DIRS: ${GMP_LIBRARY_DIRS}")
 
 # Get Git commit hash
 find_package(Git QUIET)
@@ -43,12 +57,9 @@ target_include_directories(gmpxx_mkII INTERFACE
     $<INSTALL_INTERFACE:include>
 )
 
-# Link GMP libraries with full paths (avoids path issues)
-target_link_libraries(gmpxx_mkII INTERFACE 
-    ${GMP_LINK_LIBRARIES}
-    ${GMP_LIBRARIES}
-)
-target_compile_options(gmpxx_mkII INTERFACE ${GMP_CFLAGS_OTHER})
+# Apply GMP settings properly (use full paths to avoid directory issues)
+target_compile_options(gmpxx_mkII INTERFACE ${GMP_CFLAGS})
+target_link_libraries(gmpxx_mkII INTERFACE ${GMP_LIBRARIES})
 
 # Optional examples and tests
 option(BUILD_EXAMPLES "Build examples" OFF)
