@@ -37,7 +37,7 @@ RUN apt install -y ng-common ng-cjk emacs-nox
 RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
-ARG DOCKER_UID=1000
+ARG DOCKER_UID=1001
 ARG DOCKER_USER=docker
 ARG DOCKER_PASSWORD=docker
 RUN useradd -u $DOCKER_UID -m $DOCKER_USER --shell /bin/bash && echo "$DOCKER_USER:$DOCKER_PASSWORD" | chpasswd && echo "$DOCKER_USER ALL=(ALL) ALL" >> /etc/sudoers
