@@ -57,8 +57,10 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_QUIET
     )
+    message(STATUS "Git commit hash: ${GIT_COMMIT_HASH}")
 else()
     set(GIT_COMMIT_HASH "unknown")
+    message(STATUS "Git not found or not a git repository, using: ${GIT_COMMIT_HASH}")
 endif()
 
 # Configure header file
@@ -67,6 +69,11 @@ configure_file(
     "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII.h"
     @ONLY
 )
+
+# Print configured values for debugging
+message(STATUS "Configured header with:")
+message(STATUS "  VERSION: ${PROJECT_VERSION}")
+message(STATUS "  COMMIT_HASH: ${GIT_COMMIT_HASH}")
 
 # Header-only library
 add_library(gmpxx_mkII INTERFACE)
