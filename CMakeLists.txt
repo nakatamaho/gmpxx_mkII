@@ -5,10 +5,27 @@ project(gmpxx_mkII VERSION 2.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Compiler flags to avoid GMP/C++ standard library conflicts
+add_compile_definitions(__STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS)
+
 # Find GMP (prefer custom build if available)
-set(CUSTOM_GMP_PATH "${CMAKE_SOURCE_DIR}/i/GMP-6.3.0")
-if(EXISTS "${CUSTOM_GMP_PATH}")
-    list(PREPEND CMAKE_PREFIX_PATH "${CUSTOM_GMP_PATH}")
+# Check multiple possible locations
+set(GMP_SEARCH_PATHS
+    "/home/docker/i/GMP-6.3.0"
+    "${CMAKE_SOURCE_DIR}/i/GMP-6.3.0"
+    "/home/docker/gmpxx_mkII/i/GMP-6.3.0"
+    "$ENV{HOME}/i/GMP-6.3.0"
+)
+
+set(CUSTOM_GMP_PATH "")
+foreach(path ${GMP_SEARCH_PATHS})
+    if(EXISTS "${path}")
+        set(CUSTOM_GMP_PATH "${path}")
+        break()
+    endif()
+endforeach()
+
+if(CUSTOM_GMP_PATH)
     message(STATUS "Using custom GMP: ${CUSTOM_GMP_PATH}")
     # Manually set paths for custom GMP
     set(GMP_INCLUDE_DIRS "${CUSTOM_GMP_PATH}/include")
@@ -18,6 +35,7 @@ if(EXISTS "${CUSTOM_GMP_PATH}")
     # Set full library paths
     set(GMP_LIBRARIES "${CUSTOM_GMP_PATH}/lib/libgmp.so;${CUSTOM_GMP_PATH}/lib/libgmpxx.so")
 else()
+    message(STATUS "Custom GMP not found, using system GMP")
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(GMP REQUIRED gmp gmpxx)
 endif()
