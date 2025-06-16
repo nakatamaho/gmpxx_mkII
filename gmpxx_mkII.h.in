@@ -26,6 +26,20 @@
 #error "This class only runs on C++ 17 and later"
 #endif
 
+// Feature test macros to ensure proper C99/C11 support
+#ifndef _ISOC99_SOURCE
+#define _ISOC99_SOURCE
+#endif
+#ifndef _ISOC11_SOURCE
+#define _ISOC11_SOURCE
+#endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+
 #define GMPXX_MKII_VERSION_MAJOR 2
 #define GMPXX_MKII_VERSION_MINOR 0
 #define GMPXX_MKII_VERSION_PATCH 0
@@ -33,11 +47,16 @@
 #define GMPXX_MKII_STRINGIFY(x) GMPXX_MKII_STRINGIFY_HELPER(x)
 #define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
 
-#include <gmp.h>
+// Include standard headers BEFORE GMP to prevent conflicts
+#include <cstdint>
 #include <string>
 #include <iostream>
 #include <type_traits>
 #include <algorithm>
+#include <cstdlib>
+
+// Include GMP header after standard headers
+#include <gmp.h>
 
 namespace gmpxx {
 
@@ -1406,3 +1425,5 @@ template <typename T, typename U> auto no_cast_needed(T &&a, U &&b) -> std::comm
     using Result = std::common_type_t<std::decay_t<T>, std::decay_t<U>>;
     return Result{std::forward<T>(a)} + Result{std::forward<U>(b)};
 }
+
+} // namespace gmpxx
