@@ -2,7 +2,7 @@
 #   - SSH key for GitHub access: ~/.ssh/id_ed25519
 #
 # Build:
-#   docker build -f Dockerfile --build-arg SSH_KEY="$(cat ~/.ssh/id_ed25519)" -t gmpxx_mkii .
+#   docker build -f Dockerfile --build-arg GIT_COMMIT_TRIGGER=$(date +%s) --build-arg SSH_KEY="$(cat ~/.ssh/id_ed25519)" -t gmpxx_mkii .
 #
 # Run:
 #   docker run -it --rm gmpxx_mkii
@@ -81,6 +81,7 @@ RUN git config --global user.email "$GIT_EMAIL" \
 RUN echo 'eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519 2>/dev/null' >> ~/.bashrc
 
 # Clone repository and build GMP
+ARG GIT_COMMIT_TRIGGER=unspecified
 RUN git clone --branch expression_template --single-branch \
     https://github.com/nakatamaho/gmpxx_mkII.git \
     && cd gmpxx_mkII \
@@ -89,13 +90,10 @@ RUN git clone --branch expression_template --single-branch \
 # Build GMP
 RUN cd gmpxx_mkII/setup && bash setup_gmp.sh
 
-# Build GMP
-RUN cd gmpxx_mkII/setup && bash setup_gmp.sh
-
 # Build gmpxx_mkII and run tests
 RUN cd gmpxx_mkII \
     && mkdir -p build \
-    && cd build
+    && cd build \
     && cmake .. -DBUILD_TESTS=ON \
     && make \
     && make test
