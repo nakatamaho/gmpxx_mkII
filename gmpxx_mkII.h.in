@@ -1402,29 +1402,18 @@ template <typename E1, typename E2> struct common_type<gmpxx::mpf_expr<E1>, gmpx
 } // namespace std
 
 //=============================================================================
-// Usage examples and convenience functions
+// Version information function
 //=============================================================================
 
 namespace gmpxx {
-
-// Example: Template function that now works seamlessly with expressions
-template <typename T> T example_function(const T &a, const T &b) {
-    return a * a + b * b; // Works with both values and expressions
-}
-
-// Advanced template function with SFINAE for GMP compatibility
-template <typename T, typename U> auto advanced_operation(T &&t, U &&u) -> std::enable_if_t<is_gmp_compatible_v<std::decay_t<T>> && is_gmp_compatible_v<std::decay_t<U>>, common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>> {
-    using CommonType = common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>;
-    CommonType resolved_t{resolve_gmp_value(std::forward<T>(t))};
-    CommonType resolved_u{resolve_gmp_value(std::forward<U>(u))};
-
-    return resolved_t + resolved_u * resolved_t;
-}
-
-// Template function demonstrating no-cast usage
-template <typename T, typename U> auto no_cast_needed(T &&a, U &&b) -> std::common_type_t<std::decay_t<T>, std::decay_t<U>> {
-    using Result = std::common_type_t<std::decay_t<T>, std::decay_t<U>>;
-    return Result{std::forward<T>(a)} + Result{std::forward<U>(b)};
+inline void print_version_info() {
+    std::cout << "GMPXX_MKII Version: " << GMPXX_MKII_VERSION << std::endl;
+    std::cout << "GMP Version: " << gmp_version << std::endl;
+    std::cout << "Default precision: " << mpf_get_default_prec() << " bits" << std::endl;
+    std::cout << "Compiled with C++" << __cplusplus << std::endl;
+#ifdef __GNUC__
+    std::cout << "GCC Version: " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__ << std::endl;
+#endif
 }
 
 } // namespace gmpxx
