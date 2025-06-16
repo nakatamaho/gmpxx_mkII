@@ -40,10 +40,11 @@ RUN apt install -y python3-matplotlib
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 #clang-format-19
-RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-RUN apt-add-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main"
-RUN apt update
-RUN apt install clang-format-19
+RUN apt update && apt install -y wget gnupg lsb-release
+RUN wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-archive-keyring.gpg
+RUN echo "deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" \
+    > /etc/apt/sources.list.d/llvm.list
+RUN apt update && apt install -y clang-format-19
 
 # Create user (use random password for security)
 ARG DOCKER_UID=1001
@@ -88,7 +89,16 @@ RUN git clone --branch expression_template --single-branch \
 # Build GMP
 RUN cd gmpxx_mkII/setup && bash setup_gmp.sh
 
+# Build GMP
+RUN cd gmpxx_mkII/setup && bash setup_gmp.sh
+
+# Build gmpxx_mkII and run tests
+RUN cd gmpxx_mkII \
+    && mkdir -p build \
+    && cd build
+#    && cmake .. -DBUILD_TESTS=ON \
+#    && make \
+#    && make test
+
 # Set working directory
 WORKDIR /home/$DOCKER_USER/gmpxx_mkII
-
-CMD ["/bin/bash"]
