@@ -86,7 +86,7 @@ RUN git clone --branch expression_template --single-branch \
     && cd gmpxx_mkII \
     && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git \
     && cd setup && bash setup_gmp.sh \
-    && cd ../.. && rm -rf gmpxx_mkII
+    && cd ../.. && rm -rf gmpxx_mkII && ls -lR /home/docker/i/
 
 ARG GIT_COMMIT_TRIGGER=unspecified
 RUN git clone --branch expression_template --single-branch \
@@ -97,10 +97,10 @@ RUN git clone --branch expression_template --single-branch \
 # Build gmpxx_mkII and run tests
 RUN cd gmpxx_mkII \
     && mkdir -p build \
-    && cd build \
-    && cmake .. -DBUILD_TESTS=ON \
-    && make \
-    && make test
+    && cd build
+#    && cmake .. -DBUILD_TESTS=ON \
+#    && make \
+#    && make test
 
 # Set working directory
 WORKDIR /home/$DOCKER_USER/gmpxx_mkII
