@@ -97,10 +97,10 @@ RUN git clone --branch expression_template --single-branch \
 # Build gmpxx_mkII and run tests
 RUN cd gmpxx_mkII \
     && mkdir -p build \
-    && cd build
-#    && cmake .. -DBUILD_TESTS=ON \
-#    && make \
-#    && make test
+    && cd build \
+    && cmake .. -DBUILD_TESTS=ON \
+    && make \
+    && make test
 
 # Set working directory
 WORKDIR /home/$DOCKER_USER/gmpxx_mkII
