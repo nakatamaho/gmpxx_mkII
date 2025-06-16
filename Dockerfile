@@ -81,14 +81,18 @@ RUN git config --global user.email "$GIT_EMAIL" \
 RUN echo 'eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519 2>/dev/null' >> ~/.bashrc
 
 # Clone repository and build GMP
+RUN git clone --branch expression_template --single-branch \
+    https://github.com/nakatamaho/gmpxx_mkII.git \
+    && cd gmpxx_mkII \
+    && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git \
+    && cd setup && bash setup_gmp.sh \
+    && cd ../.. && rm -rf gmpxx_mkII
+
 ARG GIT_COMMIT_TRIGGER=unspecified
 RUN git clone --branch expression_template --single-branch \
     https://github.com/nakatamaho/gmpxx_mkII.git \
     && cd gmpxx_mkII \
     && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
-
-# Build GMP
-RUN cd gmpxx_mkII/setup && bash setup_gmp.sh
 
 # Build gmpxx_mkII and run tests
 RUN cd gmpxx_mkII \
