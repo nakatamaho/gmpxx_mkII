@@ -96,9 +96,9 @@ RUN cd gmpxx_mkII/setup && bash setup_gmp.sh
 RUN cd gmpxx_mkII \
     && mkdir -p build \
     && cd build
-#    && cmake .. -DBUILD_TESTS=ON \
-#    && make \
-#    && make test
+    && cmake .. -DBUILD_TESTS=ON \
+    && make \
+    && make test
 
 # Set working directory
 WORKDIR /home/$DOCKER_USER/gmpxx_mkII
