@@ -566,100 +566,83 @@ template <typename E, typename Op> class mpf_unary_expr : public mpf_expr<mpf_un
 
 class mpz_class {
   private:
-    mpz_t mp_;
+    mpz_t value;
 
   public:
-    // Constructors
-    mpz_class() noexcept { mpz_init(mp_); }
-
-    mpz_class(long val) noexcept {
-        mpz_init(mp_);
-        mpz_set_si(mp_, val);
-    }
-
-    mpz_class(unsigned long val) noexcept {
-        mpz_init(mp_);
-        mpz_set_ui(mp_, val);
-    }
-
-    mpz_class(int val) noexcept {
-        mpz_init(mp_);
-        mpz_set_si(mp_, val);
-    }
 
     mpz_class(unsigned int val) noexcept {
-        mpz_init(mp_);
-        mpz_set_ui(mp_, val);
+        mpz_init(value);
+        mpz_set_ui(value, val);
     }
 
     mpz_class(double val) noexcept {
-        mpz_init(mp_);
-        mpz_set_d(mp_, val);
+        mpz_init(value);
+        mpz_set_d(value, val);
     }
 
     mpz_class(const std::string &str, int base = 10) {
-        mpz_init(mp_);
-        if (mpz_set_str(mp_, str.c_str(), base) != 0) {
-            mpz_clear(mp_);
+        mpz_init(value);
+        if (mpz_set_str(value, str.c_str(), base) != 0) {
+            mpz_clear(value);
             throw std::invalid_argument("Invalid string format");
         }
     }
 
     mpz_class(const char *str, int base = 10) {
-        mpz_init(mp_);
-        if (mpz_set_str(mp_, str, base) != 0) {
-            mpz_clear(mp_);
+        mpz_init(value);
+        if (mpz_set_str(value, str, base) != 0) {
+            mpz_clear(value);
             throw std::invalid_argument("Invalid string format");
         }
     }
 
     // Copy and move constructors
     mpz_class(const mpz_class &other) noexcept {
-        mpz_init(mp_);
-        mpz_set(mp_, other.mp_);
+        mpz_init(value);
+        mpz_set(value, other.value);
     }
 
     mpz_class(mpz_class &&other) noexcept {
-        mpz_init(mp_);
-        mpz_swap(mp_, other.mp_);
+        mpz_init(value);
+        mpz_swap(value, other.value);
     }
 
     // Expression template constructor
     template <typename E> mpz_class(const mpz_expr<E> &expr) {
-        mpz_init(mp_);
-        expr.eval_to(mp_);
+        mpz_init(value);
+        expr.eval_to(value);
     }
 
     // Destructor
-    ~mpz_class() noexcept { mpz_clear(mp_); }
+    ~mpz_class() noexcept { mpz_clear(value); }
 
     // Assignment operators
     mpz_class &operator=(const mpz_class &other) noexcept {
         if (this != &other) {
-            mpz_set(mp_, other.mp_);
+            mpz_set(value, other.value);
         }
         return *this;
     }
 
     mpz_class &operator=(mpz_class &&other) noexcept {
         if (this != &other) {
-            mpz_swap(mp_, other.mp_);
+            mpz_swap(value, other.value);
         }
         return *this;
     }
 
     template <typename E> mpz_class &operator=(const mpz_expr<E> &expr) {
-        expr.eval_to(mp_);
+        expr.eval_to(value);
         return *this;
     }
 
     mpz_class &operator=(long val) noexcept {
-        mpz_set_si(mp_, val);
+        mpz_set_si(value, val);
         return *this;
     }
 
     mpz_class &operator=(unsigned long val) noexcept {
-        mpz_set_ui(mp_, val);
+        mpz_set_ui(value, val);
         return *this;
     }
 
@@ -685,37 +668,32 @@ class mpz_class {
     }
 
     // Access to underlying GMP type
-    mpz_t &get_mpz_t() noexcept { return mp_; }
-    const mpz_t &get_mpz_t() const noexcept { return mp_; }
+    mpz_t &get_mpz_t() noexcept { return value; }
+    const mpz_t &get_mpz_t() const noexcept { return value; }
 
     // Conversion functions
-    long get_si() const noexcept { return mpz_get_si(mp_); }
-    unsigned long get_ui() const noexcept { return mpz_get_ui(mp_); }
-    double get_d() const noexcept { return mpz_get_d(mp_); }
+    long get_si() const noexcept { return mpz_get_si(value); }
+    unsigned long get_ui() const noexcept { return mpz_get_ui(value); }
+    double get_d() const noexcept { return mpz_get_d(value); }
 
     std::string get_str(int base = 10) const {
-        char *str = mpz_get_str(nullptr, base, mp_);
+        char *str = mpz_get_str(nullptr, base, value);
         std::string result(str);
         free(str);
         return result;
     }
 
     // Utility functions
-    size_t size() const noexcept { return mpz_size(mp_); }
-    int sgn() const noexcept { return mpz_sgn(mp_); }
+    size_t size() const noexcept { return mpz_size(value); }
+    int sgn() const noexcept { return mpz_sgn(value); }
 
     // Comparison operators
-    bool operator==(const mpz_class &other) const noexcept { return mpz_cmp(mp_, other.mp_) == 0; }
-
-    bool operator!=(const mpz_class &other) const noexcept { return mpz_cmp(mp_, other.mp_) != 0; }
-
-    bool operator<(const mpz_class &other) const noexcept { return mpz_cmp(mp_, other.mp_) < 0; }
-
-    bool operator<=(const mpz_class &other) const noexcept { return mpz_cmp(mp_, other.mp_) <= 0; }
-
-    bool operator>(const mpz_class &other) const noexcept { return mpz_cmp(mp_, other.mp_) > 0; }
-
-    bool operator>=(const mpz_class &other) const noexcept { return mpz_cmp(mp_, other.mp_) >= 0; }
+    bool operator==(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) == 0; }
+    bool operator!=(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) != 0; }
+    bool operator<(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) < 0; }
+    bool operator<=(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) <= 0; }
+    bool operator>(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) > 0; }
+    bool operator>=(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) >= 0; }
 };
 
 class mpq_class {
