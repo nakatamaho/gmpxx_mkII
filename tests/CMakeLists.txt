@@ -1,7 +1,7 @@
 # Test executables
-add_executable(test_basic test_basic.cpp)
+add_executable(test_mpz_basic test_mpz_basic.cpp)
 # Link with gmpxx_mkII interface library
-target_link_libraries(test_basic PRIVATE gmpxx_mkII)
+target_link_libraries(test_mpz_basic PRIVATE gmpxx_mkII)
 # Add test
 add_test(NAME test_basic COMMAND test_basic)
 # Set test properties

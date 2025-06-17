@@ -43,8 +43,10 @@
 #define GMPXX_MKII_VERSION_MAJOR 2
 #define GMPXX_MKII_VERSION_MINOR 0
 #define GMPXX_MKII_VERSION_PATCH 0
+
 #define GMPXX_MKII_STRINGIFY_HELPER(x) #x
 #define GMPXX_MKII_STRINGIFY(x) GMPXX_MKII_STRINGIFY_HELPER(x)
+
 #define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
 #define GMPXX_MKII_COMMIT_HASH "@GIT_COMMIT_HASH@"
 
@@ -55,6 +57,41 @@
 #include <type_traits>
 #include <algorithm>
 #include <cstdlib>
+
+#define ___MPF_CLASS_EXPLICIT___ explicit
+
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#define ___GMPXX_DONT_USE_NAMESPACE___
+#define ___GMPXX_UDL_CHAR___
+#endif
+
+#define INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value, X>::type
+#define FLOAT_COND(T, X) typename std::enable_if<std::is_float<T>::value, X>::type
+#define UNSIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value, X>::type
+#define SIGNED_INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value, X>::type
+#define NON_INT_COND(T, X) typename std::enable_if<std::is_arithmetic<T>::value && !std::is_integral<T>::value, X>::type
+#define NON_GMP_COND(T, X) typename std::enable_if<!std::is_same<T, mpf_class>::value && !std::is_same<T, mpq_class>::value && !std::is_same<T, mpz_class>::value, X>::type
+
+template <typename T1, typename T2> struct ___is_same_representation : std::bool_constant<(sizeof(T1) == sizeof(T2)) && (std::numeric_limits<T1>::min() == std::numeric_limits<T2>::min()) && (std::numeric_limits<T1>::max() == std::numeric_limits<T2>::max())> {};
+template <typename T1, typename T2> struct ___is_numeric_range_greater : std::bool_constant<(sizeof(T1) > sizeof(T2)) || (sizeof(T1) == sizeof(T2) && ((std::numeric_limits<T1>::min() < std::numeric_limits<T2>::min()) || (std::numeric_limits<T1>::max() > std::numeric_limits<T2>::max())))>{};
+
+template <typename T> struct ___gmpxx_mkII__smaller_or_equal_than_long : std::bool_constant<!___is_numeric_range_greater<T, long int>::value> {};
+template <typename T> struct ___gmpxx_mkII__smaller_or_equal_than_unsigned_long : std::bool_constant<!___is_numeric_range_greater<T, unsigned long int>::value> {};
+
+inline constexpr bool ___gmpxx_mkII___long_is_greater_than_int64_v = ___is_numeric_range_greater<long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_greater_than_uint64_v = ___is_numeric_range_greater<unsigned long, uint64_t>::value;
+inline constexpr bool ___gmpxx_mkII___long_is_same_as_int64_v = ___is_same_representation<long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_same_as_uint64_v = ___is_same_representation<unsigned long, uint64_t>::value;
+
+inline constexpr bool ___gmpxx_mkII___long_is_greater_than_int32_v = ___is_numeric_range_greater<long, int32_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_greater_than_uint32_v = ___is_numeric_range_greater<unsigned long, uint32_t>::value;
+inline constexpr bool ___gmpxx_mkII___long_is_same_as_int32_v = ___is_same_representation<long, int32_t>::value;
+inline constexpr bool ___gmpxx_mkII___ulong_is_same_as_uint32_v = ___is_same_representation<unsigned long, uint32_t>::value;
+
+inline constexpr bool ___gmpxx_mkII___llong_is_greater_than_int64_v = ___is_numeric_range_greater<long long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ullong_is_greater_than_uint64_v = ___is_numeric_range_greater<unsigned long long, uint64_t>::value;
+inline constexpr bool ___gmpxx_mkII___llong_is_same_as_int64_v = ___is_same_representation<long long, int64_t>::value;
+inline constexpr bool ___gmpxx_mkII___ullong_is_same_as_uint64_v = ___is_same_representation<unsigned long long, uint64_t>::value;
 
 // Include GMP header after standard headers
 #include <gmp.h>
@@ -120,6 +157,10 @@ template <typename T = void> struct caches {
     static mpf_class log_cached;
     static mpf_class log2_cached;
 };
+template <typename T> mpf_class caches<T>::pi_cached;
+template <typename T> mpf_class caches<T>::e_cached;
+template <typename T> mpf_class caches<T>::log_cached;
+template <typename T> mpf_class caches<T>::log2_cached;
 
 namespace helper {
 // helper function for mpz_import from various integer types
@@ -181,11 +222,6 @@ std::string uint128_to_string(__uint128_t value) {
 }
 #endif
 } // namespace helper
-
-template <typename T> mpf_class caches<T>::pi_cached;
-template <typename T> mpf_class caches<T>::e_cached;
-template <typename T> mpf_class caches<T>::log_cached;
-template <typename T> mpf_class caches<T>::log2_cached;
 
 template <typename E> class mpz_expr;
 template <typename E> class mpq_expr;
@@ -569,38 +605,89 @@ class mpz_class {
     mpz_t value;
 
   public:
-
-    mpz_class(unsigned int val) noexcept {
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // 12.2 C++ Interface Integers
+    // cf. https://gmplib.org/manual/C_002b_002b-Interface-Integers
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // constructors and destructors
+    mpz_class() { mpz_init(value); }
+    // The rule of 0/3/5
+    // The rule 1 of 5 copy constructor
+    mpz_class(const mpz_class &op) {
         mpz_init(value);
-        mpz_set_ui(value, val);
+        mpz_set(value, op.value);
     }
-
-    mpz_class(double val) noexcept {
-        mpz_init(value);
-        mpz_set_d(value, val);
-    }
-
-    mpz_class(const std::string &str, int base = 10) {
-        mpz_init(value);
-        if (mpz_set_str(value, str.c_str(), base) != 0) {
-            mpz_clear(value);
-            throw std::invalid_argument("Invalid string format");
+    // The rule 2 of 5 copy assignment operator
+    mpz_class &operator=(const mpz_class &op) noexcept {
+        if (this != &op) {
+            mpz_set(value, op.value);
         }
+        return *this;
     }
-
-    mpz_class(const char *str, int base = 10) {
+    // The rule 3 of 5 default deconstructor
+    ~mpz_class() { mpz_clear(value); }
+    // The rule 4 of 5 move constructor
+    mpz_class(mpz_class &&op) noexcept {
+        mpz_init(value);
+        mpz_swap(value, op.value);
+    }
+    // The rule 5 of 5 move assignment operator
+    mpz_class &operator=(mpz_class &&op) noexcept {
+        if (this != &op) {
+            mpz_swap(value, op.value);
+        }
+        return *this;
+    }
+    // constructors
+    explicit mpz_class(const mpz_t z) {
+        mpz_init(value);
+        mpz_set(value, z);
+    }
+    mpz_class(const mpq_t op) {
+        mpz_init(value);
+        mpz_set_q(value, op);
+    }
+    mpz_class(const mpf_t op) {
+        mpz_init(value);
+        mpz_set_f(value, op);
+    }
+    mpz_class(const char *str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str, base) != 0) {
-            mpz_clear(value);
-            throw std::invalid_argument("Invalid string format");
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
     }
-
-    // Copy and move constructors
-    mpz_class(const mpz_class &other) noexcept {
+    mpz_class(const std::string &str, int base = 0) {
         mpz_init(value);
-        mpz_set(value, other.value);
+        if (mpz_set_str(value, str.c_str(), base) != 0) {
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
+        }
     }
+    // constructor for various integer types
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpz_class(T op) {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+                mpz_init_set_si(value, static_cast<long int>(op));
+            } else {
+                helper::mpz_init_import(value, op);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+                mpz_init_set_ui(value, static_cast<unsigned long int>(op));
+            } else {
+                helper::mpz_init_import(value, op);
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpz_init_set_si(value, static_cast<long int>(op));
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
+            mpz_init_set_ui(value, static_cast<unsigned long int>(op));
+        }
+        // For larger types, use mpz_import
+        else {
+            helper::mpz_init_import(value, op);
+        }
+    }
+    mpz_class(double op) { mpz_init_set_d(value, op); }
 
     mpz_class(mpz_class &&other) noexcept {
         mpz_init(value);
