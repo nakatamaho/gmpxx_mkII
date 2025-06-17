@@ -596,10 +596,6 @@ template <typename E, typename Op> class mpf_unary_expr : public mpf_expr<mpf_un
     }
 };
 
-//=============================================================================
-// Main multiprecision classes
-//=============================================================================
-
 class mpz_class {
   private:
     mpz_t value;
@@ -689,33 +685,50 @@ class mpz_class {
     }
     mpz_class(double op) { mpz_init_set_d(value, op); }
 
-    mpz_class(mpz_class &&other) noexcept {
-        mpz_init(value);
-        mpz_swap(value, other.value);
+    // assignments from other objects
+    // assignments from various integers
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpz_class &operator=(T op) {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
+                mpz_set_si(value, static_cast<long int>(op));
+            } else {
+                mpz_class temp(op);
+                mpz_set(value, temp.value);
+            }
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
+                mpz_set_ui(value, static_cast<unsigned long int>(op));
+            } else {
+                mpz_class temp(op);
+                mpz_set(value, temp.value);
+            }
+        } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpz_set_si(value, static_cast<long int>(op));
+        } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
+            mpz_set_ui(value, static_cast<unsigned long int>(op));
+        } else {
+            // For larger types, use mpz_import
+            mpz_class temp(op);
+            mpz_set(value, temp.value);
+        }
+        return *this;
     }
-
+    mpz_class &operator=(const char *str) {
+        if (mpz_set_str(value, str, 0) != 0) {
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
+        }
+        return *this;
+    }
+    mpz_class &operator=(const std::string &str) {
+        if (mpz_set_str(value, str.c_str(), 0) != 0) {
+            throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
+        }
+        return *this;
+    }
     // Expression template constructor
     template <typename E> mpz_class(const mpz_expr<E> &expr) {
         mpz_init(value);
         expr.eval_to(value);
-    }
-
-    // Destructor
-    ~mpz_class() noexcept { mpz_clear(value); }
-
-    // Assignment operators
-    mpz_class &operator=(const mpz_class &other) noexcept {
-        if (this != &other) {
-            mpz_set(value, other.value);
-        }
-        return *this;
-    }
-
-    mpz_class &operator=(mpz_class &&other) noexcept {
-        if (this != &other) {
-            mpz_swap(value, other.value);
-        }
-        return *this;
     }
 
     template <typename E> mpz_class &operator=(const mpz_expr<E> &expr) {
