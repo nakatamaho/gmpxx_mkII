@@ -94,6 +94,11 @@ RUN git clone --branch expression_template --single-branch \
     && cd gmpxx_mkII \
     && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
 
+RUN git clone --branch main --single-branch --depth 1 \
+    https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII.main \
+ && cd gmpxx_mkII.main \
+ && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
+
 # Build gmpxx_mkII and run tests
 RUN cd gmpxx_mkII \
     && mkdir -p build \
