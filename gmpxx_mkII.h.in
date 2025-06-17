@@ -992,7 +992,7 @@ class mpf_class {
         }
         return *this;
     }
-    // The rule 3 of 5 default deconstructor
+    // The rule 3 of 5 default destructor
     ~mpf_class() { mpf_clear(value); }
     // The rule 4 of 5 move constructor
     mpf_class(mpf_class &&op) noexcept {
