@@ -620,7 +620,7 @@ class mpz_class {
         }
         return *this;
     }
-    // The rule 3 of 5 default deconstructor
+    // The rule 3 of 5 default destructor
     ~mpz_class() { mpz_clear(value); }
     // The rule 4 of 5 move constructor
     mpz_class(mpz_class &&op) noexcept {
