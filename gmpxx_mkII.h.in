@@ -50,13 +50,18 @@
 #define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
 #define GMPXX_MKII_COMMIT_HASH "@GIT_COMMIT_HASH@"
 
-// Include standard headers BEFORE GMP to prevent conflicts
 #include <cstdint>
 #include <string>
 #include <iostream>
 #include <type_traits>
 #include <algorithm>
 #include <cstdlib>
+#include <cmath>
+#include <cstring>
+
+#if defined(_MSC_VER)
+#define strdup _strdup
+#endif
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -1076,7 +1081,7 @@ class mpf_class {
     long get_si() const noexcept { return mpf_get_si(value); }
     unsigned long get_ui() const noexcept { return mpf_get_ui(value); }
 
-    std::string get_str(valueexp_t &exp, int base = 10, size_t digits = 0) const {
+    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
         char *str = mpf_get_str(nullptr, &exp, base, digits, value);
         std::string result(str);
         free(str);
@@ -1230,31 +1235,13 @@ mpz_class sqrt(const mpz_class &val) {
 //=============================================================================
 
 std::ostream &operator<<(std::ostream &os, const mpz_class &val) { return os << val.get_str(); }
-
 std::ostream &operator<<(std::ostream &os, const mpq_class &val) { return os << val.get_str(); }
-
-std::ostream &operator<<(std::ostream &os, const mpf_class &val) {
-    mp_exp_t exp;
-    std::string str = val.get_str(exp);
-    if (exp == 0) {
-        os << "0." << str;
-    } else if (exp > 0 && exp <= static_cast<mp_exp_t>(str.length())) {
-        os << str.substr(0, exp) << "." << str.substr(exp);
-    } else if (exp > static_cast<mp_exp_t>(str.length())) {
-        os << str << std::string(exp - str.length(), '0');
-    } else {
-        os << "0." << std::string(-exp, '0') << str;
-    }
-    return os;
-}
-
 std::istream &operator>>(std::istream &is, mpz_class &val) {
     std::string str;
     is >> str;
     val = mpz_class(str);
     return is;
 }
-
 std::istream &operator>>(std::istream &is, mpq_class &val) {
     std::string str;
     is >> str;
@@ -1262,12 +1249,457 @@ std::istream &operator>>(std::istream &is, mpq_class &val) {
     return is;
 }
 
-std::istream &operator>>(std::istream &is, mpf_class &val) {
-    std::string str;
-    is >> str;
-    val = mpf_class(str);
-    return is;
+inline std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 6 : prec;
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec, value);
+    std::string base_str(base_cstr);
+    free(base_cstr);
+
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_showpoint = flags & std::ios::showpoint;
+    bool is_uppercase = flags & std::ios::uppercase;
+    std::string formatted_base;
+    if (mpf_sgn(value) < 0) {
+        base_str.erase(0, 1);
+    }
+    if (exp <= 0) {
+        formatted_base = "0.";
+        formatted_base.append(-exp, '0');
+        formatted_base += base_str;
+    } else if (size_t(exp) > base_str.length()) {
+        formatted_base = base_str.substr(0, 1) + "." + base_str.substr(1);
+        int adjusted_exp = exp - 1;
+        std::string exp_str = adjusted_exp < base && adjusted_exp > -base ? "0" + std::to_string(adjusted_exp) : std::to_string(adjusted_exp);
+        formatted_base += "e+" + exp_str; // can be minus?
+    } else {
+        formatted_base = base_str.substr(0, exp);
+        if (exp < static_cast<mp_exp_t>(base_str.size())) {
+            formatted_base += "." + base_str.substr(exp);
+        }
+    }
+    if (is_showbase) {
+        if (base == 16) {
+            formatted_base.insert(0, "0x");
+        } else if (base == 8 && mpf_sgn(value) != 0) {
+            formatted_base.insert(0, "0");
+        }
+    }
+    if (is_showpoint && formatted_base.find('.') == std::string::npos) {
+        formatted_base += ".";
+        while (formatted_base.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_base += '0';
+        }
+    }
+    if (is_showpoint && base == 10 && formatted_base == "0.") {
+        while (formatted_base.length() < static_cast<size_t>(effective_prec + 1)) {
+            formatted_base += '0';
+        }
+    }
+    if (mpf_sgn(value) < 0) {
+        formatted_base.insert(0, "-");
+    }
+    if (width > static_cast<int>(formatted_base.size())) {
+        std::streamsize padding_length = width - formatted_base.size();
+        if (flags & std::ios_base::left) {
+            formatted_base.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '0' && formatted_base[1] == 'x') { // Insert padding after the "0x"
+            formatted_base.insert(2, padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '-' && formatted_base[1] == '0' && formatted_base[2] == 'x') { // Insert padding after the "-0x"
+            formatted_base.insert(3, padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 10) {
+            size_t pos = 0;
+            if (formatted_base[0] == '-' || formatted_base[0] == '+') {
+                pos = 1;
+            }
+            formatted_base.insert(pos, padding_length, fill);
+        } else {
+            formatted_base.insert(0, padding_length, fill);
+        }
+    }
+    if (!is_showpoint) {
+        if (formatted_base.back() == '.') {
+            formatted_base.erase(formatted_base.size() - 1);
+        }
+    }
+    if (is_uppercase) {
+        std::transform(formatted_base.begin(), formatted_base.end(), formatted_base.begin(), [](unsigned char c) { return std::toupper(c); });
+    }
+    return formatted_base;
 }
+inline mp_exp_t integraldigits_in_base(const mpf_t value, int base) {
+    mp_exp_t exp;
+    mpf_get_d_2exp(&exp, value);
+    if (mpf_sgn(value) == 0) {
+        return 1;
+    }
+    if (exp <= 0) {
+        return 1;
+    }
+    int digits = 1;
+    switch (base) {
+    case 16:
+        digits = (exp + 3) / 4;
+        break;
+    case 8:
+        digits = (exp + 2) / 3;
+        break;
+    case 10:
+        digits = static_cast<int>(std::floor(exp * 1.0 / std::log2(10)) + 1); // the number of digits can sometimes be larger than the actual digits
+        break;
+    case 2:
+        digits = exp;
+        break;
+    default:
+        return 0;
+    }
+    return digits;
+}
+inline std::string mpf_to_base_string_fixed(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 6 : prec;
+    mp_exp_t digits = integraldigits_in_base(value, base);
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
+    std::string base_str(base_cstr);
+    free(base_cstr);
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_showpoint = flags & std::ios::showpoint;
+    bool is_uppercase = flags & std::ios::uppercase;
+    std::string formatted_base;
+
+    if (mpf_sgn(value) == 0) {
+        if (base == 16) {
+            formatted_base.insert(0, "0x0");
+        } else if (base == 10) {
+            formatted_base.insert(0, "0");
+            if (prec == 0) {
+                if (is_showpoint) {
+                    formatted_base += ".";
+                }
+            } else {
+                formatted_base += ".";
+                formatted_base += std::string(effective_prec, '0');
+            }
+        } else {
+            formatted_base.insert(0, "0");
+        }
+    } else {
+        if (exp > 0) {
+            formatted_base += base_str.substr(0, exp); // integer part
+            if (effective_prec > 0 || is_showpoint) {
+                formatted_base += ".";
+                formatted_base += base_str.substr(exp, effective_prec); // fraction part
+            }
+        } else {
+            formatted_base += "0.";
+            std::string tobe_added = std::string(-exp, '0') + base_str;
+            formatted_base += tobe_added.substr(0, effective_prec); // 0.000XXXX
+        }
+        if (is_showbase) {
+            if (base == 16) {
+                formatted_base.insert(0, "0x");
+            } else if (base == 8 && formatted_base != "0.0") {
+                formatted_base.insert(0, "0");
+            }
+        }
+        if (prec != 0 && (!formatted_base.empty() && formatted_base.back() == '.')) {
+            formatted_base += std::string(effective_prec, '0');
+        }
+    }
+    if (width > static_cast<int>(formatted_base.size())) {
+        std::streamsize padding_length = width - formatted_base.size();
+        if (flags & std::ios_base::left) {
+            formatted_base.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '0' && formatted_base[1] == 'x') { // Insert padding after the "0x"
+            formatted_base.insert(2, padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 16 && formatted_base[0] == '-' && formatted_base[1] == '0' && formatted_base[2] == 'x') { // Insert padding after the "-0x"
+            formatted_base.insert(3, padding_length, fill);
+        } else if (flags & std::ios_base::internal && base == 10) {
+            size_t pos = 0;
+            if (formatted_base[0] == '-' || formatted_base[0] == '+') {
+                pos = 1;
+            }
+            formatted_base.insert(pos, padding_length, fill);
+        } else {
+            formatted_base.insert(0, padding_length, fill);
+        }
+    }
+    if (!is_showpoint) {
+        if (formatted_base.back() == '.') {
+            formatted_base.erase(formatted_base.size() - 1);
+        }
+    }
+    if (is_uppercase) {
+        std::transform(formatted_base.begin(), formatted_base.end(), formatted_base.begin(), [](unsigned char c) { return std::toupper(c); });
+    }
+    return formatted_base;
+}
+inline std::string mpf_to_base_string_scientific(const mpf_t value, int base, int flags, int width, int prec, char fill) {
+    // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
+    mp_exp_t exp;
+    int effective_prec = (prec == 0) ? 6 : prec;
+    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec + 1, value);
+    std::string base_str(base_cstr);
+    free(base_cstr);
+    bool is_showbase = flags & std::ios::showbase;
+    bool is_uppercase = flags & std::ios::uppercase;
+    std::string formatted_base;
+    if (mpf_sgn(value) == 0) {
+        formatted_base = "0." + std::string(effective_prec, '0');
+        exp = 1;
+    } else {
+        if (base_str[0] == '-') {
+            base_str.erase(0, 1);
+            formatted_base += "-";
+        }
+        formatted_base += base_str[0];
+        if (base_str.length() > 1) {
+            formatted_base += "." + base_str.substr(1, effective_prec);
+        } else {
+            formatted_base += "." + std::string(effective_prec, '0');
+        }
+    }
+    int _pad = 2;
+    if (mpf_sgn(value) < 0)
+        _pad++;
+    if (formatted_base.length() < static_cast<size_t>(effective_prec + _pad)) {
+        size_t padding_length = effective_prec + _pad - formatted_base.length();
+        formatted_base.append(padding_length, '0');
+    }
+    int adjusted_exp = exp - 1;
+    if (base == 16) {
+        formatted_base += "@";
+    } else if (base == 8 || base == 10) {
+        formatted_base += "e";
+    }
+    if (adjusted_exp >= 0) {
+        formatted_base += "+";
+        formatted_base += (adjusted_exp < 10 ? "0" : "") + std::to_string(adjusted_exp);
+    } else {
+        formatted_base += "-";
+        formatted_base += (-adjusted_exp < 10 ? "0" : "") + std::to_string(-adjusted_exp);
+    }
+    if (is_showbase) {
+        if (base == 16) {
+            if (formatted_base[0] == '-' || formatted_base[0] == '+') {
+                formatted_base.insert(1, "0x");
+            } else {
+                formatted_base.insert(0, "0x");
+            }
+        } else if (base == 8) {
+            if (formatted_base[0] == '-' || formatted_base[0] == '+') {
+                formatted_base.insert(1, "0");
+            } else {
+                formatted_base.insert(0, "0");
+            }
+        }
+    }
+    if (static_cast<int>(formatted_base.size()) < width) {
+        int padding_length = width - formatted_base.size();
+        if (flags & std::ios_base::left) {
+            formatted_base.append(padding_length, fill);
+        } else if (flags & std::ios_base::internal && formatted_base[0] == '-') {
+            size_t pos = formatted_base.find_first_not_of('-');
+            formatted_base.insert(pos, padding_length, fill);
+        } else {
+            formatted_base.insert(0, padding_length, fill);
+        }
+    }
+    if (is_uppercase) {
+        std::transform(formatted_base.begin(), formatted_base.end(), formatted_base.begin(), [](unsigned char c) { return std::toupper(c); });
+    }
+    return formatted_base;
+}
+inline void print_mpf(std::ostream &os, const mpf_t op) {
+    std::ios_base::fmtflags flags = os.flags();
+    std::streamsize prec = os.precision();
+    std::streamsize width = os.width();
+    bool is_hex = flags & std::ios::hex;
+    bool is_oct = flags & std::ios::oct;
+    bool is_dec = flags & std::ios::dec;
+    bool is_fixed = flags & std::ios::fixed;
+    bool is_scientific = flags & std::ios::scientific;
+    char fill = os.fill();
+    char *str = nullptr;
+
+    int base = 10;
+    if (is_hex) {
+        base = 16;
+    } else if (is_dec) {
+        base = 10;
+    } else if (is_oct) {
+        base = 8;
+    }
+    std::string format;
+    std::string base_string;
+    if (is_fixed) {
+        base_string = mpf_to_base_string_fixed(op, base, flags, width, prec, fill);
+    } else if (is_scientific) {
+        base_string = mpf_to_base_string_scientific(op, base, flags, width, prec, fill);
+    } else {
+        base_string = mpf_to_base_string_default(op, base, flags, width, prec, fill);
+    }
+    str = strdup(base_string.c_str());
+    std::string s(str);
+    free(str);
+    if (flags & std::ios::showpos && mpf_sgn(op) >= 0) {
+        s.insert(0, "+");
+    }
+    std::streamsize len = s.length();
+    if (len < width) {
+        std::streamsize padding_length = width - len;
+        if (flags & std::ios::left) {
+            s.append(padding_length, fill);
+        } else if (flags & std::ios::internal && s[0] == '-') {
+            size_t pos = s.find_first_not_of('-');
+            s.insert(pos, padding_length, fill);
+        } else {
+            s.insert(0, padding_length, fill);
+        }
+    }
+    os << s;
+    os.width(0);
+}
+inline std::ostream &operator<<(std::ostream &os, const mpf_class &op) {
+    print_mpf(os, op.get_mpf_t());
+    return os;
+}
+inline std::ostream &operator<<(std::ostream &os, const mpf_t &op) {
+    print_mpf(os, op);
+    return os;
+}
+inline bool is_valid_number_char(char ch) { return std::isxdigit(ch) || ch == '.' || ch == 'p' || ch == 'P' || ch == '-' || ch == '+'; }
+inline void print_format_flags(std::ios_base::fmtflags flags) {
+    std::cout << "Current Format Flags:" << std::endl;
+    if (flags & std::ios_base::dec)
+        std::cout << "dec ";
+    if (flags & std::ios_base::oct)
+        std::cout << "oct ";
+    if (flags & std::ios_base::hex)
+        std::cout << "hex ";
+    if (flags & std::ios_base::scientific)
+        std::cout << "scientific ";
+    if (flags & std::ios_base::fixed)
+        std::cout << "fixed ";
+    if (flags & std::ios_base::boolalpha)
+        std::cout << "boolalpha ";
+    if (flags & std::ios_base::showbase)
+        std::cout << "showbase ";
+    if (flags & std::ios_base::showpoint)
+        std::cout << "showpoint ";
+    if (flags & std::ios_base::showpos)
+        std::cout << "showpos ";
+    if (flags & std::ios_base::skipws)
+        std::cout << "skipws ";
+    if (flags & std::ios_base::unitbuf)
+        std::cout << "unitbuf ";
+    if (flags & std::ios_base::uppercase)
+        std::cout << "uppercase ";
+    if (flags & std::ios_base::adjustfield)
+        std::cout << "adjustfield ";
+    if (flags & std::ios_base::basefield)
+        std::cout << "basefield ";
+    if (flags & std::ios_base::floatfield)
+        std::cout << "floatfield ";
+    std::cout << std::endl;
+}
+inline std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
+    std::ios_base::fmtflags current_flags = stream.flags();
+    if (current_flags & std::ios_base::oct || current_flags & std::ios_base::hex) {
+        throw std::runtime_error("Unsupported number base for mpf_t");
+    }
+    char ch;
+    std::string number;
+    bool negative = false;
+    bool is_space = false;
+    int base = 10;
+    int counter = 0;
+    while (stream >> ch && isspace(ch)) {
+        is_space = true;
+        counter++;
+    }
+    if (!(current_flags & std::ios::skipws) && is_space == true) {
+        for (int i = 0; i <= counter; i++)
+            stream.unget();
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    if (ch == '+' || ch == '-') {
+        negative = (ch == '-');
+        if (!stream.get(ch)) {
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+        if (ch == '+' || ch == '-') {
+            stream.unget();
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+    }
+    if (ch == '.') {
+        if (!stream.get(ch)) {
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+        if (ch == 'e' || ch == 'E') {
+            stream.unget();
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
+    }
+    if (ch == 'e' || ch == 'E') {
+        stream.unget();
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    if (!std::isdigit(ch) && ch != '.') {
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    while (is_valid_number_char(ch)) {
+        number += ch;
+        if (!stream.get(ch))
+            break;
+    }
+    // The following code detects invalid +-, -+, --, ++
+    std::size_t pos_plus_minus = number.find("+-");
+    std::size_t pos_minus_plus = number.find("-+");
+    std::size_t pos_minus_minus = number.find("--");
+    std::size_t pos_plus_plus = number.find("++");
+    std::size_t invalid_pos = std::string::npos;
+    if (pos_plus_minus != std::string::npos) {
+        invalid_pos = pos_plus_minus;
+    } else if (pos_minus_plus != std::string::npos) {
+        invalid_pos = pos_minus_plus;
+    } else if (pos_minus_minus != std::string::npos) {
+        invalid_pos = pos_minus_minus;
+    } else if (pos_plus_plus != std::string::npos) {
+        invalid_pos = pos_plus_plus;
+    }
+    if (invalid_pos != std::string::npos) {
+        if (stream.eof())
+            stream.clear();
+        for (std::size_t i = number.size(); i > invalid_pos + 1; --i) {
+            stream.unget();
+        }
+        stream.setstate(std::ios::failbit);
+        return stream;
+    }
+    int ret = mpf_set_str(op, number.c_str(), base);
+    if (ret != 0) {
+        stream.setstate(stream.rdstate() & ~std::ios::goodbit);
+        stream.setstate(std::ios::failbit);
+    } else {
+        stream.clear(stream.rdstate() & ~std::ios::failbit);
+        stream.setstate(std::ios::goodbit);
+    }
+    if (negative) {
+        mpf_neg(op, op);
+    }
+    return stream;
+}
+inline std::istream &operator>>(std::istream &stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
+inline std::istream &operator>>(std::istream &stream, mpf_class &op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
 
 } // namespace gmpxx
 
