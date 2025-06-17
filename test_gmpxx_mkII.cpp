@@ -38,7 +38,7 @@ using namespace gmpxx;
 #endif
 #endif
 
-std::string to_hex_sci(const mpf_class &val) {
+std::string to_hex_sci(const mpf_class& val) {
     if (val == 0)
         return "0.0@+00"; // Handle zero separately
 
@@ -63,7 +63,7 @@ std::string to_hex_sci(const mpf_class &val) {
     }
     return result;
 }
-std::string insertDecimalPoint(const std::string &str, signed long int exp) {
+std::string insertDecimalPoint(const std::string& str, signed long int exp) {
     std::string result;
     std::string number = str;
     bool isNegative = false;
@@ -93,7 +93,7 @@ std::string insertDecimalPoint(const std::string &str, signed long int exp) {
     return result;
 }
 // Asserts that the mpf_class object equals the expected string representation
-bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, bool debug_flag = false, int precision = 10, int base = 10) {
+bool Is_mpf_class_Equals(mpf_class& gmpobj, const char* expected, bool debug_flag = false, int precision = 10, int base = 10) {
     char formatString[1024];
     char buffer[1024];
 
@@ -120,7 +120,7 @@ bool Is_mpf_class_Equals(mpf_class &gmpobj, const char *expected, bool debug_fla
         return false;
     }
 }
-bool Is_mpz_class_Equals(mpz_class &gmpobj, const char *expected, bool debug_flag = false, int base = 0) {
+bool Is_mpz_class_Equals(mpz_class& gmpobj, const char* expected, bool debug_flag = false, int base = 0) {
     char buffer[1024];
 
     // Adjust the comparison based on the base
@@ -141,7 +141,7 @@ bool Is_mpz_class_Equals(mpz_class &gmpobj, const char *expected, bool debug_fla
         return false;
     }
 }
-bool Is_mpq_class_Equals(mpq_class &gmpobj, const char *expected, bool debug_flag = false, int base = 0) {
+bool Is_mpq_class_Equals(mpq_class& gmpobj, const char* expected, bool debug_flag = false, int base = 0) {
     char buffer[1024];
     // Adjust the comparison based on the base
     switch (base) {
@@ -238,7 +238,7 @@ void testAssignmentOperator_the_rule_of_five() {
 }
 void testInitializationAndAssignmentDouble() {
     double testValue = 3.1415926535;
-    const char *expectedValue = "3.1415926535";
+    const char* expectedValue = "3.1415926535";
 
     mpf_class a = (mpf_class)testValue;
     assert(Is_mpf_class_Equals(a, expectedValue));
@@ -251,7 +251,7 @@ void testInitializationAndAssignmentDouble() {
 void testInitializationAndAssignmentString() {
 #if !defined USE_ORIGINAL_GMPXX
     // Testing initialization with a decimal number using a constructor
-    const char *expectedDecimalValue = "1.4142135624";
+    const char* expectedDecimalValue = "1.4142135624";
     mpf_class a = expectedDecimalValue;
     assert(Is_mpf_class_Equals(a, expectedDecimalValue));
     std::cout << "Constructor initialization with decimal '" << expectedDecimalValue << "' test passed." << std::endl;
@@ -274,8 +274,8 @@ void testInitializationAndAssignmentString() {
     assert(Is_mpf_class_Equals(d, expectedDecimalValueString.c_str()));
     std::cout << "Assignment initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
     // Testing initialization with a hexadecimal number using an assignment operator
-    const char *expectedHexValue = "0x3.243f6a8885a3p+0";
-    const char *inputHexValue = "3.243F6A8885A308D313198A2E03707344A4093822299F31D008";
+    const char* expectedHexValue = "0x3.243f6a8885a3p+0";
+    const char* inputHexValue = "3.243F6A8885A308D313198A2E03707344A4093822299F31D008";
     mpf_class e(inputHexValue, gmpxx_defaults::get_default_prec(), 16);
     assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
@@ -404,7 +404,7 @@ void testAbs() {
 }
 void test_mpf_class_double_addition() {
     mpf_class a(1.0), c;
-    const char *expectedValue = "3.0000000000";
+    const char* expectedValue = "3.0000000000";
     double b = 2.0;
 
     c = a + b;
@@ -417,8 +417,8 @@ void test_mpf_class_double_addition() {
 }
 void test_mpf_class_double_subtraction() {
     mpf_class a(5.0), c, d;
-    const char *expectedValueC = "3.0000000000";
-    const char *expectedValueD = "-3.0000000000";
+    const char* expectedValueC = "3.0000000000";
+    const char* expectedValueD = "-3.0000000000";
     double b = 2.0;
 
     c = a - b;
@@ -431,7 +431,7 @@ void test_mpf_class_double_subtraction() {
 }
 void test_mpf_class_double_multiplication() {
     mpf_class a(2.0), c;
-    const char *expectedValueMul = "4.0000000000";
+    const char* expectedValueMul = "4.0000000000";
     double b = 2.0;
 
     c = a * b;
@@ -444,8 +444,8 @@ void test_mpf_class_double_multiplication() {
 }
 void test_mpf_class_double_division() {
     mpf_class a(4.0), c, d;
-    const char *expectedValueDiv = "2.0000000000";
-    const char *expectedValueDivRev = "0.5000000000";
+    const char* expectedValueDiv = "2.0000000000";
+    const char* expectedValueDivRev = "0.5000000000";
     double b = 2.0;
 
     c = a / b;
@@ -496,8 +496,8 @@ void testCeilFunction() {
     mpf_class num1(123.456);
     mpf_class num2(-123.456);
     mpf_class result;
-    const char *expected1 = "124.0000000000";
-    const char *expected2 = "-123.0000000000";
+    const char* expected1 = "124.0000000000";
+    const char* expected2 = "-123.0000000000";
 
     result = ceil(num1);
     assert(Is_mpf_class_Equals(result, expected1));
@@ -511,8 +511,8 @@ void testFloor() {
     mpf_class numPositive(3.14);
     mpf_class numNegative(-3.14);
     mpf_class result;
-    const char *expected1 = "3.0000000000";
-    const char *expected2 = "-4.0000000000";
+    const char* expected1 = "3.0000000000";
+    const char* expected2 = "-4.0000000000";
 
     // Testing floor on a positive number
     result = floor(numPositive);
@@ -527,7 +527,7 @@ void testFloor() {
 void testHypot() {
     mpf_class op1(3.0);
     mpf_class op2(4.0);
-    const char *expected = "5.0000000000";
+    const char* expected = "5.0000000000";
     mpf_class result;
 
     // Since mpf_hypot doesn't exist, let's assume a correct implementation for hypot
@@ -671,7 +671,7 @@ void test_mpf_class_constructor_precision() {
 void test_mpf_class_constructor_with_mpf() {
     mpf_t f;
     mp_bitcnt_t prec = 128; // Example precision
-    const char *expected = "0.0390625000";
+    const char* expected = "0.0390625000";
     mpf_init2(f, mpf_get_default_prec());
     mpf_set_str(f, "0.0390625", 10); // Initialize f with a string value, base 10
 
@@ -746,7 +746,7 @@ void test_template_cmp() {
 }
 void test_set_str() {
     mpf_class num;
-    const char *num_c = "123.456";
+    const char* num_c = "123.456";
     std::string num_s = "1.25e-3";
     std::string num_f = "FF";
 
@@ -904,7 +904,7 @@ void testAssignmentOperator_the_rule_of_five_mpz_class() {
 }
 void testInitializationAndAssignmentDouble_mpz_class() {
     double testValue = 31415926535;
-    const char *expectedValue = "31415926535";
+    const char* expectedValue = "31415926535";
 
     mpz_class a = (mpz_class)testValue;
     assert(Is_mpz_class_Equals(a, expectedValue, true));
@@ -923,7 +923,7 @@ void testInitializationAndAssignmentDouble_mpz_class() {
 void testInitializationAndAssignment_int64_t_uint64_t_mpz_class() {
 #if !defined USE_ORIGINAL_GMPXX
     int64_t testValue = INT64_C(-9223372036854775807);
-    const char *expectedValue = "-9223372036854775807";
+    const char* expectedValue = "-9223372036854775807";
 
     mpz_class a = (mpz_class)testValue;
     assert(Is_mpz_class_Equals(a, expectedValue, true));
@@ -935,7 +935,7 @@ void testInitializationAndAssignment_int64_t_uint64_t_mpz_class() {
     std::cout << "Substitution from signed long int using assignment test passed." << std::endl;
 
     uint64_t testValue2 = UINT64_C(18446744073709551614);
-    const char *expectedValue2 = "18446744073709551614";
+    const char* expectedValue2 = "18446744073709551614";
 
     mpz_class c = (mpz_class)testValue2;
     assert(Is_mpz_class_Equals(c, expectedValue2, true));
@@ -950,7 +950,7 @@ void testInitializationAndAssignment_int64_t_uint64_t_mpz_class() {
 }
 void testInitializationAndAssignment_mpz_class_mpf_class() {
     mpf_class testValue("-31415926535");
-    const char *expectedValue = "-31415926535";
+    const char* expectedValue = "-31415926535";
 
     mpz_class a = (mpz_class)testValue; // explicit cast requested
     assert(Is_mpz_class_Equals(a, expectedValue));
@@ -964,7 +964,7 @@ void testInitializationAndAssignment_mpz_class_mpf_class() {
 }
 void testInitializationAndAssignment_mpf_class_mpz_class() {
     mpz_class testValue("-31415926535");
-    const char *expectedValue = "-31415926535.0000000000";
+    const char* expectedValue = "-31415926535.0000000000";
 
     mpf_class a = (mpf_class)testValue; // explicit cast requested
     assert(Is_mpf_class_Equals(a, expectedValue));
@@ -979,7 +979,7 @@ void testInitializationAndAssignment_mpf_class_mpz_class() {
 void testInitializationAndAssignmentString_mpz_class() {
 #if defined GMPXX_MKII
     // Testing initialization with a decimal number using a constructor
-    const char *expectedDecimalValue = "14142135624";
+    const char* expectedDecimalValue = "14142135624";
     mpz_class a = expectedDecimalValue;
     assert(Is_mpz_class_Equals(a, expectedDecimalValue));
     std::cout << "Constructor initialization with decimal '" << expectedDecimalValue << "' test passed." << std::endl;
@@ -1003,8 +1003,8 @@ void testInitializationAndAssignmentString_mpz_class() {
     std::cout << "Assignment initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
 
     // Testing initialization with a hexadecimal number using an assignment operator
-    const char *expectedHexValue = "66814286504060421741230023322616923956";
-    const char *inputHexValue = "3243F6A8885A308D313198A2E0370734";
+    const char* expectedHexValue = "66814286504060421741230023322616923956";
+    const char* inputHexValue = "3243F6A8885A308D313198A2E0370734";
     mpz_class e(inputHexValue, 16);
     assert(Is_mpz_class_Equals(e, expectedHexValue, true));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
@@ -1030,11 +1030,11 @@ void test_mpz_class_literal() {
     mpz_class num4 = -123456789_mpz;
     mpz_class num5 = 4294967295_mpz;
 
-    const char *num1_expected = "8801";
-    const char *num2_expected = "6809";
-    const char *num3_expected = "0";
-    const char *num4_expected = "-123456789";
-    const char *num5_expected = "4294967295";
+    const char* num1_expected = "8801";
+    const char* num2_expected = "6809";
+    const char* num3_expected = "0";
+    const char* num4_expected = "-123456789";
+    const char* num5_expected = "4294967295";
     assert(Is_mpz_class_Equals(num1, num1_expected));
     assert(Is_mpz_class_Equals(num2, num2_expected));
     assert(Is_mpz_class_Equals(num3, num3_expected));
@@ -1047,11 +1047,11 @@ void test_mpz_class_literal() {
     mpz_class num9 = "-123456"_mpz;
     mpz_class num10 = "99999999999999999999999999999999999999999999999999999999"_mpz;
 
-    const char *num6_expected = "314159";
-    const char *num7_expected = "271828";
-    const char *num8_expected = "0";
-    const char *num9_expected = "-123456";
-    const char *num10_expected = "99999999999999999999999999999999999999999999999999999999";
+    const char* num6_expected = "314159";
+    const char* num7_expected = "271828";
+    const char* num8_expected = "0";
+    const char* num9_expected = "-123456";
+    const char* num10_expected = "99999999999999999999999999999999999999999999999999999999";
     assert(Is_mpz_class_Equals(num6, num6_expected));
     assert(Is_mpz_class_Equals(num7, num7_expected));
     assert(Is_mpz_class_Equals(num8, num8_expected));
@@ -1179,7 +1179,7 @@ void testMathFunctions_mpz_class() {
 
     std::cout << "testMathFunctions_mpz_class passed." << std::endl;
 }
-template <class T> T test_func(const T &a, const T &b) { return a * b; }
+template <class T> T test_func(const T& a, const T& b) { return a * b; }
 void test_mpf_class_extention() {
 #if !defined USE_ORIGINAL_GMPXX
     mpf_class f(2), g(1), h(3);
@@ -1208,9 +1208,9 @@ void test_set_str_mpz_class() {
     assert(a.set_str("FF", 16) == 0);         // Hexadecimal
     assert(b.set_str("1010", 2) == 0);        // Binary
     assert(c.set_str("1234567890", 10) == 0); // Decimal
-    const char *expectedValue_a = "255";
-    const char *expectedValue_b = "10";
-    const char *expectedValue_c = "1234567890";
+    const char* expectedValue_a = "255";
+    const char* expectedValue_b = "10";
+    const char* expectedValue_c = "1234567890";
 
     // Print to verify the values
     gmp_printf("a (hex 'FF') as integer: %Zd\n", a.get_mpz_t());
@@ -1225,9 +1225,9 @@ void test_set_str_mpz_class() {
     assert(d.set_str(std::string("255"), 10) == 0);    // Decimal
     assert(e.set_str(std::string("377"), 8) == 0);     // Octal
     assert(f.set_str(std::string("C3665C"), 16) == 0); // Hexadecimal
-    const char *expectedValue_d = "255";
-    const char *expectedValue_e = "255";
-    const char *expectedValue_f = "12805724";
+    const char* expectedValue_d = "255";
+    const char* expectedValue_e = "255";
+    const char* expectedValue_f = "12805724";
 
     // Print to verify the values
     gmp_printf("d (decimal '255') as integer: %Zd\n", d.get_mpz_t());
@@ -1242,19 +1242,19 @@ void test_set_str_mpz_class() {
 }
 void test_factorial_mpz_class() {
     mpz_class fact5 = factorial((mpz_class)5);
-    const char *expectedValue_fact5 = "120";
+    const char* expectedValue_fact5 = "120";
     assert(Is_mpz_class_Equals(fact5, expectedValue_fact5)); // 5! = 120
     std::cout << "test_factorial_mpz_class passed.\n";
 }
 void test_primorial_mpz_class() {
     mpz_class primorial5 = primorial((mpz_class)5);
-    const char *expectedValue_primorial = "30";
+    const char* expectedValue_primorial = "30";
     assert(Is_mpz_class_Equals(primorial5, expectedValue_primorial)); // 2*3*5 = 30
     std::cout << "test_primorial_mpz_class passed.\n";
 }
 void test_fibonacci_mpz_class() {
     mpz_class fibonacci7 = fibonacci((mpz_class)7);
-    const char *expectedValue_fibonacci = "13";
+    const char* expectedValue_fibonacci = "13";
     assert(Is_mpz_class_Equals(fibonacci7, expectedValue_fibonacci)); // F(7) = 13
     std::cout << "test_fibonacci_mpz_class passed.\n";
 }
@@ -1317,7 +1317,7 @@ void test_mpz_class_addition() {
     {
         mpz_class a(1), c;
         uint64_t b = 2;
-        const char *expectedValue = "3";
+        const char* expectedValue = "3";
 
         c = a + b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1330,7 +1330,7 @@ void test_mpz_class_addition() {
     {
         mpz_class a(-1), c;
         signed long int b = 2;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
 
         c = a + b;
         assert(Is_mpz_class_Equals(c, expectedValue, true));
@@ -1342,7 +1342,7 @@ void test_mpz_class_addition() {
     {
         mpz_class a(1), c;
         signed long int b = -2;
-        const char *expectedValue = "-1";
+        const char* expectedValue = "-1";
 
         c = a + b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1354,7 +1354,7 @@ void test_mpz_class_addition() {
     {
         mpz_class a(1), c;
         unsigned int b = 2;
-        const char *expectedValue = "3";
+        const char* expectedValue = "3";
 
         c = a + b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1366,7 +1366,7 @@ void test_mpz_class_addition() {
     {
         mpz_class a(-1), c;
         signed int b = 2;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
 
         c = a + b;
         assert(Is_mpz_class_Equals(c, expectedValue, true));
@@ -1378,7 +1378,7 @@ void test_mpz_class_addition() {
     {
         mpz_class a(1), c;
         signed int b = -2;
-        const char *expectedValue = "-1";
+        const char* expectedValue = "-1";
 
         c = a + b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1390,7 +1390,7 @@ void test_mpz_class_addition() {
     {
         mpz_class a(-1), c;
         double b = 2.0;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
 
         c = a + b;
         assert(Is_mpz_class_Equals(c, expectedValue, true));
@@ -1406,8 +1406,8 @@ void test_mpz_class_subtraction() {
     {
         mpz_class a(1), c;
         uint64_t b = 2;
-        const char *expectedValue = "-1";
-        const char *expectedValue1 = "1";
+        const char* expectedValue = "-1";
+        const char* expectedValue1 = "1";
 
         c = a - b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1420,8 +1420,8 @@ void test_mpz_class_subtraction() {
     {
         mpz_class a(-1), c;
         signed long int b = 2;
-        const char *expectedValue = "-3";
-        const char *expectedValue1 = "3";
+        const char* expectedValue = "-3";
+        const char* expectedValue1 = "3";
 
         c = a - b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1433,8 +1433,8 @@ void test_mpz_class_subtraction() {
     {
         mpz_class a(1), c;
         signed long int b = -2;
-        const char *expectedValue = "3";
-        const char *expectedValue1 = "-3";
+        const char* expectedValue = "3";
+        const char* expectedValue1 = "-3";
 
         c = a - b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1446,8 +1446,8 @@ void test_mpz_class_subtraction() {
     {
         mpz_class a(1), c;
         unsigned int b = 2;
-        const char *expectedValue = "-1";
-        const char *expectedValue1 = "1";
+        const char* expectedValue = "-1";
+        const char* expectedValue1 = "1";
 
         c = a - b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1459,8 +1459,8 @@ void test_mpz_class_subtraction() {
     {
         mpz_class a(-1), c;
         signed int b = 2;
-        const char *expectedValue = "-3";
-        const char *expectedValue1 = "3";
+        const char* expectedValue = "-3";
+        const char* expectedValue1 = "3";
 
         c = a - b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1472,8 +1472,8 @@ void test_mpz_class_subtraction() {
     {
         mpz_class a(1), c;
         signed int b = -2;
-        const char *expectedValue = "3";
-        const char *expectedValue1 = "-3";
+        const char* expectedValue = "3";
+        const char* expectedValue1 = "-3";
 
         c = a - b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1485,8 +1485,8 @@ void test_mpz_class_subtraction() {
     {
         mpz_class a(-1), c;
         double b = 2.0;
-        const char *expectedValue = "-3";
-        const char *expectedValue1 = "3";
+        const char* expectedValue = "-3";
+        const char* expectedValue1 = "3";
 
         c = a - b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1501,7 +1501,7 @@ void test_mpz_class_multiplication() {
 #if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(3), c;
-        const char *expectedValue = "6";
+        const char* expectedValue = "6";
         uint64_t b = 2;
 
         c = a * b;
@@ -1514,7 +1514,7 @@ void test_mpz_class_multiplication() {
 #endif
     {
         mpz_class a(3), c;
-        const char *expectedValue = "6";
+        const char* expectedValue = "6";
         signed long int b = 2;
 
         c = a * b;
@@ -1526,7 +1526,7 @@ void test_mpz_class_multiplication() {
     }
     {
         mpz_class a(3), c;
-        const char *expectedValue = "-6";
+        const char* expectedValue = "-6";
         signed long int b = -2;
 
         c = a * b;
@@ -1538,7 +1538,7 @@ void test_mpz_class_multiplication() {
     }
     {
         mpz_class a(3), c;
-        const char *expectedValue = "6";
+        const char* expectedValue = "6";
         unsigned int b = 2;
 
         c = a * b;
@@ -1550,7 +1550,7 @@ void test_mpz_class_multiplication() {
     }
     {
         mpz_class a(3), c;
-        const char *expectedValue = "6";
+        const char* expectedValue = "6";
         signed int b = 2;
 
         c = a * b;
@@ -1562,7 +1562,7 @@ void test_mpz_class_multiplication() {
     }
     {
         mpz_class a(3), c;
-        const char *expectedValue = "-6";
+        const char* expectedValue = "-6";
         signed int b = -2;
 
         c = a * b;
@@ -1574,7 +1574,7 @@ void test_mpz_class_multiplication() {
     }
     {
         mpz_class a(3), c;
-        const char *expectedValue = "-6";
+        const char* expectedValue = "-6";
         double b = -2.0;
 
         c = a * b;
@@ -1589,8 +1589,8 @@ void test_mpz_class_multiplication() {
 void test_mpz_class_division() {
     {
         mpz_class a(7), c, d;
-        const char *expectedValue = "-3";
-        const char *expectedValue1 = "-2";
+        const char* expectedValue = "-3";
+        const char* expectedValue1 = "-2";
         mpz_class b(-2);
 
         c = a / b;
@@ -1605,7 +1605,7 @@ void test_mpz_class_division() {
 #if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(6), c, d;
-        const char *expectedValue = "3";
+        const char* expectedValue = "3";
         uint64_t b = 2;
 
         c = a / b;
@@ -1620,7 +1620,7 @@ void test_mpz_class_division() {
 #endif
     {
         mpz_class a(6), c, d;
-        const char *expectedValue = "3";
+        const char* expectedValue = "3";
         signed long int b = 2;
 
         c = a / b;
@@ -1634,7 +1634,7 @@ void test_mpz_class_division() {
     }
     {
         mpz_class a(6), c, d;
-        const char *expectedValue = "-3";
+        const char* expectedValue = "-3";
         signed long int b = -2;
 
         c = a / b;
@@ -1648,7 +1648,7 @@ void test_mpz_class_division() {
     }
     {
         mpz_class a(6), c, d;
-        const char *expectedValue = "3";
+        const char* expectedValue = "3";
         unsigned int b = 2;
 
         c = a / b;
@@ -1662,7 +1662,7 @@ void test_mpz_class_division() {
     }
     {
         mpz_class a(6), c, d;
-        const char *expectedValue = "3";
+        const char* expectedValue = "3";
         signed int b = 2;
 
         c = a / b;
@@ -1676,8 +1676,8 @@ void test_mpz_class_division() {
     }
     {
         mpz_class a(7), c, d;
-        const char *expectedValue = "-3";
-        const char *expectedValue1 = "-2";
+        const char* expectedValue = "-3";
+        const char* expectedValue1 = "-2";
         signed int b = -2;
 
         c = a / b;
@@ -1691,8 +1691,8 @@ void test_mpz_class_division() {
     }
     {
         mpz_class a(7), c, d;
-        const char *expectedValue = "-3";
-        const char *expectedValue1 = "-2";
+        const char* expectedValue = "-3";
+        const char* expectedValue1 = "-2";
         double b = -2.0;
         c = a / b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1708,7 +1708,7 @@ void test_mpz_class_division() {
 void test_mpz_class_modulus() {
     {
         mpz_class a(5), c, d;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
         mpz_class b(2);
 
         c = a % b;
@@ -1722,9 +1722,9 @@ void test_mpz_class_modulus() {
     }
     {
         mpz_class a(11), c, d;
-        const char *expectedValue = "2";
-        const char *expectedValue1 = "7";
-        const char *expectedValue2 = "1";
+        const char* expectedValue = "2";
+        const char* expectedValue1 = "7";
+        const char* expectedValue2 = "1";
         mpz_class b(-3);
 
         c = a % b;
@@ -1739,7 +1739,7 @@ void test_mpz_class_modulus() {
 #if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(5), c, d;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
         uint64_t b(2);
 
         c = a % b;
@@ -1754,7 +1754,7 @@ void test_mpz_class_modulus() {
 #endif
     {
         mpz_class a(5), c, d;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
         signed long int b(2);
         c = a % b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1767,9 +1767,9 @@ void test_mpz_class_modulus() {
     }
     {
         mpz_class a(11), c, d;
-        const char *expectedValue = "2";
-        const char *expectedValue1 = "7";
-        const char *expectedValue2 = "1";
+        const char* expectedValue = "2";
+        const char* expectedValue1 = "7";
+        const char* expectedValue2 = "1";
         signed long int b(-3);
 
         c = a % b;
@@ -1783,7 +1783,7 @@ void test_mpz_class_modulus() {
     }
     {
         mpz_class a(5), c, d;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
         unsigned int b(2);
 
         c = a % b;
@@ -1797,7 +1797,7 @@ void test_mpz_class_modulus() {
     }
     {
         mpz_class a(5), c, d;
-        const char *expectedValue = "1";
+        const char* expectedValue = "1";
         signed int b(2);
         c = a % b;
         assert(Is_mpz_class_Equals(c, expectedValue));
@@ -1810,9 +1810,9 @@ void test_mpz_class_modulus() {
     }
     {
         mpz_class a(11), c, d;
-        const char *expectedValue = "2";
-        const char *expectedValue1 = "7";
-        const char *expectedValue2 = "1";
+        const char* expectedValue = "2";
+        const char* expectedValue1 = "7";
+        const char* expectedValue2 = "1";
         signed int b(-3);
 
         c = a % b;
@@ -1848,7 +1848,7 @@ void testAssignmentOperator_mpq_class() {
     std::cout << "testAssignmentOperator_mpq_class passed." << std::endl;
 }
 void testInitializationAndAssignmentInt_mpq_class() {
-    const char *expectedValue = "355/113";
+    const char* expectedValue = "355/113";
 
     mpq_class a(355, 113);
     assert(Is_mpq_class_Equals(a, expectedValue, true));
@@ -1891,18 +1891,18 @@ void testAssignmentOperator_the_rule_of_five_mpq_class() {
 }
 void testInitializationAndAssignmentString_mpq_class() {
     mpq_class decimalFraction("-13/297");
-    const char *expectedValue_decimalFraction = "-13/297";
+    const char* expectedValue_decimalFraction = "-13/297";
     assert(Is_mpq_class_Equals(decimalFraction, expectedValue_decimalFraction, true));
     std::cout << "Constructor initialization with decimal '" << expectedValue_decimalFraction << "' test passed." << std::endl;
 
     mpq_class hexFraction("1/a", 16);
-    const char *expectedValue_hexFraction = "1/a";
+    const char* expectedValue_hexFraction = "1/a";
     assert(Is_mpq_class_Equals(hexFraction, expectedValue_hexFraction, true, 16));
     std::cout << "Constructor initialization with hex '" << expectedValue_hexFraction << "' test passed." << std::endl;
 
     std::string strFraction = "3/4";
     mpq_class stringFraction(strFraction);
-    const char *expectedValue_strFraction = "3/4";
+    const char* expectedValue_strFraction = "3/4";
     std::cout << "String fraction: " << expectedValue_strFraction << std::endl;
 
     std::cout << "testInitializationAndAssignmentString_mpq_class passed." << std::endl;
@@ -1998,11 +1998,11 @@ void test_mpq_class_literal() {
     mpq_class num4 = -9876543210_mpq;
     mpq_class num5 = 999999999999_mpq;
 
-    const char *num1_expected = "223606";
-    const char *num2_expected = "141421";
-    const char *num3_expected = "0";
-    const char *num4_expected = "-9876543210";
-    const char *num5_expected = "999999999999";
+    const char* num1_expected = "223606";
+    const char* num2_expected = "141421";
+    const char* num3_expected = "0";
+    const char* num4_expected = "-9876543210";
+    const char* num5_expected = "999999999999";
     assert(Is_mpq_class_Equals(num1, num1_expected));
     assert(Is_mpq_class_Equals(num2, num2_expected));
     assert(Is_mpq_class_Equals(num3, num3_expected));
@@ -2015,11 +2015,11 @@ void test_mpq_class_literal() {
     mpq_class num9 = "-123456"_mpq;
     mpq_class num10 = "99999999999999999999999999999999999999999999999999999999"_mpq;
 
-    const char *num6_expected = "314159";
-    const char *num7_expected = "271828";
-    const char *num8_expected = "0";
-    const char *num9_expected = "-123456";
-    const char *num10_expected = "99999999999999999999999999999999999999999999999999999999";
+    const char* num6_expected = "314159";
+    const char* num7_expected = "271828";
+    const char* num8_expected = "0";
+    const char* num9_expected = "-123456";
+    const char* num10_expected = "99999999999999999999999999999999999999999999999999999999";
     assert(Is_mpq_class_Equals(num6, num6_expected));
     assert(Is_mpq_class_Equals(num7, num7_expected));
     assert(Is_mpq_class_Equals(num8, num8_expected));
@@ -2159,7 +2159,7 @@ void test_mpz_class_comparison_int() {
 void test_mpf_class_const_pi() {
 #if !defined USE_ORIGINAL_GMPXX
     // https://www.wolframalpha.com/input?i=N%5Bpi%2C+1000%5D
-    const char *pi_approx = "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
+    const char* pi_approx = "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
     mpf_class calculated_pi = const_pi();
     mp_bitcnt_t prec = mpf_get_default_prec();
     int decimal_digits = floor(std::log10(2) * prec);
@@ -2227,7 +2227,7 @@ void test_mpf_class_const_pi() {
 void test_mpf_class_const_log2() {
 #if !defined USE_ORIGINAL_GMPXX
     // https://www.wolframalpha.com/input?i=N%5Bln%282%29%2C+1000%5D
-    const char *log2_approx = "0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875420014810205706857336855202357581305570326707516350759619307275708283714351903070386238916734711233501153644979552391204751726815749320651555247341395258829504530070953263666426541042391578149520437404303855008019441706416715186447128399681717845469570262716310645461502572074024816377733896385506952606683411372738737229289564935470257626520988596932019650585547647033067936544325476327449512504060694381471046899465062201677204245245296126879465461931651746813926725041038025462596568691441928716082938031727143677826548775664850856740776484514644399404614226031930967354025744460703080960850474866385231381816767514386674766478908814371419854942315199735488037516586127535291661000710535582498794147295092931138971559982056543928717000721808576102523688921324497138932037843935308877482597017155910708823683627589842589185353024363421436706118923678919237231467232172053401649256872747782344535348";
+    const char* log2_approx = "0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875420014810205706857336855202357581305570326707516350759619307275708283714351903070386238916734711233501153644979552391204751726815749320651555247341395258829504530070953263666426541042391578149520437404303855008019441706416715186447128399681717845469570262716310645461502572074024816377733896385506952606683411372738737229289564935470257626520988596932019650585547647033067936544325476327449512504060694381471046899465062201677204245245296126879465461931651746813926725041038025462596568691441928716082938031727143677826548775664850856740776484514644399404614226031930967354025744460703080960850474866385231381816767514386674766478908814371419854942315199735488037516586127535291661000710535582498794147295092931138971559982056543928717000721808576102523688921324497138932037843935308877482597017155910708823683627589842589185353024363421436706118923678919237231467232172053401649256872747782344535348";
     mpf_class calculated_log2 = const_log2();
     mp_bitcnt_t prec = mpf_get_default_prec();
     int decimal_digits = floor(std::log10(2) * prec);
@@ -2310,9 +2310,9 @@ void test_div2exp_mul2exp_mpf_class(void) {
 void test_log_mpf_class(void) {
 #if !defined USE_ORIGINAL_GMPXX
     // https://www.wolframalpha.com/input?i=N%5Bln%2825%29%2C+1000%5D
-    const char *log25_approx = "3.218875824868200749201518666452375279051202708537035443825295782948357975415315529260267756186359221599932606043431125799448010458649352399267233234927411455104359274994366491306985712404683050114540310387201759554779451376387081425532309462443619055897042585642716119445135344570574480923178896356729342657347996849275519186378847687868706902101950108908389481002731974175734766426261145944081318970767677447325507753091125436323023319861830486414729823355727801351745171557532783167673647900850975912478968062003965394234981987482996961915242033822028757724806708643025446251469176923119574583961773141368040133199688945399946435362373035202440405956816218039295053399530137841317957826763143432414455549119541068640775574993658750722267601893528096660570004349549759416014286931232719794082517802675283048034011777197469896975575942108628356640402906124181231577581343196250334998082868344244073889400185371187519570984237923572865751753696644116711923993582633393018646777063170797964741970862926";
+    const char* log25_approx = "3.218875824868200749201518666452375279051202708537035443825295782948357975415315529260267756186359221599932606043431125799448010458649352399267233234927411455104359274994366491306985712404683050114540310387201759554779451376387081425532309462443619055897042585642716119445135344570574480923178896356729342657347996849275519186378847687868706902101950108908389481002731974175734766426261145944081318970767677447325507753091125436323023319861830486414729823355727801351745171557532783167673647900850975912478968062003965394234981987482996961915242033822028757724806708643025446251469176923119574583961773141368040133199688945399946435362373035202440405956816218039295053399530137841317957826763143432414455549119541068640775574993658750722267601893528096660570004349549759416014286931232719794082517802675283048034011777197469896975575942108628356640402906124181231577581343196250334998082868344244073889400185371187519570984237923572865751753696644116711923993582633393018646777063170797964741970862926";
     // https://www.wolframalpha.com/input?i=N%5Bln%2810%29%2C+1000%5D
-    const char *log10_approx = "2.302585092994045684017991454684364207601101488628772976033327900967572609677352480235997205089598298341967784042286248633409525465082806756666287369098781689482907208325554680843799894826233198528393505308965377732628846163366222287698219886746543667474404243274365155048934314939391479619404400222105101714174800368808401264708068556774321622835522011480466371565912137345074785694768346361679210180644507064800027750268491674655058685693567342067058113642922455440575892572420824131469568901675894025677631135691929203337658714166023010570308963457207544037084746994016826928280848118428931484852494864487192780967627127577539702766860595249671667418348570442250719796500471495105049221477656763693866297697952211071826454973477266242570942932258279850258550978526538320760672631716430950599508780752371033310119785754733154142180842754386359177811705430982748238504564801909561029929182431823752535770975053956518769751037497088869218020518933950723853920514463419726528728696511086257149219884998";
+    const char* log10_approx = "2.302585092994045684017991454684364207601101488628772976033327900967572609677352480235997205089598298341967784042286248633409525465082806756666287369098781689482907208325554680843799894826233198528393505308965377732628846163366222287698219886746543667474404243274365155048934314939391479619404400222105101714174800368808401264708068556774321622835522011480466371565912137345074785694768346361679210180644507064800027750268491674655058685693567342067058113642922455440575892572420824131469568901675894025677631135691929203337658714166023010570308963457207544037084746994016826928280848118428931484852494864487192780967627127577539702766860595249671667418348570442250719796500471495105049221477656763693866297697952211071826454973477266242570942932258279850258550978526538320760672631716430950599508780752371033310119785754733154142180842754386359177811705430982748238504564801909561029929182431823752535770975053956518769751037497088869218020518933950723853920514463419726528728696511086257149219884998";
     mpf_class x;
     mpf_class calculated;
     mp_bitcnt_t prec;
@@ -2358,16 +2358,16 @@ void test_log_mpf_class(void) {
 void test_exp_mpf_class(void) {
 #if !defined USE_ORIGINAL_GMPXX && !defined ___GMPXX_STRICT_COMPATIBILITY___
     // https://www.wolframalpha.com/input?i=+N%5Be%2C1000%5D
-    const char *exp_approx = "2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573834187930702154089149934884167509244761460668082264800168477411853742345442437107539077744992069551702761838606261331384583000752044933826560297606737113200709328709127443747047230696977209310141692836819025515108657463772111252389784425056953696770785449969967946864454905987931636889230098793127736178215424999229576351482208269895193668033182528869398496465105820939239829488793320362509443117301238197068416140397019837679320683282376464804295311802328782509819455815301756717361332069811250996181881593041690351598888519345807273866738589422879228499892086805825749279610484198444363463244968487560233624827041978623209002160990235304369941849146314093431738143640546253152096183690888707016768396424378140592714563549061303107208510383750510115747704171898610687396965521267154688957035035";
+    const char* exp_approx = "2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573834187930702154089149934884167509244761460668082264800168477411853742345442437107539077744992069551702761838606261331384583000752044933826560297606737113200709328709127443747047230696977209310141692836819025515108657463772111252389784425056953696770785449969967946864454905987931636889230098793127736178215424999229576351482208269895193668033182528869398496465105820939239829488793320362509443117301238197068416140397019837679320683282376464804295311802328782509819455815301756717361332069811250996181881593041690351598888519345807273866738589422879228499892086805825749279610484198444363463244968487560233624827041978623209002160990235304369941849146314093431738143640546253152096183690888707016768396424378140592714563549061303107208510383750510115747704171898610687396965521267154688957035035";
     // https://www.wolframalpha.com/input?i=+N%5Be%5E3%2C1000%5D
-    const char *exp3_approx = "20.08553692318766774092852965458171789698790783855415014437893422969884587809197373120449716025301770215360761585194900288181101247935350669023262178447725050394567710006607785181222904788438394025815253470935262298146553842455569773351510815011840475493383849784317767607091377286249178734939603782279371768713125406059755342664082603094866392021625866739118181021434425976486101447439682078592116814196837482236890943228820747794712380717751234795948355631291870717723980325570722406961326764308869756183595072231928690478084267326369088420142099426054055699851968620917767803763057071354303572712275059443501409536833666992145341488550268350504225115314225042524859653457692308488860569844450156316355139644793086595358952932153985658505063860564112464635460516266458066482742220056950190662889962457088076988990086516557075290361202314960209103836201522591300399393702712132993144270679882569941465256511446682047285382500173314712582742713173225842241594992766868376755311110926298901918538329586";
-    const char *exp0_approx = "1";
+    const char* exp3_approx = "20.08553692318766774092852965458171789698790783855415014437893422969884587809197373120449716025301770215360761585194900288181101247935350669023262178447725050394567710006607785181222904788438394025815253470935262298146553842455569773351510815011840475493383849784317767607091377286249178734939603782279371768713125406059755342664082603094866392021625866739118181021434425976486101447439682078592116814196837482236890943228820747794712380717751234795948355631291870717723980325570722406961326764308869756183595072231928690478084267326369088420142099426054055699851968620917767803763057071354303572712275059443501409536833666992145341488550268350504225115314225042524859653457692308488860569844450156316355139644793086595358952932153985658505063860564112464635460516266458066482742220056950190662889962457088076988990086516557075290361202314960209103836201522591300399393702712132993144270679882569941465256511446682047285382500173314712582742713173225842241594992766868376755311110926298901918538329586";
+    const char* exp0_approx = "1";
     // https://www.wolframalpha.com/input?i=+N%5Be%5E%280.0625%29%2C1000%5D
-    const char *exp00625_approx = "1.064494458917859429563390594642889673100725443649353301519307510635563936828166006334293435506876624375512982981261182073854356653897081255324575720943188390436516579202185434714440715132134605396058232067474793692958474821644936262673767848624063665456593887338700003015937389434206746843838616729064804088140299138749563088405906808770147979046656295077073574492365000978579685541941489690710617221139026348319104842132460253485358389734336660735291996276846584629530491420132035638022087055027220463016877512711521121230033485908289316183341433102014289269967049384216123733832289887197843025246799940899616117487513172985585131891545139987789162442335985449484239383601174909282335195436596482265804349407914785506864767507425055656406514213521603195374631462677119357592947359181457683956108174516473099004585754702479858852312018451907594104169398486875390930489570809549535442756179020982349645237795972932402795811776050608660066794023407524846811142261227354534066720530710136456909806707047";
+    const char* exp00625_approx = "1.064494458917859429563390594642889673100725443649353301519307510635563936828166006334293435506876624375512982981261182073854356653897081255324575720943188390436516579202185434714440715132134605396058232067474793692958474821644936262673767848624063665456593887338700003015937389434206746843838616729064804088140299138749563088405906808770147979046656295077073574492365000978579685541941489690710617221139026348319104842132460253485358389734336660735291996276846584629530491420132035638022087055027220463016877512711521121230033485908289316183341433102014289269967049384216123733832289887197843025246799940899616117487513172985585131891545139987789162442335985449484239383601174909282335195436596482265804349407914785506864767507425055656406514213521603195374631462677119357592947359181457683956108174516473099004585754702479858852312018451907594104169398486875390930489570809549535442756179020982349645237795972932402795811776050608660066794023407524846811142261227354534066720530710136456909806707047";
     // https://www.wolframalpha.com/input?i=+N%5Be%5E%28-1%29%2C1000%5D
-    const char *expm1_approx = "0.3678794411714423215955237701614608674458111310317678345078368016974614957448998033571472743459196437466273252768439952082469757927901290086266535894940987830921943673773381150486389911251456163449877199786844759579397473025498924954532393662079648105146475206122942230891649265666003650745772837055328537383881068047876119568298934544973507393185992166174330035699372082071022775180215849942337816907156676717623366082303761229156237572094700070405097334256775762525280303768861651570936537995427406370717878445419467490931306980560163702111389774228214017380232832465287291389004660986659512444097699851459164287803720202510224578732111059537776807437112206240005167965280975444780286486006838564200433684662484349386918262062518994821970992423425207510492093445285124486022451380986417421061219536368310078209224804653079806562854154786061793155705987170215999699188228265397927803747127438635156296714511943986702682452679716814389772141359579690542529103548859731078233269414118579235695949376986";
+    const char* expm1_approx = "0.3678794411714423215955237701614608674458111310317678345078368016974614957448998033571472743459196437466273252768439952082469757927901290086266535894940987830921943673773381150486389911251456163449877199786844759579397473025498924954532393662079648105146475206122942230891649265666003650745772837055328537383881068047876119568298934544973507393185992166174330035699372082071022775180215849942337816907156676717623366082303761229156237572094700070405097334256775762525280303768861651570936537995427406370717878445419467490931306980560163702111389774228214017380232832465287291389004660986659512444097699851459164287803720202510224578732111059537776807437112206240005167965280975444780286486006838564200433684662484349386918262062518994821970992423425207510492093445285124486022451380986417421061219536368310078209224804653079806562854154786061793155705987170215999699188228265397927803747127438635156296714511943986702682452679716814389772141359579690542529103548859731078233269414118579235695949376986";
     // https://www.wolframalpha.com/input?i=+N%5Be%5E%28-10%29%2C1000%5D
-    const char *expm10_approx = "0.00004539992976248485153559151556055061023791808886656496925907130565099942161430228165252500454594778232170805508968602849294519911724452038883718334770941456756099090921700736397018105950178390076296851778703090882436517154844872229365233241602050116826436030560494157010772997535440807940399423293213827078052004271049896035448616606683700920170757320883634467939051402688860388083294497677616203039090150324548764511431630330952049312537765766774006756454876738125287505690572275377628382171284143663732182087248552216443007813115036461879368959426358019462505567865040585338993403653413058286641193648376178025649554278964463839952664381022973460413385495914470289894669705903833618297934791927412492682326345369660009565588000880953721966615544120170188073150289699206773793774210280614727384360102801589161076119101602167880922506360875805338654984867101289668710215872879988148535546912033731423698940549209573536597828837940706553848348004339425871326393731931520087753512200072317764471807908310";
+    const char* expm10_approx = "0.00004539992976248485153559151556055061023791808886656496925907130565099942161430228165252500454594778232170805508968602849294519911724452038883718334770941456756099090921700736397018105950178390076296851778703090882436517154844872229365233241602050116826436030560494157010772997535440807940399423293213827078052004271049896035448616606683700920170757320883634467939051402688860388083294497677616203039090150324548764511431630330952049312537765766774006756454876738125287505690572275377628382171284143663732182087248552216443007813115036461879368959426358019462505567865040585338993403653413058286641193648376178025649554278964463839952664381022973460413385495914470289894669705903833618297934791927412492682326345369660009565588000880953721966615544120170188073150289699206773793774210280614727384360102801589161076119101602167880922506360875805338654984867101289668710215872879988148535546912033731423698940549209573536597828837940706553848348004339425871326393731931520087753512200072317764471807908310";
 
     mpf_class x;
     mpf_class calculated;
@@ -2469,42 +2469,42 @@ void test_casts() {
     // mpf_class -> mpz_class
     mpf_class a0("4.5");
     mpz_class b0;
-    const char *expectedValue0 = "4";
+    const char* expectedValue0 = "4";
     b0 = mpz_class(a0);
     assert(Is_mpz_class_Equals(b0, expectedValue0));
 
     // mpz_class -> mpf_class
     mpf_class a1;
     mpz_class b1(3000);
-    const char *expectedValue1 = "3000.0000000000";
+    const char* expectedValue1 = "3000.0000000000";
     a1 = mpf_class(b1);
     assert(Is_mpf_class_Equals(a1, expectedValue1));
 
     // mpq_class -> mpf_class
     mpf_class a2;
     mpq_class b2("3000/13");
-    const char *expectedValue2 = "230.7692307692";
+    const char* expectedValue2 = "230.7692307692";
     a2 = mpf_class(b2);
     assert(Is_mpf_class_Equals(a2, expectedValue2, true));
 
     // mpz_class -> mpq_class
     mpz_class a3("3153");
     mpq_class b3;
-    const char *expectedValue3 = "3153";
+    const char* expectedValue3 = "3153";
     b3 = mpq_class(a3);
     assert(Is_mpq_class_Equals(b3, expectedValue3, true));
 
     // mpq_class -> mpz_class
     mpz_class a4;
     mpq_class b4("3000/13");
-    const char *expectedValue4 = "230";
+    const char* expectedValue4 = "230";
     a4 = mpz_class(b4);
     assert(Is_mpz_class_Equals(a4, expectedValue4, true));
 
     // mpf_class -> mpq_class
     mpf_class a5("4.5");
     mpq_class b5;
-    const char *expectedValue5 = "9/2";
+    const char* expectedValue5 = "9/2";
     b5 = mpq_class(a5);
     assert(Is_mpq_class_Equals(b5, expectedValue5));
 
@@ -2777,7 +2777,7 @@ void test_cos() {
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Bcos%280.5%29%2C+1000%5D
-        const char *cos0_5_approx = "0.8775825618903727161162815826038296519916451971097440529976108683159507632742139474057941840846822583554784005931090539934138279768332802667997561209502240155876291568785907234769393109896167396770144089976491285702134682183845438183933161688075406608111594034898319080526243422936798388210395344326097106933964804754464858190431523680783473541872989979620421073859870269534823243661795004902278414374593654144306238924803124411026516533210735858010801473973258173140240814461006638241372126952313583616860650624696095502592639473404558019911232873000111486767965193594297422439260707842035420054065847425228652644042751722138136221632486859686075089614370046702635364136115397636475756940310434770995888642780666339487590926986075912927819550614661607038331262366723492135736630948348605515723591765073735112642941795552487556516006978246830409779665064511236454552565685430132101697642386610565289247418901856196110813195247014727854776665745365108923118032985425467729661657598871073292535299826370";
+        const char* cos0_5_approx = "0.8775825618903727161162815826038296519916451971097440529976108683159507632742139474057941840846822583554784005931090539934138279768332802667997561209502240155876291568785907234769393109896167396770144089976491285702134682183845438183933161688075406608111594034898319080526243422936798388210395344326097106933964804754464858190431523680783473541872989979620421073859870269534823243661795004902278414374593654144306238924803124411026516533210735858010801473973258173140240814461006638241372126952313583616860650624696095502592639473404558019911232873000111486767965193594297422439260707842035420054065847425228652644042751722138136221632486859686075089614370046702635364136115397636475756940310434770995888642780666339487590926986075912927819550614661607038331262366723492135736630948348605515723591765073735112642941795552487556516006978246830409779665064511236454552565685430132101697642386610565289247418901856196110813195247014727854776665745365108923118032985425467729661657598871073292535299826370";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2799,7 +2799,7 @@ void test_cos() {
     }
     {
         // https://www.wolframalpha.com/input?i=N%5Bcos%281%29%2C+1000%5D
-        const char *cos1_approx = "0.5403023058681397174009366074429766037323104206179222276700972553811003947744717645179518560871830893435717311600300890978606337600216634564065122654173185847179711644744794942331179245513932543359435177567028925963757361543275496417544917751151312227301006313570782322367714015174689959366787306742276202450776374406758749816178427202164558511156329688905710812427293316986852471456894904342375433094423024093596239583182454728173664078071243433621748100322027129757882291764468359872699426491344391826569453515750762782513804991607306380317214450349861294883363356557799097930152879278840389800974548251049924537987740061453776371387833594234524168164283618828482374896327390556260912017589827502528599917438580692485584232217826858271088291564683006796875955130036108120336747472749181033673515093458888304203217596594052703934762502487370752661313369842416059710595606599978691384415574414466420012839398870926323453338868626299654709768054836830358211823411732418465771864116514294188326444690784";
+        const char* cos1_approx = "0.5403023058681397174009366074429766037323104206179222276700972553811003947744717645179518560871830893435717311600300890978606337600216634564065122654173185847179711644744794942331179245513932543359435177567028925963757361543275496417544917751151312227301006313570782322367714015174689959366787306742276202450776374406758749816178427202164558511156329688905710812427293316986852471456894904342375433094423024093596239583182454728173664078071243433621748100322027129757882291764468359872699426491344391826569453515750762782513804991607306380317214450349861294883363356557799097930152879278840389800974548251049924537987740061453776371387833594234524168164283618828482374896327390556260912017589827502528599917438580692485584232217826858271088291564683006796875955130036108120336747472749181033673515093458888304203217596594052703934762502487370752661313369842416059710595606599978691384415574414466420012839398870926323453338868626299654709768054836830358211823411732418465771864116514294188326444690784";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2835,7 +2835,7 @@ void test_sin() {
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Bsin%280.5%29%2C+1000%5D
-        const char *sin0_5_approx = "0.4794255386042030002732879352155713880818033679406006751886166131255350002878148322096312746843482690861320910845057174178110937486099402827801539620461919246099572939322814005335463381880552285956701356998542336391210717207773801529798713771695151761807211496980737014747686970319870390009733954910298944341773311110967390393612416365348040191834631437628439264526015707128309276600679101753363116228761679573484037186681773033317987203406456734718299450682466361245546345327828936124477953660173546282046471782377689888164451282619784029173546615068368973314728739748878819020792879913842309550381758470503006764642826713620335251453987530901420484701772927288921230141786697128002651171760791938737965442084896430338944756682357287676259771462444700080783692821494199113874381055164647107208046281224742233561086832314463354777933737113643745496547901512272850722158212556276133568178117279952130008689159388955206479734490950297931352413777709150736057102650601524887458172621092489280129105543582";
+        const char* sin0_5_approx = "0.4794255386042030002732879352155713880818033679406006751886166131255350002878148322096312746843482690861320910845057174178110937486099402827801539620461919246099572939322814005335463381880552285956701356998542336391210717207773801529798713771695151761807211496980737014747686970319870390009733954910298944341773311110967390393612416365348040191834631437628439264526015707128309276600679101753363116228761679573484037186681773033317987203406456734718299450682466361245546345327828936124477953660173546282046471782377689888164451282619784029173546615068368973314728739748878819020792879913842309550381758470503006764642826713620335251453987530901420484701772927288921230141786697128002651171760791938737965442084896430338944756682357287676259771462444700080783692821494199113874381055164647107208046281224742233561086832314463354777933737113643745496547901512272850722158212556276133568178117279952130008689159388955206479734490950297931352413777709150736057102650601524887458172621092489280129105543582";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2857,7 +2857,7 @@ void test_sin() {
     }
     {
         // https://www.wolframalpha.com/input?i=N%5Bsin%281%29%2C+1000%5D
-        const char *sin1_approx = "0.8414709848078965066525023216302989996225630607983710656727517099919104043912396689486397435430526958543490379079206742932591189209918988811934103277292124094807919558267666069999077640119784087827325663474848028702986561570179624553948935729246701270864862810533820305613772182038684496677616742662390133827533979567642555654779639897648243286902756964291206300583036515230312782552898532648513981934521359709559620621721148144417810576010756741366480550089167266058041400780623930703718779562612888046360817345246563914202524041877634207492069520077133478098142790214526825566320823352154416091644209058929870224733844604489723713979912740819247250488554873119310350681908151532607457392911183319628215089734868811421452838229865125701667384074455192375614322129060592482739703681801585630905432667846431075312638121732567019856011068360289018950194215161665519179145172004668659597169107219780588540646001994013701405309580855205280525317113323054616383636018169947971500485150793983830395678167948";
+        const char* sin1_approx = "0.8414709848078965066525023216302989996225630607983710656727517099919104043912396689486397435430526958543490379079206742932591189209918988811934103277292124094807919558267666069999077640119784087827325663474848028702986561570179624553948935729246701270864862810533820305613772182038684496677616742662390133827533979567642555654779639897648243286902756964291206300583036515230312782552898532648513981934521359709559620621721148144417810576010756741366480550089167266058041400780623930703718779562612888046360817345246563914202524041877634207492069520077133478098142790214526825566320823352154416091644209058929870224733844604489723713979912740819247250488554873119310350681908151532607457392911183319628215089734868811421452838229865125701667384074455192375614322129060592482739703681801585630905432667846431075312638121732567019856011068360289018950194215161665519179145172004668659597169107219780588540646001994013701405309580855205280525317113323054616383636018169947971500485150793983830395678167948";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2893,7 +2893,7 @@ void test_tan() {
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Btan%280.5%29%2C+1000%5D
-        const char *tan0_5_approx = "0.5463024898437905132551794657802853832975517201797912461640913859329075105180258157151806482706562185891048626002641142654932300911684028432173909299109142166369407437884742689574104012579117568787459997245089182122377508438391608137482993661734164513777158644131400892401894149314486480586500519674351342574977872908415221085467241970331446790527880716668468871483440752106506547415663369501828548780097109488509644488410491341080212223685971108678647644974269581372181607864349110751585226185856614603467598636106553813732244409778930262124949071667636788930185584623355658134842716791328409314446174562329551552070316686434408136052389587984698409202849349009643066268950773663202221068275927031381196543664392557080629562225725119638821553592032726798458097956096400150348186778846893612401538691472385317543262280556405533102005058478897757145127790585979379172843437129877265959041252742836433680072490985845406240568070134924579794028452986043961828074137389768264847958290962242928561501704126";
+        const char* tan0_5_approx = "0.5463024898437905132551794657802853832975517201797912461640913859329075105180258157151806482706562185891048626002641142654932300911684028432173909299109142166369407437884742689574104012579117568787459997245089182122377508438391608137482993661734164513777158644131400892401894149314486480586500519674351342574977872908415221085467241970331446790527880716668468871483440752106506547415663369501828548780097109488509644488410491341080212223685971108678647644974269581372181607864349110751585226185856614603467598636106553813732244409778930262124949071667636788930185584623355658134842716791328409314446174562329551552070316686434408136052389587984698409202849349009643066268950773663202221068275927031381196543664392557080629562225725119638821553592032726798458097956096400150348186778846893612401538691472385317543262280556405533102005058478897757145127790585979379172843437129877265959041252742836433680072490985845406240568070134924579794028452986043961828074137389768264847958290962242928561501704126";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2915,7 +2915,7 @@ void test_tan() {
     }
     {
         // https://www.wolframalpha.com/input?i=N%5Btan%281%29%2C+1000%5D
-        const char *tan1_approx = "1.5574077246549022305069748074583601730872507723815200383839466056988613971517272895550999652022429838046338214117481666133235546181245589376060716845489044392935860431671479080368246132747069555973416406107755352473025067968505070413523851449176214816275700278860224507720140161857721306739416643223690166756717950962610882330224852131148350591629692587616111732650100459456348215643353850532597808631549824289061892210758848878924221385209053656104434472362861925446578778273514850773908880700372159070308791432517058209136269619534377478940166007456316157881695681614614361866567292286330977096769203716916017263778512867226037524402851587319279078273733858578334130049543217104676193264364900030445702442217484459252160014668706377785595486573990024721785049795633301199461883344398640238026977359498288636108028120171311163152373742096531116813199937760466003565845884281985736727654467894198460022996521512946514081597313869091002793578754979210974245391495265566277558487047690210";
+        const char* tan1_approx = "1.5574077246549022305069748074583601730872507723815200383839466056988613971517272895550999652022429838046338214117481666133235546181245589376060716845489044392935860431671479080368246132747069555973416406107755352473025067968505070413523851449176214816275700278860224507720140161857721306739416643223690166756717950962610882330224852131148350591629692587616111732650100459456348215643353850532597808631549824289061892210758848878924221385209053656104434472362861925446578778273514850773908880700372159070308791432517058209136269619534377478940166007456316157881695681614614361866567292286330977096769203716916017263778512867226037524402851587319279078273733858578334130049543217104676193264364900030445702442217484459252160014668706377785595486573990024721785049795633301199461883344398640238026977359498288636108028120171311163152373742096531116813199937760466003565845884281985736727654467894198460022996521512946514081597313869091002793578754979210974245391495265566277558487047690210";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2942,7 +2942,7 @@ void test_pow() {
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=pow%282%2C+2.99999%29+1000digits
-        const char *pow_2_2_99999 = "7.999944548417735965910427321986411590007003904442038132291488188120284506417926019743038697930781942441212229015203753055344604976719775541683274905822542716936089681513541528837265481722285077607538153879413387225048204293036909488663811240936528271425291679800538627720103914741570455389376763940229057088623125292205425270204038905619401904883147870046493715813006170791297500130251733542472010041662127518095136090114582166464630242041080880975172430797223628223898529931359640362260853203432352649887875158060342773995939685901151579363692908402746666666748311996208218492519141180158201869281408817716733853149381362037054419229586500431491878844041117779706588023958357277050346488042204230461407896718031702820917123867880977686266359926436606171955679614321055797488324855187277043286688300169280429893727319379050862663860827278308035863797048647035299912083757777233725824367768200345551041949270566480992479741772425344915064321722195943794277488495858988225882588458082977161835843493174";
+        const char* pow_2_2_99999 = "7.999944548417735965910427321986411590007003904442038132291488188120284506417926019743038697930781942441212229015203753055344604976719775541683274905822542716936089681513541528837265481722285077607538153879413387225048204293036909488663811240936528271425291679800538627720103914741570455389376763940229057088623125292205425270204038905619401904883147870046493715813006170791297500130251733542472010041662127518095136090114582166464630242041080880975172430797223628223898529931359640362260853203432352649887875158060342773995939685901151579363692908402746666666748311996208218492519141180158201869281408817716733853149381362037054419229586500431491878844041117779706588023958357277050346488042204230461407896718031702820917123867880977686266359926436606171955679614321055797488324855187277043286688300169280429893727319379050862663860827278308035863797048647035299912083757777233725824367768200345551041949270566480992479741772425344915064321722195943794277488495858988225882588458082977161835843493174";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2964,7 +2964,7 @@ void test_pow() {
     }
     {
         // https://www.wolframalpha.com/input?i2d=true&i=pow%5C%2840%295%5C%2844%29+0.5%5C%2841%29+1000digits
-        const char *pow_5_0_5 = "2.236067977499789696409173668731276235440618359611525724270897245410520925637804899414414408378782274969508176150773783504253267724447073863586360121533452708866778173191879165811276645322639856580535761350417533785003423392414064442086432539097252592627228876299517402440681611775908909498492371390729728898482088641542689894099131693577019748678884425089754132956183176921499977424801530434115035957668332512498815178139408000562420855243542235556106306342820234093331982933959746352271201341749614202635904737885504389687061135660045757139956595566956917564578221952500060539231234005009286764875529722056766253666074485853505262330678494633422242317637277026632407680104443315825733505893098136226343198686471946989970180818952426445962034522141192232912598196325811104170495807048120403455994943506855551855572512388641655010262436312571024449618789424682903404474716115455723201737676590460918529575603577984398054155380779064393639723028756062999482213852177348592453515121046345555040707227872";
+        const char* pow_5_0_5 = "2.236067977499789696409173668731276235440618359611525724270897245410520925637804899414414408378782274969508176150773783504253267724447073863586360121533452708866778173191879165811276645322639856580535761350417533785003423392414064442086432539097252592627228876299517402440681611775908909498492371390729728898482088641542689894099131693577019748678884425089754132956183176921499977424801530434115035957668332512498815178139408000562420855243542235556106306342820234093331982933959746352271201341749614202635904737885504389687061135660045757139956595566956917564578221952500060539231234005009286764875529722056766253666074485853505262330678494633422242317637277026632407680104443315825733505893098136226343198686471946989970180818952426445962034522141192232912598196325811104170495807048120403455994943506855551855572512388641655010262436312571024449618789424682903404474716115455723201737676590460918529575603577984398054155380779064393639723028756062999482213852177348592453515121046345555040707227872";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -2986,7 +2986,7 @@ void test_pow() {
     }
     {
         // https://www.wolframalpha.com/input?i2d=true&i=pow%5C%2840%298%5C%2844%29+-3.5%5C%2841%29+1000digits
-        const char *pow_8__3_5 = "0.0006905339660024878167976995723680166399265975953989004263558006533157873429990757025636657882459187366870184796049376450317015801053958677796113874497558280426822376298474148402127929445806410068655134131394335798857276731125961240306291588958207466790085704732570724163644147709178528338027320563515574644791975323885785300979592847941173803978250733826952938133962769630554354770563253782243205560777150326660013178734448391328260694904561756948576625668547956936418276912093108950258865325043882994312932174144830319813063583170998186370146556066758189177663512771316928553541855579338597175712305478885974083328723633830851790293680858834933774866499902495795042220779825502978806083351564055898604587352186665352072789373477203974538699276036152463423451025501436097448060195554559623519289071469662289282580956721059111700682100283435378331898924404456446520713197885314872584072756083907300093320434297530140884510793849415708533842374447907573325738126912393421332724491560831128968862069574449";
+        const char* pow_8__3_5 = "0.0006905339660024878167976995723680166399265975953989004263558006533157873429990757025636657882459187366870184796049376450317015801053958677796113874497558280426822376298474148402127929445806410068655134131394335798857276731125961240306291588958207466790085704732570724163644147709178528338027320563515574644791975323885785300979592847941173803978250733826952938133962769630554354770563253782243205560777150326660013178734448391328260694904561756948576625668547956936418276912093108950258865325043882994312932174144830319813063583170998186370146556066758189177663512771316928553541855579338597175712305478885974083328723633830851790293680858834933774866499902495795042220779825502978806083351564055898604587352186665352072789373477203974538699276036152463423451025501436097448060195554559623519289071469662289282580956721059111700682100283435378331898924404456446520713197885314872584072756083907300093320434297530140884510793849415708533842374447907573325738126912393421332724491560831128968862069574449";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -3014,7 +3014,7 @@ void test_log2() {
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Blog2%280.5%29%2C+1000%5D
-        const char *log2_7_99_approx = "2.998195503153252084684237906062267448232092121426001922089762125213648072392263489504996947139992619474166188136624561745331054122922599092268564364043504602610915693733879191899719177705156349069079002325462765489400159767719231028852240346478326499819301206200359456213705564331606462731528510763995319549023440900671939161381342633868212614923489143366917167754665857473652704556348870409457576678800122309077075030146982206298183346737899758620501440865284344264402422477003345257543941354684027712503638803118633038190976965395920455337138091699508248638565470439496629648120636228305122297817102772855158558708447386137483336148002512701875479954581960327710848237616827187586771165281346426792908371122351828058711125358443206679381715460881022202860259886849238715741328713916215658193520122044561580622587135794301571795822935957653218537880096782471869407502495007680276382295985073865126128668637665581938258605446939585553940054209081772890413199750562198325125278918871994052248064342783";
+        const char* log2_7_99_approx = "2.998195503153252084684237906062267448232092121426001922089762125213648072392263489504996947139992619474166188136624561745331054122922599092268564364043504602610915693733879191899719177705156349069079002325462765489400159767719231028852240346478326499819301206200359456213705564331606462731528510763995319549023440900671939161381342633868212614923489143366917167754665857473652704556348870409457576678800122309077075030146982206298183346737899758620501440865284344264402422477003345257543941354684027712503638803118633038190976965395920455337138091699508248638565470439496629648120636228305122297817102772855158558708447386137483336148002512701875479954581960327710848237616827187586771165281346426792908371122351828058711125358443206679381715460881022202860259886849238715741328713916215658193520122044561580622587135794301571795822935957653218537880096782471869407502495007680276382295985073865126128668637665581938258605446939585553940054209081772890413199750562198325125278918871994052248064342783";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -3042,7 +3042,7 @@ void test_log10() {
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Blog10%280.5%29%2C+1000%5D
-        const char *log10_5_approx = "0.6989700043360188047862611052755069732318101185378914586895725388728918107255754905130727478818138279593155228085690046209052321188664764940003076662953044249354970357458065973381802656883970564988160971018214173828455604681380709536461153004797606891503875374595997366874053785211541526817173273160176738034572064923686824516490728610350530822142310819492099924004519121845402854149680351223738775077091708818090485010028283801395223234999321794820874426713713316579995970794901629154277751045057024378502927553402913863103907780905172387856085034717648321735076851959722537567558366884612617406961169606193667838697609481194178680843145383070946984948680730146215115812816799342464305316070282578679890941031091494143753590127816031233514601437648387226973610721217391501633189696915685844391860563823254511433365754618762660675775304056509397879554957031725393115214538843152315893562020499534030082254342459135981535920543470455658922591706000254599262782983198051109445143089305996245883100365842";
+        const char* log10_5_approx = "0.6989700043360188047862611052755069732318101185378914586895725388728918107255754905130727478818138279593155228085690046209052321188664764940003076662953044249354970357458065973381802656883970564988160971018214173828455604681380709536461153004797606891503875374595997366874053785211541526817173273160176738034572064923686824516490728610350530822142310819492099924004519121845402854149680351223738775077091708818090485010028283801395223234999321794820874426713713316579995970794901629154277751045057024378502927553402913863103907780905172387856085034717648321735076851959722537567558366884612617406961169606193667838697609481194178680843145383070946984948680730146215115812816799342464305316070282578679890941031091494143753590127816031233514601437648387226973610721217391501633189696915685844391860563823254511433365754618762660675775304056509397879554957031725393115214538843152315893562020499534030082254342459135981535920543470455658922591706000254599262782983198051109445143089305996245883100365842";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -3079,7 +3079,7 @@ void test_atan() {
     {
         // https://www.wolframalpha.com/input?i=N%5Batan%280.5%29%2C+1000%5D
         mpf_class x, y;
-        const char *atan_5_approx = "1.373400766945015860861271926444961148650999595899700808969783355912874233164860713581319584633770489878445925182949793219090442417981051760115114208847937288672931304349404758996773693692921814139459112933741098152347770223655231004468230252904201614861500929679550565887562332271559392837057559521749046762564874099862917847341175300778135076105742013090200227268797891423570152023906457675037773553314203967627958693306088655177143482397898654057266514861506185235555840523550790212772584443761839273946290168976498051786958859715775524585010035843455538759926506226276897555173179656899166812371308495189818726605064188403477748764848005080581992432446914621825271354769817716078857258708588002718630110717481894156441027335846838799134077349441220333394698508351484660918345020648861553112581320374608541418345600320069084261642509786643191517722197990887771076309362260530376857622760238111531554883589288281932978712489860212555762429288507306839076989999857868709373960067746719575405158835807";
+        const char* atan_5_approx = "1.373400766945015860861271926444961148650999595899700808969783355912874233164860713581319584633770489878445925182949793219090442417981051760115114208847937288672931304349404758996773693692921814139459112933741098152347770223655231004468230252904201614861500929679550565887562332271559392837057559521749046762564874099862917847341175300778135076105742013090200227268797891423570152023906457675037773553314203967627958693306088655177143482397898654057266514861506185235555840523550790212772584443761839273946290168976498051786958859715775524585010035843455538759926506226276897555173179656899166812371308495189818726605064188403477748764848005080581992432446914621825271354769817716078857258708588002718630110717481894156441027335846838799134077349441220333394698508351484660918345020648861553112581320374608541418345600320069084261642509786643191517722197990887771076309362260530376857622760238111531554883589288281932978712489860212555762429288507306839076989999857868709373960067746719575405158835807";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -3102,7 +3102,7 @@ void test_atan() {
     {
         mpf_class x, y;
         // https://www.wolframalpha.com/input?i=N%5Batan%280.5%29%2C+1000%5D
-        const char *atan_0_5_approx = "0.4636476090008061162142562314612144020285370542861202638109330887201978641657417053006002839848878925565298522511908375135058181816250111554715305699441056207193362661648801015325027559879258055168538891674782372865387939180125171994840139558381851150950216333064938721546097320785555572086014632275652426730521804574640086974505838973638964890026486877853780128236331217164578146836900993340528882486244562388119090158949767997197011496776001645006253016812125609335304134939663012931924274840293161119492061620844159372361273166876981687027593189510333973325929038512892545945922463215609783638009537499320948607339491864325160274827930450373317725546504996086757706227544162850222737237119744733669773185106940138112699577792562748256600962116726748115272827225207225972684215710195877562091701557768709866542668903449351805472890053707838124212854794303024367845264669937683808877190412767311593748061628833032028804465239589618924130515270876726439400070443923542442569122697771151892771722644634";
+        const char* atan_0_5_approx = "0.4636476090008061162142562314612144020285370542861202638109330887201978641657417053006002839848878925565298522511908375135058181816250111554715305699441056207193362661648801015325027559879258055168538891674782372865387939180125171994840139558381851150950216333064938721546097320785555572086014632275652426730521804574640086974505838973638964890026486877853780128236331217164578146836900993340528882486244562388119090158949767997197011496776001645006253016812125609335304134939663012931924274840293161119492061620844159372361273166876981687027593189510333973325929038512892545945922463215609783638009537499320948607339491864325160274827930450373317725546504996086757706227544162850222737237119744733669773185106940138112699577792562748256600962116726748115272827225207225972684215710195877562091701557768709866542668903449351805472890053707838124212854794303024367845264669937683808877190412767311593748061628833032028804465239589618924130515270876726439400070443923542442569122697771151892771722644634";
         mp_bitcnt_t prec = mpf_get_default_prec();
         int decimal_digits = floor(std::log10(2) * prec);
         mp_exp_t exp;
@@ -3128,22 +3128,22 @@ void test_atan() {
 void test_atan2() {
 #if !defined USE_ORIGINAL_GMPXX
     {
-        const char *pi_str = "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
-        const char *pi_2_str = "1.570796326794896619231321691639751442098584699687552910487472296153908203143104499314017412671058533991074043256641153323546922304775291115862679704064240558725142051350969260552779822311474477465190982214405487832966723064237824116893391582635600954572824283461730174305227163324106696803630124570636862293503303157794087440760460481414627045857682183946295180005665265274410233260692073475970755804716528635182879795976546093058690966305896552559274037231189981374783675942876362445613969091505974564916836681220328321543010697473197612368595351089930471851385269608588146588376192337409233834702566000284063572631780413892885671378894804586818589360734220450612476715073274792685525396139844629461771009978056064510980432017209079906814887385654980259353605674999999186489024975529865866408048159297512229727673454151321261154126672342517630965594085505001568919376443293766604190710308588834573651799126745214377734365579781431941176893796875978890928890266085613403306500963938305597954608210099";
-        const char *pi_m2_str = "-1.570796326794896619231321691639751442098584699687552910487472296153908203143104499314017412671058533991074043256641153323546922304775291115862679704064240558725142051350969260552779822311474477465190982214405487832966723064237824116893391582635600954572824283461730174305227163324106696803630124570636862293503303157794087440760460481414627045857682183946295180005665265274410233260692073475970755804716528635182879795976546093058690966305896552559274037231189981374783675942876362445613969091505974564916836681220328321543010697473197612368595351089930471851385269608588146588376192337409233834702566000284063572631780413892885671378894804586818589360734220450612476715073274792685525396139844629461771009978056064510980432017209079906814887385654980259353605674999999186489024975529865866408048159297512229727673454151321261154126672342517630965594085505001568919376443293766604190710308588834573651799126745214377734365579781431941176893796875978890928890266085613403306500963938305597954608210099";
-        const char *pi_4_str = "0.7853981633974483096156608458198757210492923498437764552437361480769541015715522496570087063355292669955370216283205766617734611523876455579313398520321202793625710256754846302763899111557372387325954911072027439164833615321189120584466957913178004772864121417308650871526135816620533484018150622853184311467516515788970437203802302407073135229288410919731475900028326326372051166303460367379853779023582643175914398979882730465293454831529482762796370186155949906873918379714381812228069845457529872824584183406101641607715053487365988061842976755449652359256926348042940732941880961687046169173512830001420317863158902069464428356894474022934092946803671102253062383575366373963427626980699223147308855049890280322554902160086045399534074436928274901296768028374999995932445124877649329332040240796487561148638367270756606305770633361712588154827970427525007844596882216468833020953551542944172868258995633726071888671827898907159705884468984379894454644451330428067016532504819691527989773041050497";
-        const char *pi_m4_str = "-0.7853981633974483096156608458198757210492923498437764552437361480769541015715522496570087063355292669955370216283205766617734611523876455579313398520321202793625710256754846302763899111557372387325954911072027439164833615321189120584466957913178004772864121417308650871526135816620533484018150622853184311467516515788970437203802302407073135229288410919731475900028326326372051166303460367379853779023582643175914398979882730465293454831529482762796370186155949906873918379714381812228069845457529872824584183406101641607715053487365988061842976755449652359256926348042940732941880961687046169173512830001420317863158902069464428356894474022934092946803671102253062383575366373963427626980699223147308855049890280322554902160086045399534074436928274901296768028374999995932445124877649329332040240796487561148638367270756606305770633361712588154827970427525007844596882216468833020953551542944172868258995633726071888671827898907159705884468984379894454644451330428067016532504819691527989773041050497";
-        const char *pi_3_4_str = "2.356194490192344928846982537459627163147877049531329365731208444230862304714656748971026119006587800986611064884961729985320383457162936673794019556096360838087713077026453890829169733467211716197786473321608231749450084596356736175340087373953401431859236425192595261457840744986160045205445186855955293440254954736691131161140690722121940568786523275919442770008497897911615349891038110213956133707074792952774319693964819139588036449458844828838911055846784972062175513914314543668420953637258961847375255021830492482314516046209796418552893026634895707777077904412882219882564288506113850752053849000426095358947670620839328507068342206880227884041101330675918715072609912189028288094209766944192656514967084096766470648025813619860222331078482470389030408512499998779733537463294798799612072238946268344591510181226981891731190008513776446448391128257502353379064664940649906286065462883251860477698690117821566601548369672147911765340695313968336393335399128420104959751445907458396931912315149";
-        const char *pi_m3_4_str = "-2.356194490192344928846982537459627163147877049531329365731208444230862304714656748971026119006587800986611064884961729985320383457162936673794019556096360838087713077026453890829169733467211716197786473321608231749450084596356736175340087373953401431859236425192595261457840744986160045205445186855955293440254954736691131161140690722121940568786523275919442770008497897911615349891038110213956133707074792952774319693964819139588036449458844828838911055846784972062175513914314543668420953637258961847375255021830492482314516046209796418552893026634895707777077904412882219882564288506113850752053849000426095358947670620839328507068342206880227884041101330675918715072609912189028288094209766944192656514967084096766470648025813619860222331078482470389030408512499998779733537463294798799612072238946268344591510181226981891731190008513776446448391128257502353379064664940649906286065462883251860477698690117821566601548369672147911765340695313968336393335399128420104959751445907458396931912315149";
-        const char *arctan_1_2str = "1.107148717794090503017065460178537040070047645401432646676539207433710338977362794013417128686170641434544191005450315810041104123150279960391149134120134938005805785186089159020277066323548671948337093046927250546427929146225306917409377626797415839477802650155236302150617431245551139595028661343071619620451122700330078743309876584050730556855033496160917167182032143557952418577001974141917867556092072396370970780081569293338989816628296388058648735549977420441253262448910061152421541607476658452967630519135912384306883380785499443665836032138897074518792365757298891993783946015848255470901612250351968711897831227460369643896101759549486816806083720841936706092318858507663251672427870156094793691467362050699710474237952805081154791173982305447826322952479276589220603404510278110198878003520641243073406563806386080606837666971733818544308606074699132134849976299998223302991267312103414276992963861911174853919055822470048763842269788306246988883221693259159049588694161190408677435945636";
-        const char *arctan_1_m2str = "-1.107148717794090503017065460178537040070047645401432646676539207433710338977362794013417128686170641434544191005450315810041104123150279960391149134120134938005805785186089159020277066323548671948337093046927250546427929146225306917409377626797415839477802650155236302150617431245551139595028661343071619620451122700330078743309876584050730556855033496160917167182032143557952418577001974141917867556092072396370970780081569293338989816628296388058648735549977420441253262448910061152421541607476658452967630519135912384306883380785499443665836032138897074518792365757298891993783946015848255470901612250351968711897831227460369643896101759549486816806083720841936706092318858507663251672427870156094793691467362050699710474237952805081154791173982305447826322952479276589220603404510278110198878003520641243073406563806386080606837666971733818544308606074699132134849976299998223302991267312103414276992963861911174853919055822470048763842269788306246988883221693259159049588694161190408677435945636";
-        const char *arctan_m1_2str = "2.034443935795702735445577923100965844127121753973673174298405384874106067308846204614617696655946426547603895507831990837052740486400302271334210274008346179444478317515849362085282578299400282982044871381883725119505516982250341316377405538473786069667845916768224046459836895402662254012231587798202104966555483615258096138211044378778523534860330871731673192829298386990868047944382172810023644053340984873994788811871522892778392115983496717059899338912402542308314089436842663738806396575535290676866042843304744258779138014160895781071354670040963869183978173459877401182968438658970212198503519750216158433365729600325401698861687849624150361915384720059288247337827691077707799119851819102828748328488750078322250389796465354732474983597327655070880888397520721783757446546549453622617218315074383216381940344496256441701415677713301443386879564935304005703902910287534985078429349865565733026605289628517580614812103740393833589945323963651534868897310477967647563413233715420787231780474563";
-        const char *arctan_m2_m1str = "-2.034443935795702735445577923100965844127121753973673174298405384874106067308846204614617696655946426547603895507831990837052740486400302271334210274008346179444478317515849362085282578299400282982044871381883725119505516982250341316377405538473786069667845916768224046459836895402662254012231587798202104966555483615258096138211044378778523534860330871731673192829298386990868047944382172810023644053340984873994788811871522892778392115983496717059899338912402542308314089436842663738806396575535290676866042843304744258779138014160895781071354670040963869183978173459877401182968438658970212198503519750216158433365729600325401698861687849624150361915384720059288247337827691077707799119851819102828748328488750078322250389796465354732474983597327655070880888397520721783757446546549453622617218315074383216381940344496256441701415677713301443386879564935304005703902910287534985078429349865565733026605289628517580614812103740393833589945323963651534868897310477967647563413233715420787231780474563";
-        const char *zero_str = "0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        const char* pi_str = "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
+        const char* pi_2_str = "1.570796326794896619231321691639751442098584699687552910487472296153908203143104499314017412671058533991074043256641153323546922304775291115862679704064240558725142051350969260552779822311474477465190982214405487832966723064237824116893391582635600954572824283461730174305227163324106696803630124570636862293503303157794087440760460481414627045857682183946295180005665265274410233260692073475970755804716528635182879795976546093058690966305896552559274037231189981374783675942876362445613969091505974564916836681220328321543010697473197612368595351089930471851385269608588146588376192337409233834702566000284063572631780413892885671378894804586818589360734220450612476715073274792685525396139844629461771009978056064510980432017209079906814887385654980259353605674999999186489024975529865866408048159297512229727673454151321261154126672342517630965594085505001568919376443293766604190710308588834573651799126745214377734365579781431941176893796875978890928890266085613403306500963938305597954608210099";
+        const char* pi_m2_str = "-1.570796326794896619231321691639751442098584699687552910487472296153908203143104499314017412671058533991074043256641153323546922304775291115862679704064240558725142051350969260552779822311474477465190982214405487832966723064237824116893391582635600954572824283461730174305227163324106696803630124570636862293503303157794087440760460481414627045857682183946295180005665265274410233260692073475970755804716528635182879795976546093058690966305896552559274037231189981374783675942876362445613969091505974564916836681220328321543010697473197612368595351089930471851385269608588146588376192337409233834702566000284063572631780413892885671378894804586818589360734220450612476715073274792685525396139844629461771009978056064510980432017209079906814887385654980259353605674999999186489024975529865866408048159297512229727673454151321261154126672342517630965594085505001568919376443293766604190710308588834573651799126745214377734365579781431941176893796875978890928890266085613403306500963938305597954608210099";
+        const char* pi_4_str = "0.7853981633974483096156608458198757210492923498437764552437361480769541015715522496570087063355292669955370216283205766617734611523876455579313398520321202793625710256754846302763899111557372387325954911072027439164833615321189120584466957913178004772864121417308650871526135816620533484018150622853184311467516515788970437203802302407073135229288410919731475900028326326372051166303460367379853779023582643175914398979882730465293454831529482762796370186155949906873918379714381812228069845457529872824584183406101641607715053487365988061842976755449652359256926348042940732941880961687046169173512830001420317863158902069464428356894474022934092946803671102253062383575366373963427626980699223147308855049890280322554902160086045399534074436928274901296768028374999995932445124877649329332040240796487561148638367270756606305770633361712588154827970427525007844596882216468833020953551542944172868258995633726071888671827898907159705884468984379894454644451330428067016532504819691527989773041050497";
+        const char* pi_m4_str = "-0.7853981633974483096156608458198757210492923498437764552437361480769541015715522496570087063355292669955370216283205766617734611523876455579313398520321202793625710256754846302763899111557372387325954911072027439164833615321189120584466957913178004772864121417308650871526135816620533484018150622853184311467516515788970437203802302407073135229288410919731475900028326326372051166303460367379853779023582643175914398979882730465293454831529482762796370186155949906873918379714381812228069845457529872824584183406101641607715053487365988061842976755449652359256926348042940732941880961687046169173512830001420317863158902069464428356894474022934092946803671102253062383575366373963427626980699223147308855049890280322554902160086045399534074436928274901296768028374999995932445124877649329332040240796487561148638367270756606305770633361712588154827970427525007844596882216468833020953551542944172868258995633726071888671827898907159705884468984379894454644451330428067016532504819691527989773041050497";
+        const char* pi_3_4_str = "2.356194490192344928846982537459627163147877049531329365731208444230862304714656748971026119006587800986611064884961729985320383457162936673794019556096360838087713077026453890829169733467211716197786473321608231749450084596356736175340087373953401431859236425192595261457840744986160045205445186855955293440254954736691131161140690722121940568786523275919442770008497897911615349891038110213956133707074792952774319693964819139588036449458844828838911055846784972062175513914314543668420953637258961847375255021830492482314516046209796418552893026634895707777077904412882219882564288506113850752053849000426095358947670620839328507068342206880227884041101330675918715072609912189028288094209766944192656514967084096766470648025813619860222331078482470389030408512499998779733537463294798799612072238946268344591510181226981891731190008513776446448391128257502353379064664940649906286065462883251860477698690117821566601548369672147911765340695313968336393335399128420104959751445907458396931912315149";
+        const char* pi_m3_4_str = "-2.356194490192344928846982537459627163147877049531329365731208444230862304714656748971026119006587800986611064884961729985320383457162936673794019556096360838087713077026453890829169733467211716197786473321608231749450084596356736175340087373953401431859236425192595261457840744986160045205445186855955293440254954736691131161140690722121940568786523275919442770008497897911615349891038110213956133707074792952774319693964819139588036449458844828838911055846784972062175513914314543668420953637258961847375255021830492482314516046209796418552893026634895707777077904412882219882564288506113850752053849000426095358947670620839328507068342206880227884041101330675918715072609912189028288094209766944192656514967084096766470648025813619860222331078482470389030408512499998779733537463294798799612072238946268344591510181226981891731190008513776446448391128257502353379064664940649906286065462883251860477698690117821566601548369672147911765340695313968336393335399128420104959751445907458396931912315149";
+        const char* arctan_1_2str = "1.107148717794090503017065460178537040070047645401432646676539207433710338977362794013417128686170641434544191005450315810041104123150279960391149134120134938005805785186089159020277066323548671948337093046927250546427929146225306917409377626797415839477802650155236302150617431245551139595028661343071619620451122700330078743309876584050730556855033496160917167182032143557952418577001974141917867556092072396370970780081569293338989816628296388058648735549977420441253262448910061152421541607476658452967630519135912384306883380785499443665836032138897074518792365757298891993783946015848255470901612250351968711897831227460369643896101759549486816806083720841936706092318858507663251672427870156094793691467362050699710474237952805081154791173982305447826322952479276589220603404510278110198878003520641243073406563806386080606837666971733818544308606074699132134849976299998223302991267312103414276992963861911174853919055822470048763842269788306246988883221693259159049588694161190408677435945636";
+        const char* arctan_1_m2str = "-1.107148717794090503017065460178537040070047645401432646676539207433710338977362794013417128686170641434544191005450315810041104123150279960391149134120134938005805785186089159020277066323548671948337093046927250546427929146225306917409377626797415839477802650155236302150617431245551139595028661343071619620451122700330078743309876584050730556855033496160917167182032143557952418577001974141917867556092072396370970780081569293338989816628296388058648735549977420441253262448910061152421541607476658452967630519135912384306883380785499443665836032138897074518792365757298891993783946015848255470901612250351968711897831227460369643896101759549486816806083720841936706092318858507663251672427870156094793691467362050699710474237952805081154791173982305447826322952479276589220603404510278110198878003520641243073406563806386080606837666971733818544308606074699132134849976299998223302991267312103414276992963861911174853919055822470048763842269788306246988883221693259159049588694161190408677435945636";
+        const char* arctan_m1_2str = "2.034443935795702735445577923100965844127121753973673174298405384874106067308846204614617696655946426547603895507831990837052740486400302271334210274008346179444478317515849362085282578299400282982044871381883725119505516982250341316377405538473786069667845916768224046459836895402662254012231587798202104966555483615258096138211044378778523534860330871731673192829298386990868047944382172810023644053340984873994788811871522892778392115983496717059899338912402542308314089436842663738806396575535290676866042843304744258779138014160895781071354670040963869183978173459877401182968438658970212198503519750216158433365729600325401698861687849624150361915384720059288247337827691077707799119851819102828748328488750078322250389796465354732474983597327655070880888397520721783757446546549453622617218315074383216381940344496256441701415677713301443386879564935304005703902910287534985078429349865565733026605289628517580614812103740393833589945323963651534868897310477967647563413233715420787231780474563";
+        const char* arctan_m2_m1str = "-2.034443935795702735445577923100965844127121753973673174298405384874106067308846204614617696655946426547603895507831990837052740486400302271334210274008346179444478317515849362085282578299400282982044871381883725119505516982250341316377405538473786069667845916768224046459836895402662254012231587798202104966555483615258096138211044378778523534860330871731673192829298386990868047944382172810023644053340984873994788811871522892778392115983496717059899338912402542308314089436842663738806396575535290676866042843304744258779138014160895781071354670040963869183978173459877401182968438658970212198503519750216158433365729600325401698861687849624150361915384720059288247337827691077707799119851819102828748328488750078322250389796465354732474983597327655070880888397520721783757446546549453622617218315074383216381940344496256441701415677713301443386879564935304005703902910287534985078429349865565733026605289628517580614812103740393833589945323963651534868897310477967647563413233715420787231780474563";
+        const char* zero_str = "0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         struct TestCase {
             mpf_class y;
             mpf_class x;
-            const char *expected;
+            const char* expected;
         };
         TestCase testCases[] = {
             {0.0, 0.0, zero_str}, {1.0, 0.0, pi_2_str}, {-1.0, 0.0, pi_m2_str}, {0.0, 1.0, zero_str}, {0.0, -1.0, pi_str}, {1.0, 1.0, pi_4_str}, {1.0, -1.0, pi_3_4_str}, {-1.0, 1.0, pi_m4_str}, {-1.0, -1.0, pi_m3_4_str}, {2.0, 1.0, arctan_1_2str}, {-2.0, 1.0, arctan_1_m2str}, {2.0, -1.0, arctan_m1_2str}, {-2.0, -1.0, arctan_m2_m1str},
