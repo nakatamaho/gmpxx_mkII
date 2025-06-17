@@ -961,186 +961,137 @@ class mpq_class {
 
 class mpf_class {
   private:
-    mpf_t mp_;
+    mpf_t value;
 
   public:
-    // Constructors
-    mpf_class() noexcept { mpf_init(mp_); }
-
-    mpf_class(mp_bitcnt_t prec) noexcept { mpf_init2(mp_, prec); }
-
-    mpf_class(double val, mp_bitcnt_t prec = 0) noexcept {
-        if (prec) {
-            mpf_init2(mp_, prec);
-        } else {
-            mpf_init(mp_);
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // 12.4 C++ Interface Floats
+    // https://gmplib.org/manual/C_002b_002b-Interface-Floats
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // constructors and destructors
+    mpf_class() { mpf_init(value); } // a default precision has already been established during initialization by a call to mpf_set_default_prec.
+    // The rule of 0/3/5
+    // The rule 1 of 5 copy constructor
+    mpf_class(const mpf_class &op) {
+        mpf_init2(value, mpf_get_prec(op.value));
+        mpf_set(value, op.value);
+    }
+    mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
+        mpf_init2(value, prec);
+        mpf_set(value, op.value);
+    }
+    // The rule 2 of 5 copy assignment operator
+    mpf_class &operator=(const mpf_class &op) noexcept {
+        if (this != &op) {
+            mpf_set(value, op.value);
         }
-        mpf_set_d(mp_, val);
+        return *this;
     }
-
-    mpf_class(long val, mp_bitcnt_t prec = 0) noexcept {
-        if (prec) {
-            mpf_init2(mp_, prec);
-        } else {
-            mpf_init(mp_);
+    // The rule 3 of 5 default deconstructor
+    ~mpf_class() { mpf_clear(value); }
+    // The rule 4 of 5 move constructor
+    mpf_class(mpf_class &&op) noexcept {
+        mpf_init(value);
+        mpf_swap(value, op.value);
+    }
+    // The rule 5 of 5 move assignment operator
+    mpf_class &operator=(mpf_class &&op) noexcept {
+        if (this != &op) {
+#if !defined ___GMPXX_MKII_NOPRECCHANGE___
+            if (mpf_get_prec(this->get_mpf_t()) == mpf_get_prec(op.value)) {
+                mpf_swap(value, op.value);
+            } else {
+                mpf_set(value, op.value);
+            }
+#else
+            mpf_swap(value, op.value);
+#endif
         }
-        mpf_set_si(mp_, val);
+        return *this;
     }
-
-    mpf_class(unsigned long val, mp_bitcnt_t prec = 0) noexcept {
-        if (prec) {
-            mpf_init2(mp_, prec);
-        } else {
-            mpf_init(mp_);
-        }
-        mpf_set_ui(mp_, val);
+    // constructors
+    explicit mpf_class(const mpf_t op) {
+        mp_bitcnt_t op_prec = mpf_get_prec(op);
+        mpf_init2(value, op_prec);
+        mpf_set(value, op);
     }
-
-    mpf_class(const mpz_class &val, mp_bitcnt_t prec = 0) noexcept {
-        if (prec) {
-            mpf_init2(mp_, prec);
-        } else {
-            mpf_init(mp_);
-        }
-        mpf_set_z(mp_, val.get_mpz_t());
+    mpf_class(const mpz_t op) noexcept {
+        mpf_init(value);
+        mpf_set_z(value, op);
     }
-
-    mpf_class(const mpq_class &val, mp_bitcnt_t prec = 0) noexcept {
-        if (prec) {
-            mpf_init2(mp_, prec);
-        } else {
-            mpf_init(mp_);
-        }
-        mpf_set_q(mp_, val.get_mpq_t());
+    mpf_class(const mpq_t op) noexcept {
+        mpf_init(value);
+        mpf_set_q(value, op);
     }
-
-    mpf_class(const std::string &str, mp_bitcnt_t prec = 0, int base = 10) {
-        if (prec) {
-            mpf_init2(mp_, prec);
-        } else {
-            mpf_init(mp_);
-        }
-        if (mpf_set_str(mp_, str.c_str(), base) != 0) {
-            mpf_clear(mp_);
-            throw std::invalid_argument("Invalid string format");
-        }
-    }
-
-    // Copy and move constructors
-    mpf_class(const mpf_class &other) noexcept {
-        mpf_init2(mp_, mpf_get_prec(other.mp_));
-        mpf_set(mp_, other.mp_);
-    }
-
-    mpf_class(mpf_class &&other) noexcept {
-        mpf_init(mp_);
-        mpf_swap(mp_, other.mp_);
-    }
-
     // Expression template constructor
     template <typename E> mpf_class(const mpf_expr<E> &expr, mp_bitcnt_t prec = 0) {
         if (prec) {
-            mpf_init2(mp_, prec);
+            mpf_init2(value, prec);
         } else {
-            mpf_init(mp_);
+            mpf_init(value);
         }
-        expr.eval_to(mp_);
+        expr.eval_to(value);
     }
-
-    // Destructor
-    ~mpf_class() noexcept { mpf_clear(mp_); }
-
-    // Assignment operators
-    mpf_class &operator=(const mpf_class &other) noexcept {
-        if (this != &other) {
-            mpf_set(mp_, other.mp_);
-        }
-        return *this;
-    }
-
-    mpf_class &operator=(mpf_class &&other) noexcept {
-        if (this != &other) {
-            mpf_swap(mp_, other.mp_);
-        }
-        return *this;
-    }
-
     template <typename E> mpf_class &operator=(const mpf_expr<E> &expr) {
-        expr.eval_to(mp_);
+        expr.eval_to(value);
         return *this;
     }
-
     mpf_class &operator=(double val) noexcept {
-        mpf_set_d(mp_, val);
+        mpf_set_d(value, val);
         return *this;
     }
-
     mpf_class &operator=(const mpz_class &val) noexcept {
-        mpf_set_z(mp_, val.get_mpz_t());
+        mpf_set_z(value, val.get_mpz_t());
         return *this;
     }
-
     mpf_class &operator=(const mpq_class &val) noexcept {
-        mpf_set_q(mp_, val.get_mpq_t());
+        mpf_set_q(value, val.get_mpq_t());
         return *this;
     }
-
     // Compound assignment operators
     template <typename T> mpf_class &operator+=(const T &other) {
         *this = *this + other;
         return *this;
     }
-
     template <typename T> mpf_class &operator-=(const T &other) {
         *this = *this - other;
         return *this;
     }
-
     template <typename T> mpf_class &operator*=(const T &other) {
         *this = *this * other;
         return *this;
     }
-
     template <typename T> mpf_class &operator/=(const T &other) {
         *this = *this / other;
         return *this;
     }
-
     // Access to underlying GMP type
-    mpf_t &get_mpf_t() noexcept { return mp_; }
-    const mpf_t &get_mpf_t() const noexcept { return mp_; }
-
+    mpf_t &get_mpf_t() noexcept { return value; }
+    const mpf_t &get_mpf_t() const noexcept { return value; }
     // Precision management
-    mp_bitcnt_t get_prec() const noexcept { return mpf_get_prec(mp_); }
-    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(mp_, prec); }
-
+    mp_bitcnt_t get_prec() const noexcept { return mpf_get_prec(value); }
+    void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
     // Conversion functions
-    double get_d() const noexcept { return mpf_get_d(mp_); }
-    long get_si() const noexcept { return mpf_get_si(mp_); }
-    unsigned long get_ui() const noexcept { return mpf_get_ui(mp_); }
+    double get_d() const noexcept { return mpf_get_d(value); }
+    long get_si() const noexcept { return mpf_get_si(value); }
+    unsigned long get_ui() const noexcept { return mpf_get_ui(value); }
 
-    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
-        char *str = mpf_get_str(nullptr, &exp, base, digits, mp_);
+    std::string get_str(valueexp_t &exp, int base = 10, size_t digits = 0) const {
+        char *str = mpf_get_str(nullptr, &exp, base, digits, value);
         std::string result(str);
         free(str);
         return result;
     }
 
     // Utility functions
-    int sgn() const noexcept { return mpf_sgn(mp_); }
-
+    int sgn() const noexcept { return mpf_sgn(value); }
     // Comparison operators
-    bool operator==(const mpf_class &other) const noexcept { return mpf_cmp(mp_, other.mp_) == 0; }
-
-    bool operator!=(const mpf_class &other) const noexcept { return mpf_cmp(mp_, other.mp_) != 0; }
-
-    bool operator<(const mpf_class &other) const noexcept { return mpf_cmp(mp_, other.mp_) < 0; }
-
-    bool operator<=(const mpf_class &other) const noexcept { return mpf_cmp(mp_, other.mp_) <= 0; }
-
-    bool operator>(const mpf_class &other) const noexcept { return mpf_cmp(mp_, other.mp_) > 0; }
-
-    bool operator>=(const mpf_class &other) const noexcept { return mpf_cmp(mp_, other.mp_) >= 0; }
+    bool operator==(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) == 0; }
+    bool operator!=(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) != 0; }
+    bool operator<(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) < 0; }
+    bool operator<=(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) <= 0; }
+    bool operator>(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) > 0; }
+    bool operator>=(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) >= 0; }
 };
 
 //=============================================================================
