@@ -89,6 +89,7 @@ inline constexpr bool ___gmpxx_mkII___ullong_is_same_as_uint64_v = ___is_same_re
 namespace gmpxx {
 #endif
 
+// Forward declarations
 class mpz_class;
 class mpq_class;
 class mpf_class;
