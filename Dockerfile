@@ -80,19 +80,12 @@ RUN git config --global user.email "$GIT_EMAIL" \
 # Setup SSH agent in bashrc
 RUN echo 'eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519 2>/dev/null' >> ~/.bashrc
 
+ARG GIT_COMMIT_TRIGGER=unspecified
+
 # Clone repository and build GMP
 RUN git clone --branch expression_template --single-branch \
     https://github.com/nakatamaho/gmpxx_mkII.git \
-    && cd gmpxx_mkII \
-    && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git \
-    && cd setup && bash setup_gmp.sh \
-    && cd ../.. && rm -rf gmpxx_mkII && ls -lR /home/docker/i/
-
-ARG GIT_COMMIT_TRIGGER=unspecified
-RUN git clone --branch expression_template --single-branch \
-    https://github.com/nakatamaho/gmpxx_mkII.git \
-    && cd gmpxx_mkII \
-    && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
+    && cd gmpxx_mkII && cd setup && bash setup_gmp.sh
 
 RUN git clone --branch main --single-branch --depth 1 \
     https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII.main \

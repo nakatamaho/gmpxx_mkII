@@ -7,7 +7,7 @@ export CC=gcc-13
 export CXX=g++-13
 WRKDIR=/home/docker/gmpxx_mkII/setup/work_gmp
 ARCHIVEDIR=/home/docker/gmpxx_mkII/archives
-INSTALLDIR=/home/docker/i/GMP-${VERSION}
+INSTALLDIR=/home/docker/gmpxx_mkII/i/GMP-${VERSION}
 ARCHIVE_FILE="$ARCHIVEDIR/gmp-${VERSION}.tar.xz"
 
 # Basic checks

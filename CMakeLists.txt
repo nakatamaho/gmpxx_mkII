@@ -11,10 +11,7 @@ add_compile_definitions(__STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS)
 # Find GMP (prefer custom build if available)
 # Check multiple possible locations
 set(GMP_SEARCH_PATHS
-    "/home/docker/i/GMP-6.3.0"
     "${CMAKE_SOURCE_DIR}/i/GMP-6.3.0"
-    "/home/docker/gmpxx_mkII/i/GMP-6.3.0"
-    "$ENV{HOME}/i/GMP-6.3.0"
 )
 
 set(CUSTOM_GMP_PATH "")
