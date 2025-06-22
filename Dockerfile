@@ -96,7 +96,6 @@ ARG BRANCH_NAME=expression_template
 RUN git clone --branch expression_template --single-branch \
     https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII_expression_template \
     && cd gmpxx_mkII_expression_template \
-    && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git \
     && cd setup \
     && GMPXX_BASE_DIR=/home/docker/gmpxx_mkII_${BRANCH_NAME} \
     && sed -i "s|WRKDIR=/home/docker/gmpxx_mkII/setup/work_gmp|WRKDIR=${GMPXX_BASE_DIR}/setup/work_gmp|g" setup_gmp.sh \
@@ -104,6 +103,13 @@ RUN git clone --branch expression_template --single-branch \
     && sed -i "s|INSTALLDIR=/home/docker/gmpxx_mkII/i/GMP|INSTALLDIR=${GMPXX_BASE_DIR}/i/GMP|g" setup_gmp.sh \
     && bash setup_gmp.sh
 
+# Build gmpxx_mkII and run tests
+RUN cd gmpxx_mkII_expression_template \
+    && mkdir -p build \
+    && cd build \
+=======
+    && cd setup && bash setup_gmp.sh
+  
 # Build gmpxx_mkII and run tests
 RUN cd gmpxx_mkII_expression_template \
     && mkdir -p build \
