@@ -4,7 +4,8 @@ for f in *.cpp *.cc *.h *.h.in; do
     IndentWidth: 4,
     ColumnLimit: 10000,
     SortIncludes: false,
-    AlignEscapedNewlines: LeftWithLastLine
+    AlignEscapedNewlines: LeftWithLastLine,
+    SpaceBeforeRangeBasedForLoopColon: false,
+    PointerAlignment: Left
   }' "$f"
 done
-

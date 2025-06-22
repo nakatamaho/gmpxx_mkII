@@ -118,7 +118,7 @@ class mpf_class_initializer {
     mpf_class_initializer() {
         int prec = 512;
 
-        const char *prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
+        const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
 
         if (prec_env) {
             if (is_positive_integer(prec_env)) {
@@ -136,12 +136,12 @@ class mpf_class_initializer {
     }
 
   private:
-    bool is_positive_integer(const std::string &s) { return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit); }
+    bool is_positive_integer(const std::string& s) { return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit); }
 };
 inline mpf_class_initializer global_mpf_class_initializer;
 class mpf_class_initializer_singleton {
   public:
-    static mpf_class_initializer_singleton &instance() {
+    static mpf_class_initializer_singleton& instance() {
         static mpf_class_initializer_singleton instance;
         return instance;
     }
@@ -149,11 +149,11 @@ class mpf_class_initializer_singleton {
 
   private:
     mpf_class_initializer_singleton() { (void)global_mpf_class_initializer; }
-    mpf_class_initializer_singleton(const mpf_class_initializer_singleton &) = delete;
-    mpf_class_initializer_singleton &operator=(const mpf_class_initializer_singleton &) = delete;
+    mpf_class_initializer_singleton(const mpf_class_initializer_singleton&) = delete;
+    mpf_class_initializer_singleton& operator=(const mpf_class_initializer_singleton&) = delete;
 };
 namespace {
-const auto &initializer = mpf_class_initializer_singleton::instance();
+const auto& initializer = mpf_class_initializer_singleton::instance();
 }
 
 template <typename T = void> struct caches {
@@ -169,7 +169,7 @@ template <typename T> mpf_class caches<T>::log2_cached;
 
 namespace helper {
 // helper function for mpz_import from various integer types
-template <typename U, std::enable_if_t<std::is_integral_v<U>, int> = 0> void mpz_init_import(mpz_t &value, const U &op) {
+template <typename U, std::enable_if_t<std::is_integral_v<U>, int> = 0> void mpz_init_import(mpz_t& value, const U& op) {
     mpz_init(value);
     if constexpr (std::is_signed_v<U>) {
         using UnsignedT = std::make_unsigned_t<U>;
@@ -317,8 +317,8 @@ template <typename T, typename TargetType> inline constexpr bool can_convert_to_
 
 template <typename E> class mpz_expr {
   public:
-    const E &cast() const noexcept { return static_cast<const E &>(*this); }
-    E &cast() noexcept { return static_cast<E &>(*this); }
+    const E& cast() const noexcept { return static_cast<const E&>(*this); }
+    E& cast() noexcept { return static_cast<E&>(*this); }
 
     void eval_to(mpz_t result) const { cast().eval_to(result); }
     operator mpz_class() const;
@@ -326,8 +326,8 @@ template <typename E> class mpz_expr {
 
 template <typename E> class mpq_expr {
   public:
-    const E &cast() const noexcept { return static_cast<const E &>(*this); }
-    E &cast() noexcept { return static_cast<E &>(*this); }
+    const E& cast() const noexcept { return static_cast<const E&>(*this); }
+    E& cast() noexcept { return static_cast<E&>(*this); }
 
     void eval_to(mpq_t result) const { cast().eval_to(result); }
     operator mpq_class() const;
@@ -335,8 +335,8 @@ template <typename E> class mpq_expr {
 
 template <typename E> class mpf_expr {
   public:
-    const E &cast() const noexcept { return static_cast<const E &>(*this); }
-    E &cast() noexcept { return static_cast<E &>(*this); }
+    const E& cast() const noexcept { return static_cast<const E&>(*this); }
+    E& cast() noexcept { return static_cast<E&>(*this); }
 
     void eval_to(mpf_t result) const { cast().eval_to(result); }
     operator mpf_class() const;
@@ -435,11 +435,11 @@ struct mpf_sqrt_op {
 
 template <typename L, typename R, typename Op> class mpz_binary_expr : public mpz_expr<mpz_binary_expr<L, R, Op>> {
   private:
-    const L &left_;
-    const R &right_;
+    const L& left_;
+    const R& right_;
 
   public:
-    mpz_binary_expr(const L &left, const R &right) noexcept : left_(left), right_(right) {}
+    mpz_binary_expr(const L& left, const R& right) noexcept : left_(left), right_(right) {}
 
     void eval_to(mpz_t result) const {
         mpz_t left_val, right_val;
@@ -456,7 +456,7 @@ template <typename L, typename R, typename Op> class mpz_binary_expr : public mp
     }
 
   private:
-    template <typename T> void eval_operand(const T &operand, mpz_t result) const {
+    template <typename T> void eval_operand(const T& operand, mpz_t result) const {
         if constexpr (std::is_same_v<T, mpz_class>) {
             mpz_set(result, operand.get_mpz_t());
         } else {
@@ -467,11 +467,11 @@ template <typename L, typename R, typename Op> class mpz_binary_expr : public mp
 
 template <typename L, typename R, typename Op> class mpq_binary_expr : public mpq_expr<mpq_binary_expr<L, R, Op>> {
   private:
-    const L &left_;
-    const R &right_;
+    const L& left_;
+    const R& right_;
 
   public:
-    mpq_binary_expr(const L &left, const R &right) noexcept : left_(left), right_(right) {}
+    mpq_binary_expr(const L& left, const R& right) noexcept : left_(left), right_(right) {}
 
     void eval_to(mpq_t result) const {
         mpq_t left_val, right_val;
@@ -488,7 +488,7 @@ template <typename L, typename R, typename Op> class mpq_binary_expr : public mp
     }
 
   private:
-    template <typename T> void eval_operand(const T &operand, mpq_t result) const {
+    template <typename T> void eval_operand(const T& operand, mpq_t result) const {
         if constexpr (std::is_same_v<T, mpq_class>) {
             mpq_set(result, operand.get_mpq_t());
         } else if constexpr (std::is_same_v<T, mpz_class>) {
@@ -501,12 +501,12 @@ template <typename L, typename R, typename Op> class mpq_binary_expr : public mp
 
 template <typename L, typename R, typename Op> class mpf_binary_expr : public mpf_expr<mpf_binary_expr<L, R, Op>> {
   private:
-    const L &left_;
-    const R &right_;
+    const L& left_;
+    const R& right_;
     mp_bitcnt_t prec_;
 
   public:
-    mpf_binary_expr(const L &left, const R &right, mp_bitcnt_t prec = 0) noexcept : left_(left), right_(right), prec_(prec ? prec : mpf_get_default_prec()) {}
+    mpf_binary_expr(const L& left, const R& right, mp_bitcnt_t prec = 0) noexcept : left_(left), right_(right), prec_(prec ? prec : mpf_get_default_prec()) {}
 
     void eval_to(mpf_t result) const {
         mpf_t left_val, right_val;
@@ -523,7 +523,7 @@ template <typename L, typename R, typename Op> class mpf_binary_expr : public mp
     }
 
   private:
-    template <typename T> void eval_operand(const T &operand, mpf_t result) const {
+    template <typename T> void eval_operand(const T& operand, mpf_t result) const {
         if constexpr (std::is_same_v<T, mpf_class>) {
             mpf_set(result, operand.get_mpf_t());
         } else if constexpr (std::is_same_v<T, mpq_class>) {
@@ -542,10 +542,10 @@ template <typename L, typename R, typename Op> class mpf_binary_expr : public mp
 
 template <typename E, typename Op> class mpz_unary_expr : public mpz_expr<mpz_unary_expr<E, Op>> {
   private:
-    const E &expr_;
+    const E& expr_;
 
   public:
-    mpz_unary_expr(const E &expr) noexcept : expr_(expr) {}
+    mpz_unary_expr(const E& expr) noexcept : expr_(expr) {}
 
     void eval_to(mpz_t result) const {
         if constexpr (std::is_same_v<E, mpz_class>) {
@@ -562,10 +562,10 @@ template <typename E, typename Op> class mpz_unary_expr : public mpz_expr<mpz_un
 
 template <typename E, typename Op> class mpq_unary_expr : public mpq_expr<mpq_unary_expr<E, Op>> {
   private:
-    const E &expr_;
+    const E& expr_;
 
   public:
-    mpq_unary_expr(const E &expr) noexcept : expr_(expr) {}
+    mpq_unary_expr(const E& expr) noexcept : expr_(expr) {}
 
     void eval_to(mpq_t result) const {
         if constexpr (std::is_same_v<E, mpq_class>) {
@@ -582,11 +582,11 @@ template <typename E, typename Op> class mpq_unary_expr : public mpq_expr<mpq_un
 
 template <typename E, typename Op> class mpf_unary_expr : public mpf_expr<mpf_unary_expr<E, Op>> {
   private:
-    const E &expr_;
+    const E& expr_;
     mp_bitcnt_t prec_;
 
   public:
-    mpf_unary_expr(const E &expr, mp_bitcnt_t prec = 0) noexcept : expr_(expr), prec_(prec ? prec : mpf_get_default_prec()) {}
+    mpf_unary_expr(const E& expr, mp_bitcnt_t prec = 0) noexcept : expr_(expr), prec_(prec ? prec : mpf_get_default_prec()) {}
 
     void eval_to(mpf_t result) const {
         if constexpr (std::is_same_v<E, mpf_class>) {
@@ -614,12 +614,12 @@ class mpz_class {
     mpz_class() { mpz_init(value); }
     // The rule of 0/3/5
     // The rule 1 of 5 copy constructor
-    mpz_class(const mpz_class &op) {
+    mpz_class(const mpz_class& op) {
         mpz_init(value);
         mpz_set(value, op.value);
     }
     // The rule 2 of 5 copy assignment operator
-    mpz_class &operator=(const mpz_class &op) noexcept {
+    mpz_class& operator=(const mpz_class& op) noexcept {
         if (this != &op) {
             mpz_set(value, op.value);
         }
@@ -628,12 +628,12 @@ class mpz_class {
     // The rule 3 of 5 default destructor
     ~mpz_class() { mpz_clear(value); }
     // The rule 4 of 5 move constructor
-    mpz_class(mpz_class &&op) noexcept {
+    mpz_class(mpz_class&& op) noexcept {
         mpz_init(value);
         mpz_swap(value, op.value);
     }
     // The rule 5 of 5 move assignment operator
-    mpz_class &operator=(mpz_class &&op) noexcept {
+    mpz_class& operator=(mpz_class&& op) noexcept {
         if (this != &op) {
             mpz_swap(value, op.value);
         }
@@ -652,13 +652,13 @@ class mpz_class {
         mpz_init(value);
         mpz_set_f(value, op);
     }
-    mpz_class(const char *str, int base = 0) {
+    mpz_class(const char* str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str, base) != 0) {
             throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
     }
-    mpz_class(const std::string &str, int base = 0) {
+    mpz_class(const std::string& str, int base = 0) {
         mpz_init(value);
         if (mpz_set_str(value, str.c_str(), base) != 0) {
             throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
@@ -692,7 +692,7 @@ class mpz_class {
 
     // assignments from other objects
     // assignments from various integers
-    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpz_class &operator=(T op) {
+    template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpz_class& operator=(T op) {
         if constexpr (std::is_same_v<T, int64_t>) {
             if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
                 mpz_set_si(value, static_cast<long int>(op));
@@ -718,63 +718,63 @@ class mpz_class {
         }
         return *this;
     }
-    mpz_class &operator=(const char *str) {
+    mpz_class& operator=(const char* str) {
         if (mpz_set_str(value, str, 0) != 0) {
             throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
         return *this;
     }
-    mpz_class &operator=(const std::string &str) {
+    mpz_class& operator=(const std::string& str) {
         if (mpz_set_str(value, str.c_str(), 0) != 0) {
             throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
         return *this;
     }
     // Expression template constructor
-    template <typename E> mpz_class(const mpz_expr<E> &expr) {
+    template <typename E> mpz_class(const mpz_expr<E>& expr) {
         mpz_init(value);
         expr.eval_to(value);
     }
 
-    template <typename E> mpz_class &operator=(const mpz_expr<E> &expr) {
+    template <typename E> mpz_class& operator=(const mpz_expr<E>& expr) {
         expr.eval_to(value);
         return *this;
     }
 
-    mpz_class &operator=(long val) noexcept {
+    mpz_class& operator=(long val) noexcept {
         mpz_set_si(value, val);
         return *this;
     }
 
-    mpz_class &operator=(unsigned long val) noexcept {
+    mpz_class& operator=(unsigned long val) noexcept {
         mpz_set_ui(value, val);
         return *this;
     }
 
     // Compound assignment operators
-    template <typename T> mpz_class &operator+=(const T &other) {
+    template <typename T> mpz_class& operator+=(const T& other) {
         *this = *this + other;
         return *this;
     }
 
-    template <typename T> mpz_class &operator-=(const T &other) {
+    template <typename T> mpz_class& operator-=(const T& other) {
         *this = *this - other;
         return *this;
     }
 
-    template <typename T> mpz_class &operator*=(const T &other) {
+    template <typename T> mpz_class& operator*=(const T& other) {
         *this = *this * other;
         return *this;
     }
 
-    template <typename T> mpz_class &operator/=(const T &other) {
+    template <typename T> mpz_class& operator/=(const T& other) {
         *this = *this / other;
         return *this;
     }
 
     // Access to underlying GMP type
-    mpz_t &get_mpz_t() noexcept { return value; }
-    const mpz_t &get_mpz_t() const noexcept { return value; }
+    mpz_t& get_mpz_t() noexcept { return value; }
+    const mpz_t& get_mpz_t() const noexcept { return value; }
 
     // Conversion functions
     long get_si() const noexcept { return mpz_get_si(value); }
@@ -782,7 +782,7 @@ class mpz_class {
     double get_d() const noexcept { return mpz_get_d(value); }
 
     std::string get_str(int base = 10) const {
-        char *str = mpz_get_str(nullptr, base, value);
+        char* str = mpz_get_str(nullptr, base, value);
         std::string result(str);
         free(str);
         return result;
@@ -793,12 +793,12 @@ class mpz_class {
     int sgn() const noexcept { return mpz_sgn(value); }
 
     // Comparison operators
-    bool operator==(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) == 0; }
-    bool operator!=(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) != 0; }
-    bool operator<(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) < 0; }
-    bool operator<=(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) <= 0; }
-    bool operator>(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) > 0; }
-    bool operator>=(const mpz_class &other) const noexcept { return mpz_cmp(value, other.value) >= 0; }
+    bool operator==(const mpz_class& other) const noexcept { return mpz_cmp(value, other.value) == 0; }
+    bool operator!=(const mpz_class& other) const noexcept { return mpz_cmp(value, other.value) != 0; }
+    bool operator<(const mpz_class& other) const noexcept { return mpz_cmp(value, other.value) < 0; }
+    bool operator<=(const mpz_class& other) const noexcept { return mpz_cmp(value, other.value) <= 0; }
+    bool operator>(const mpz_class& other) const noexcept { return mpz_cmp(value, other.value) > 0; }
+    bool operator>=(const mpz_class& other) const noexcept { return mpz_cmp(value, other.value) >= 0; }
 };
 
 class mpq_class {
@@ -832,19 +832,19 @@ class mpq_class {
         mpq_set_d(mp_, val);
     }
 
-    mpq_class(const mpz_class &num, const mpz_class &den) {
+    mpq_class(const mpz_class& num, const mpz_class& den) {
         mpq_init(mp_);
         mpq_set_num(mp_, num.get_mpz_t());
         mpq_set_den(mp_, den.get_mpz_t());
         mpq_canonicalize(mp_);
     }
 
-    mpq_class(const mpz_class &num) noexcept {
+    mpq_class(const mpz_class& num) noexcept {
         mpq_init(mp_);
         mpq_set_z(mp_, num.get_mpz_t());
     }
 
-    mpq_class(const std::string &str, int base = 10) {
+    mpq_class(const std::string& str, int base = 10) {
         mpq_init(mp_);
         if (mpq_set_str(mp_, str.c_str(), base) != 0) {
             mpq_clear(mp_);
@@ -854,18 +854,18 @@ class mpq_class {
     }
 
     // Copy and move constructors
-    mpq_class(const mpq_class &other) noexcept {
+    mpq_class(const mpq_class& other) noexcept {
         mpq_init(mp_);
         mpq_set(mp_, other.mp_);
     }
 
-    mpq_class(mpq_class &&other) noexcept {
+    mpq_class(mpq_class&& other) noexcept {
         mpq_init(mp_);
         mpq_swap(mp_, other.mp_);
     }
 
     // Expression template constructor
-    template <typename E> mpq_class(const mpq_expr<E> &expr) {
+    template <typename E> mpq_class(const mpq_expr<E>& expr) {
         mpq_init(mp_);
         expr.eval_to(mp_);
     }
@@ -874,54 +874,54 @@ class mpq_class {
     ~mpq_class() noexcept { mpq_clear(mp_); }
 
     // Assignment operators
-    mpq_class &operator=(const mpq_class &other) noexcept {
+    mpq_class& operator=(const mpq_class& other) noexcept {
         if (this != &other) {
             mpq_set(mp_, other.mp_);
         }
         return *this;
     }
 
-    mpq_class &operator=(mpq_class &&other) noexcept {
+    mpq_class& operator=(mpq_class&& other) noexcept {
         if (this != &other) {
             mpq_swap(mp_, other.mp_);
         }
         return *this;
     }
 
-    template <typename E> mpq_class &operator=(const mpq_expr<E> &expr) {
+    template <typename E> mpq_class& operator=(const mpq_expr<E>& expr) {
         expr.eval_to(mp_);
         return *this;
     }
 
-    mpq_class &operator=(const mpz_class &val) noexcept {
+    mpq_class& operator=(const mpz_class& val) noexcept {
         mpq_set_z(mp_, val.get_mpz_t());
         return *this;
     }
 
     // Compound assignment operators
-    template <typename T> mpq_class &operator+=(const T &other) {
+    template <typename T> mpq_class& operator+=(const T& other) {
         *this = *this + other;
         return *this;
     }
 
-    template <typename T> mpq_class &operator-=(const T &other) {
+    template <typename T> mpq_class& operator-=(const T& other) {
         *this = *this - other;
         return *this;
     }
 
-    template <typename T> mpq_class &operator*=(const T &other) {
+    template <typename T> mpq_class& operator*=(const T& other) {
         *this = *this * other;
         return *this;
     }
 
-    template <typename T> mpq_class &operator/=(const T &other) {
+    template <typename T> mpq_class& operator/=(const T& other) {
         *this = *this / other;
         return *this;
     }
 
     // Access to underlying GMP type
-    mpq_t &get_mpq_t() noexcept { return mp_; }
-    const mpq_t &get_mpq_t() const noexcept { return mp_; }
+    mpq_t& get_mpq_t() noexcept { return mp_; }
+    const mpq_t& get_mpq_t() const noexcept { return mp_; }
 
     // Access to numerator and denominator
     mpz_class get_num() const {
@@ -940,7 +940,7 @@ class mpq_class {
     double get_d() const noexcept { return mpq_get_d(mp_); }
 
     std::string get_str(int base = 10) const {
-        char *str = mpq_get_str(nullptr, base, mp_);
+        char* str = mpq_get_str(nullptr, base, mp_);
         std::string result(str);
         free(str);
         return result;
@@ -951,17 +951,17 @@ class mpq_class {
     int sgn() const noexcept { return mpq_sgn(mp_); }
 
     // Comparison operators
-    bool operator==(const mpq_class &other) const noexcept { return mpq_cmp(mp_, other.mp_) == 0; }
+    bool operator==(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) == 0; }
 
-    bool operator!=(const mpq_class &other) const noexcept { return mpq_cmp(mp_, other.mp_) != 0; }
+    bool operator!=(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) != 0; }
 
-    bool operator<(const mpq_class &other) const noexcept { return mpq_cmp(mp_, other.mp_) < 0; }
+    bool operator<(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) < 0; }
 
-    bool operator<=(const mpq_class &other) const noexcept { return mpq_cmp(mp_, other.mp_) <= 0; }
+    bool operator<=(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) <= 0; }
 
-    bool operator>(const mpq_class &other) const noexcept { return mpq_cmp(mp_, other.mp_) > 0; }
+    bool operator>(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) > 0; }
 
-    bool operator>=(const mpq_class &other) const noexcept { return mpq_cmp(mp_, other.mp_) >= 0; }
+    bool operator>=(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) >= 0; }
 };
 
 class mpf_class {
@@ -977,16 +977,16 @@ class mpf_class {
     mpf_class() { mpf_init(value); } // a default precision has already been established during initialization by a call to mpf_set_default_prec.
     // The rule of 0/3/5
     // The rule 1 of 5 copy constructor
-    mpf_class(const mpf_class &op) {
+    mpf_class(const mpf_class& op) {
         mpf_init2(value, mpf_get_prec(op.value));
         mpf_set(value, op.value);
     }
-    mpf_class(const mpf_class &op, mp_bitcnt_t prec) {
+    mpf_class(const mpf_class& op, mp_bitcnt_t prec) {
         mpf_init2(value, prec);
         mpf_set(value, op.value);
     }
     // The rule 2 of 5 copy assignment operator
-    mpf_class &operator=(const mpf_class &op) noexcept {
+    mpf_class& operator=(const mpf_class& op) noexcept {
         if (this != &op) {
             mpf_set(value, op.value);
         }
@@ -995,12 +995,12 @@ class mpf_class {
     // The rule 3 of 5 default destructor
     ~mpf_class() { mpf_clear(value); }
     // The rule 4 of 5 move constructor
-    mpf_class(mpf_class &&op) noexcept {
+    mpf_class(mpf_class&& op) noexcept {
         mpf_init(value);
         mpf_swap(value, op.value);
     }
     // The rule 5 of 5 move assignment operator
-    mpf_class &operator=(mpf_class &&op) noexcept {
+    mpf_class& operator=(mpf_class&& op) noexcept {
         if (this != &op) {
 #if !defined ___GMPXX_MKII_NOPRECCHANGE___
             if (mpf_get_prec(this->get_mpf_t()) == mpf_get_prec(op.value)) {
@@ -1033,48 +1033,48 @@ class mpf_class {
     mpf_class(const signed long int op) noexcept { mpf_init_set_si(value, op); }
     mpf_class(const signed int op) noexcept { mpf_init_set_si(value, static_cast<signed long int>(op)); }
     mpf_class(const double op) noexcept { mpf_init_set_d(value, op); }
-    explicit mpf_class(const char *s) {
+    explicit mpf_class(const char* s) {
         mpf_init(value);
         if (mpf_set_str(value, s, 0) != 0) {
             mpf_clear(value);
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
     }
-    mpf_class(const char *s, mp_bitcnt_t prec, int base = 0) {
+    mpf_class(const char* s, mp_bitcnt_t prec, int base = 0) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, s, base) != 0) {
             mpf_clear(value);
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
     }
-    explicit mpf_class(const std::string &s) {
+    explicit mpf_class(const std::string& s) {
         mpf_init(value);
         if (mpf_set_str(value, s.c_str(), 0) != 0) {
             mpf_clear(value);
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
     }
-    mpf_class(const std::string &s, mp_bitcnt_t prec, int base = 0) {
+    mpf_class(const std::string& s, mp_bitcnt_t prec, int base = 0) {
         mpf_init2(value, prec);
         if (mpf_set_str(value, s.c_str(), base) != 0) {
             mpf_clear(value);
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
     }
-    mpf_class &operator=(const char *s) {
+    mpf_class& operator=(const char* s) {
         if (mpf_set_str(value, s, 0) != 0) {
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
         return *this;
     }
-    mpf_class &operator=(const std::string &s) {
+    mpf_class& operator=(const std::string& s) {
         if (mpf_set_str(value, s.c_str(), 0) != 0) {
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
         return *this;
     }
     // Expression template constructor
-    template <typename E> mpf_class(const mpf_expr<E> &expr, mp_bitcnt_t prec = 0) {
+    template <typename E> mpf_class(const mpf_expr<E>& expr, mp_bitcnt_t prec = 0) {
         if (prec) {
             mpf_init2(value, prec);
         } else {
@@ -1082,42 +1082,42 @@ class mpf_class {
         }
         expr.eval_to(value);
     }
-    template <typename E> mpf_class &operator=(const mpf_expr<E> &expr) {
+    template <typename E> mpf_class& operator=(const mpf_expr<E>& expr) {
         expr.eval_to(value);
         return *this;
     }
-    mpf_class &operator=(double val) noexcept {
+    mpf_class& operator=(double val) noexcept {
         mpf_set_d(value, val);
         return *this;
     }
-    mpf_class &operator=(const mpz_class &val) noexcept {
+    mpf_class& operator=(const mpz_class& val) noexcept {
         mpf_set_z(value, val.get_mpz_t());
         return *this;
     }
-    mpf_class &operator=(const mpq_class &val) noexcept {
+    mpf_class& operator=(const mpq_class& val) noexcept {
         mpf_set_q(value, val.get_mpq_t());
         return *this;
     }
     // Compound assignment operators
-    template <typename T> mpf_class &operator+=(const T &other) {
+    template <typename T> mpf_class& operator+=(const T& other) {
         *this = *this + other;
         return *this;
     }
-    template <typename T> mpf_class &operator-=(const T &other) {
+    template <typename T> mpf_class& operator-=(const T& other) {
         *this = *this - other;
         return *this;
     }
-    template <typename T> mpf_class &operator*=(const T &other) {
+    template <typename T> mpf_class& operator*=(const T& other) {
         *this = *this * other;
         return *this;
     }
-    template <typename T> mpf_class &operator/=(const T &other) {
+    template <typename T> mpf_class& operator/=(const T& other) {
         *this = *this / other;
         return *this;
     }
     // Access to underlying GMP type
-    mpf_t &get_mpf_t() noexcept { return value; }
-    const mpf_t &get_mpf_t() const noexcept { return value; }
+    mpf_t& get_mpf_t() noexcept { return value; }
+    const mpf_t& get_mpf_t() const noexcept { return value; }
     // Precision management
     mp_bitcnt_t get_prec() const noexcept { return mpf_get_prec(value); }
     void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
@@ -1127,8 +1127,8 @@ class mpf_class {
     unsigned long get_ui() const noexcept { return mpf_get_ui(value); }
 
     // Multiple get_str overloads to handle different calling patterns
-    std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
-        char *str = mpf_get_str(nullptr, &exp, base, digits, value);
+    std::string get_str(mp_exp_t& exp, int base = 10, size_t digits = 0) const {
+        char* str = mpf_get_str(nullptr, &exp, base, digits, value);
         std::string result(str);
         free(str);
         return result;
@@ -1137,7 +1137,7 @@ class mpf_class {
     // Overload for simple base/digits case: get_str(10, 0)
     std::string get_str(int base = 10, size_t digits = 0) const {
         mp_exp_t exp;
-        char *str = mpf_get_str(nullptr, &exp, base, digits, value);
+        char* str = mpf_get_str(nullptr, &exp, base, digits, value);
         std::string result(str);
         free(str);
         return result;
@@ -1146,7 +1146,7 @@ class mpf_class {
     // Three-argument overload for test pattern: get_str(10, 0, 50)
     std::string get_str(int base, int unused, int digits) const {
         mp_exp_t exp;
-        char *str = mpf_get_str(nullptr, &exp, base, static_cast<size_t>(digits), value);
+        char* str = mpf_get_str(nullptr, &exp, base, static_cast<size_t>(digits), value);
         std::string result(str);
         free(str);
         return result;
@@ -1155,12 +1155,12 @@ class mpf_class {
     // Utility functions
     int sgn() const noexcept { return mpf_sgn(value); }
     // Comparison operators
-    bool operator==(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) == 0; }
-    bool operator!=(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) != 0; }
-    bool operator<(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) < 0; }
-    bool operator<=(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) <= 0; }
-    bool operator>(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) > 0; }
-    bool operator>=(const mpf_class &other) const noexcept { return mpf_cmp(value, other.value) >= 0; }
+    bool operator==(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) == 0; }
+    bool operator!=(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) != 0; }
+    bool operator<(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) < 0; }
+    bool operator<=(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) <= 0; }
+    bool operator>(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) > 0; }
+    bool operator>=(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) >= 0; }
 };
 
 //=============================================================================
@@ -1178,20 +1178,20 @@ template <typename E> mpf_expr<E>::operator mpf_class() const { return mpf_class
 //=============================================================================
 
 // mpz operators
-template <typename L, typename R> auto operator+(const mpz_expr<L> &left, const mpz_expr<R> &right) { return mpz_binary_expr<L, R, mpz_add_op>(left.cast(), right.cast()); }
+template <typename L, typename R> auto operator+(const mpz_expr<L>& left, const mpz_expr<R>& right) { return mpz_binary_expr<L, R, mpz_add_op>(left.cast(), right.cast()); }
 
-auto operator+(const mpz_class &left, const mpz_class &right) { return mpz_binary_expr<mpz_class, mpz_class, mpz_add_op>(left, right); }
+auto operator+(const mpz_class& left, const mpz_class& right) { return mpz_binary_expr<mpz_class, mpz_class, mpz_add_op>(left, right); }
 
-template <typename E> auto operator+(const mpz_expr<E> &left, const mpz_class &right) { return mpz_binary_expr<E, mpz_class, mpz_add_op>(left.cast(), right); }
+template <typename E> auto operator+(const mpz_expr<E>& left, const mpz_class& right) { return mpz_binary_expr<E, mpz_class, mpz_add_op>(left.cast(), right); }
 
-template <typename E> auto operator+(const mpz_class &left, const mpz_expr<E> &right) { return mpz_binary_expr<mpz_class, E, mpz_add_op>(left, right.cast()); }
+template <typename E> auto operator+(const mpz_class& left, const mpz_expr<E>& right) { return mpz_binary_expr<mpz_class, E, mpz_add_op>(left, right.cast()); }
 
 // Similar patterns for -, *, /, % for mpz
 #define DEFINE_MPZ_BINARY_OP(op, op_class)                                                                                                                                       \
-    template <typename L, typename R> auto operator op(const mpz_expr<L> &left, const mpz_expr<R> &right) { return mpz_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
-    auto operator op(const mpz_class &left, const mpz_class &right) { return mpz_binary_expr<mpz_class, mpz_class, op_class>(left, right); }                                     \
-    template <typename E> auto operator op(const mpz_expr<E> &left, const mpz_class &right) { return mpz_binary_expr<E, mpz_class, op_class>(left.cast(), right); }              \
-    template <typename E> auto operator op(const mpz_class &left, const mpz_expr<E> &right) { return mpz_binary_expr<mpz_class, E, op_class>(left, right.cast()); }
+    template <typename L, typename R> auto operator op(const mpz_expr<L>& left, const mpz_expr<R>& right) { return mpz_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
+    auto operator op(const mpz_class& left, const mpz_class& right) { return mpz_binary_expr<mpz_class, mpz_class, op_class>(left, right); }                                     \
+    template <typename E> auto operator op(const mpz_expr<E>& left, const mpz_class& right) { return mpz_binary_expr<E, mpz_class, op_class>(left.cast(), right); }              \
+    template <typename E> auto operator op(const mpz_class& left, const mpz_expr<E>& right) { return mpz_binary_expr<mpz_class, E, op_class>(left, right.cast()); }
 
 DEFINE_MPZ_BINARY_OP(-, mpz_sub_op)
 DEFINE_MPZ_BINARY_OP(*, mpz_mul_op)
@@ -1200,12 +1200,12 @@ DEFINE_MPZ_BINARY_OP(%, mpz_mod_op)
 
 // mpq operators
 #define DEFINE_MPQ_BINARY_OP(op, op_class)                                                                                                                                       \
-    template <typename L, typename R> auto operator op(const mpq_expr<L> &left, const mpq_expr<R> &right) { return mpq_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
-    auto operator op(const mpq_class &left, const mpq_class &right) { return mpq_binary_expr<mpq_class, mpq_class, op_class>(left, right); }                                     \
-    template <typename E> auto operator op(const mpq_expr<E> &left, const mpq_class &right) { return mpq_binary_expr<E, mpq_class, op_class>(left.cast(), right); }              \
-    template <typename E> auto operator op(const mpq_class &left, const mpq_expr<E> &right) { return mpq_binary_expr<mpq_class, E, op_class>(left, right.cast()); }              \
-    auto operator op(const mpz_class &left, const mpq_class &right) { return mpq_binary_expr<mpz_class, mpq_class, op_class>(left, right); }                                     \
-    auto operator op(const mpq_class &left, const mpz_class &right) { return mpq_binary_expr<mpq_class, mpz_class, op_class>(left, right); }
+    template <typename L, typename R> auto operator op(const mpq_expr<L>& left, const mpq_expr<R>& right) { return mpq_binary_expr<L, R, op_class>(left.cast(), right.cast()); } \
+    auto operator op(const mpq_class& left, const mpq_class& right) { return mpq_binary_expr<mpq_class, mpq_class, op_class>(left, right); }                                     \
+    template <typename E> auto operator op(const mpq_expr<E>& left, const mpq_class& right) { return mpq_binary_expr<E, mpq_class, op_class>(left.cast(), right); }              \
+    template <typename E> auto operator op(const mpq_class& left, const mpq_expr<E>& right) { return mpq_binary_expr<mpq_class, E, op_class>(left, right.cast()); }              \
+    auto operator op(const mpz_class& left, const mpq_class& right) { return mpq_binary_expr<mpz_class, mpq_class, op_class>(left, right); }                                     \
+    auto operator op(const mpq_class& left, const mpz_class& right) { return mpq_binary_expr<mpq_class, mpz_class, op_class>(left, right); }
 
 DEFINE_MPQ_BINARY_OP(+, mpq_add_op)
 DEFINE_MPQ_BINARY_OP(-, mpq_sub_op)
@@ -1214,14 +1214,14 @@ DEFINE_MPQ_BINARY_OP(/, mpq_div_op)
 
 // mpf operators
 #define DEFINE_MPF_BINARY_OP(op, op_class)                                                                                                                                                \
-    template <typename L, typename R> auto operator op(const mpf_expr<L> &left, const mpf_expr<R> &right) { return mpf_binary_expr<L, R, op_class>(left.cast(), right.cast()); }          \
-    auto operator op(const mpf_class &left, const mpf_class &right) { return mpf_binary_expr<mpf_class, mpf_class, op_class>(left, right, std::max(left.get_prec(), right.get_prec())); } \
-    template <typename E> auto operator op(const mpf_expr<E> &left, const mpf_class &right) { return mpf_binary_expr<E, mpf_class, op_class>(left.cast(), right); }                       \
-    template <typename E> auto operator op(const mpf_class &left, const mpf_expr<E> &right) { return mpf_binary_expr<mpf_class, E, op_class>(left, right.cast()); }                       \
-    auto operator op(const mpq_class &left, const mpf_class &right) { return mpf_binary_expr<mpq_class, mpf_class, op_class>(left, right); }                                              \
-    auto operator op(const mpf_class &left, const mpq_class &right) { return mpf_binary_expr<mpf_class, mpq_class, op_class>(left, right); }                                              \
-    auto operator op(const mpz_class &left, const mpf_class &right) { return mpf_binary_expr<mpz_class, mpf_class, op_class>(left, right); }                                              \
-    auto operator op(const mpf_class &left, const mpz_class &right) { return mpf_binary_expr<mpf_class, mpz_class, op_class>(left, right); }
+    template <typename L, typename R> auto operator op(const mpf_expr<L>& left, const mpf_expr<R>& right) { return mpf_binary_expr<L, R, op_class>(left.cast(), right.cast()); }          \
+    auto operator op(const mpf_class& left, const mpf_class& right) { return mpf_binary_expr<mpf_class, mpf_class, op_class>(left, right, std::max(left.get_prec(), right.get_prec())); } \
+    template <typename E> auto operator op(const mpf_expr<E>& left, const mpf_class& right) { return mpf_binary_expr<E, mpf_class, op_class>(left.cast(), right); }                       \
+    template <typename E> auto operator op(const mpf_class& left, const mpf_expr<E>& right) { return mpf_binary_expr<mpf_class, E, op_class>(left, right.cast()); }                       \
+    auto operator op(const mpq_class& left, const mpf_class& right) { return mpf_binary_expr<mpq_class, mpf_class, op_class>(left, right); }                                              \
+    auto operator op(const mpf_class& left, const mpq_class& right) { return mpf_binary_expr<mpf_class, mpq_class, op_class>(left, right); }                                              \
+    auto operator op(const mpz_class& left, const mpf_class& right) { return mpf_binary_expr<mpz_class, mpf_class, op_class>(left, right); }                                              \
+    auto operator op(const mpf_class& left, const mpz_class& right) { return mpf_binary_expr<mpf_class, mpz_class, op_class>(left, right); }
 
 DEFINE_MPF_BINARY_OP(+, mpf_add_op)
 DEFINE_MPF_BINARY_OP(-, mpf_sub_op)
@@ -1233,67 +1233,67 @@ DEFINE_MPF_BINARY_OP(/, mpf_div_op)
 //=============================================================================
 
 // Unary minus
-template <typename E> auto operator-(const mpz_expr<E> &expr) { return mpz_unary_expr<E, mpz_neg_op>(expr.cast()); }
+template <typename E> auto operator-(const mpz_expr<E>& expr) { return mpz_unary_expr<E, mpz_neg_op>(expr.cast()); }
 
-auto operator-(const mpz_class &val) { return mpz_unary_expr<mpz_class, mpz_neg_op>(val); }
+auto operator-(const mpz_class& val) { return mpz_unary_expr<mpz_class, mpz_neg_op>(val); }
 
-template <typename E> auto operator-(const mpq_expr<E> &expr) { return mpq_unary_expr<E, mpq_neg_op>(expr.cast()); }
+template <typename E> auto operator-(const mpq_expr<E>& expr) { return mpq_unary_expr<E, mpq_neg_op>(expr.cast()); }
 
-auto operator-(const mpq_class &val) { return mpq_unary_expr<mpq_class, mpq_neg_op>(val); }
+auto operator-(const mpq_class& val) { return mpq_unary_expr<mpq_class, mpq_neg_op>(val); }
 
-template <typename E> auto operator-(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_neg_op>(expr.cast()); }
+template <typename E> auto operator-(const mpf_expr<E>& expr) { return mpf_unary_expr<E, mpf_neg_op>(expr.cast()); }
 
-auto operator-(const mpf_class &val) { return mpf_unary_expr<mpf_class, mpf_neg_op>(val); }
+auto operator-(const mpf_class& val) { return mpf_unary_expr<mpf_class, mpf_neg_op>(val); }
 
 // Absolute value
-template <typename E> auto abs(const mpz_expr<E> &expr) { return mpz_unary_expr<E, mpz_abs_op>(expr.cast()); }
+template <typename E> auto abs(const mpz_expr<E>& expr) { return mpz_unary_expr<E, mpz_abs_op>(expr.cast()); }
 
-auto abs(const mpz_class &val) { return mpz_unary_expr<mpz_class, mpz_abs_op>(val); }
+auto abs(const mpz_class& val) { return mpz_unary_expr<mpz_class, mpz_abs_op>(val); }
 
-template <typename E> auto abs(const mpq_expr<E> &expr) { return mpq_unary_expr<E, mpq_abs_op>(expr.cast()); }
+template <typename E> auto abs(const mpq_expr<E>& expr) { return mpq_unary_expr<E, mpq_abs_op>(expr.cast()); }
 
-auto abs(const mpq_class &val) { return mpq_unary_expr<mpq_class, mpq_abs_op>(val); }
+auto abs(const mpq_class& val) { return mpq_unary_expr<mpq_class, mpq_abs_op>(val); }
 
-template <typename E> auto abs(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_abs_op>(expr.cast()); }
+template <typename E> auto abs(const mpf_expr<E>& expr) { return mpf_unary_expr<E, mpf_abs_op>(expr.cast()); }
 
-auto abs(const mpf_class &val) { return mpf_unary_expr<mpf_class, mpf_abs_op>(val); }
+auto abs(const mpf_class& val) { return mpf_unary_expr<mpf_class, mpf_abs_op>(val); }
 
 // Square root for mpf
-template <typename E> auto sqrt(const mpf_expr<E> &expr) { return mpf_unary_expr<E, mpf_sqrt_op>(expr.cast()); }
+template <typename E> auto sqrt(const mpf_expr<E>& expr) { return mpf_unary_expr<E, mpf_sqrt_op>(expr.cast()); }
 
-auto sqrt(const mpf_class &val) { return mpf_unary_expr<mpf_class, mpf_sqrt_op>(val); }
+auto sqrt(const mpf_class& val) { return mpf_unary_expr<mpf_class, mpf_sqrt_op>(val); }
 
 //=============================================================================
 // Comparison operators for expressions
 //=============================================================================
 
 // mpz comparison operators for expressions
-template <typename E> bool operator==(const mpz_expr<E> &left, const mpz_class &right) {
+template <typename E> bool operator==(const mpz_expr<E>& left, const mpz_class& right) {
     mpz_class temp(left);
     return temp == right;
 }
 
-template <typename E> bool operator==(const mpz_class &left, const mpz_expr<E> &right) {
+template <typename E> bool operator==(const mpz_class& left, const mpz_expr<E>& right) {
     mpz_class temp(right);
     return left == temp;
 }
 
-template <typename E1, typename E2> bool operator==(const mpz_expr<E1> &left, const mpz_expr<E2> &right) {
+template <typename E1, typename E2> bool operator==(const mpz_expr<E1>& left, const mpz_expr<E2>& right) {
     mpz_class temp1(left);
     mpz_class temp2(right);
     return temp1 == temp2;
 }
 
 #define DEFINE_MPZ_COMPARISON_OPS(op)                                                                           \
-    template <typename E> bool operator op(const mpz_expr<E> &left, const mpz_class &right) {                   \
+    template <typename E> bool operator op(const mpz_expr<E>& left, const mpz_class& right) {                   \
         mpz_class temp(left);                                                                                   \
         return temp op right;                                                                                   \
     }                                                                                                           \
-    template <typename E> bool operator op(const mpz_class &left, const mpz_expr<E> &right) {                   \
+    template <typename E> bool operator op(const mpz_class& left, const mpz_expr<E>& right) {                   \
         mpz_class temp(right);                                                                                  \
         return left op temp;                                                                                    \
     }                                                                                                           \
-    template <typename E1, typename E2> bool operator op(const mpz_expr<E1> &left, const mpz_expr<E2> &right) { \
+    template <typename E1, typename E2> bool operator op(const mpz_expr<E1>& left, const mpz_expr<E2>& right) { \
         mpz_class temp1(left);                                                                                  \
         mpz_class temp2(right);                                                                                 \
         return temp1 op temp2;                                                                                  \
@@ -1306,32 +1306,32 @@ DEFINE_MPZ_COMPARISON_OPS(>)
 DEFINE_MPZ_COMPARISON_OPS(>=)
 
 // mpq comparison operators for expressions
-template <typename E> bool operator==(const mpq_expr<E> &left, const mpq_class &right) {
+template <typename E> bool operator==(const mpq_expr<E>& left, const mpq_class& right) {
     mpq_class temp(left);
     return temp == right;
 }
 
-template <typename E> bool operator==(const mpq_class &left, const mpq_expr<E> &right) {
+template <typename E> bool operator==(const mpq_class& left, const mpq_expr<E>& right) {
     mpq_class temp(right);
     return left == temp;
 }
 
-template <typename E1, typename E2> bool operator==(const mpq_expr<E1> &left, const mpq_expr<E2> &right) {
+template <typename E1, typename E2> bool operator==(const mpq_expr<E1>& left, const mpq_expr<E2>& right) {
     mpq_class temp1(left);
     mpq_class temp2(right);
     return temp1 == temp2;
 }
 
 #define DEFINE_MPQ_COMPARISON_OPS(op)                                                                           \
-    template <typename E> bool operator op(const mpq_expr<E> &left, const mpq_class &right) {                   \
+    template <typename E> bool operator op(const mpq_expr<E>& left, const mpq_class& right) {                   \
         mpq_class temp(left);                                                                                   \
         return temp op right;                                                                                   \
     }                                                                                                           \
-    template <typename E> bool operator op(const mpq_class &left, const mpq_expr<E> &right) {                   \
+    template <typename E> bool operator op(const mpq_class& left, const mpq_expr<E>& right) {                   \
         mpq_class temp(right);                                                                                  \
         return left op temp;                                                                                    \
     }                                                                                                           \
-    template <typename E1, typename E2> bool operator op(const mpq_expr<E1> &left, const mpq_expr<E2> &right) { \
+    template <typename E1, typename E2> bool operator op(const mpq_expr<E1>& left, const mpq_expr<E2>& right) { \
         mpq_class temp1(left);                                                                                  \
         mpq_class temp2(right);                                                                                 \
         return temp1 op temp2;                                                                                  \
@@ -1344,32 +1344,32 @@ DEFINE_MPQ_COMPARISON_OPS(>)
 DEFINE_MPQ_COMPARISON_OPS(>=)
 
 // mpf comparison operators for expressions - THIS FIXES THE MAIN ERROR
-template <typename E> bool operator==(const mpf_expr<E> &left, const mpf_class &right) {
+template <typename E> bool operator==(const mpf_expr<E>& left, const mpf_class& right) {
     mpf_class temp(left);
     return temp == right;
 }
 
-template <typename E> bool operator==(const mpf_class &left, const mpf_expr<E> &right) {
+template <typename E> bool operator==(const mpf_class& left, const mpf_expr<E>& right) {
     mpf_class temp(right);
     return left == temp;
 }
 
-template <typename E1, typename E2> bool operator==(const mpf_expr<E1> &left, const mpf_expr<E2> &right) {
+template <typename E1, typename E2> bool operator==(const mpf_expr<E1>& left, const mpf_expr<E2>& right) {
     mpf_class temp1(left);
     mpf_class temp2(right);
     return temp1 == temp2;
 }
 
 #define DEFINE_MPF_COMPARISON_OPS(op)                                                                           \
-    template <typename E> bool operator op(const mpf_expr<E> &left, const mpf_class &right) {                   \
+    template <typename E> bool operator op(const mpf_expr<E>& left, const mpf_class& right) {                   \
         mpf_class temp(left);                                                                                   \
         return temp op right;                                                                                   \
     }                                                                                                           \
-    template <typename E> bool operator op(const mpf_class &left, const mpf_expr<E> &right) {                   \
+    template <typename E> bool operator op(const mpf_class& left, const mpf_expr<E>& right) {                   \
         mpf_class temp(right);                                                                                  \
         return left op temp;                                                                                    \
     }                                                                                                           \
-    template <typename E1, typename E2> bool operator op(const mpf_expr<E1> &left, const mpf_expr<E2> &right) { \
+    template <typename E1, typename E2> bool operator op(const mpf_expr<E1>& left, const mpf_expr<E2>& right) { \
         mpf_class temp1(left);                                                                                  \
         mpf_class temp2(right);                                                                                 \
         return temp1 op temp2;                                                                                  \
@@ -1386,27 +1386,27 @@ DEFINE_MPF_COMPARISON_OPS(>=)
 //=============================================================================
 
 // GCD and LCM for integers only
-mpz_class gcd(const mpz_class &a, const mpz_class &b) {
+mpz_class gcd(const mpz_class& a, const mpz_class& b) {
     mpz_class result;
     mpz_gcd(result.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t());
     return result;
 }
 
-mpz_class lcm(const mpz_class &a, const mpz_class &b) {
+mpz_class lcm(const mpz_class& a, const mpz_class& b) {
     mpz_class result;
     mpz_lcm(result.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t());
     return result;
 }
 
 // Power function for integers only
-mpz_class pow(const mpz_class &base, unsigned long exp) {
+mpz_class pow(const mpz_class& base, unsigned long exp) {
     mpz_class result;
     mpz_pow_ui(result.get_mpz_t(), base.get_mpz_t(), exp);
     return result;
 }
 
 // Square root for integers
-mpz_class sqrt(const mpz_class &val) {
+mpz_class sqrt(const mpz_class& val) {
     mpz_class result;
     mpz_sqrt(result.get_mpz_t(), val.get_mpz_t());
     return result;
@@ -1417,7 +1417,7 @@ mpz_class sqrt(const mpz_class &val) {
 //=============================================================================
 
 // Power function for floating point
-mpf_class pow(const mpf_class &base, const mpf_class &exponent) {
+mpf_class pow(const mpf_class& base, const mpf_class& exponent) {
     if (base.sgn() <= 0) {
         throw std::domain_error("pow: base must be positive for general exponentiation");
     }
@@ -1429,39 +1429,39 @@ mpf_class pow(const mpf_class &base, const mpf_class &exponent) {
     return mpf_class(result_d);
 }
 
-template <typename E> mpf_class pow(const mpf_expr<E> &base, const mpf_class &exponent) { return pow(mpf_class(base), exponent); }
+template <typename E> mpf_class pow(const mpf_expr<E>& base, const mpf_class& exponent) { return pow(mpf_class(base), exponent); }
 
-template <typename E> mpf_class pow(const mpf_class &base, const mpf_expr<E> &exponent) { return pow(base, mpf_class(exponent)); }
+template <typename E> mpf_class pow(const mpf_class& base, const mpf_expr<E>& exponent) { return pow(base, mpf_class(exponent)); }
 
-template <typename E1, typename E2> mpf_class pow(const mpf_expr<E1> &base, const mpf_expr<E2> &exponent) { return pow(mpf_class(base), mpf_class(exponent)); }
+template <typename E1, typename E2> mpf_class pow(const mpf_expr<E1>& base, const mpf_expr<E2>& exponent) { return pow(mpf_class(base), mpf_class(exponent)); }
 
 // Trigonometric functions
-mpf_class sin(const mpf_class &x) {
+mpf_class sin(const mpf_class& x) {
     double x_d = x.get_d();
     double result_d = std::sin(x_d);
     return mpf_class(result_d);
 }
 
-template <typename E> mpf_class sin(const mpf_expr<E> &x) { return sin(mpf_class(x)); }
+template <typename E> mpf_class sin(const mpf_expr<E>& x) { return sin(mpf_class(x)); }
 
-mpf_class cos(const mpf_class &x) {
+mpf_class cos(const mpf_class& x) {
     double x_d = x.get_d();
     double result_d = std::cos(x_d);
     return mpf_class(result_d);
 }
 
-template <typename E> mpf_class cos(const mpf_expr<E> &x) { return cos(mpf_class(x)); }
+template <typename E> mpf_class cos(const mpf_expr<E>& x) { return cos(mpf_class(x)); }
 
-mpf_class atan(const mpf_class &x) {
+mpf_class atan(const mpf_class& x) {
     double x_d = x.get_d();
     double result_d = std::atan(x_d);
     return mpf_class(result_d);
 }
 
-template <typename E> mpf_class atan(const mpf_expr<E> &x) { return atan(mpf_class(x)); }
+template <typename E> mpf_class atan(const mpf_expr<E>& x) { return atan(mpf_class(x)); }
 
 // Logarithmic and exponential functions
-mpf_class log(const mpf_class &x) {
+mpf_class log(const mpf_class& x) {
     if (x.sgn() <= 0) {
         throw std::domain_error("log: argument must be positive");
     }
@@ -1470,15 +1470,15 @@ mpf_class log(const mpf_class &x) {
     return mpf_class(result_d);
 }
 
-template <typename E> mpf_class log(const mpf_expr<E> &x) { return log(mpf_class(x)); }
+template <typename E> mpf_class log(const mpf_expr<E>& x) { return log(mpf_class(x)); }
 
-mpf_class exp(const mpf_class &x) {
+mpf_class exp(const mpf_class& x) {
     double x_d = x.get_d();
     double result_d = std::exp(x_d);
     return mpf_class(result_d);
 }
 
-template <typename E> mpf_class exp(const mpf_expr<E> &x) { return exp(mpf_class(x)); }
+template <typename E> mpf_class exp(const mpf_expr<E>& x) { return exp(mpf_class(x)); }
 
 // Mathematical constants
 mpf_class const_pi() { return mpf_class("3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679"); }
@@ -1487,15 +1487,15 @@ mpf_class const_pi() { return mpf_class("3.1415926535897932384626433832795028841
 // Stream operators
 //=============================================================================
 
-std::ostream &operator<<(std::ostream &os, const mpz_class &val) { return os << val.get_str(); }
-std::ostream &operator<<(std::ostream &os, const mpq_class &val) { return os << val.get_str(); }
-std::istream &operator>>(std::istream &is, mpz_class &val) {
+std::ostream& operator<<(std::ostream& os, const mpz_class& val) { return os << val.get_str(); }
+std::ostream& operator<<(std::ostream& os, const mpq_class& val) { return os << val.get_str(); }
+std::istream& operator>>(std::istream& is, mpz_class& val) {
     std::string str;
     is >> str;
     val = mpz_class(str);
     return is;
 }
-std::istream &operator>>(std::istream &is, mpq_class &val) {
+std::istream& operator>>(std::istream& is, mpq_class& val) {
     std::string str;
     is >> str;
     val = mpq_class(str);
@@ -1505,7 +1505,7 @@ std::istream &operator>>(std::istream &is, mpq_class &val) {
 inline std::string mpf_to_base_string_default(const mpf_t value, int base, int flags, int width, int prec, char fill) {
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
-    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec, value);
+    char* base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec, value);
     std::string base_str(base_cstr);
     free(base_cstr);
 
@@ -1612,7 +1612,7 @@ inline std::string mpf_to_base_string_fixed(const mpf_t value, int base, int fla
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
     mp_exp_t digits = integraldigits_in_base(value, base);
-    char *base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
+    char* base_cstr = mpf_get_str(nullptr, &exp, base, digits + effective_prec, value);
     std::string base_str(base_cstr);
     free(base_cstr);
     bool is_showbase = flags & std::ios::showbase;
@@ -1691,7 +1691,7 @@ inline std::string mpf_to_base_string_scientific(const mpf_t value, int base, in
     // TODO obtain correct # of digits in the given base, check rounding of the negative exp part
     mp_exp_t exp;
     int effective_prec = (prec == 0) ? 6 : prec;
-    char *base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec + 1, value);
+    char* base_cstr = mpf_get_str(nullptr, &exp, base, effective_prec + 1, value);
     std::string base_str(base_cstr);
     free(base_cstr);
     bool is_showbase = flags & std::ios::showbase;
@@ -1763,7 +1763,7 @@ inline std::string mpf_to_base_string_scientific(const mpf_t value, int base, in
     }
     return formatted_base;
 }
-inline void print_mpf(std::ostream &os, const mpf_t op) {
+inline void print_mpf(std::ostream& os, const mpf_t op) {
     std::ios_base::fmtflags flags = os.flags();
     std::streamsize prec = os.precision();
     std::streamsize width = os.width();
@@ -1773,7 +1773,7 @@ inline void print_mpf(std::ostream &os, const mpf_t op) {
     bool is_fixed = flags & std::ios::fixed;
     bool is_scientific = flags & std::ios::scientific;
     char fill = os.fill();
-    char *str = nullptr;
+    char* str = nullptr;
 
     int base = 10;
     if (is_hex) {
@@ -1813,11 +1813,11 @@ inline void print_mpf(std::ostream &os, const mpf_t op) {
     os << s;
     os.width(0);
 }
-inline std::ostream &operator<<(std::ostream &os, const mpf_class &op) {
+inline std::ostream& operator<<(std::ostream& os, const mpf_class& op) {
     print_mpf(os, op.get_mpf_t());
     return os;
 }
-inline std::ostream &operator<<(std::ostream &os, const mpf_t &op) {
+inline std::ostream& operator<<(std::ostream& os, const mpf_t& op) {
     print_mpf(os, op);
     return os;
 }
@@ -1856,7 +1856,7 @@ inline void print_format_flags(std::ios_base::fmtflags flags) {
         std::cout << "floatfield ";
     std::cout << std::endl;
 }
-inline std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
+inline std::istream& read_mpf_from_stream(std::istream& stream, mpf_t op) {
     std::ios_base::fmtflags current_flags = stream.flags();
     if (current_flags & std::ios_base::oct || current_flags & std::ios_base::hex) {
         throw std::runtime_error("Unsupported number base for mpf_t");
@@ -1951,8 +1951,8 @@ inline std::istream &read_mpf_from_stream(std::istream &stream, mpf_t op) {
     }
     return stream;
 }
-inline std::istream &operator>>(std::istream &stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
-inline std::istream &operator>>(std::istream &stream, mpf_class &op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
+inline std::istream& operator>>(std::istream& stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
+inline std::istream& operator>>(std::istream& stream, mpf_class& op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
 
 } // namespace gmpxx
 
@@ -1963,7 +1963,7 @@ inline std::istream &operator>>(std::istream &stream, mpf_class &op) { return re
 namespace gmpxx {
 
 // Helper functions for automatic expression conversion
-template <typename T> constexpr decltype(auto) resolve_gmp_value(T &&value) noexcept {
+template <typename T> constexpr decltype(auto) resolve_gmp_value(T&& value) noexcept {
     if constexpr (is_gmp_expression_v<std::decay_t<T>>) {
         return gmp_type_of_t<std::decay_t<T>>{std::forward<T>(value)};
     } else {
@@ -1972,7 +1972,7 @@ template <typename T> constexpr decltype(auto) resolve_gmp_value(T &&value) noex
 }
 
 // Template function wrapper for automatic expression resolution
-template <template <typename> class Func, typename T, typename U> auto invoke_with_resolution(T &&t, U &&u) -> decltype(auto) {
+template <template <typename> class Func, typename T, typename U> auto invoke_with_resolution(T&& t, U&& u) -> decltype(auto) {
     using ResolvedT = decltype(resolve_gmp_value(std::forward<T>(t)));
     using ResolvedU = decltype(resolve_gmp_value(std::forward<U>(u)));
     using CommonType = common_gmp_type_t<ResolvedT, ResolvedU>;
@@ -1982,7 +1982,7 @@ template <template <typename> class Func, typename T, typename U> auto invoke_wi
 
 // Convenience macro for defining expression-compatible template functions
 #define GMPXX_DEFINE_COMPATIBLE_FUNCTION(func_name, impl)                                                                                                                                                                   \
-    template <typename T, typename U> auto func_name(T &&t, U &&u) -> std::enable_if_t<is_gmp_compatible_v<std::decay_t<T>> && is_gmp_compatible_v<std::decay_t<U>>, common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>> { \
+    template <typename T, typename U> auto func_name(T&& t, U&& u) -> std::enable_if_t<is_gmp_compatible_v<std::decay_t<T>> && is_gmp_compatible_v<std::decay_t<U>>, common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>> { \
         using CommonType = common_gmp_type_t<std::decay_t<T>, std::decay_t<U>>;                                                                                                                                             \
         auto resolved_t = CommonType{resolve_gmp_value(std::forward<T>(t))};                                                                                                                                                \
         auto resolved_u = CommonType{resolve_gmp_value(std::forward<U>(u))};                                                                                                                                                \
