@@ -48,7 +48,7 @@
 #define GMPXX_MKII_STRINGIFY(x) GMPXX_MKII_STRINGIFY_HELPER(x)
 
 #define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
-#define GMPXX_MKII_COMMIT_HASH "@GIT_COMMIT_HASH@"
+#define GMPXX_MKII_COMMIT_HASH "6cce5ca"
 
 #include <cstdint>
 #include <string>
@@ -1227,6 +1227,59 @@ DEFINE_MPF_BINARY_OP(+, mpf_add_op)
 DEFINE_MPF_BINARY_OP(-, mpf_sub_op)
 DEFINE_MPF_BINARY_OP(*, mpf_mul_op)
 DEFINE_MPF_BINARY_OP(/, mpf_div_op)
+
+//=============================================================================
+// Mixed arithmetic operators for built-in types and mpf_class
+//=============================================================================
+
+// int and mpf_class operations
+inline auto operator+(int left, const mpf_class& right) { return mpf_class(left) + right; }
+inline auto operator+(const mpf_class& left, int right) { return left + mpf_class(right); }
+inline auto operator-(int left, const mpf_class& right) { return mpf_class(left) - right; }
+inline auto operator-(const mpf_class& left, int right) { return left - mpf_class(right); }
+inline auto operator*(int left, const mpf_class& right) { return mpf_class(left) * right; }
+inline auto operator*(const mpf_class& left, int right) { return left * mpf_class(right); }
+inline auto operator/(int left, const mpf_class& right) { return mpf_class(left) / right; }
+inline auto operator/(const mpf_class& left, int right) { return left / mpf_class(right); }
+
+// double and mpf_class operations
+inline auto operator+(double left, const mpf_class& right) { return mpf_class(left) + right; }
+inline auto operator+(const mpf_class& left, double right) { return left + mpf_class(right); }
+inline auto operator-(double left, const mpf_class& right) { return mpf_class(left) - right; }
+inline auto operator-(const mpf_class& left, double right) { return left - mpf_class(right); }
+inline auto operator*(double left, const mpf_class& right) { return mpf_class(left) * right; }
+inline auto operator*(const mpf_class& left, double right) { return left * mpf_class(right); }
+inline auto operator/(double left, const mpf_class& right) { return mpf_class(left) / right; }
+inline auto operator/(const mpf_class& left, double right) { return left / mpf_class(right); }
+
+// long and mpf_class operations
+inline auto operator+(long left, const mpf_class& right) { return mpf_class(left) + right; }
+inline auto operator+(const mpf_class& left, long right) { return left + mpf_class(right); }
+inline auto operator-(long left, const mpf_class& right) { return mpf_class(left) - right; }
+inline auto operator-(const mpf_class& left, long right) { return left - mpf_class(right); }
+inline auto operator*(long left, const mpf_class& right) { return mpf_class(left) * right; }
+inline auto operator*(const mpf_class& left, long right) { return left * mpf_class(right); }
+inline auto operator/(long left, const mpf_class& right) { return mpf_class(left) / right; }
+inline auto operator/(const mpf_class& left, long right) { return left / mpf_class(right); }
+
+// Mixed operations with expressions
+template <typename E> inline auto operator+(int left, const mpf_expr<E>& right) { return mpf_class(left) + mpf_class(right); }
+template <typename E> inline auto operator+(const mpf_expr<E>& left, int right) { return mpf_class(left) + mpf_class(right); }
+template <typename E> inline auto operator-(int left, const mpf_expr<E>& right) { return mpf_class(left) - mpf_class(right); }
+template <typename E> inline auto operator-(const mpf_expr<E>& left, int right) { return mpf_class(left) - mpf_class(right); }
+template <typename E> inline auto operator*(int left, const mpf_expr<E>& right) { return mpf_class(left) * mpf_class(right); }
+template <typename E> inline auto operator*(const mpf_expr<E>& left, int right) { return mpf_class(left) * mpf_class(right); }
+template <typename E> inline auto operator/(int left, const mpf_expr<E>& right) { return mpf_class(left) / mpf_class(right); }
+template <typename E> inline auto operator/(const mpf_expr<E>& left, int right) { return mpf_class(left) / mpf_class(right); }
+
+template <typename E> inline auto operator+(double left, const mpf_expr<E>& right) { return mpf_class(left) + mpf_class(right); }
+template <typename E> inline auto operator+(const mpf_expr<E>& left, double right) { return mpf_class(left) + mpf_class(right); }
+template <typename E> inline auto operator-(double left, const mpf_expr<E>& right) { return mpf_class(left) - mpf_class(right); }
+template <typename E> inline auto operator-(const mpf_expr<E>& left, double right) { return mpf_class(left) - mpf_class(right); }
+template <typename E> inline auto operator*(double left, const mpf_expr<E>& right) { return mpf_class(left) * mpf_class(right); }
+template <typename E> inline auto operator*(const mpf_expr<E>& left, double right) { return mpf_class(left) * mpf_class(right); }
+template <typename E> inline auto operator/(double left, const mpf_expr<E>& right) { return mpf_class(left) / mpf_class(right); }
+template <typename E> inline auto operator/(const mpf_expr<E>& left, double right) { return mpf_class(left) / mpf_class(right); }
 
 //=============================================================================
 // Unary operators
