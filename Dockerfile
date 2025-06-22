@@ -107,13 +107,6 @@ RUN git clone --branch expression_template --single-branch \
 RUN cd gmpxx_mkII_expression_template \
     && mkdir -p build \
     && cd build \
-=======
-    && cd setup && bash setup_gmp.sh
-  
-# Build gmpxx_mkII and run tests
-RUN cd gmpxx_mkII_expression_template \
-    && mkdir -p build \
-    && cd build \
     && cmake .. -DBUILD_TESTS=ON \
     && make \
     && make test
