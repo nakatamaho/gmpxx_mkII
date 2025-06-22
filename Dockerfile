@@ -89,6 +89,9 @@ RUN git clone --branch main --single-branch --depth 1 \
  && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git \
  && cd setup && bash setup_gmp.sh
 
+# Branch name as build argument
+ARG BRANCH_NAME=expression_template
+
 # Clone repository and build GMP
 RUN git clone --branch expression_template --single-branch \
     https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII_expression_template \
@@ -104,7 +107,7 @@ RUN git clone --branch expression_template --single-branch \
 # Build gmpxx_mkII and run tests
 RUN cd gmpxx_mkII_expression_template \
     && mkdir -p build \
-    && cd build
+    && cd build \
     && cmake .. -DBUILD_TESTS=ON \
     && make \
     && make test
