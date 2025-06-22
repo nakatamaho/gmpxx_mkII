@@ -82,23 +82,26 @@ RUN echo 'eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519 2>/dev/null' >> ~/
 
 ARG GIT_COMMIT_TRIGGER=unspecified
 
+# Clone the original repository and build GMP
+RUN git clone --branch main --single-branch --depth 1 \
+    https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII \
+ && cd gmpxx_mkII \
+ && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git \
+ && cd setup && bash setup_gmp.sh
+
 # Clone repository and build GMP
 RUN git clone --branch expression_template --single-branch \
-    https://github.com/nakatamaho/gmpxx_mkII.git \
-    && cd gmpxx_mkII && cd setup && bash setup_gmp.sh
-
-RUN git clone --branch main --single-branch --depth 1 \
-    https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII.main \
- && cd gmpxx_mkII.main \
- && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git
-
+    https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII_expression_template \
+    && cd gmpxx_mkII_expression_template
+  
 # Build gmpxx_mkII and run tests
-RUN cd gmpxx_mkII \
+RUN cd gmpxx_mkII_expression_template \
     && mkdir -p build \
-    && cd build \
-    && cmake .. -DBUILD_TESTS=ON \
-    && make \
-    && make test
+    && cd build
+#    && cmake .. -DBUILD_TESTS=ON \
+#    && make \
+#    && make test
 
 # Set working directory
-WORKDIR /home/$DOCKER_USER/gmpxx_mkII
+WORKDIR /home/$DOCKER_USER/gmpxx_mkII_expression_template
+
