@@ -3,13 +3,12 @@ add_executable(test_mpz_basic test_mpz_basic.cpp)
 # Link with gmpxx_mkII interface library
 target_link_libraries(test_mpz_basic PRIVATE gmpxx_mkII)
 # Add test
-add_test(NAME test_basic COMMAND test_basic)
+add_test(NAME test_mpz_basic COMMAND test_mpz_basic)
 # Set test properties
-set_tests_properties(test_basic PROPERTIES
+set_tests_properties(test_mpz_basic PROPERTIES
     TIMEOUT 30
-    PASS_REGULAR_EXPRESSION "All tests passed"
+    PASS_REGULAR_EXPRESSION "All MPZ tests passed"
 )
-
 # MPF Test executable
 add_executable(test_mpf_basic test_mpf_basic.cpp)
 # Link with gmpxx_mkII interface library
