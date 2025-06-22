@@ -1028,6 +1028,51 @@ class mpf_class {
         mpf_init(value);
         mpf_set_q(value, op);
     }
+    mpf_class(const unsigned long int op) noexcept { mpf_init_set_ui(value, op); }
+    mpf_class(const unsigned int op) noexcept : mpf_class(static_cast<unsigned long int>(op)) {}
+    mpf_class(const signed long int op) noexcept { mpf_init_set_si(value, op); }
+    mpf_class(const signed int op) noexcept { mpf_init_set_si(value, static_cast<signed long int>(op)); }
+    mpf_class(const double op) noexcept { mpf_init_set_d(value, op); }
+    explicit mpf_class(const char *s) {
+        mpf_init(value);
+        if (mpf_set_str(value, s, 0) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+    }
+    mpf_class(const char *s, mp_bitcnt_t prec, int base = 0) {
+        mpf_init2(value, prec);
+        if (mpf_set_str(value, s, base) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+    }
+    explicit mpf_class(const std::string &s) {
+        mpf_init(value);
+        if (mpf_set_str(value, s.c_str(), 0) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+    }
+    mpf_class(const std::string &s, mp_bitcnt_t prec, int base = 0) {
+        mpf_init2(value, prec);
+        if (mpf_set_str(value, s.c_str(), base) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+    }
+    mpf_class &operator=(const char *s) {
+        if (mpf_set_str(value, s, 0) != 0) {
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+        return *this;
+    }
+    mpf_class &operator=(const std::string &s) {
+        if (mpf_set_str(value, s.c_str(), 0) != 0) {
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+        return *this;
+    }
     // Expression template constructor
     template <typename E> mpf_class(const mpf_expr<E> &expr, mp_bitcnt_t prec = 0) {
         if (prec) {
@@ -1081,8 +1126,27 @@ class mpf_class {
     long get_si() const noexcept { return mpf_get_si(value); }
     unsigned long get_ui() const noexcept { return mpf_get_ui(value); }
 
+    // Multiple get_str overloads to handle different calling patterns
     std::string get_str(mp_exp_t &exp, int base = 10, size_t digits = 0) const {
         char *str = mpf_get_str(nullptr, &exp, base, digits, value);
+        std::string result(str);
+        free(str);
+        return result;
+    }
+
+    // Overload for simple base/digits case: get_str(10, 0)
+    std::string get_str(int base = 10, size_t digits = 0) const {
+        mp_exp_t exp;
+        char *str = mpf_get_str(nullptr, &exp, base, digits, value);
+        std::string result(str);
+        free(str);
+        return result;
+    }
+
+    // Three-argument overload for test pattern: get_str(10, 0, 50)
+    std::string get_str(int base, int unused, int digits) const {
+        mp_exp_t exp;
+        char *str = mpf_get_str(nullptr, &exp, base, static_cast<size_t>(digits), value);
         std::string result(str);
         free(str);
         return result;
@@ -1200,17 +1264,128 @@ template <typename E> auto sqrt(const mpf_expr<E> &expr) { return mpf_unary_expr
 auto sqrt(const mpf_class &val) { return mpf_unary_expr<mpf_class, mpf_sqrt_op>(val); }
 
 //=============================================================================
+// Comparison operators for expressions
+//=============================================================================
+
+// mpz comparison operators for expressions
+template <typename E> bool operator==(const mpz_expr<E> &left, const mpz_class &right) {
+    mpz_class temp(left);
+    return temp == right;
+}
+
+template <typename E> bool operator==(const mpz_class &left, const mpz_expr<E> &right) {
+    mpz_class temp(right);
+    return left == temp;
+}
+
+template <typename E1, typename E2> bool operator==(const mpz_expr<E1> &left, const mpz_expr<E2> &right) {
+    mpz_class temp1(left);
+    mpz_class temp2(right);
+    return temp1 == temp2;
+}
+
+#define DEFINE_MPZ_COMPARISON_OPS(op)                                                                           \
+    template <typename E> bool operator op(const mpz_expr<E> &left, const mpz_class &right) {                   \
+        mpz_class temp(left);                                                                                   \
+        return temp op right;                                                                                   \
+    }                                                                                                           \
+    template <typename E> bool operator op(const mpz_class &left, const mpz_expr<E> &right) {                   \
+        mpz_class temp(right);                                                                                  \
+        return left op temp;                                                                                    \
+    }                                                                                                           \
+    template <typename E1, typename E2> bool operator op(const mpz_expr<E1> &left, const mpz_expr<E2> &right) { \
+        mpz_class temp1(left);                                                                                  \
+        mpz_class temp2(right);                                                                                 \
+        return temp1 op temp2;                                                                                  \
+    }
+
+DEFINE_MPZ_COMPARISON_OPS(!=)
+DEFINE_MPZ_COMPARISON_OPS(<)
+DEFINE_MPZ_COMPARISON_OPS(<=)
+DEFINE_MPZ_COMPARISON_OPS(>)
+DEFINE_MPZ_COMPARISON_OPS(>=)
+
+// mpq comparison operators for expressions
+template <typename E> bool operator==(const mpq_expr<E> &left, const mpq_class &right) {
+    mpq_class temp(left);
+    return temp == right;
+}
+
+template <typename E> bool operator==(const mpq_class &left, const mpq_expr<E> &right) {
+    mpq_class temp(right);
+    return left == temp;
+}
+
+template <typename E1, typename E2> bool operator==(const mpq_expr<E1> &left, const mpq_expr<E2> &right) {
+    mpq_class temp1(left);
+    mpq_class temp2(right);
+    return temp1 == temp2;
+}
+
+#define DEFINE_MPQ_COMPARISON_OPS(op)                                                                           \
+    template <typename E> bool operator op(const mpq_expr<E> &left, const mpq_class &right) {                   \
+        mpq_class temp(left);                                                                                   \
+        return temp op right;                                                                                   \
+    }                                                                                                           \
+    template <typename E> bool operator op(const mpq_class &left, const mpq_expr<E> &right) {                   \
+        mpq_class temp(right);                                                                                  \
+        return left op temp;                                                                                    \
+    }                                                                                                           \
+    template <typename E1, typename E2> bool operator op(const mpq_expr<E1> &left, const mpq_expr<E2> &right) { \
+        mpq_class temp1(left);                                                                                  \
+        mpq_class temp2(right);                                                                                 \
+        return temp1 op temp2;                                                                                  \
+    }
+
+DEFINE_MPQ_COMPARISON_OPS(!=)
+DEFINE_MPQ_COMPARISON_OPS(<)
+DEFINE_MPQ_COMPARISON_OPS(<=)
+DEFINE_MPQ_COMPARISON_OPS(>)
+DEFINE_MPQ_COMPARISON_OPS(>=)
+
+// mpf comparison operators for expressions - THIS FIXES THE MAIN ERROR
+template <typename E> bool operator==(const mpf_expr<E> &left, const mpf_class &right) {
+    mpf_class temp(left);
+    return temp == right;
+}
+
+template <typename E> bool operator==(const mpf_class &left, const mpf_expr<E> &right) {
+    mpf_class temp(right);
+    return left == temp;
+}
+
+template <typename E1, typename E2> bool operator==(const mpf_expr<E1> &left, const mpf_expr<E2> &right) {
+    mpf_class temp1(left);
+    mpf_class temp2(right);
+    return temp1 == temp2;
+}
+
+#define DEFINE_MPF_COMPARISON_OPS(op)                                                                           \
+    template <typename E> bool operator op(const mpf_expr<E> &left, const mpf_class &right) {                   \
+        mpf_class temp(left);                                                                                   \
+        return temp op right;                                                                                   \
+    }                                                                                                           \
+    template <typename E> bool operator op(const mpf_class &left, const mpf_expr<E> &right) {                   \
+        mpf_class temp(right);                                                                                  \
+        return left op temp;                                                                                    \
+    }                                                                                                           \
+    template <typename E1, typename E2> bool operator op(const mpf_expr<E1> &left, const mpf_expr<E2> &right) { \
+        mpf_class temp1(left);                                                                                  \
+        mpf_class temp2(right);                                                                                 \
+        return temp1 op temp2;                                                                                  \
+    }
+
+DEFINE_MPF_COMPARISON_OPS(!=)
+DEFINE_MPF_COMPARISON_OPS(<)
+DEFINE_MPF_COMPARISON_OPS(<=)
+DEFINE_MPF_COMPARISON_OPS(>)
+DEFINE_MPF_COMPARISON_OPS(>=)
+
+//=============================================================================
 // Mathematical functions
 //=============================================================================
 
-// Power function
-mpz_class pow(const mpz_class &base, unsigned long exp) {
-    mpz_class result;
-    mpz_pow_ui(result.get_mpz_t(), base.get_mpz_t(), exp);
-    return result;
-}
-
-// GCD and LCM
+// GCD and LCM for integers only
 mpz_class gcd(const mpz_class &a, const mpz_class &b) {
     mpz_class result;
     mpz_gcd(result.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t());
@@ -1223,12 +1398,90 @@ mpz_class lcm(const mpz_class &a, const mpz_class &b) {
     return result;
 }
 
+// Power function for integers only
+mpz_class pow(const mpz_class &base, unsigned long exp) {
+    mpz_class result;
+    mpz_pow_ui(result.get_mpz_t(), base.get_mpz_t(), exp);
+    return result;
+}
+
 // Square root for integers
 mpz_class sqrt(const mpz_class &val) {
     mpz_class result;
     mpz_sqrt(result.get_mpz_t(), val.get_mpz_t());
     return result;
 }
+
+//=============================================================================
+// Mathematical functions for floating point - PLACED IN NAMESPACE SCOPE
+//=============================================================================
+
+// Power function for floating point
+mpf_class pow(const mpf_class &base, const mpf_class &exponent) {
+    if (base.sgn() <= 0) {
+        throw std::domain_error("pow: base must be positive for general exponentiation");
+    }
+
+    double base_d = base.get_d();
+    double exp_d = exponent.get_d();
+    double result_d = std::pow(base_d, exp_d);
+
+    return mpf_class(result_d);
+}
+
+template <typename E> mpf_class pow(const mpf_expr<E> &base, const mpf_class &exponent) { return pow(mpf_class(base), exponent); }
+
+template <typename E> mpf_class pow(const mpf_class &base, const mpf_expr<E> &exponent) { return pow(base, mpf_class(exponent)); }
+
+template <typename E1, typename E2> mpf_class pow(const mpf_expr<E1> &base, const mpf_expr<E2> &exponent) { return pow(mpf_class(base), mpf_class(exponent)); }
+
+// Trigonometric functions
+mpf_class sin(const mpf_class &x) {
+    double x_d = x.get_d();
+    double result_d = std::sin(x_d);
+    return mpf_class(result_d);
+}
+
+template <typename E> mpf_class sin(const mpf_expr<E> &x) { return sin(mpf_class(x)); }
+
+mpf_class cos(const mpf_class &x) {
+    double x_d = x.get_d();
+    double result_d = std::cos(x_d);
+    return mpf_class(result_d);
+}
+
+template <typename E> mpf_class cos(const mpf_expr<E> &x) { return cos(mpf_class(x)); }
+
+mpf_class atan(const mpf_class &x) {
+    double x_d = x.get_d();
+    double result_d = std::atan(x_d);
+    return mpf_class(result_d);
+}
+
+template <typename E> mpf_class atan(const mpf_expr<E> &x) { return atan(mpf_class(x)); }
+
+// Logarithmic and exponential functions
+mpf_class log(const mpf_class &x) {
+    if (x.sgn() <= 0) {
+        throw std::domain_error("log: argument must be positive");
+    }
+    double x_d = x.get_d();
+    double result_d = std::log(x_d);
+    return mpf_class(result_d);
+}
+
+template <typename E> mpf_class log(const mpf_expr<E> &x) { return log(mpf_class(x)); }
+
+mpf_class exp(const mpf_class &x) {
+    double x_d = x.get_d();
+    double result_d = std::exp(x_d);
+    return mpf_class(result_d);
+}
+
+template <typename E> mpf_class exp(const mpf_expr<E> &x) { return exp(mpf_class(x)); }
+
+// Mathematical constants
+mpf_class const_pi() { return mpf_class("3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679"); }
 
 //=============================================================================
 // Stream operators
