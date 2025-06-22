@@ -1,4 +1,4 @@
-CXX = g++-12
+CXX = g++-13
 CXXFLAGS = -Wall -Wextra -O2
 PREFIX = /usr/local
 
