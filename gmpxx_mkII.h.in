@@ -36,7 +36,6 @@
 #define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
 #define GMPXX_MKII_COMMIT_HASH "@GIT_COMMIT_HASH@"
 
-#include <gmp.h>
 #include <limits>
 #include <iostream>
 #include <utility>
@@ -50,6 +49,8 @@
 #include <iomanip>
 #include <type_traits>
 #include <cstdint>
+
+#include <gmp.h>
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
