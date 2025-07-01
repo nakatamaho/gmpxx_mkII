@@ -105,7 +105,9 @@ inline constexpr bool ___gmpxx_mkII___ullong_is_greater_than_uint64_v = ___is_nu
 inline constexpr bool ___gmpxx_mkII___llong_is_same_as_int64_v = ___is_same_representation<long long, int64_t>::value;
 inline constexpr bool ___gmpxx_mkII___ullong_is_same_as_uint64_v = ___is_same_representation<unsigned long long, uint64_t>::value;
 
+#if !defined ___GMPXX_DONT_USE_NAMESPACE___
 namespace gmpxx {
+#endif
 
 // Forward declarations
 class mpz_class;
@@ -722,6 +724,10 @@ class mpz_class {
         }
         return *this;
     }
+    mpz_class& operator=(double d) noexcept {
+        mpz_set_d(value, d);
+        return *this;
+    }
     mpz_class& operator=(const char* str) {
         if (mpz_set_str(value, str, 0) != 0) {
             throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
@@ -732,6 +738,16 @@ class mpz_class {
         if (mpz_set_str(value, str.c_str(), 0) != 0) {
             throw std::invalid_argument("Invalid string format for mpz_class: cannot convert the input to a number.");
         }
+        return *this;
+    }
+    // operators
+    mpz_class operator~() const {
+        mpz_class result;
+        mpz_com(result.value, value);
+        return result;
+    }
+    mpz_class& operator++() {
+        mpz_add_ui(value, value, 1);
         return *this;
     }
     // Expression template constructor
@@ -807,98 +823,102 @@ class mpz_class {
 
 class mpq_class {
   private:
-    mpq_t mp_;
+    mpq_t value;
 
   public:
     // Constructors
-    mpq_class() noexcept { mpq_init(mp_); }
+    mpq_class() noexcept { mpq_init(value); }
 
     mpq_class(long num, unsigned long den = 1) noexcept {
-        mpq_init(mp_);
-        mpq_set_si(mp_, num, den);
-        mpq_canonicalize(mp_);
+        mpq_init(value);
+        mpq_set_si(value, num, den);
+        mpq_canonicalize(value);
     }
 
     mpq_class(unsigned long num, unsigned long den = 1) noexcept {
-        mpq_init(mp_);
-        mpq_set_ui(mp_, num, den);
-        mpq_canonicalize(mp_);
+        mpq_init(value);
+        mpq_set_ui(value, num, den);
+        mpq_canonicalize(value);
     }
 
     mpq_class(int num, unsigned int den = 1) noexcept {
-        mpq_init(mp_);
-        mpq_set_si(mp_, num, den);
-        mpq_canonicalize(mp_);
+        mpq_init(value);
+        mpq_set_si(value, num, den);
+        mpq_canonicalize(value);
     }
 
     mpq_class(double val) noexcept {
-        mpq_init(mp_);
-        mpq_set_d(mp_, val);
+        mpq_init(value);
+        mpq_set_d(value, val);
     }
 
     mpq_class(const mpz_class& num, const mpz_class& den) {
-        mpq_init(mp_);
-        mpq_set_num(mp_, num.get_mpz_t());
-        mpq_set_den(mp_, den.get_mpz_t());
-        mpq_canonicalize(mp_);
+        mpq_init(value);
+        mpq_set_num(value, num.get_mpz_t());
+        mpq_set_den(value, den.get_mpz_t());
+        mpq_canonicalize(value);
     }
 
     mpq_class(const mpz_class& num) noexcept {
-        mpq_init(mp_);
-        mpq_set_z(mp_, num.get_mpz_t());
+        mpq_init(value);
+        mpq_set_z(value, num.get_mpz_t());
     }
 
-    mpq_class(const std::string& str, int base = 10) {
-        mpq_init(mp_);
-        if (mpq_set_str(mp_, str.c_str(), base) != 0) {
-            mpq_clear(mp_);
-            throw std::invalid_argument("Invalid string format");
+    mpq_class(const char* str, int base = 0) {
+        mpq_init(value);
+        if (mpq_set_str(value, str, base) != 0) {
+            throw std::invalid_argument("");
         }
-        mpq_canonicalize(mp_);
+    }
+    mpq_class(const std::string& str, int base = 0) {
+        mpq_init(value);
+        if (mpq_set_str(value, str.c_str(), base) != 0) {
+            throw std::invalid_argument("");
+        }
     }
 
     // Copy and move constructors
     mpq_class(const mpq_class& other) noexcept {
-        mpq_init(mp_);
-        mpq_set(mp_, other.mp_);
+        mpq_init(value);
+        mpq_set(value, other.value);
     }
 
     mpq_class(mpq_class&& other) noexcept {
-        mpq_init(mp_);
-        mpq_swap(mp_, other.mp_);
+        mpq_init(value);
+        mpq_swap(value, other.value);
     }
 
     // Expression template constructor
     template <typename E> mpq_class(const mpq_expr<E>& expr) {
-        mpq_init(mp_);
-        expr.eval_to(mp_);
+        mpq_init(value);
+        expr.eval_to(value);
     }
 
     // Destructor
-    ~mpq_class() noexcept { mpq_clear(mp_); }
+    ~mpq_class() noexcept { mpq_clear(value); }
 
     // Assignment operators
     mpq_class& operator=(const mpq_class& other) noexcept {
         if (this != &other) {
-            mpq_set(mp_, other.mp_);
+            mpq_set(value, other.value);
         }
         return *this;
     }
 
     mpq_class& operator=(mpq_class&& other) noexcept {
         if (this != &other) {
-            mpq_swap(mp_, other.mp_);
+            mpq_swap(value, other.value);
         }
         return *this;
     }
 
     template <typename E> mpq_class& operator=(const mpq_expr<E>& expr) {
-        expr.eval_to(mp_);
+        expr.eval_to(value);
         return *this;
     }
 
     mpq_class& operator=(const mpz_class& val) noexcept {
-        mpq_set_z(mp_, val.get_mpz_t());
+        mpq_set_z(value, val.get_mpz_t());
         return *this;
     }
 
@@ -924,48 +944,49 @@ class mpq_class {
     }
 
     // Access to underlying GMP type
-    mpq_t& get_mpq_t() noexcept { return mp_; }
-    const mpq_t& get_mpq_t() const noexcept { return mp_; }
+    mpq_t& get_mpq_t() noexcept { return value; }
+    const mpq_t& get_mpq_t() const noexcept { return value; }
 
     // Access to numerator and denominator
     mpz_class get_num() const {
         mpz_class result;
-        mpz_set(result.get_mpz_t(), mpq_numref(mp_));
+        mpz_set(result.get_mpz_t(), mpq_numref(value));
         return result;
     }
 
     mpz_class get_den() const {
         mpz_class result;
-        mpz_set(result.get_mpz_t(), mpq_denref(mp_));
+        mpz_set(result.get_mpz_t(), mpq_denref(value));
         return result;
     }
 
     // Conversion functions
-    double get_d() const noexcept { return mpq_get_d(mp_); }
+    double get_d() const noexcept { return mpq_get_d(value); }
 
     std::string get_str(int base = 10) const {
-        char* str = mpq_get_str(nullptr, base, mp_);
+        char* str = mpq_get_str(nullptr, base, value);
         std::string result(str);
         free(str);
         return result;
     }
 
-    // Utility functions
-    void canonicalize() noexcept { mpq_canonicalize(mp_); }
-    int sgn() const noexcept { return mpq_sgn(mp_); }
+    // int sgn (mpq_class op)
+    // void mpq_class::swap (mpq_class& op)
+    // void swap (mpq_class& op1, mpq_class& op2)
+    void swap(mpq_class& op) { mpq_swap(this->value, op.value); }
+    friend int sgn(const mpq_class& op) { return mpq_sgn(op.value); }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    friend void swap(mpq_class& op1, mpq_class& op2) { mpq_swap(op1.value, op2.value); }
+#endif
+    void canonicalize() noexcept { mpq_canonicalize(value); }
 
     // Comparison operators
-    bool operator==(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) == 0; }
-
-    bool operator!=(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) != 0; }
-
-    bool operator<(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) < 0; }
-
-    bool operator<=(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) <= 0; }
-
-    bool operator>(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) > 0; }
-
-    bool operator>=(const mpq_class& other) const noexcept { return mpq_cmp(mp_, other.mp_) >= 0; }
+    bool operator==(const mpq_class& other) const noexcept { return mpq_cmp(value, other.value) == 0; }
+    bool operator!=(const mpq_class& other) const noexcept { return mpq_cmp(value, other.value) != 0; }
+    bool operator<(const mpq_class& other) const noexcept { return mpq_cmp(value, other.value) < 0; }
+    bool operator<=(const mpq_class& other) const noexcept { return mpq_cmp(value, other.value) <= 0; }
+    bool operator>(const mpq_class& other) const noexcept { return mpq_cmp(value, other.value) > 0; }
+    bool operator>=(const mpq_class& other) const noexcept { return mpq_cmp(value, other.value) >= 0; }
 };
 
 class mpf_class {
@@ -1077,6 +1098,7 @@ class mpf_class {
         }
         return *this;
     }
+
     // Expression template constructor
     template <typename E> mpf_class(const mpf_expr<E>& expr, mp_bitcnt_t prec = 0) {
         if (prec) {
@@ -1156,8 +1178,20 @@ class mpf_class {
         return result;
     }
 
-    // Utility functions
-    int sgn() const noexcept { return mpf_sgn(value); }
+    // int sgn (mpf_class op)
+    // mpf_class sqrt (mpf_class op)
+    // void mpf_class::swap (mpf_class& op)
+    // void swap (mpf_class& op1, mpf_class& op2)
+    // mpf_class trunc (mpf_class op)
+    friend int sgn(const mpf_class& op);
+    friend mpf_class sqrt(const mpf_class& op);
+    friend mpf_class neg(const mpf_class& op);
+    void swap(mpf_class& op) { mpf_swap(this->value, op.value); }
+#if !defined ___GMPXX_STRICT_COMPATIBILITY___
+    friend void swap(mpf_class& op1, mpf_class& op2) { mpf_swap(op1.value, op2.value); }
+#endif
+    friend mpf_class trunc(const mpf_class& op);
+
     // Comparison operators
     bool operator==(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) == 0; }
     bool operator!=(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) != 0; }
@@ -2011,7 +2045,9 @@ inline std::istream& read_mpf_from_stream(std::istream& stream, mpf_t op) {
 inline std::istream& operator>>(std::istream& stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
 inline std::istream& operator>>(std::istream& stream, mpf_class& op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
 
+#if !defined ___GMPXX_DONT_USE_NAMESPACE___
 } // namespace gmpxx
+#endif
 
 //=============================================================================
 // Template function compatibility extensions
