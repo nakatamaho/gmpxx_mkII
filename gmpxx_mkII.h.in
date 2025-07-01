@@ -4732,7 +4732,7 @@ class gmp_randclass {
     }
 }; // gmp_randclass
 #if !defined ___GMPXX_DONT_USE_NAMESPACE___
-} // namespace gmp
+} // namespace gmpxx
 #endif
 
 // mpf_class operator"" _mpf (const char *str)
