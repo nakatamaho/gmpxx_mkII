@@ -50,14 +50,21 @@
 #define GMPXX_MKII_VERSION GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MAJOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_MINOR) "." GMPXX_MKII_STRINGIFY(GMPXX_MKII_VERSION_PATCH)
 #define GMPXX_MKII_COMMIT_HASH "@GIT_COMMIT_HASH@"
 
-#include <cstdint>
-#include <string>
+#include <limits>
 #include <iostream>
-#include <type_traits>
-#include <algorithm>
-#include <cstdlib>
-#include <cmath>
+#include <utility>
+#include <cassert>
 #include <cstring>
+#include <sstream>
+#include <algorithm>
+#include <cmath>
+#include <cstdarg>
+#include <tuple>
+#include <iomanip>
+#include <type_traits>
+#include <cstdint>
+
+#include <gmp.h>
 
 #if defined(_MSC_VER)
 #define strdup _strdup
@@ -97,9 +104,6 @@ inline constexpr bool ___gmpxx_mkII___llong_is_greater_than_int64_v = ___is_nume
 inline constexpr bool ___gmpxx_mkII___ullong_is_greater_than_uint64_v = ___is_numeric_range_greater<unsigned long long, uint64_t>::value;
 inline constexpr bool ___gmpxx_mkII___llong_is_same_as_int64_v = ___is_same_representation<long long, int64_t>::value;
 inline constexpr bool ___gmpxx_mkII___ullong_is_same_as_uint64_v = ___is_same_representation<unsigned long long, uint64_t>::value;
-
-// Include GMP header after standard headers
-#include <gmp.h>
 
 namespace gmpxx {
 
