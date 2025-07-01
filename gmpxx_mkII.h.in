@@ -1194,15 +1194,18 @@ class mpf_class {
     }
 
     // int sgn (mpf_class op)
+    // mpf_class sqrt (mpf_class op) -> we use the expression template version.
     // void mpf_class::swap (mpf_class& op)
     // void swap (mpf_class& op1, mpf_class& op2)
     // mpf_class trunc (mpf_class op)
     friend int sgn(const mpf_class& op) { return mpf_sgn(op.get_mpf_t()); }
-    void swap(mpf_class& op) { mpf_swap(this->value, op.value); }
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
-    friend void swap(mpf_class& op1, mpf_class& op2) { mpf_swap(op1.value, op2.value); }
-#endif
-    friend mpf_class trunc(const mpf_class& op);
+    void swap(mpf_class& op) noexcept { mpf_swap(this->value, op.value); }
+    friend void swap(mpf_class& op1, mpf_class& op2) noexcept { mpf_swap(op1.value, op2.value); }
+    friend mpf_class trunc(const mpf_class& op) noexcept {
+        mpf_class result;
+        mpf_trunc(result.get_mpf_t(), op.get_mpf_t());
+        return result;
+    }
 
     // Comparison operators
     bool operator==(const mpf_class& other) const noexcept { return mpf_cmp(value, other.value) == 0; }
