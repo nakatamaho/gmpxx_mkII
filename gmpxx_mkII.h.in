@@ -1194,13 +1194,10 @@ class mpf_class {
     }
 
     // int sgn (mpf_class op)
-    // mpf_class sqrt (mpf_class op)
     // void mpf_class::swap (mpf_class& op)
     // void swap (mpf_class& op1, mpf_class& op2)
     // mpf_class trunc (mpf_class op)
-    friend int sgn(const mpf_class& op);
-    friend mpf_class sqrt(const mpf_class& op);
-    friend mpf_class neg(const mpf_class& op);
+    friend int sgn(const mpf_class& op) { return mpf_sgn(op.get_mpf_t()); }
     void swap(mpf_class& op) { mpf_swap(this->value, op.value); }
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___
     friend void swap(mpf_class& op1, mpf_class& op2) { mpf_swap(op1.value, op2.value); }
@@ -1335,33 +1332,22 @@ template <typename E> inline auto operator/(const mpf_expr<E>& left, double righ
 
 // Unary minus
 template <typename E> auto operator-(const mpz_expr<E>& expr) { return mpz_unary_expr<E, mpz_neg_op>(expr.cast()); }
-
 auto operator-(const mpz_class& val) { return mpz_unary_expr<mpz_class, mpz_neg_op>(val); }
-
 template <typename E> auto operator-(const mpq_expr<E>& expr) { return mpq_unary_expr<E, mpq_neg_op>(expr.cast()); }
-
 auto operator-(const mpq_class& val) { return mpq_unary_expr<mpq_class, mpq_neg_op>(val); }
-
 template <typename E> auto operator-(const mpf_expr<E>& expr) { return mpf_unary_expr<E, mpf_neg_op>(expr.cast()); }
-
 auto operator-(const mpf_class& val) { return mpf_unary_expr<mpf_class, mpf_neg_op>(val); }
 
 // Absolute value
 template <typename E> auto abs(const mpz_expr<E>& expr) { return mpz_unary_expr<E, mpz_abs_op>(expr.cast()); }
-
 auto abs(const mpz_class& val) { return mpz_unary_expr<mpz_class, mpz_abs_op>(val); }
-
 template <typename E> auto abs(const mpq_expr<E>& expr) { return mpq_unary_expr<E, mpq_abs_op>(expr.cast()); }
-
 auto abs(const mpq_class& val) { return mpq_unary_expr<mpq_class, mpq_abs_op>(val); }
-
 template <typename E> auto abs(const mpf_expr<E>& expr) { return mpf_unary_expr<E, mpf_abs_op>(expr.cast()); }
-
 auto abs(const mpf_class& val) { return mpf_unary_expr<mpf_class, mpf_abs_op>(val); }
 
-// Square root for mpf
+// mpf_class sqrt (mpf_class op)
 template <typename E> auto sqrt(const mpf_expr<E>& expr) { return mpf_unary_expr<E, mpf_sqrt_op>(expr.cast()); }
-
 auto sqrt(const mpf_class& val) { return mpf_unary_expr<mpf_class, mpf_sqrt_op>(val); }
 
 //=============================================================================
