@@ -217,6 +217,9 @@ std::string uint128_to_string(__uint128_t value) {
 #endif
 } // namespace helper
 class mpz_class {
+  private:
+    mpz_t value;
+
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
     // 12.2 C++ Interface Integers
@@ -789,9 +792,6 @@ class mpz_class {
 
     mpz_srcptr get_mpz_t() const { return value; }
     mpz_ptr get_mpz_t() { return value; }
-
-  private:
-    mpz_t value;
 };
 // +
 template <typename T> inline UNSIGNED_INT_COND(T, mpz_class) operator+(const mpz_class & op1, const T op2) {
