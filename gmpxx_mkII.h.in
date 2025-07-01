@@ -750,6 +750,21 @@ class mpz_class {
         mpz_add_ui(value, value, 1);
         return *this;
     }
+    mpz_class operator++(int) {
+        mpz_class original = *this;
+        ++(*this);
+        return original;
+    }
+    mpz_class& operator--() {
+        mpz_sub_ui(value, value, 1);
+        return *this;
+    }
+    mpz_class operator--(int) {
+        mpz_class original = *this;
+        --(*this);
+        return original;
+    }
+
     // Expression template constructor
     template <typename E> mpz_class(const mpz_expr<E>& expr) {
         mpz_init(value);
@@ -1206,9 +1221,7 @@ class mpf_class {
 //=============================================================================
 
 template <typename E> mpz_expr<E>::operator mpz_class() const { return mpz_class(*this); }
-
 template <typename E> mpq_expr<E>::operator mpq_class() const { return mpq_class(*this); }
-
 template <typename E> mpf_expr<E>::operator mpf_class() const { return mpf_class(*this); }
 
 //=============================================================================
@@ -1217,11 +1230,8 @@ template <typename E> mpf_expr<E>::operator mpf_class() const { return mpf_class
 
 // mpz operators
 template <typename L, typename R> auto operator+(const mpz_expr<L>& left, const mpz_expr<R>& right) { return mpz_binary_expr<L, R, mpz_add_op>(left.cast(), right.cast()); }
-
 auto operator+(const mpz_class& left, const mpz_class& right) { return mpz_binary_expr<mpz_class, mpz_class, mpz_add_op>(left, right); }
-
 template <typename E> auto operator+(const mpz_expr<E>& left, const mpz_class& right) { return mpz_binary_expr<E, mpz_class, mpz_add_op>(left.cast(), right); }
-
 template <typename E> auto operator+(const mpz_class& left, const mpz_expr<E>& right) { return mpz_binary_expr<mpz_class, E, mpz_add_op>(left, right.cast()); }
 
 // Similar patterns for -, *, /, % for mpz
