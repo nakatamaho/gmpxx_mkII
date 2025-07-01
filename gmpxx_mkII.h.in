@@ -1505,14 +1505,12 @@ mpz_class sqrt(const mpz_class& val) {
 
 // Power function for floating point
 mpf_class pow(const mpf_class& base, const mpf_class& exponent) {
-    if (base.sgn() <= 0) {
+    if (sgn(base) <= 0) {
         throw std::domain_error("pow: base must be positive for general exponentiation");
     }
-
     double base_d = base.get_d();
     double exp_d = exponent.get_d();
     double result_d = std::pow(base_d, exp_d);
-
     return mpf_class(result_d);
 }
 
@@ -1549,7 +1547,7 @@ template <typename E> mpf_class atan(const mpf_expr<E>& x) { return atan(mpf_cla
 
 // Logarithmic and exponential functions
 mpf_class log(const mpf_class& x) {
-    if (x.sgn() <= 0) {
+    if (sgn(x) <= 0) {
         throw std::domain_error("log: argument must be positive");
     }
     double x_d = x.get_d();
