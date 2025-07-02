@@ -26,6 +26,20 @@
 #error "This class only runs on C++ 17 and later"
 #endif
 
+// Feature test macros to ensure proper C99/C11 support
+#ifndef _ISOC99_SOURCE
+#define _ISOC99_SOURCE
+#endif
+#ifndef _ISOC11_SOURCE
+#define _ISOC11_SOURCE
+#endif
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+#ifndef __STDC_CONSTANT_MACROS
+#define __STDC_CONSTANT_MACROS
+#endif
+
 #define GMPXX_MKII_VERSION_MAJOR 1
 #define GMPXX_MKII_VERSION_MINOR 0
 #define GMPXX_MKII_VERSION_PATCH 0
@@ -51,6 +65,10 @@
 #include <cstdint>
 
 #include <gmp.h>
+
+#if defined(_MSC_VER)
+#define strdup _strdup
+#endif
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
 
@@ -771,12 +789,6 @@ class mpz_class {
     // void swap (mpz_class& op1, mpz_class& op2)
     void swap(mpz_class& op) noexcept { mpz_swap(this->value, op.value); }
 
-    friend std::ostream& operator<<(std::ostream& os, const mpz_class& op);
-    friend std::ostream& operator<<(std::ostream& os, const mpz_t op);
-
-    friend std::istream& operator>>(std::istream& stream, mpz_class& op);
-    friend std::istream& operator>>(std::istream& stream, mpz_t op);
-
     // casts
     operator mpf_class() const;
     operator mpq_class() const;
@@ -1310,14 +1322,6 @@ inline void print_mpz(std::ostream& os, const mpz_t op) {
     os << s;
     os.width(0);
 }
-inline std::ostream& operator<<(std::ostream& os, const mpz_class& op) {
-    print_mpz(os, op.get_mpz_t());
-    return os;
-}
-inline std::ostream& operator<<(std::ostream& os, const mpz_t& op) {
-    print_mpz(os, op);
-    return os;
-}
 inline std::istream& read_nofmtflags_mpz_from_stream(std::istream& stream, mpz_t op) {
     char ch;
     std::string number;
@@ -1832,13 +1836,6 @@ class mpq_class {
     mpz_ptr get_num_mpz_t() { return mpq_numref(value); }
     mpz_ptr get_den_mpz_t() { return mpq_denref(value); }
 
-    // istream& operator>> (istream& stream, mpq_class& rop)
-    friend std::ostream& operator<<(std::ostream& os, const mpq_class& op);
-    friend std::ostream& operator<<(std::ostream& os, const mpq_t op);
-
-    friend std::istream& operator>>(std::istream& stream, mpq_class& op);
-    friend std::istream& operator>>(std::istream& stream, mpq_t op);
-
     operator mpf_class() const;
     operator mpz_class() const;
     mpq_srcptr get_mpq_t() const { return value; }
@@ -2069,14 +2066,6 @@ inline void print_mpq(std::ostream& os, const mpq_t op) {
     }
     os << s;
     os.width(0);
-}
-inline std::ostream& operator<<(std::ostream& os, const mpq_class& op) {
-    print_mpq(os, op.get_mpq_t());
-    return os;
-}
-inline std::ostream& operator<<(std::ostream& os, const mpq_t& op) {
-    print_mpq(os, op);
-    return os;
 }
 inline std::istream& read_base_mpq_from_stream(std::istream& stream, mpq_t op, int base = 10) {
     char ch;
@@ -2575,12 +2564,6 @@ class mpf_class {
     mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
     void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
     void set_prec_raw(mp_bitcnt_t prec) { mpf_set_prec_raw(value, prec); }
-
-    friend std::ostream& operator<<(std::ostream& os, const mpf_class& op);
-    friend std::ostream& operator<<(std::ostream& os, const mpf_t op);
-
-    friend std::istream& operator>>(std::istream& stream, mpf_class& op);
-    friend std::istream& operator>>(std::istream& stream, mpf_t op);
 
     // gmpxx_mkII extension
     static mpf_class const_pi();
@@ -3446,14 +3429,6 @@ inline void print_mpf(std::ostream& os, const mpf_t op) {
     }
     os << s;
     os.width(0);
-}
-inline std::ostream& operator<<(std::ostream& os, const mpf_class& op) {
-    print_mpf(os, op.get_mpf_t());
-    return os;
-}
-inline std::ostream& operator<<(std::ostream& os, const mpf_t& op) {
-    print_mpf(os, op);
-    return os;
 }
 inline bool is_valid_number_char(char ch) { return std::isxdigit(ch) || ch == '.' || ch == 'p' || ch == 'P' || ch == '-' || ch == '+'; }
 inline void print_format_flags(std::ios_base::fmtflags flags) {
@@ -4757,22 +4732,70 @@ void swap(gmpxx::mpq_class& op1, gmpxx::mpq_class& op2) noexcept { op1.swap(op2)
 void swap(gmpxx::mpf_class& op1, gmpxx::mpf_class& op2) noexcept { op1.swap(op2); }
 
 #if defined(___GMPXX_STRICT_COMPATIBILITY___)
-std::istream& operator>>(std::istream& stream, mpz_t op) { return gmpxx::read_mpz_from_stream(stream, op); }
-std::istream& operator>>(std::istream& stream, mpq_t op) { return gmpxx::read_mpq_from_stream(stream, op); }
-std::istream& operator>>(std::istream& stream, mpf_t op) { return gmpxx::read_mpf_from_stream(stream, op); }
+std::ostream& operator<<(std::ostream& os, mpz_srcptr op) {
+    gmpxx::print_mpz(os, op);
+    return os;
+}
+std::ostream& operator<<(std::ostream& os, mpq_srcptr op) {
+    gmpxx::print_mpq(os, op);
+    return os;
+}
+std::ostream& operator<<(std::ostream& os, mpf_srcptr op) {
+    gmpxx::print_mpf(os, op);
+    return os;
+}
+std::istream& operator>>(std::istream& stream, mpz_ptr op) { return gmpxx::read_mpz_from_stream(stream, op); }
+std::istream& operator>>(std::istream& stream, mpq_ptr op) { return gmpxx::read_mpq_from_stream(stream, op); }
+std::istream& operator>>(std::istream& stream, mpf_ptr op) { return gmpxx::read_mpf_from_stream(stream, op); }
+inline std::istream& operator>>(std::istream& stream, gmpxx::mpz_class& op) { return gmpxx::read_mpz_from_stream(stream, op.get_mpz_t()); }
+inline std::istream& operator>>(std::istream& stream, gmpxx::mpq_class& op) { return gmpxx::read_mpq_from_stream(stream, op.get_mpq_t()); }
+inline std::istream& operator>>(std::istream& stream, gmpxx::mpf_class& op) { return gmpxx::read_mpf_from_stream(stream, op.get_mpf_t()); }
+inline std::ostream& operator<<(std::ostream& os, const gmpxx::mpz_class& op) {
+    gmpxx::print_mpz(os, op.get_mpz_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const gmpxx::mpq_class& op) {
+    gmpxx::print_mpq(os, op.get_mpq_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const gmpxx::mpf_class& op) {
+    gmpxx::print_mpf(os, op.get_mpf_t());
+    return os;
+}
 #else
 namespace gmpxx {
 inline std::istream& operator>>(std::istream& stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
 inline std::istream& operator>>(std::istream& stream, mpq_t op) { return read_mpq_from_stream(stream, op); }
 inline std::istream& operator>>(std::istream& stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
-} // namespace gmpxx
-#endif
-
-namespace gmpxx {
+inline std::ostream& operator<<(std::ostream& os, const mpz_t& op) {
+    print_mpz(os, op);
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpq_t& op) {
+    print_mpq(os, op);
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpf_t& op) {
+    print_mpf(os, op);
+    return os;
+}
 inline std::istream& operator>>(std::istream& stream, mpz_class& op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
 inline std::istream& operator>>(std::istream& stream, mpq_class& op) { return read_mpq_from_stream(stream, op.get_mpq_t()); }
 inline std::istream& operator>>(std::istream& stream, mpf_class& op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
+inline std::ostream& operator<<(std::ostream& os, const mpz_class& op) {
+    print_mpz(os, op.get_mpz_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpq_class& op) {
+    print_mpq(os, op.get_mpq_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpf_class& op) {
+    print_mpf(os, op.get_mpf_t());
+    return os;
+}
 } // namespace gmpxx
+#endif
 
 namespace std { // namespace std for numerical limits
 template <> class numeric_limits<gmpxx::mpz_class> {
