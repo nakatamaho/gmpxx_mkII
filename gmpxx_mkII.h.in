@@ -1384,16 +1384,22 @@ inline std::istream& read_base_mpz_from_stream(std::istream& stream, mpz_t op, i
     std::string number;
     bool negative = false;
     bool number_started = false;
+    // Skip whitespace characters
     while (stream >> ch && isspace(ch))
         ;
     if (!stream) {
         stream.setstate(std::ios::failbit);
         return stream;
     }
+    // Handle sign characters
     if (ch == '+' || ch == '-') {
         negative = (ch == '-');
-        stream.get(ch);
+        if (!stream.get(ch)) {
+            stream.setstate(std::ios::failbit);
+            return stream;
+        }
     }
+    // Read valid digits for the specified base
     while ((base <= 10 && isdigit(ch) && ch < '0' + base) || (base == 16 && isxdigit(ch))) {
         if (base == 16 && isalpha(ch)) {
             ch = tolower(ch);
@@ -1403,23 +1409,25 @@ inline std::istream& read_base_mpz_from_stream(std::istream& stream, mpz_t op, i
         if (!stream.get(ch))
             break;
     }
-    if (number_started && (ch < '0' || (ch > '9' && base <= 10) || (ch > 'f' && base == 16))) {
+    // Put back the last character if it's not part of the number
+    if (number_started && !stream.eof()) {
         stream.unget();
     }
-    if (negative && !number.empty())
-        number = "-" + number;
+    // Check if we found any valid digits
     if (number.empty()) {
         stream.setstate(std::ios::failbit);
+        return stream;
     }
+    // Convert string to mpz_t
     int ret = mpz_set_str(op, number.c_str(), base);
     if (ret != 0) {
         stream.setstate(std::ios::failbit);
-    } else {
-        stream.clear(stream.rdstate() & ~std::ios::failbit);
-        stream.setstate(std::ios::goodbit);
+    } else if (negative) {
+        mpz_neg(op, op); // Apply negative sign after successful conversion
     }
     return stream;
 }
+
 inline std::istream& read_mpz_from_stream(std::istream& stream, mpz_t op) {
     std::ios_base::fmtflags current_flags = stream.flags();
     if (current_flags == std::ios_base::fmtflags(0)) {
