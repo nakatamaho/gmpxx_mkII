@@ -105,9 +105,7 @@ inline constexpr bool ___gmpxx_mkII___ullong_is_greater_than_uint64_v = ___is_nu
 inline constexpr bool ___gmpxx_mkII___llong_is_same_as_int64_v = ___is_same_representation<long long, int64_t>::value;
 inline constexpr bool ___gmpxx_mkII___ullong_is_same_as_uint64_v = ___is_same_representation<unsigned long long, uint64_t>::value;
 
-#if !defined ___GMPXX_DONT_USE_NAMESPACE___
 namespace gmpxx {
-#endif
 
 // Forward declarations
 class mpz_class;
@@ -2205,6 +2203,153 @@ template <typename E1, typename E2> struct common_type<gmpxx::mpf_expr<E1>, gmpx
 
 } // namespace std
 
+// mpf_class operator"" _mpf (const char *str)
+// mpz_class operator"" _mpz (const char *str)
+// mpq_class operator"" _mpq (const char *str)
+inline gmpxx::mpz_class operator"" _mpz(unsigned long long int val) {
+    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
+        return gmpxx::mpz_class(static_cast<uint64_t>(val));
+    } else {
+        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
+    }
+}
+inline gmpxx::mpq_class operator"" _mpq(unsigned long long int val) {
+    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v) {
+        return gmpxx::mpq_class(static_cast<uint64_t>(val), static_cast<uint64_t>(1));
+    } else {
+        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
+    }
+}
+inline gmpxx::mpf_class operator"" _mpf(long double val) {
+    if (val < -std::numeric_limits<double>::max() || val > std::numeric_limits<double>::max()) {
+        throw std::overflow_error("gmpxx_mkII.h: Values beyond the range of a double are currently unsupported.");
+    }
+    return gmpxx::mpf_class(static_cast<double>(val));
+}
+// in the manual, the following functions are avilable, but actually not.
+// cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
+// "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
+#if !defined ___GMPXX_UDL_CHAR___
+inline gmpxx::mpz_class operator"" _mpz(const char* str, [[maybe_unused]] std::size_t length) { return gmpxx::mpz_class(str); }
+inline gmpxx::mpq_class operator"" _mpq(const char* str, [[maybe_unused]] std::size_t length) { return gmpxx::mpq_class(str); }
+inline gmpxx::mpf_class operator"" _mpf(const char* str, [[maybe_unused]] std::size_t length) { return gmpxx::mpf_class(str); }
+#endif
+
+void swap(gmpxx::mpz_class& op1, gmpxx::mpz_class& op2) noexcept { op1.swap(op2); }
+void swap(gmpxx::mpq_class& op1, gmpxx::mpq_class& op2) noexcept { op1.swap(op2); }
+void swap(gmpxx::mpf_class& op1, gmpxx::mpf_class& op2) noexcept { op1.swap(op2); }
+
+#if defined(___GMPXX_STRICT_COMPATIBILITY___)
+std::istream& operator>>(std::istream& stream, mpz_t op) { return gmpxx::read_mpz_from_stream(stream, op); }
+std::istream& operator>>(std::istream& stream, mpq_t op) { return gmpxx::read_mpq_from_stream(stream, op); }
+std::istream& operator>>(std::istream& stream, mpf_t op) { return gmpxx::read_mpf_from_stream(stream, op); }
+#else
+namespace gmpxx {
+inline std::istream& operator>>(std::istream& stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
+inline std::istream& operator>>(std::istream& stream, mpq_t op) { return read_mpq_from_stream(stream, op); }
+inline std::istream& operator>>(std::istream& stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
+} // namespace gmpxx
+#endif
+
+namespace gmpxx {
+inline std::istream& operator>>(std::istream& stream, mpz_class& op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
+inline std::istream& operator>>(std::istream& stream, mpq_class& op) { return read_mpq_from_stream(stream, op.get_mpq_t()); }
+inline std::istream& operator>>(std::istream& stream, mpf_class& op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
+} // namespace gmpxx
+
+namespace std { // namespace std for numerical limits
+template <> class numeric_limits<gmpxx::mpz_class> {
+  public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = true;
+    static constexpr bool is_exact = true;
+    static constexpr bool has_infinity = false;
+    static constexpr bool has_quiet_NaN = false;
+    static constexpr bool has_signaling_NaN = false;
+    static constexpr float_denorm_style has_denorm = denorm_absent;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = false;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+    static constexpr float_round_style round_style = round_toward_zero;
+    static gmpxx::mpz_class min() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class max() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class lowest() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class epsilon() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class round_error() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class infinity() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class quiet_NaN() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class signaling_NaN() noexcept { return gmpxx::mpz_class(0); }
+    static gmpxx::mpz_class denorm_min() noexcept { return gmpxx::mpz_class(0); }
+};
+template <> class numeric_limits<gmpxx::mpq_class> {
+  public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = false;
+    static constexpr bool is_exact = true;
+    static constexpr bool has_infinity = false;
+    static constexpr bool has_quiet_NaN = false;
+    static constexpr bool has_signaling_NaN = false;
+    static constexpr float_denorm_style has_denorm = denorm_absent;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = false;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+    static constexpr float_round_style round_style = round_toward_zero;
+    static gmpxx::mpq_class min() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class max() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class lowest() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class epsilon() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class round_error() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class infinity() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class quiet_NaN() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class signaling_NaN() noexcept { return gmpxx::mpq_class(0); }
+    static gmpxx::mpq_class denorm_min() noexcept { return gmpxx::mpq_class(0); }
+};
+template <> class numeric_limits<gmpxx::mpf_class> {
+  public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = false;
+    static constexpr bool is_exact = false;
+    static constexpr bool has_infinity = true;
+    static constexpr bool has_quiet_NaN = true;
+    static constexpr bool has_signaling_NaN = true;
+    static constexpr float_denorm_style has_denorm = denorm_present;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = true;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+    static constexpr float_round_style round_style = round_toward_zero;
+    static gmpxx::mpf_class min() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class max() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class lowest() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class epsilon() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class round_error() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class infinity() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class quiet_NaN() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class signaling_NaN() noexcept { return gmpxx::mpf_class(0); }
+    static gmpxx::mpf_class denorm_min() noexcept { return gmpxx::mpf_class(0); }
+};
+} // namespace std
+
 //=============================================================================
 // Version information function
 //=============================================================================
@@ -2227,4 +2372,6 @@ inline void print_version_info() {
 #endif
 }
 
-} // namespace gmpxx
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+using namespace gmpxx;
+#endif
