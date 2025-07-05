@@ -1,9 +1,10 @@
-CXX = g++-12
+CXX = g++-13
 CXXFLAGS = -Wall -Wextra -O2
 PREFIX = /usr/local
 
 LDFLAGS = -L/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib -lgmp
 INCLUDES = -I/home/docker/gmpxx_mkII/i/GMP-6.3.0/include -I/home/docker/gmpxx_mkII/
+GTEST_FLAGS = -lgtest -lgtest_main -pthread
 RPATH_FLAGS = -Wl,-rpath,/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib
 
 TARGET = test_gmpxx_mkII
@@ -11,6 +12,7 @@ TARGET_ORIG = test_gmpxx
 TARGET_COMPAT = test_gmpxx_compat
 TARGET_MKIISR = test_gmpxx_mkIISR
 TARGET_TEST_ENV = test_env
+#TARGET_DEFAULTS_TEST = test_gmpxx_defaults
 
 COMMIT_HASH := $(shell git rev-parse HEAD)
 
@@ -27,6 +29,7 @@ OBJECTS_COMPAT = $(SOURCES:.cpp=_compat.o)
 OBJECTS_MKIISR = $(SOURCES:.cpp=_mkiisr.o)
 
 SOURCE_TEST_ENV = test_env.cpp
+SOURCE_DEFAULTS_TEST = test_gmpxx_defaults.cpp
 
 ORIG_TESTS_DIR = orig_tests/cxx
 ORIG_TESTS_SOURCES = orig_tests/cxx/t-assign.cc orig_tests/cxx/t-binary.cc orig_tests/cxx/t-cast.cc orig_tests/cxx/t-constr.cc \
@@ -78,7 +81,7 @@ Rgemm_gmp_kernel_openmp_01_orig Rgemm_gmp_kernel_openmp_01_mkII Rgemm_gmp_kernel
 Rgemm_gmp_kernel_openmp_02_orig Rgemm_gmp_kernel_openmp_02_mkII Rgemm_gmp_kernel_openmp_02_mkIISR \
 Rgemm_gmp_kernel_openmp_03_orig Rgemm_gmp_kernel_openmp_03_mkII Rgemm_gmp_kernel_openmp_03_mkIISR)
 
-all: gmpxx_mkII.h $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
+all: gmpxx_mkII.h $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) $(TARGET_MKIISR) $(TARGET_TEST_ENV) $(TARGET_DEFAULTS_TEST) $(EXAMPLES_EXECUTABLES) $(ORIG_TESTS) $(BENCHMARKS00_0) $(BENCHMARKS00_1) $(BENCHMARKS01_0) $(BENCHMARKS01_1) $(BENCHMARKS02_0) $(BENCHMARKS02_1) $(BENCHMARKS03_0) $(BENCHMARKS03_1) $(BENCHMARKS03_2) $(BENCHMARKS03_3)
 
 includedir = $(PREFIX)/include
 
@@ -115,6 +118,9 @@ $(TARGET_MKIISR): $(OBJECTS_MKIISR)
 
 $(TARGET_TEST_ENV): $(SOURCE_TEST_ENV) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET_TEST_ENV) $(SOURCE_TEST_ENV) $(LDFLAGS) $(RPATH_FLAGS)
+
+$(TARGET_DEFAULTS_TEST): $(SOURCE_DEFAULTS_TEST) $(HEADERS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(TARGET_DEFAULTS_TEST) $(SOURCE_DEFAULTS_TEST) $(LDFLAGS) $(RPATH_FLAGS) $(GTEST_FLAGS)
 
 $(OBJECTS_MKIISR): $(SOURCES) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -c $(SOURCES) -o $@

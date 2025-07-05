@@ -1,6 +1,6 @@
 VERSION=6.3.0
-export CC=gcc-12
-export CXX=g++-12
+export CC=gcc-13
+export CXX=g++-13
 
 WRKDIR=/home/docker/gmpxx_mkII/setup/work_gmp
 ARCHIVEDIR=/home/docker/gmpxx_mkII/archives
