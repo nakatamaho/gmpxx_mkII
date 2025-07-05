@@ -821,9 +821,18 @@ class mpz_class {
         return result;
     }
 
-    // Utility functions
-    size_t size() const noexcept { return mpz_size(value); }
-    int sgn() const noexcept { return mpz_sgn(value); }
+    // int sgn (mpz_class op)
+    // mpz_class sqrt (mpz_class op)
+    // mpz_class gcd (mpz_class op1, mpz_class op2)
+    // mpz_class lcm (mpz_class op1, mpz_class op2)
+    friend int sgn(const mpz_class& op);
+    friend mpz_class sqrt(const mpz_class& op);
+    friend mpz_class gcd(const mpz_class& op1, const mpz_class& op2);
+    friend mpz_class lcm(const mpz_class& op1, const mpz_class& op2);
+
+    // void mpz_class::swap (mpz_class& op)
+    // void swap (mpz_class& op1, mpz_class& op2)
+    void swap(mpz_class& op) noexcept { mpz_swap(this->value, op.value); }
 
     // Comparison operators
     bool operator==(const mpz_class& other) const noexcept { return mpz_cmp(value, other.value) == 0; }
