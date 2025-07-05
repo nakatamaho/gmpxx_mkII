@@ -82,8 +82,8 @@ RUN echo 'eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519 2>/dev/null' >> ~/
 
 ARG GIT_COMMIT_TRIGGER=unspecified
 
-# Clone the original repository and build GMP
-RUN git clone --branch main --single-branch --depth 1 \
+# Clone the cleanup branch and build GMP
+RUN git clone --branch cleanup --single-branch --depth 1 \
     https://github.com/nakatamaho/gmpxx_mkII.git gmpxx_mkII \
  && cd gmpxx_mkII \
  && git remote set-url origin git@github.com:nakatamaho/gmpxx_mkII.git \
