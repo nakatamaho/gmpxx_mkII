@@ -110,10 +110,8 @@ inline constexpr bool ___gmpxx_mkII___ullong_is_greater_than_uint64_v = ___is_nu
 inline constexpr bool ___gmpxx_mkII___llong_is_same_as_int64_v = ___is_same_representation<long long, int64_t>::value;
 inline constexpr bool ___gmpxx_mkII___ullong_is_same_as_uint64_v = ___is_same_representation<unsigned long long, uint64_t>::value;
 
-#if !defined ___GMPXX_DONT_USE_NAMESPACE___
 namespace gmpxx {
-#endif
-
+// Forward declarations
 class mpz_class;
 class mpq_class;
 class mpf_class;
@@ -259,7 +257,7 @@ class mpz_class {
         }
         return *this;
     }
-    // The rule 3 of 5 default deconstructor
+    // The rule 3 of 5 default destructor
     ~mpz_class() { mpz_clear(value); }
     // The rule 4 of 5 move constructor
     mpz_class(mpz_class&& op) noexcept {
@@ -847,15 +845,7 @@ class mpz_class {
 
     // void mpz_class::swap (mpz_class& op)
     // void swap (mpz_class& op1, mpz_class& op2)
-    void swap(mpz_class& op) { mpz_swap(this->value, op.value); }
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
-    friend void swap(mpz_class& op1, mpz_class& op2) { mpz_swap(op1.value, op2.value); }
-#endif
-    friend std::ostream& operator<<(std::ostream& os, const mpz_class& op);
-    friend std::ostream& operator<<(std::ostream& os, const mpz_t op);
-
-    friend std::istream& operator>>(std::istream& stream, mpz_class& op);
-    friend std::istream& operator>>(std::istream& stream, mpz_t op);
+    void swap(mpz_class& op) noexcept { mpz_swap(this->value, op.value); }
 
     // casts
     operator mpf_class() const;
@@ -1393,14 +1383,6 @@ inline void print_mpz(std::ostream& os, const mpz_t op) {
     os << s;
     os.width(0);
 }
-inline std::ostream& operator<<(std::ostream& os, const mpz_class& op) {
-    print_mpz(os, op.get_mpz_t());
-    return os;
-}
-inline std::ostream& operator<<(std::ostream& os, const mpz_t& op) {
-    print_mpz(os, op);
-    return os;
-}
 inline std::istream& read_nofmtflags_mpz_from_stream(std::istream& stream, mpz_t op) {
     char ch;
     std::string number;
@@ -1511,8 +1493,6 @@ inline std::istream& read_mpz_from_stream(std::istream& stream, mpz_t op) {
     }
     return read_base_mpz_from_stream(stream, op);
 }
-inline std::istream& operator>>(std::istream& stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
-inline std::istream& operator>>(std::istream& stream, mpz_class& op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
 class mpq_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -1534,7 +1514,7 @@ class mpq_class {
         }
         return *this;
     }
-    // The rule 3 of 5 default deconstructor
+    // The rule 3 of 5 default destructor
     ~mpq_class() { mpq_clear(value); }
     // The rule 4 of 5 move constructor
     mpq_class(mpq_class&& op) noexcept {
@@ -1893,11 +1873,8 @@ class mpq_class {
     // int sgn (mpq_class op)
     // void mpq_class::swap (mpq_class& op)
     // void swap (mpq_class& op1, mpq_class& op2)
-    void swap(mpq_class& op) { mpq_swap(this->value, op.value); }
+    void swap(mpq_class& op) noexcept { mpq_swap(this->value, op.value); }
     friend int sgn(const mpq_class& op) { return mpq_sgn(op.value); }
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
-    friend void swap(mpq_class& op1, mpq_class& op2) { mpq_swap(op1.value, op2.value); }
-#endif
 
     // mpz_class& mpq_class::get_num ()
     // mpz_class& mpq_class::get_den ()
@@ -1915,13 +1892,6 @@ class mpq_class {
     mpz_srcptr get_den_mpz_t() const { return mpq_denref(value); }
     mpz_ptr get_num_mpz_t() { return mpq_numref(value); }
     mpz_ptr get_den_mpz_t() { return mpq_denref(value); }
-
-    // istream& operator>> (istream& stream, mpq_class& rop)
-    friend std::ostream& operator<<(std::ostream& os, const mpq_class& op);
-    friend std::ostream& operator<<(std::ostream& os, const mpq_t op);
-
-    friend std::istream& operator>>(std::istream& stream, mpq_class& op);
-    friend std::istream& operator>>(std::istream& stream, mpq_t op);
 
     operator mpf_class() const;
     operator mpz_class() const;
@@ -2157,14 +2127,6 @@ inline void print_mpq(std::ostream& os, const mpq_t op) {
     os << s;
     os.width(0);
 }
-inline std::ostream& operator<<(std::ostream& os, const mpq_class& op) {
-    print_mpq(os, op.get_mpq_t());
-    return os;
-}
-inline std::ostream& operator<<(std::ostream& os, const mpq_t& op) {
-    print_mpq(os, op);
-    return os;
-}
 inline std::istream& read_base_mpq_from_stream(std::istream& stream, mpq_t op, int base = 10) {
     char ch;
     std::string number;
@@ -2240,8 +2202,6 @@ inline std::istream& read_mpq_from_stream(std::istream& stream, mpq_t op) {
     }
     return read_base_mpq_from_stream(stream, op);
 }
-inline std::istream& operator>>(std::istream& stream, mpq_t op) { return read_mpq_from_stream(stream, op); }
-inline std::istream& operator>>(std::istream& stream, mpq_class& op) { return read_mpq_from_stream(stream, op.get_mpq_t()); }
 class mpf_class {
   public:
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -2267,7 +2227,7 @@ class mpf_class {
         }
         return *this;
     }
-    // The rule 3 of 5 default deconstructor
+    // The rule 3 of 5 default destructor
     ~mpf_class() { mpf_clear(value); }
     // The rule 4 of 5 move constructor
     mpf_class(mpf_class&& op) noexcept {
@@ -2729,10 +2689,7 @@ class mpf_class {
     friend int sgn(const mpf_class& op);
     friend mpf_class sqrt(const mpf_class& op);
     friend mpf_class neg(const mpf_class& op);
-    void swap(mpf_class& op) { mpf_swap(this->value, op.value); }
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
-    friend void swap(mpf_class& op1, mpf_class& op2) { mpf_swap(op1.value, op2.value); }
-#endif
+    void swap(mpf_class& op) noexcept { mpf_swap(this->value, op.value); }
     friend mpf_class trunc(const mpf_class& op);
 
     // mp_bitcnt_t mpf_class::get_prec()
@@ -2741,12 +2698,6 @@ class mpf_class {
     mp_bitcnt_t get_prec() const { return mpf_get_prec(value); }
     void set_prec(mp_bitcnt_t prec) { mpf_set_prec(value, prec); }
     void set_prec_raw(mp_bitcnt_t prec) { mpf_set_prec_raw(value, prec); }
-
-    friend std::ostream& operator<<(std::ostream& os, const mpf_class& op);
-    friend std::ostream& operator<<(std::ostream& os, const mpf_t op);
-
-    friend std::istream& operator>>(std::istream& stream, mpf_class& op);
-    friend std::istream& operator>>(std::istream& stream, mpf_t op);
 
     // gmpxx_mkII extension
     static mpf_class const_pi();
@@ -2774,7 +2725,8 @@ class mpf_class {
 
   private:
     mpf_t value;
-};
+}; // namespace gmpxx
+
 // casts
 inline mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); }
 inline mpf_class::operator mpz_class() const { return mpz_class(this->get_mpf_t()); }
@@ -3612,14 +3564,6 @@ inline void print_mpf(std::ostream& os, const mpf_t op) {
     os << s;
     os.width(0);
 }
-inline std::ostream& operator<<(std::ostream& os, const mpf_class& op) {
-    print_mpf(os, op.get_mpf_t());
-    return os;
-}
-inline std::ostream& operator<<(std::ostream& os, const mpf_t& op) {
-    print_mpf(os, op);
-    return os;
-}
 inline bool is_valid_number_char(char ch) { return std::isxdigit(ch) || ch == '.' || ch == 'p' || ch == 'P' || ch == '-' || ch == '+'; }
 inline void print_format_flags(std::ios_base::fmtflags flags) {
     std::cout << "Current Format Flags:" << std::endl;
@@ -3750,8 +3694,6 @@ inline std::istream& read_mpf_from_stream(std::istream& stream, mpf_t op) {
     }
     return stream;
 }
-inline std::istream& operator>>(std::istream& stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
-inline std::istream& operator>>(std::istream& stream, mpf_class& op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
 inline mpf_class const_pi() {
     static bool calculated = false;
     static mp_bitcnt_t calculated_pi_precision = 0;
@@ -4884,35 +4826,11 @@ class gmp_randclass {
         }
     }
 }; // gmp_randclass
-#if !defined ___GMPXX_DONT_USE_NAMESPACE___
-} // namespace gmp
-#endif
+} // namespace gmpxx
 
 // mpf_class operator"" _mpf (const char *str)
 // mpz_class operator"" _mpz (const char *str)
 // mpq_class operator"" _mpq (const char *str)
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-inline mpz_class operator"" _mpz(unsigned long long int val) {
-    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
-        return mpz_class(static_cast<uint64_t>(val));
-    } else {
-        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
-    }
-}
-inline mpq_class operator"" _mpq(unsigned long long int val) {
-    if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
-        return mpq_class(static_cast<uint64_t>(val), static_cast<uint64_t>(1));
-    } else {
-        throw std::overflow_error("gmpxx_mkII: The provided value exceeds the supported range for unsigned long long on this platform.");
-    }
-}
-inline mpf_class operator"" _mpf(long double val) {
-    if (val < -std::numeric_limits<double>::max() || val > std::numeric_limits<double>::max()) {
-        throw std::overflow_error("gmpxx_mkII.h: Values beyond the range of a double are currently unsupported.");
-    }
-    return mpf_class(static_cast<double>(val));
-}
-#else
 inline gmpxx::mpz_class operator"" _mpz(unsigned long long int val) {
     if constexpr (___gmpxx_mkII___ullong_is_same_as_uint64_v || ___gmpxx_mkII___ullong_is_greater_than_uint64_v) {
         return gmpxx::mpz_class(static_cast<uint64_t>(val));
@@ -4933,7 +4851,6 @@ inline gmpxx::mpf_class operator"" _mpf(long double val) {
     }
     return gmpxx::mpf_class(static_cast<double>(val));
 }
-#endif
 // in the manual, the following functions are avilable, but actually not.
 // cf. https://gmplib.org/manual/C_002b_002b-Interface-Rationals
 // "With C++11 compilers, integral rationals can be constructed with the syntax 123_mpq which is equivalent to mpq_class(123_mpz). Other rationals can be built as -1_mpq/2 or 0xb_mpq/123456_mpz."
@@ -4943,19 +4860,79 @@ inline gmpxx::mpq_class operator"" _mpq(const char* str, [[maybe_unused]] std::s
 inline gmpxx::mpf_class operator"" _mpf(const char* str, [[maybe_unused]] std::size_t length) { return gmpxx::mpf_class(str); }
 #endif
 
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
-void swap(mpz_class& op1, mpz_class& op2) noexcept { op1.swap(op2); }
-void swap(mpq_class& op1, mpq_class& op2) noexcept { op1.swap(op2); }
-void swap(mpf_class& op1, mpf_class& op2) noexcept { op1.swap(op2); }
+void swap(gmpxx::mpz_class& op1, gmpxx::mpz_class& op2) noexcept { op1.swap(op2); }
+void swap(gmpxx::mpq_class& op1, gmpxx::mpq_class& op2) noexcept { op1.swap(op2); }
+void swap(gmpxx::mpf_class& op1, gmpxx::mpf_class& op2) noexcept { op1.swap(op2); }
+
+// gmp.h has its own definitions of operators >> and <<.
+#if defined(___GMPXX_STRICT_COMPATIBILITY___)
+std::ostream& operator<<(std::ostream& os, mpz_srcptr op) {
+    gmpxx::print_mpz(os, op);
+    return os;
+}
+std::ostream& operator<<(std::ostream& os, mpq_srcptr op) {
+    gmpxx::print_mpq(os, op);
+    return os;
+}
+std::ostream& operator<<(std::ostream& os, mpf_srcptr op) {
+    gmpxx::print_mpf(os, op);
+    return os;
+}
+std::istream& operator>>(std::istream& stream, mpz_ptr op) { return gmpxx::read_mpz_from_stream(stream, op); }
+std::istream& operator>>(std::istream& stream, mpq_ptr op) { return gmpxx::read_mpq_from_stream(stream, op); }
+std::istream& operator>>(std::istream& stream, mpf_ptr op) { return gmpxx::read_mpf_from_stream(stream, op); }
+inline std::istream& operator>>(std::istream& stream, gmpxx::mpz_class& op) { return gmpxx::read_mpz_from_stream(stream, op.get_mpz_t()); }
+inline std::istream& operator>>(std::istream& stream, gmpxx::mpq_class& op) { return gmpxx::read_mpq_from_stream(stream, op.get_mpq_t()); }
+inline std::istream& operator>>(std::istream& stream, gmpxx::mpf_class& op) { return gmpxx::read_mpf_from_stream(stream, op.get_mpf_t()); }
+inline std::ostream& operator<<(std::ostream& os, const gmpxx::mpz_class& op) {
+    gmpxx::print_mpz(os, op.get_mpz_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const gmpxx::mpq_class& op) {
+    gmpxx::print_mpq(os, op.get_mpq_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const gmpxx::mpf_class& op) {
+    gmpxx::print_mpf(os, op.get_mpf_t());
+    return os;
+}
+#else
+namespace gmpxx {
+inline std::istream& operator>>(std::istream& stream, mpz_t op) { return read_mpz_from_stream(stream, op); }
+inline std::istream& operator>>(std::istream& stream, mpq_t op) { return read_mpq_from_stream(stream, op); }
+inline std::istream& operator>>(std::istream& stream, mpf_t op) { return read_mpf_from_stream(stream, op); }
+inline std::ostream& operator<<(std::ostream& os, const mpz_t& op) {
+    print_mpz(os, op);
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpq_t& op) {
+    print_mpq(os, op);
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpf_t& op) {
+    print_mpf(os, op);
+    return os;
+}
+inline std::istream& operator>>(std::istream& stream, mpz_class& op) { return read_mpz_from_stream(stream, op.get_mpz_t()); }
+inline std::istream& operator>>(std::istream& stream, mpq_class& op) { return read_mpq_from_stream(stream, op.get_mpq_t()); }
+inline std::istream& operator>>(std::istream& stream, mpf_class& op) { return read_mpf_from_stream(stream, op.get_mpf_t()); }
+inline std::ostream& operator<<(std::ostream& os, const mpz_class& op) {
+    print_mpz(os, op.get_mpz_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpq_class& op) {
+    print_mpq(os, op.get_mpq_t());
+    return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const mpf_class& op) {
+    print_mpf(os, op.get_mpf_t());
+    return os;
+}
+} // namespace gmpxx
 #endif
 
 namespace std { // namespace std for numerical limits
-template <>
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-class numeric_limits<mpz_class> {
-#else
-class numeric_limits<gmpxx::mpz_class> {
-#endif
+template <> class numeric_limits<gmpxx::mpz_class> {
   public:
     static constexpr bool is_specialized = true;
     static constexpr bool is_signed = true;
@@ -4975,17 +4952,6 @@ class numeric_limits<gmpxx::mpz_class> {
     static constexpr bool traps = false;
     static constexpr bool tinyness_before = false;
     static constexpr float_round_style round_style = round_toward_zero;
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-    static mpz_class min() noexcept { return mpz_class(0); }
-    static mpz_class max() noexcept { return mpz_class(0); }
-    static mpz_class lowest() noexcept { return mpz_class(0); }
-    static mpz_class epsilon() noexcept { return mpz_class(0); }
-    static mpz_class round_error() noexcept { return mpz_class(0); }
-    static mpz_class infinity() noexcept { return mpz_class(0); }
-    static mpz_class quiet_NaN() noexcept { return mpz_class(0); }
-    static mpz_class signaling_NaN() noexcept { return mpz_class(0); }
-    static mpz_class denorm_min() noexcept { return mpz_class(0); }
-#else
     static gmpxx::mpz_class min() noexcept { return gmpxx::mpz_class(0); }
     static gmpxx::mpz_class max() noexcept { return gmpxx::mpz_class(0); }
     static gmpxx::mpz_class lowest() noexcept { return gmpxx::mpz_class(0); }
@@ -4995,14 +4961,8 @@ class numeric_limits<gmpxx::mpz_class> {
     static gmpxx::mpz_class quiet_NaN() noexcept { return gmpxx::mpz_class(0); }
     static gmpxx::mpz_class signaling_NaN() noexcept { return gmpxx::mpz_class(0); }
     static gmpxx::mpz_class denorm_min() noexcept { return gmpxx::mpz_class(0); }
-#endif
 };
-template <>
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-class numeric_limits<mpq_class> {
-#else
-class numeric_limits<gmpxx::mpq_class> {
-#endif
+template <> class numeric_limits<gmpxx::mpq_class> {
   public:
     static constexpr bool is_specialized = true;
     static constexpr bool is_signed = true;
@@ -5022,17 +4982,6 @@ class numeric_limits<gmpxx::mpq_class> {
     static constexpr bool traps = false;
     static constexpr bool tinyness_before = false;
     static constexpr float_round_style round_style = round_toward_zero;
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-    static mpq_class min() noexcept { return mpq_class(0); }
-    static mpq_class max() noexcept { return mpq_class(0); }
-    static mpq_class lowest() noexcept { return mpq_class(0); }
-    static mpq_class epsilon() noexcept { return mpq_class(0); }
-    static mpq_class round_error() noexcept { return mpq_class(0); }
-    static mpq_class infinity() noexcept { return mpq_class(0); }
-    static mpq_class quiet_NaN() noexcept { return mpq_class(0); }
-    static mpq_class signaling_NaN() noexcept { return mpq_class(0); }
-    static mpq_class denorm_min() noexcept { return mpq_class(0); }
-#else
     static gmpxx::mpq_class min() noexcept { return gmpxx::mpq_class(0); }
     static gmpxx::mpq_class max() noexcept { return gmpxx::mpq_class(0); }
     static gmpxx::mpq_class lowest() noexcept { return gmpxx::mpq_class(0); }
@@ -5042,14 +4991,8 @@ class numeric_limits<gmpxx::mpq_class> {
     static gmpxx::mpq_class quiet_NaN() noexcept { return gmpxx::mpq_class(0); }
     static gmpxx::mpq_class signaling_NaN() noexcept { return gmpxx::mpq_class(0); }
     static gmpxx::mpq_class denorm_min() noexcept { return gmpxx::mpq_class(0); }
-#endif
 };
-template <>
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-class numeric_limits<mpf_class> {
-#else
-class numeric_limits<gmpxx::mpf_class> {
-#endif
+template <> class numeric_limits<gmpxx::mpf_class> {
   public:
     static constexpr bool is_specialized = true;
     static constexpr bool is_signed = true;
@@ -5069,17 +5012,6 @@ class numeric_limits<gmpxx::mpf_class> {
     static constexpr bool traps = false;
     static constexpr bool tinyness_before = false;
     static constexpr float_round_style round_style = round_toward_zero;
-#if defined ___GMPXX_DONT_USE_NAMESPACE___
-    static mpf_class min() noexcept { return mpf_class(0); }
-    static mpf_class max() noexcept { return mpf_class(0); }
-    static mpf_class lowest() noexcept { return mpf_class(0); }
-    static mpf_class epsilon() noexcept { return mpf_class(0); }
-    static mpf_class round_error() noexcept { return mpf_class(0); }
-    static mpf_class infinity() noexcept { return mpf_class(0); }
-    static mpf_class quiet_NaN() noexcept { return mpf_class(0); }
-    static mpf_class signaling_NaN() noexcept { return mpf_class(0); }
-    static mpf_class denorm_min() noexcept { return mpf_class(0); }
-#else
     static gmpxx::mpf_class min() noexcept { return gmpxx::mpf_class(0); }
     static gmpxx::mpf_class max() noexcept { return gmpxx::mpf_class(0); }
     static gmpxx::mpf_class lowest() noexcept { return gmpxx::mpf_class(0); }
@@ -5089,6 +5021,9 @@ class numeric_limits<gmpxx::mpf_class> {
     static gmpxx::mpf_class quiet_NaN() noexcept { return gmpxx::mpf_class(0); }
     static gmpxx::mpf_class signaling_NaN() noexcept { return gmpxx::mpf_class(0); }
     static gmpxx::mpf_class denorm_min() noexcept { return gmpxx::mpf_class(0); }
-#endif
 };
 } // namespace std
+
+#if defined ___GMPXX_DONT_USE_NAMESPACE___
+using namespace gmpxx;
+#endif
