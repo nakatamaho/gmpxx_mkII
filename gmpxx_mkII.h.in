@@ -68,6 +68,8 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+// C++ standard library - Threading
+#include <mutex>
 
 #include <gmp.h>
 
@@ -116,54 +118,357 @@ class mpz_class;
 class mpq_class;
 class mpf_class;
 
-struct gmpxx_defaults {
-    static void set_default_prec(int prec) { mpf_set_default_prec(prec); }
-    static mp_bitcnt_t get_default_prec() { return mpf_get_default_prec(); }
-    inline static int base = 10;
-};
-class mpf_class_initializer {
+namespace gmpxx_defaults {
+// ============================================================================
+// Compile time constants
+// ============================================================================
+constexpr int default_base_value = 10;
+constexpr mp_bitcnt_t default_prec_value = 512;
+constexpr int max_supported_base = 62;
+
+// Forward declarations of implementation details
+namespace detail {
+struct GlobalState;
+struct ThreadLocalState;
+} // namespace detail
+
+// ============================================================================
+// Thread local configuration namespace (similar to std::this_thread)
+// ============================================================================
+namespace this_thread {
+bool is_using_local_config() noexcept;
+void enable_local_config(bool enable = true) noexcept;
+void reset_to_defaults() noexcept;
+
+void set_precision(mp_bitcnt_t prec);
+mp_bitcnt_t get_precision() noexcept;
+
+void set_base(int base);
+int get_base() noexcept;
+} // namespace this_thread
+
+// ============================================================================
+// Global configuration namespace
+// ============================================================================
+namespace global {
+void set_precision(mp_bitcnt_t prec);
+mp_bitcnt_t get_precision() noexcept;
+
+void set_base(int base);
+int get_base() noexcept;
+
+void reset_to_defaults() noexcept;
+} // namespace global
+
+// ============================================================================
+// RAII helper for temporary thread local configuration
+// ============================================================================
+class ScopedThreadLocal {
   public:
-    mpf_class_initializer() {
-        int prec = 512;
+    explicit ScopedThreadLocal(mp_bitcnt_t prec = 0, int base = 0);
+    ~ScopedThreadLocal() noexcept;
 
-        const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
-
-        if (prec_env) {
-            if (is_positive_integer(prec_env)) {
-                int prec_val = std::stoi(prec_env);
-                if (prec_val > 0) {
-                    prec = prec_val;
-                }
-            } else {
-                std::cerr << "Error: Invalid GMPXX_MKII_DEFAULT_PREC value: must be a positive integer." << std::endl;
-                std::exit(EXIT_FAILURE);
-            }
-        }
-        mpf_set_default_prec(prec);
-        gmpxx_defaults::base = 10;
-    }
+    ScopedThreadLocal(const ScopedThreadLocal&) = delete;
+    ScopedThreadLocal& operator=(const ScopedThreadLocal&) = delete;
+    ScopedThreadLocal(ScopedThreadLocal&&) = delete;
+    ScopedThreadLocal& operator=(ScopedThreadLocal&&) = delete;
 
   private:
-    bool is_positive_integer(const std::string& s) { return !s.empty() && std::all_of(s.begin(), s.end(), ::isdigit); }
+    bool restore_local_; // true  : re-enable and restore saved values
+                         // false : leave with global settings
+    mp_bitcnt_t saved_prec_ = default_prec_value;
+    int saved_base_ = default_base_value;
 };
-inline mpf_class_initializer global_mpf_class_initializer;
-class mpf_class_initializer_singleton {
-  public:
-    static mpf_class_initializer_singleton& instance() {
-        static mpf_class_initializer_singleton instance;
-        return instance;
-    }
-    static void initialize() { instance(); }
 
-  private:
-    mpf_class_initializer_singleton() { (void)global_mpf_class_initializer; }
-    mpf_class_initializer_singleton(const mpf_class_initializer_singleton&) = delete;
-    mpf_class_initializer_singleton& operator=(const mpf_class_initializer_singleton&) = delete;
-};
-namespace {
-const auto& initializer = mpf_class_initializer_singleton::instance();
+// ============================================================================
+// Environment variable support
+// ============================================================================
+namespace env {
+bool initialize_from_environment(bool force = false) noexcept;
+void reset_initialization() noexcept;
+std::pair<bool, std::string> get_initialization_status() noexcept;
+} // namespace env
+
+// ============================================================================
+// Implementation details (do not use directly)
+// ============================================================================
+namespace detail {
+// ---------------------------------------------
+// Validation helpers
+// ---------------------------------------------
+inline bool is_valid_precision(mp_bitcnt_t prec) noexcept {
+    return prec >= 2; // 2 bits is the absolute minimum accepted by GMP
 }
-#define ___GMPXX_MKII_INITIALIZER___ mpf_class_initializer_singleton::instance()
+
+inline bool is_valid_base(int base) noexcept { return base >= 2 && base <= max_supported_base; }
+
+// ---------------------------------------------
+// Thread local state
+// ---------------------------------------------
+struct ThreadLocalState {
+    bool enabled = false;
+    mp_bitcnt_t precision = default_prec_value;
+    int base = default_base_value;
+};
+
+inline ThreadLocalState& get_thread_state() noexcept {
+    thread_local ThreadLocalState state;
+    return state;
+}
+
+// ---------------------------------------------
+// Global state guarded by a mutex
+// ---------------------------------------------
+struct GlobalState {
+    std::mutex mutex;
+    mp_bitcnt_t precision = default_prec_value;
+    int base = default_base_value;
+    bool env_initialized = false;
+    std::string env_warning; // empty => success
+};
+
+inline GlobalState& get_global_state() noexcept {
+    static GlobalState state; // guaranteed to be thread-safe since C++11
+    return state;
+}
+
+// ---------------------------------------------
+// Environment parsing helpers (no exceptions)
+// ---------------------------------------------
+inline std::optional<mp_bitcnt_t> parse_precision_env(const char* str) noexcept {
+    if (!str || !*str)
+        return std::nullopt;
+    // Reject leading zeroes except the single character "0"
+    if (str[0] == '0' && str[1] != '\0')
+        return std::nullopt;
+
+    errno = 0;
+    char* end = nullptr;
+    unsigned long long val = std::strtoull(str, &end, 10);
+    if (errno == ERANGE || *end != '\0' || val < 2 || val > std::numeric_limits<mp_bitcnt_t>::max()) {
+        return std::nullopt;
+    }
+    return static_cast<mp_bitcnt_t>(val);
+}
+
+inline std::optional<int> parse_base_env(const char* str) noexcept {
+    if (!str || !*str)
+        return std::nullopt;
+    errno = 0;
+    char* end = nullptr;
+    long val = std::strtol(str, &end, 10);
+    if (errno == ERANGE || *end != '\0' || val < 2 || val > max_supported_base) {
+        return std::nullopt;
+    }
+    return static_cast<int>(val);
+}
+
+// ---------------------------------------------
+// Internal helper: change GMP default precision under global mutex
+// ---------------------------------------------
+inline void set_gmp_default_prec_thread_safe(mp_bitcnt_t prec) noexcept {
+    auto& global_state = get_global_state();
+    std::lock_guard<std::mutex> lock(global_state.mutex);
+    mpf_set_default_prec(prec);
+}
+
+} // namespace detail
+
+// ============================================================================
+// Inline implementations this_thread
+// ============================================================================
+inline bool this_thread::is_using_local_config() noexcept { return detail::get_thread_state().enabled; }
+
+inline mp_bitcnt_t this_thread::get_precision() noexcept {
+    const auto& ts = detail::get_thread_state();
+    return ts.enabled ? ts.precision : global::get_precision();
+}
+
+inline int this_thread::get_base() noexcept {
+    const auto& ts = detail::get_thread_state();
+    return ts.enabled ? ts.base : global::get_base();
+}
+
+inline void this_thread::enable_local_config(bool enable) noexcept {
+    auto& ts = detail::get_thread_state();
+    if (enable && !ts.enabled) {
+        // Snapshot current globals
+        ts.precision = global::get_precision();
+        ts.base = global::get_base();
+        ts.enabled = true;
+        detail::set_gmp_default_prec_thread_safe(ts.precision);
+    } else if (!enable && ts.enabled) {
+        ts.enabled = false;
+        detail::set_gmp_default_prec_thread_safe(global::get_precision());
+    }
+}
+
+inline void this_thread::reset_to_defaults() noexcept {
+    auto& ts = detail::get_thread_state();
+    ts.precision = default_prec_value;
+    ts.base = default_base_value;
+    ts.enabled = false;
+    detail::set_gmp_default_prec_thread_safe(global::get_precision());
+}
+
+inline void this_thread::set_precision(mp_bitcnt_t prec) {
+    if (!detail::is_valid_precision(prec)) {
+        throw std::invalid_argument("Precision must be at least 2 bits");
+    }
+    auto& ts = detail::get_thread_state();
+    ts.precision = prec;
+    ts.enabled = true;
+    detail::set_gmp_default_prec_thread_safe(prec);
+}
+
+inline void this_thread::set_base(int base) {
+    if (!detail::is_valid_base(base)) {
+        throw std::invalid_argument("Base must be between 2 and 62");
+    }
+    auto& ts = detail::get_thread_state();
+    ts.base = base;
+    ts.enabled = true;
+    // No GMP intrinsic to update for base value stored only in our state.
+}
+
+// ============================================================================
+// Inline implementations global
+// ============================================================================
+inline void global::set_precision(mp_bitcnt_t prec) {
+    if (!detail::is_valid_precision(prec)) {
+        throw std::invalid_argument("Precision must be at least 2 bits");
+    }
+    auto& gs = detail::get_global_state();
+    {
+        std::lock_guard<std::mutex> lock(gs.mutex);
+        gs.precision = prec;
+    }
+    // Apply to GMP if calling thread is not using a local config.
+    if (!this_thread::is_using_local_config()) {
+        detail::set_gmp_default_prec_thread_safe(prec);
+    }
+}
+
+inline mp_bitcnt_t global::get_precision() noexcept {
+    auto& gs = detail::get_global_state();
+    std::lock_guard<std::mutex> lock(gs.mutex);
+    return gs.precision;
+}
+
+inline void global::set_base(int base) {
+    if (!detail::is_valid_base(base)) {
+        throw std::invalid_argument("Base must be between 2 and 62");
+    }
+    auto& gs = detail::get_global_state();
+    std::lock_guard<std::mutex> lock(gs.mutex);
+    gs.base = base;
+}
+
+inline int global::get_base() noexcept {
+    auto& gs = detail::get_global_state();
+    std::lock_guard<std::mutex> lock(gs.mutex);
+    return gs.base;
+}
+
+inline void global::reset_to_defaults() noexcept {
+    auto& gs = detail::get_global_state();
+    {
+        std::lock_guard<std::mutex> lock(gs.mutex);
+        gs.precision = default_prec_value;
+        gs.base = default_base_value;
+    }
+    if (!this_thread::is_using_local_config()) {
+        detail::set_gmp_default_prec_thread_safe(default_prec_value);
+    }
+}
+
+// ============================================================================
+// RAII implementation
+// ============================================================================
+inline ScopedThreadLocal::ScopedThreadLocal(mp_bitcnt_t prec, int base) : restore_local_(this_thread::is_using_local_config()), saved_prec_(this_thread::get_precision()), saved_base_(this_thread::get_base()) {
+    if (prec > 0 || base > 0) {
+        this_thread::enable_local_config(true);
+        if (prec > 0)
+            this_thread::set_precision(prec);
+        if (base > 0)
+            this_thread::set_base(base);
+    }
+}
+
+inline ScopedThreadLocal::~ScopedThreadLocal() noexcept {
+    if (restore_local_) {
+        this_thread::enable_local_config(true);
+        this_thread::set_precision(saved_prec_);
+        this_thread::set_base(saved_base_);
+    } else {
+        this_thread::enable_local_config(false);
+    }
+}
+
+// ============================================================================
+// Environment variable support implementation
+// ============================================================================
+inline bool env::initialize_from_environment(bool force) noexcept {
+    auto& gs = detail::get_global_state();
+    std::lock_guard<std::mutex> lock(gs.mutex);
+
+    if (!force && gs.env_initialized)
+        return gs.env_warning.empty();
+
+    bool ok = true;
+    gs.env_warning.clear();
+
+    gs.precision = default_prec_value;
+    gs.base = default_base_value;
+
+    // Precision
+    if (const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
+        if (auto prec = detail::parse_precision_env(prec_env)) {
+            gs.precision = *prec;
+        } else {
+            ok = false;
+            gs.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC value: ";
+            gs.env_warning += prec_env;
+            gs.env_warning += "; ";
+        }
+    }
+
+    // Base
+    if (const char* base_env = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
+        if (auto base = detail::parse_base_env(base_env)) {
+            gs.base = *base;
+        } else {
+            ok = false;
+            gs.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE value: ";
+            gs.env_warning += base_env;
+            gs.env_warning += "; ";
+        }
+    }
+
+    // Apply precision to GMP immediately (safe mutex held)
+    mpf_set_default_prec(gs.precision);
+
+    gs.env_initialized = true;
+    return ok;
+}
+
+inline void env::reset_initialization() noexcept {
+    auto& gs = detail::get_global_state();
+    std::lock_guard<std::mutex> lock(gs.mutex);
+    gs.env_initialized = false;
+    gs.env_warning.clear();
+    gs.precision = default_prec_value;
+    gs.base = default_base_value;
+    mpf_set_default_prec(gs.precision);
+}
+
+inline std::pair<bool, std::string> env::get_initialization_status() noexcept {
+    auto& gs = detail::get_global_state();
+    std::lock_guard<std::mutex> lock(gs.mutex);
+    return {gs.env_warning.empty(), gs.env_warning};
+}
+
+} // namespace gmpxx_defaults
 
 template <typename T = void> struct caches {
     static mpf_class pi_cached;
@@ -2209,7 +2514,10 @@ class mpf_class {
     // https://gmplib.org/manual/C_002b_002b-Interface-Floats
     ////////////////////////////////////////////////////////////////////////////////////////
     // constructors and destructors
-    mpf_class() { mpf_init(value); } // a default precision has already been established during initialization by a call to mpf_set_default_prec.
+    mpf_class() {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec); // Thread-safe!
+    }
     // The rule of 0/3/5
     // The rule 1 of 5 copy constructor
     mpf_class(const mpf_class& op) {
@@ -2231,7 +2539,8 @@ class mpf_class {
     ~mpf_class() { mpf_clear(value); }
     // The rule 4 of 5 move constructor
     mpf_class(mpf_class&& op) noexcept {
-        mpf_init(value);
+        mp_bitcnt_t prec = mpf_get_prec(op.value);
+        mpf_init2(value, prec);
         mpf_swap(value, op.value);
     }
     // The rule 5 of 5 move assignment operator
@@ -2256,12 +2565,32 @@ class mpf_class {
         mpf_set(value, op);
     }
     mpf_class(const mpz_t op) noexcept {
-        mpf_init(value);
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
         mpf_set_z(value, op);
     }
     mpf_class(const mpq_t op) noexcept {
-        mpf_init(value);
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
         mpf_set_q(value, op);
+    }
+    mpf_class(const char* str) {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        int base = gmpxx_defaults::this_thread::get_base();
+        mpf_init2(value, prec);
+        if (mpf_set_str(value, str, base) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+    }
+    mpf_class(const std::string& str) {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        int base = gmpxx_defaults::this_thread::get_base();
+        mpf_init2(value, prec);
+        if (mpf_set_str(value, str.c_str(), base) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
     }
     // constructor for various integer types
     template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpf_class(T op) {
@@ -2291,18 +2620,30 @@ class mpf_class {
             mpf_set_z(value, temp.get_mpz_t());
         }
     }
-    mpf_class(const double op) noexcept { mpf_init_set_d(value, op); }
-    mpf_class(const char* str) {
-        if (mpf_init_set_str(value, str, gmpxx_defaults::base) != 0) {
-            mpf_clear(value);
-            throw std::invalid_argument("");
-        }
+    mpf_class(const unsigned long int op) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
+        mpf_set_ui(value, op);
     }
-    mpf_class(const std::string& str) {
-        if (mpf_init_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
-            mpf_clear(value);
-            throw std::invalid_argument("");
-        }
+    mpf_class(const unsigned int op) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
+        mpf_set_ui(value, static_cast<unsigned long int>(op));
+    }
+    mpf_class(const signed long int op) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
+        mpf_set_si(value, op);
+    }
+    mpf_class(const signed int op) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
+        mpf_set_si(value, static_cast<signed long int>(op));
+    }
+    mpf_class(const double op) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
+        mpf_set_d(value, op);
     }
     explicit mpf_class(const mpf_t op, mp_bitcnt_t prec) {
         mpf_init2(value, prec);
@@ -2336,57 +2677,111 @@ class mpf_class {
         mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
-    mpf_class(const char* str, mp_bitcnt_t prec, int base = gmpxx_defaults::base) {
-        mpf_init2(value, prec);
-        if (mpf_set_str(value, str, base) != 0) {
-            throw std::invalid_argument("");
-        }
-    }
-    mpf_class(const std::string& str, mp_bitcnt_t prec, int base = gmpxx_defaults::base) {
-        mpf_init2(value, prec);
-        if (mpf_set_str(value, str.c_str(), base) != 0) {
-            throw std::invalid_argument("");
-        }
-    }
-
-    // assignments from other objects
     template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpf_class& operator=(T op) {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        // Ensure precision matches current thread settings
+        if (mpf_get_prec(value) != prec) {
+            mpf_set_prec(value, prec);
+        }
         if constexpr (std::is_same_v<T, int64_t>) {
             if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
-                mpf_set_si(this->value, static_cast<long int>(op));
+                mpf_set_si(value, static_cast<long int>(op));
             } else {
                 mpf_class temp(op);
-                mpf_set(this->value, temp.value);
+                mpf_set(value, temp.value);
             }
         } else if constexpr (std::is_same_v<T, uint64_t>) {
             if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
-                mpf_set_ui(this->value, static_cast<unsigned long int>(op));
+                mpf_set_ui(value, static_cast<unsigned long int>(op));
             } else {
                 mpf_class temp(op);
-                mpf_set(this->value, temp.value);
+                mpf_set(value, temp.value);
             }
         } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
-            mpf_set_si(this->value, static_cast<long int>(op));
+            mpf_set_si(value, static_cast<long int>(op));
         } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_unsigned_long<T>::value) {
-            mpf_set_ui(this->value, static_cast<unsigned long int>(op));
+            mpf_set_ui(value, static_cast<unsigned long int>(op));
         } else {
             mpf_class temp(op);
-            mpf_set(this->value, temp.value);
+            mpf_set(value, temp.value);
         }
         return *this;
     }
+    mpf_class(const char* str, mp_bitcnt_t prec, int base = 0) {
+        if (base == 0) {
+            base = gmpxx_defaults::this_thread::get_base();
+        }
+        mpf_init2(value, prec);
+        if (mpf_set_str(value, str, base) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+    }
+    mpf_class(const std::string& str, mp_bitcnt_t prec, int base = 0) {
+        if (base == 0) {
+            base = gmpxx_defaults::this_thread::get_base();
+        }
+        mpf_init2(value, prec);
+        if (mpf_set_str(value, str.c_str(), base) != 0) {
+            mpf_clear(value);
+            throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
+        }
+    }
+    // assignments from other objects
     mpf_class& operator=(double d) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        if (mpf_get_prec(value) != prec)
+            mpf_set_prec(value, prec);
         mpf_set_d(value, d);
         return *this;
     }
+    mpf_class& operator=(unsigned long int d) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        if (mpf_get_prec(value) != prec)
+            mpf_set_prec(value, prec);
+        mpf_set_ui(value, d);
+        return *this;
+    }
+    mpf_class& operator=(signed long int d) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        if (mpf_get_prec(value) != prec)
+            mpf_set_prec(value, prec);
+        mpf_set_si(value, d);
+        return *this;
+    }
+    mpf_class& operator=(unsigned int d) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        if (mpf_get_prec(value) != prec)
+            mpf_set_prec(value, prec);
+        mpf_set_ui(value, static_cast<unsigned long int>(d));
+        return *this;
+    }
+    mpf_class& operator=(signed int d) noexcept {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        if (mpf_get_prec(value) != prec)
+            mpf_set_prec(value, prec);
+        mpf_set_si(value, static_cast<signed long int>(d));
+        return *this;
+    }
     mpf_class& operator=(const char* str) {
-        if (mpf_set_str(value, str, gmpxx_defaults::base) != 0) {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        int base = gmpxx_defaults::this_thread::get_base();
+        if (mpf_get_prec(value) != prec) {
+            mpf_set_prec(value, prec);
+        }
+        if (mpf_set_str(value, str, base) != 0) {
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
         return *this;
     }
+
     mpf_class& operator=(const std::string& str) {
-        if (mpf_set_str(value, str.c_str(), gmpxx_defaults::base) != 0) {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        int base = gmpxx_defaults::this_thread::get_base();
+        if (mpf_get_prec(value) != prec) {
+            mpf_set_prec(value, prec);
+        }
+        if (mpf_set_str(value, str.c_str(), base) != 0) {
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
         return *this;
@@ -2712,11 +3107,19 @@ class mpf_class {
     operator mpq_class() const;
     operator mpz_class() const;
     mpf_class& operator=(const mpz_class& other) {
-        mpf_set_z(this->value, other.get_mpz_t());
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        if (mpf_get_prec(value) != prec) {
+            mpf_set_prec(value, prec);
+        }
+        mpf_set_z(value, other.get_mpz_t());
         return *this;
     }
     mpf_class& operator=(const mpq_class& other) {
-        mpf_set_q(this->value, other.get_mpq_t());
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        if (mpf_get_prec(value) != prec) {
+            mpf_set_prec(value, prec);
+        }
+        mpf_set_q(value, other.get_mpq_t());
         return *this;
     }
 
@@ -2725,7 +3128,7 @@ class mpf_class {
 
   private:
     mpf_t value;
-}; // namespace gmpxx
+}; // mpf_class
 
 // casts
 inline mpf_class::operator mpq_class() const { return mpq_class(this->get_mpf_t()); }

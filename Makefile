@@ -12,7 +12,7 @@ TARGET_ORIG = test_gmpxx
 TARGET_COMPAT = test_gmpxx_compat
 TARGET_MKIISR = test_gmpxx_mkIISR
 TARGET_TEST_ENV = test_env
-#TARGET_DEFAULTS_TEST = test_gmpxx_defaults
+TARGET_DEFAULTS_TEST = test_gmpxx_defaults
 
 COMMIT_HASH := $(shell git rev-parse HEAD)
 

@@ -167,18 +167,18 @@ bool Is_mpq_class_Equals(mpq_class& gmpobj, const char* expected, bool debug_fla
 void testDefaultPrecision() {
 #if !defined ___GMPXX_STRICT_COMPATIBILITY___ && !defined USE_ORIGINAL_GMPXX
     mpf_class f("1.5");
-    mp_bitcnt_t defaultPrec = gmpxx_defaults::get_default_prec();
+    mp_bitcnt_t defaultPrec = gmpxx_defaults::global::get_precision();
     assert(defaultPrec == f.get_prec());
     std::cout << "Default precision: " << f.get_prec() << " test passed." << std::endl;
 
-    gmpxx_defaults::set_default_prec(1024);
-    defaultPrec = gmpxx_defaults::get_default_prec();
+    gmpxx_defaults::global::set_precision(1024);
+    defaultPrec = gmpxx_defaults::global::get_precision();
     assert(defaultPrec == 1024);
     mpf_class g("2.5");
     std::cout << "Set and get precision: " << g.get_prec() << " test passed." << std::endl;
 
-    gmpxx_defaults::set_default_prec(512);
-    defaultPrec = gmpxx_defaults::get_default_prec();
+    gmpxx_defaults::global::set_precision(512);
+    defaultPrec = gmpxx_defaults::global::get_precision();
     mpf_class h("1.5");
     assert(defaultPrec == 512);
     std::cout << "Now get back to precision: " << h.get_prec() << " test passed." << std::endl;
@@ -276,17 +276,17 @@ void testInitializationAndAssignmentString() {
     // Testing initialization with a hexadecimal number using an assignment operator
     const char* expectedHexValue = "0x3.243f6a8885a3p+0";
     const char* inputHexValue = "3.243F6A8885A308D313198A2E03707344A4093822299F31D008";
-    mpf_class e(inputHexValue, gmpxx_defaults::get_default_prec(), 16);
+    mpf_class e(inputHexValue, gmpxx_defaults::global::get_precision(), 16);
     assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 
-    gmpxx_defaults::base = 16;
+    gmpxx_defaults::global::set_base(16);
     // Testing initialization with a hexadecimal number using a constructor
     mpf_class f;
     e = inputHexValue;
-    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, gmpxx_defaults::base));
+    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, gmpxx_defaults::global::get_base()));
     std::cout << "Constructor initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
-    gmpxx_defaults::base = 10;
+    gmpxx_defaults::global::set_base(10);
     std::cout << "testInitializationAndAssignmentString passed" << std::endl;
 #endif
 }
