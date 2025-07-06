@@ -2502,8 +2502,12 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // constructors and destructors
     mpf_class() {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        mpf_init2(value, prec); // Thread-safe!
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
+        mpf_init2(value, prec);
     }
     // The rule of 0/3/5
     // The rule 1 of 5 copy constructor
@@ -2552,17 +2556,29 @@ class mpf_class {
         mpf_set(value, op);
     }
     mpf_class(const mpz_t op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_z(value, op);
     }
     mpf_class(const mpq_t op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_q(value, op);
     }
     mpf_class(const char* str) {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         int base = gmpxx_defaults::this_thread::get_base();
         mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
@@ -2571,7 +2587,11 @@ class mpf_class {
         }
     }
     mpf_class(const std::string& str) {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         int base = gmpxx_defaults::this_thread::get_base();
         mpf_init2(value, prec);
         if (mpf_set_str(value, str.c_str(), base) != 0) {
@@ -2608,27 +2628,47 @@ class mpf_class {
         }
     }
     mpf_class(const unsigned long int op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_ui(value, op);
     }
     mpf_class(const unsigned int op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_ui(value, static_cast<unsigned long int>(op));
     }
     mpf_class(const signed long int op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_si(value, op);
     }
     mpf_class(const signed int op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_si(value, static_cast<signed long int>(op));
     }
     mpf_class(const double op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
