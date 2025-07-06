@@ -7,7 +7,7 @@
 int main() {
     int decimal_precision = 50;                                                         // You can change this value to adjust the precision
     int bit_precision = static_cast<int>(std::ceil(decimal_precision * std::log2(10))); // Calculate bit precision from decimal
-    mpf_set_default_prec(bit_precision);
+    gmpxx::gmpxx_defaults::this_thread::set_precision(bit_precision);
 
     // Initialization and precision setting
     gmpxx::mpf_class x(1.0); // initial guess

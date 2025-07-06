@@ -73,16 +73,40 @@
 
 #include <gmp.h>
 
+#if defined ___GMPXX_STRICT_COMPATIBILITY___
+#define ___GMPXX_DONT_USE_NAMESPACE___
+#define ___GMPXX_UDL_CHAR___
+#else
+#define ___GMPXX_THREADSAFE_ONLY___
+#endif
+
+#if defined ___GMPXX_THREADSAFE_ONLY___
+// Forbid thread-unsafe default-precision setter.
+// Use gmpxx_defaults::global::set_precision() or thread-local API instead.
+#undef mpf_set_default_prec
+extern "C" void mpf_set_default_prec(mp_bitcnt_t prec) noexcept __attribute__((error("mpf_set_default_prec() is forbidden; use gmpxx_defaults::global::set_precision() or thread-local API instead")));
+
+// Forbid thread-unsafe default-precision getter.
+// Use gmpxx_defaults::global::get_precision() or thread-local API instead.
+#undef mpf_get_default_prec
+extern "C" mp_bitcnt_t mpf_get_default_prec(void) noexcept __attribute__((error("mpf_get_default_prec() is forbidden; use gmpxx_defaults::global::get_precision() or thread-local API instead")));
+
+// Forbid thread-unsafe initialization relying on global default precision.
+// Use mpf_init2() with explicit precision or mpf_class constructor instead.
+#undef mpf_init
+extern "C" void mpf_init(mpf_t x) noexcept __attribute__((error("mpf_init() is forbidden; use mpf_init2() or mpf_class constructor instead")));
+
+// Forbid thread-unsafe bulk initialization relying on global default precision.
+// Use individual mpf_init2() calls or mpf_class constructors instead.
+#undef mpf_inits
+extern "C" void mpf_inits(mpf_t x, ...) __attribute__((error("mpf_inits() is forbidden; use individual mpf_init2() calls or mpf_class constructors instead")));
+#endif
+
 #if defined(_MSC_VER)
 #define strdup _strdup
 #endif
 
 #define ___MPF_CLASS_EXPLICIT___ explicit
-
-#if defined ___GMPXX_STRICT_COMPATIBILITY___
-#define ___GMPXX_DONT_USE_NAMESPACE___
-#define ___GMPXX_UDL_CHAR___
-#endif
 
 #define INT_COND(T, X) typename std::enable_if<std::is_integral<T>::value, X>::type
 #define FLOAT_COND(T, X) typename std::enable_if<std::is_float<T>::value, X>::type
@@ -250,7 +274,6 @@ inline std::optional<mp_bitcnt_t> parse_precision_env(const char* str) noexcept 
     }
     return static_cast<mp_bitcnt_t>(val);
 }
-
 inline std::optional<int> parse_base_env(const char* str) noexcept {
     if (!str || !*str)
         return std::nullopt;
@@ -262,55 +285,36 @@ inline std::optional<int> parse_base_env(const char* str) noexcept {
     }
     return static_cast<int>(val);
 }
-
-// ---------------------------------------------
-// Internal helper: change GMP default precision under global mutex
-// ---------------------------------------------
-inline void set_gmp_default_prec_thread_safe(mp_bitcnt_t prec) noexcept {
-    auto& global_state = get_global_state();
-    std::lock_guard<std::mutex> lock(global_state.mutex);
-    mpf_set_default_prec(prec);
-}
-
 } // namespace detail
 
 // ============================================================================
 // Inline implementations this_thread
 // ============================================================================
 inline bool this_thread::is_using_local_config() noexcept { return detail::get_thread_state().enabled; }
-
 inline mp_bitcnt_t this_thread::get_precision() noexcept {
     const auto& ts = detail::get_thread_state();
     return ts.enabled ? ts.precision : global::get_precision();
 }
-
 inline int this_thread::get_base() noexcept {
     const auto& ts = detail::get_thread_state();
     return ts.enabled ? ts.base : global::get_base();
 }
-
 inline void this_thread::enable_local_config(bool enable) noexcept {
     auto& ts = detail::get_thread_state();
     if (enable && !ts.enabled) {
-        // Snapshot current globals
         ts.precision = global::get_precision();
         ts.base = global::get_base();
         ts.enabled = true;
-        detail::set_gmp_default_prec_thread_safe(ts.precision);
     } else if (!enable && ts.enabled) {
         ts.enabled = false;
-        detail::set_gmp_default_prec_thread_safe(global::get_precision());
     }
 }
-
 inline void this_thread::reset_to_defaults() noexcept {
     auto& ts = detail::get_thread_state();
     ts.precision = default_prec_value;
     ts.base = default_base_value;
     ts.enabled = false;
-    detail::set_gmp_default_prec_thread_safe(global::get_precision());
 }
-
 inline void this_thread::set_precision(mp_bitcnt_t prec) {
     if (!detail::is_valid_precision(prec)) {
         throw std::invalid_argument("Precision must be at least 2 bits");
@@ -318,9 +322,7 @@ inline void this_thread::set_precision(mp_bitcnt_t prec) {
     auto& ts = detail::get_thread_state();
     ts.precision = prec;
     ts.enabled = true;
-    detail::set_gmp_default_prec_thread_safe(prec);
 }
-
 inline void this_thread::set_base(int base) {
     if (!detail::is_valid_base(base)) {
         throw std::invalid_argument("Base must be between 2 and 62");
@@ -343,18 +345,12 @@ inline void global::set_precision(mp_bitcnt_t prec) {
         std::lock_guard<std::mutex> lock(gs.mutex);
         gs.precision = prec;
     }
-    // Apply to GMP if calling thread is not using a local config.
-    if (!this_thread::is_using_local_config()) {
-        detail::set_gmp_default_prec_thread_safe(prec);
-    }
 }
-
 inline mp_bitcnt_t global::get_precision() noexcept {
     auto& gs = detail::get_global_state();
     std::lock_guard<std::mutex> lock(gs.mutex);
     return gs.precision;
 }
-
 inline void global::set_base(int base) {
     if (!detail::is_valid_base(base)) {
         throw std::invalid_argument("Base must be between 2 and 62");
@@ -363,22 +359,17 @@ inline void global::set_base(int base) {
     std::lock_guard<std::mutex> lock(gs.mutex);
     gs.base = base;
 }
-
 inline int global::get_base() noexcept {
     auto& gs = detail::get_global_state();
     std::lock_guard<std::mutex> lock(gs.mutex);
     return gs.base;
 }
-
 inline void global::reset_to_defaults() noexcept {
     auto& gs = detail::get_global_state();
     {
         std::lock_guard<std::mutex> lock(gs.mutex);
         gs.precision = default_prec_value;
         gs.base = default_base_value;
-    }
-    if (!this_thread::is_using_local_config()) {
-        detail::set_gmp_default_prec_thread_safe(default_prec_value);
     }
 }
 
@@ -445,9 +436,6 @@ inline bool env::initialize_from_environment(bool force) noexcept {
         }
     }
 
-    // Apply precision to GMP immediately (safe mutex held)
-    mpf_set_default_prec(gs.precision);
-
     gs.env_initialized = true;
     return ok;
 }
@@ -459,7 +447,6 @@ inline void env::reset_initialization() noexcept {
     gs.env_warning.clear();
     gs.precision = default_prec_value;
     gs.base = default_base_value;
-    mpf_set_default_prec(gs.precision);
 }
 
 inline std::pair<bool, std::string> env::get_initialization_status() noexcept {
@@ -4100,10 +4087,10 @@ inline std::istream& read_mpf_from_stream(std::istream& stream, mpf_t op) {
 inline mpf_class const_pi() {
     static bool calculated = false;
     static mp_bitcnt_t calculated_pi_precision = 0;
-    mp_bitcnt_t _default_prec = mpf_get_default_prec();
+    mp_bitcnt_t _default_prec = gmpxx_defaults::this_thread::get_precision();
     if (!calculated || (calculated && calculated_pi_precision != _default_prec)) {
-        calculated_pi_precision = mpf_get_default_prec();
         // calculating approximate pi using arithmetic-geometric mean
+        calculated_pi_precision = gmpxx_defaults::this_thread::get_precision();
         mpf_class zero(0.0, _default_prec);
         mpf_class quarter(0.25, _default_prec);
         mpf_class one(1.0, _default_prec);
@@ -4111,13 +4098,13 @@ inline mpf_class const_pi() {
         mpf_class four(4.0, _default_prec);
         mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(quarter, _default_prec), p(one, _default_prec);
         mpf_class a_next(zero, _default_prec), b_next(zero, _default_prec), t_next(zero, _default_prec), tmp_pi(zero, _default_prec), pi_previous(zero, _default_prec);
+        mpf_class epsilon(1.0, _default_prec);
+
         caches<>::pi_cached.set_prec(_default_prec);
         caches<>::pi_cached = zero;
 
         bool converged = false;
         int iteration = 0;
-
-        mpf_class epsilon = one;
         epsilon.div_2exp(_default_prec);
 
         while (!converged) {
@@ -4140,16 +4127,15 @@ inline mpf_class const_pi() {
                 converged = true;
             }
         }
-        calculated = true;
         caches<>::pi_cached = tmp_pi;
-    } else {
-        //      std::cout << "pi cached\n";
+        calculated = true;
+        calculated_pi_precision = _default_prec;
     }
     return caches<>::pi_cached;
 }
 inline mpf_class const_pi(mp_bitcnt_t req_precision) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // calculating approximate pi using arithmetic-geometric mean
     mpf_class zero(0.0, req_precision);
@@ -4224,11 +4210,11 @@ inline mpf_class const_log2() {
     static mpf_class log2_cached;
     static bool calculated = false;
     static mp_bitcnt_t calculated_log2_precision = 0;
-    mp_bitcnt_t _default_prec = mpf_get_default_prec();
+    mp_bitcnt_t _default_prec = gmpxx_defaults::this_thread::get_precision();
 
     if (!calculated || (calculated && calculated_log2_precision != _default_prec)) {
         log2_cached = mpf_class();
-        calculated_log2_precision = mpf_get_default_prec();
+        calculated_log2_precision = gmpxx_defaults::this_thread::get_precision();
         // calculating approximate log2 using arithmetic-geometric mean
         mpf_class zero(0.0);
         mpf_class one(1.0);
@@ -4265,7 +4251,7 @@ inline mpf_class const_log2() {
 }
 inline mpf_class const_log2(mp_bitcnt_t req_precision) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
@@ -4326,7 +4312,7 @@ inline mpf_class const_log2(mp_bitcnt_t req_precision) {
 inline mpf_class log(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
@@ -4398,7 +4384,7 @@ inline mpf_class exp(const mpf_class& x) {
     // https://www.mpfr.org/algorithms.pdf section 4.4
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class zero(0.0, req_precision);
     mpf_class one(1.0, req_precision);
@@ -4459,7 +4445,7 @@ inline mpf_class mpf_remainder(const mpf_class& x, const mpf_class& y, mpz_class
 inline mpf_class cos_taylor_naive(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // Constants and variables
     mpf_class _PI(0.0, req_precision);
@@ -4520,7 +4506,7 @@ inline mpf_class cos_taylor_naive(const mpf_class& x) {
 inline mpf_class cos_taylor_reduced(const mpf_class& x, bool addprec = false) {
     mp_bitcnt_t _req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(_req_precision == mpf_get_default_prec());
+    assert(_req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // Calculate cos(x) using Taylor series
     mp_bitcnt_t k = std::floor(std::sqrt(_req_precision / 2));
@@ -4575,7 +4561,7 @@ inline mpf_class cos_taylor_reduced(const mpf_class& x, bool addprec = false) {
 inline mpf_class cos_taylor(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class pi(0.0, req_precision);
     mpf_class two(2.0, req_precision);
@@ -4615,7 +4601,7 @@ inline mpf_class cos(const mpf_class& x) { return cos_taylor(x); }
 inline mpf_class sin_taylor_naive(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // Constants and variables
     mpf_class _PI(0.0, req_precision);
@@ -4678,7 +4664,7 @@ inline mpf_class sinx_from_cos_internal(const mpf_class& x, bool addprec = false
     mp_bitcnt_t _req_precision = x.get_prec();
     mpf_class _s(0.0, _req_precision);
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(_req_precision == mpf_get_default_prec());
+    assert(_req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mp_bitcnt_t k = std::floor(std::sqrt(_req_precision / 2));
     // We need some additional precision for successive applications of the double-angle formula
@@ -4705,7 +4691,7 @@ inline mpf_class sinx_from_cos_internal(const mpf_class& x, bool addprec = false
 inline mpf_class sin_from_cos(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // Constants and variables
     mpf_class _PI(0.0, req_precision);
@@ -4750,7 +4736,7 @@ inline mpf_class sin(const mpf_class& x) { return sin_from_cos(x); }
 inline mpf_class tan_from_sin_cos(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // Constants and variables
     mpf_class _PI(0.0, req_precision);
@@ -4812,8 +4798,8 @@ inline mpf_class pow_from_exp_log(const mpf_class& x, const mpf_class& y) {
     mp_bitcnt_t req_precision = x.get_prec();
     mp_bitcnt_t req_precision_y = y.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
-    assert(req_precision_y == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
+    assert(req_precision_y == gmpxx_defaults::this_thread::get_precision());
 #endif
     if (req_precision != req_precision_y) {
         throw std::runtime_error("Precision mismatch between x and y.");
@@ -4847,7 +4833,7 @@ inline mpf_class pow(const mpf_class& x, const mpf_class& y) {
 inline mpf_class log2_from_log(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class _log2(0.0, req_precision);
     mpf_class result(0.0, req_precision);
@@ -4859,7 +4845,7 @@ inline mpf_class log2(const mpf_class& x) { return log2_from_log(x); }
 inline mpf_class log10_from_log(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class _log10(0.0, req_precision);
     mpf_class result(0.0, req_precision);
@@ -4871,7 +4857,7 @@ inline mpf_class log10(const mpf_class& x) { return log10_from_log(x); }
 inline mpf_class atan_AGM(const mpf_class& _x) {
     mp_bitcnt_t req_precision = _x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // Constants and variables
     mpf_class zero(0.0, req_precision);
@@ -4928,7 +4914,7 @@ inline mpf_class atan2(const mpf_class& y, const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
     mp_bitcnt_t req_precision_y = y.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     assert(req_precision == req_precision_y);
     mpf_class zero(0.0, req_precision);
@@ -4994,7 +4980,7 @@ inline mpf_class asin_AGM(const mpf_class& x) {
     }
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class one(1.0, req_precision);
     mpf_class half(0.5, req_precision);
@@ -5018,7 +5004,7 @@ inline mpf_class asin_AGM(const mpf_class& x) {
 inline mpf_class arcsin_taylor(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class abs_x(0.0, req_precision);
     mpf_class term(0.0, req_precision);
@@ -5078,7 +5064,7 @@ inline mpf_class asin(const mpf_class& x) { return asin_AGM(x); }
 inline mpf_class acos(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class acosx(0.0, req_precision);
     mpf_class half_pi(0.0, req_precision);
@@ -5089,7 +5075,7 @@ inline mpf_class acos(const mpf_class& x) {
 inline mpf_class sinh(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class exp_x(0.0, req_precision);
     mpf_class exp_neg_x(0.0, req_precision);
@@ -5100,7 +5086,7 @@ inline mpf_class sinh(const mpf_class& x) {
 inline mpf_class cosh(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class exp_x(0.0, req_precision);
     mpf_class exp_neg_x(0.0, req_precision);
@@ -5111,7 +5097,7 @@ inline mpf_class cosh(const mpf_class& x) {
 inline mpf_class tanh(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class sinh_x(0.0, req_precision);
     mpf_class cosh_x(0.0, req_precision);
@@ -5122,7 +5108,7 @@ inline mpf_class tanh(const mpf_class& x) {
 inline mpf_class asinh(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     mpf_class one(1.0, req_precision);
     mpf_class result(0.0, req_precision);
@@ -5134,7 +5120,7 @@ inline mpf_class asinh(const mpf_class& x) {
 inline mpf_class acosh(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     if (x < 1) {
         throw std::domain_error("acosh is not defined for x < 1");
@@ -5149,7 +5135,7 @@ inline mpf_class acosh(const mpf_class& x) {
 inline mpf_class atanh(const mpf_class& x) {
     mp_bitcnt_t req_precision = x.get_prec();
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-    assert(req_precision == mpf_get_default_prec());
+    assert(req_precision == gmpxx_defaults::this_thread::get_precision());
 #endif
     // atanh is only defined for -1 < x < 1
     if (x <= -1 || x >= 1) {
@@ -5200,8 +5186,13 @@ class gmp_randclass {
     }
     mpf_class get_f(mp_bitcnt_t prec = 0) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
-        if (prec == 0)
+        if (prec == 0) {
+#if defined ___GMPXX_THREADSAFE_ONLY___
+            prec = gmpxx_defaults::this_thread::get_precision();
+#else
             prec = mpf_get_default_prec();
+#endif
+        }
 #else
         if (prec == 0) {
             throw std::runtime_error("Prec must be specified.");
