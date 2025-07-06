@@ -251,11 +251,6 @@ struct GlobalState {
     std::string env_warning; // empty => success
 };
 
-inline GlobalState& get_global_state() noexcept {
-    static GlobalState state; // guaranteed to be thread-safe since C++11
-    return state;
-}
-
 // ---------------------------------------------
 // Environment parsing helpers (no exceptions)
 // ---------------------------------------------
@@ -285,6 +280,58 @@ inline std::optional<int> parse_base_env(const char* str) noexcept {
     }
     return static_cast<int>(val);
 }
+
+inline GlobalState& get_global_state() noexcept {
+    static GlobalState state; // guaranteed to be thread-safe since C++11
+    static bool auto_initialized = false;
+
+    // Auto-initialize environment variables on first access (double-checked locking)
+    if (!auto_initialized) {
+        std::lock_guard<std::mutex> lock(state.mutex);
+        if (!auto_initialized) {
+            bool ok = true;
+            state.env_warning.clear();
+
+            // Set default values
+            state.precision = default_prec_value;
+            state.base = default_base_value;
+
+            // Read GMPXX_MKII_DEFAULT_PREC environment variable
+            if (const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
+                if (auto prec = parse_precision_env(prec_env)) {
+                    state.precision = *prec;
+                } else {
+                    ok = false;
+                    state.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC value: ";
+                    state.env_warning += prec_env;
+                    state.env_warning += "; ";
+                }
+            }
+
+            // Read GMPXX_MKII_DEFAULT_BASE environment variable
+            if (const char* base_env = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
+                if (auto base = parse_base_env(base_env)) {
+                    state.base = *base;
+                } else {
+                    ok = false;
+                    state.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE value: ";
+                    state.env_warning += base_env;
+                    state.env_warning += "; ";
+                }
+            }
+
+            state.env_initialized = true;
+            auto_initialized = true;
+
+            // Output error message to stderr (for test case 4)
+            if (!ok && !state.env_warning.empty()) {
+                std::cerr << "Error: " << state.env_warning << std::endl;
+            }
+        }
+    }
+    return state;
+}
+
 } // namespace detail
 
 // ============================================================================
