@@ -3429,7 +3429,7 @@ void test_int128_t_uint128_t_constructor() {
 }
 
 int main() {
-#if defined USE_ORIGINAL_GMPXX
+#if !defined ___GMPXX_THREADSAFE_ONLY___
     mpf_set_default_prec(512);
 #endif
 #if !defined USE_ORIGINAL_GMPXX

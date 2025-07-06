@@ -2665,11 +2665,6 @@ class mpf_class {
         mpf_set_d(value, op);
     }
     template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpf_class& operator=(T op) {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        // Ensure precision matches current thread settings
-        if (mpf_get_prec(value) != prec) {
-            mpf_set_prec(value, prec);
-        }
         if constexpr (std::is_same_v<T, int64_t>) {
             if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
                 mpf_set_si(value, static_cast<long int>(op));
@@ -2716,58 +2711,34 @@ class mpf_class {
     }
     // assignments from other objects
     mpf_class& operator=(double d) noexcept {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        if (mpf_get_prec(value) != prec)
-            mpf_set_prec(value, prec);
         mpf_set_d(value, d);
         return *this;
     }
     mpf_class& operator=(unsigned long int d) noexcept {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        if (mpf_get_prec(value) != prec)
-            mpf_set_prec(value, prec);
         mpf_set_ui(value, d);
         return *this;
     }
     mpf_class& operator=(signed long int d) noexcept {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        if (mpf_get_prec(value) != prec)
-            mpf_set_prec(value, prec);
         mpf_set_si(value, d);
         return *this;
     }
     mpf_class& operator=(unsigned int d) noexcept {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        if (mpf_get_prec(value) != prec)
-            mpf_set_prec(value, prec);
         mpf_set_ui(value, static_cast<unsigned long int>(d));
         return *this;
     }
     mpf_class& operator=(signed int d) noexcept {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        if (mpf_get_prec(value) != prec)
-            mpf_set_prec(value, prec);
         mpf_set_si(value, static_cast<signed long int>(d));
         return *this;
     }
     mpf_class& operator=(const char* str) {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
         int base = gmpxx_defaults::this_thread::get_base();
-        if (mpf_get_prec(value) != prec) {
-            mpf_set_prec(value, prec);
-        }
         if (mpf_set_str(value, str, base) != 0) {
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
         return *this;
     }
-
     mpf_class& operator=(const std::string& str) {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
         int base = gmpxx_defaults::this_thread::get_base();
-        if (mpf_get_prec(value) != prec) {
-            mpf_set_prec(value, prec);
-        }
         if (mpf_set_str(value, str.c_str(), base) != 0) {
             throw std::invalid_argument("Invalid string format for mpf_class: cannot convert the input to a number.");
         }
@@ -3094,18 +3065,10 @@ class mpf_class {
     operator mpq_class() const;
     operator mpz_class() const;
     mpf_class& operator=(const mpz_class& other) {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        if (mpf_get_prec(value) != prec) {
-            mpf_set_prec(value, prec);
-        }
         mpf_set_z(value, other.get_mpz_t());
         return *this;
     }
     mpf_class& operator=(const mpq_class& other) {
-        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-        if (mpf_get_prec(value) != prec) {
-            mpf_set_prec(value, prec);
-        }
         mpf_set_q(value, other.get_mpq_t());
         return *this;
     }
