@@ -283,54 +283,53 @@ inline std::optional<int> parse_base_env(const char* str) noexcept {
     return static_cast<int>(val);
 }
 
-inline GlobalState& get_global_state() noexcept {
-    static GlobalState state; // guaranteed to be thread-safe since C++11
-    static bool auto_initialized = false;
+// -----------------------------------------------------------------------------
+// Apply environment variables to a GlobalState  (single implementation point)
+// -----------------------------------------------------------------------------
+inline void apply_environment(GlobalState& state, bool log_errors) noexcept {
+    bool ok = true;
+    state.env_warning.clear();
 
-    // Auto-initialize environment variables on first access (double-checked locking)
-    if (!auto_initialized) {
-        std::lock_guard<std::mutex> lock(state.mutex);
-        if (!auto_initialized) {
-            bool ok = true;
-            state.env_warning.clear();
+    // Reset to library defaults before applying overrides
+    state.precision.store(default_prec_value, std::memory_order_relaxed);
+    state.base.store(default_base_value, std::memory_order_relaxed);
 
-            // Set default values
-            state.precision.store(default_prec_value, std::memory_order_relaxed);
-            state.base.store(default_base_value, std::memory_order_relaxed);
-
-            // Read GMPXX_MKII_DEFAULT_PREC environment variable
-            if (const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
-                if (auto prec = parse_precision_env(prec_env)) {
-                    state.precision.store(*prec, std::memory_order_relaxed);
-                } else {
-                    ok = false;
-                    state.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC value: ";
-                    state.env_warning += prec_env;
-                    state.env_warning += "; ";
-                }
-            }
-
-            // Read GMPXX_MKII_DEFAULT_BASE environment variable
-            if (const char* base_env = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
-                if (auto base = parse_base_env(base_env)) {
-                    state.base.store(*base, std::memory_order_relaxed);
-                } else {
-                    ok = false;
-                    state.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE value: ";
-                    state.env_warning += base_env;
-                    state.env_warning += "; ";
-                }
-            }
-
-            state.env_initialized = true;
-            auto_initialized = true;
-
-            // Output error message to stderr (for test case 4)
-            if (!ok && !state.env_warning.empty()) {
-                std::cerr << "Error: " << state.env_warning << std::endl;
-            }
+    /* --- GMPXX_MKII_DEFAULT_PREC ------------------------------------------------ */
+    if (const char* s = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
+        if (auto v = parse_precision_env(s)) {
+            state.precision.store(*v, std::memory_order_relaxed);
+        } else {
+            ok = false;
+            state.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC: ";
+            state.env_warning += s;
+            state.env_warning += "; ";
         }
     }
+
+    /* --- GMPXX_MKII_DEFAULT_BASE ------------------------------------------------ */
+    if (const char* s = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
+        if (auto v = parse_base_env(s)) {
+            state.base.store(*v, std::memory_order_relaxed);
+        } else {
+            ok = false;
+            state.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE: ";
+            state.env_warning += s;
+            state.env_warning += "; ";
+        }
+    }
+
+    state.env_initialized = true;
+    if (log_errors && !ok && !state.env_warning.empty()) {
+        std::cerr << "gmpxx_defaults init error: " << state.env_warning << std::endl;
+    }
+}
+
+inline GlobalState& get_global_state() noexcept {
+    static GlobalState state;
+    static std::once_flag init_flag;
+
+    // Ensure environment is parsed exactly once, safely
+    std::call_once(init_flag, [&] { apply_environment(state, /*log_errors=*/true); });
     return state;
 }
 
@@ -388,10 +387,8 @@ inline void global::set_precision(mp_bitcnt_t prec) {
         throw std::invalid_argument("Precision must be at least 2 bits");
     }
     auto& gs = detail::get_global_state();
-    {
-        std::lock_guard<std::mutex> lock(gs.mutex);
-        gs.precision = prec;
-    }
+    // Single atomic update is thread-safe; mutex is unnecessary
+    gs.precision.store(prec, std::memory_order_release);
 }
 inline mp_bitcnt_t global::get_precision() noexcept {
     auto& gs = detail::get_global_state();
@@ -402,8 +399,8 @@ inline void global::set_base(int base) {
         throw std::invalid_argument("Base must be between 2 and 62");
     }
     auto& gs = detail::get_global_state();
-    std::lock_guard<std::mutex> lock(gs.mutex);
-    gs.base = base;
+    // Single atomic update is thread-safe; mutex is unnecessary
+    gs.base.store(base, std::memory_order_release);
 }
 inline int global::get_base() noexcept {
     auto& gs = detail::get_global_state();
@@ -448,41 +445,12 @@ inline bool env::initialize_from_environment(bool force) noexcept {
     auto& gs = detail::get_global_state();
     std::lock_guard<std::mutex> lock(gs.mutex);
 
+    // Re-parse only when forced or never initialized
     if (!force && gs.env_initialized)
         return gs.env_warning.empty();
 
-    bool ok = true;
-    gs.env_warning.clear();
-
-    gs.precision.store(default_prec_value, std::memory_order_relaxed);
-    gs.base.store(default_base_value, std::memory_order_relaxed);
-
-    // Precision
-    if (const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
-        if (auto prec = detail::parse_precision_env(prec_env)) {
-            gs.precision.store(*prec, std::memory_order_relaxed);
-        } else {
-            ok = false;
-            gs.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC value: ";
-            gs.env_warning += prec_env;
-            gs.env_warning += "; ";
-        }
-    }
-
-    // Base
-    if (const char* base_env = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
-        if (auto base = detail::parse_base_env(base_env)) {
-            gs.base.store(*base, std::memory_order_relaxed);
-        } else {
-            ok = false;
-            gs.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE value: ";
-            gs.env_warning += base_env;
-            gs.env_warning += "; ";
-        }
-    }
-
-    gs.env_initialized = true;
-    return ok;
+    detail::apply_environment(gs, /*log_errors=*/false);
+    return gs.env_warning.empty();
 }
 
 inline void env::reset_initialization() noexcept {
