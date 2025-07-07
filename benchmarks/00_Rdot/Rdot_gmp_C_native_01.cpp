@@ -17,7 +17,7 @@ using namespace gmpxx;
 
 gmp_randstate_t state;
 
-void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *ans) {
+void _Rdot(int64_t n, mpf_t* dx, int64_t incx, mpf_t* dy, int64_t incy, mpf_t* ans, int prec) {
     if (incx != 1 || incy != 1) {
         std::cerr << "Increments other than 1 are not supported." << std::endl;
         exit(EXIT_FAILURE);
@@ -27,8 +27,8 @@ void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *a
     mpf_t temp, templ;
 
     mpf_set_d(*ans, 0.0);
-    mpf_init(temp);
-    mpf_init(templ);
+    mpf_init2(temp, prec);
+    mpf_init2(templ, prec);
     mpf_set_d(temp, 0.0);
     mpf_set_d(templ, 0.0);
 
@@ -43,20 +43,20 @@ void _Rdot(int64_t n, mpf_t *dx, int64_t incx, mpf_t *dy, int64_t incy, mpf_t *a
     mpf_clear(templ);
 }
 
-void init_mpf_vec(mpf_t *vec, int n, int prec) {
+void init_mpf_vec(mpf_t* vec, int n, int prec) {
     for (int i = 0; i < n; i++) {
         mpf_init2(vec[i], prec);
         mpf_urandomb(vec[i], state, prec);
     }
 }
 
-void clear_mpf_vec(mpf_t *vec, int n) {
+void clear_mpf_vec(mpf_t* vec, int n) {
     for (int i = 0; i < n; i++) {
         mpf_clear(vec[i]);
     }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     gmp_randinit_default(state);
     gmp_randseed_ui(state, 42);
 
@@ -67,10 +67,13 @@ int main(int argc, char **argv) {
 
     int N = std::atoi(argv[1]);
     int prec = std::atoi(argv[2]);
+#if defined ___GMPXX_THREADSAFE_ONLY___
+    gmpxx_defaults::this_thread::set_precision(prec);
+#else
     mpf_set_default_prec(prec);
-
-    mpf_t *vec1 = new mpf_t[N];
-    mpf_t *vec2 = new mpf_t[N];
+#endif
+    mpf_t* vec1 = new mpf_t[N];
+    mpf_t* vec2 = new mpf_t[N];
     mpf_t _ans, dot_product;
 
     mpf_init2(dot_product, prec);
@@ -78,8 +81,8 @@ int main(int argc, char **argv) {
     init_mpf_vec(vec1, N, prec);
     init_mpf_vec(vec2, N, prec);
 
-    mpf_class *vec1_mpf_class = new mpf_class[N];
-    mpf_class *vec2_mpf_class = new mpf_class[N];
+    mpf_class* vec1_mpf_class = new mpf_class[N];
+    mpf_class* vec2_mpf_class = new mpf_class[N];
     mpf_class ans;
 
     for (int i = 0; i < N; i++) {
@@ -88,7 +91,7 @@ int main(int argc, char **argv) {
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    _Rdot(N, vec1, 1, vec2, 1, &_ans);
+    _Rdot(N, vec1, 1, vec2, 1, &_ans, prec);
     auto end = std::chrono::high_resolution_clock::now();
 
     ans = Rdot(N, vec1_mpf_class, 1, vec2_mpf_class, 1);

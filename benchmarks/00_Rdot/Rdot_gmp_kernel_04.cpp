@@ -17,7 +17,7 @@ using namespace gmpxx;
 
 gmp_randstate_t state;
 
-mpf_class _Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t incy) {
+mpf_class _Rdot(int64_t n, mpf_class* dx, int64_t incx, mpf_class* dy, int64_t incy) {
     if (incx != 1 || incy != 1) {
         std::cerr << "Increments other than 1 are not supported." << std::endl;
         exit(EXIT_FAILURE);
@@ -35,20 +35,20 @@ mpf_class _Rdot(int64_t n, mpf_class *dx, int64_t incx, mpf_class *dy, int64_t i
     return temp;
 }
 
-void init_mpf_vec(mpf_t *vec, int n, int prec) {
+void init_mpf_vec(mpf_t* vec, int n, int prec) {
     for (int i = 0; i < n; i++) {
         mpf_init2(vec[i], prec);
         mpf_urandomb(vec[i], state, prec);
     }
 }
 
-void clear_mpf_vec(mpf_t *vec, int n) {
+void clear_mpf_vec(mpf_t* vec, int n) {
     for (int i = 0; i < n; i++) {
         mpf_clear(vec[i]);
     }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     gmp_randinit_default(state);
     gmp_randseed_ui(state, 42);
 
@@ -61,8 +61,8 @@ int main(int argc, char **argv) {
     int prec = std::atoi(argv[2]);
     mpf_set_default_prec(prec);
 
-    mpf_t *vec1 = new mpf_t[N];
-    mpf_t *vec2 = new mpf_t[N];
+    mpf_t* vec1 = new mpf_t[N];
+    mpf_t* vec2 = new mpf_t[N];
     mpf_t tmp, dot_product;
 
     mpf_init2(dot_product, prec);
@@ -70,8 +70,8 @@ int main(int argc, char **argv) {
     init_mpf_vec(vec1, N, prec);
     init_mpf_vec(vec2, N, prec);
 
-    mpf_class *vec1_mpf_class = new mpf_class[N];
-    mpf_class *vec2_mpf_class = new mpf_class[N];
+    mpf_class* vec1_mpf_class = new mpf_class[N];
+    mpf_class* vec2_mpf_class = new mpf_class[N];
     mpf_class _ans;
 
     for (int i = 0; i < N; i++) {
