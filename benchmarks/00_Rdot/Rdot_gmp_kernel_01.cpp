@@ -57,7 +57,11 @@ int main(int argc, char** argv) {
 
     int N = std::atoi(argv[1]);
     int prec = std::atoi(argv[2]);
+#if defined ___GMPXX_THREADSAFE_ONLY___
+    gmpxx_defaults::this_thread::set_precision(prec);
+#else
     mpf_set_default_prec(prec);
+#endif
 
     mpf_t* vec1 = new mpf_t[N];
     mpf_t* vec2 = new mpf_t[N];
