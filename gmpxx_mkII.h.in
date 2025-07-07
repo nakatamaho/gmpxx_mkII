@@ -4262,41 +4262,41 @@ inline mpf_class const_pi(mp_bitcnt_t req_precision) {
 inline mpf_class const_log2() {
     static bool calculated = false;
     static mp_bitcnt_t calculated_log2_precision = 0;
-    mp_bitcnt_t _default_prec = gmpxx_defaults::this_thread::get_precision();
-    if (!calculated || (calculated && calculated_log2_precision != _default_prec)) {
+    mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+    if (!calculated || (calculated && calculated_log2_precision != prec)) {
         // calculating approximate log2 using arithmetic-geometric mean
         calculated_log2_precision = gmpxx_defaults::this_thread::get_precision();
-        mpf_class zero(0.0, _default_prec);
-        mpf_class one(1.0, _default_prec);
-        mpf_class two(2.0, _default_prec);
-        mpf_class a(1.0, _default_prec);
-        mpf_class epsilon(1.0, _default_prec);
-        mpf_class b(0.0, _default_prec);
-        mpf_class sum(1.0, _default_prec);
-        mpf_class a_next(0.0, _default_prec), b_next(0.0, _default_prec);
-        mpf_class tmp(0.0, _default_prec);
+        mpf_class zero(0.0, prec);
+        mpf_class one(1.0, prec);
+        mpf_class two(2.0, prec);
+        mpf_class a(1.0, prec);
+        mpf_class epsilon(1.0, prec);
+        mpf_class b(0.0, prec);
+        mpf_class sum(1.0, prec);
+        mpf_class a_next(0.0, prec), b_next(0.0, prec);
+        mpf_class tmp(0.0, prec);
 
-        caches<>::log2_cached.set_prec(_default_prec);
+        caches<>::log2_cached.set_prec(prec);
         caches<>::log2_cached = zero;
 
-        bool converged = false;
-        epsilon.div_2exp((_default_prec / 2) - 2);
+        epsilon.div_2exp((prec / 2) - 2);
 
         b = epsilon;
-        while (!converged) {
+        do {
             a_next = (a + b) / two;
             b_next = sqrt(a * b);
-
-            // Check for convergence
-            if (abs(a - b) < epsilon) {
-                converged = true;
-            }
             a = a_next;
             b = b_next;
-        }
-        caches<>::log2_cached = const_pi() / (mpf_class(_default_prec, _default_prec) * a);
+        } while (abs(a - b) >= epsilon);
+        // one more iteration
+        a_next = (a + b) / two;
+        b_next = sqrt(a * b);
+        a = a_next;
+        b = b_next;
+
+        caches<>::log2_cached = const_pi() / (mpf_class(prec, prec) * a);
         calculated = true;
-        calculated_log2_precision = _default_prec;
+        calculated_log2_precision = prec;
     }
     return caches<>::log2_cached;
 }
