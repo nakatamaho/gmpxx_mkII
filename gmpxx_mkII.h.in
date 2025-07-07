@@ -86,21 +86,25 @@
 // Forbid thread-unsafe default-precision setter.
 // Use gmpxx_defaults::global::set_precision() or thread-local API instead.
 #undef mpf_set_default_prec
+#undef __gmpf_set_default_prec
 extern "C" void mpf_set_default_prec(mp_bitcnt_t prec) noexcept __attribute__((error("mpf_set_default_prec() is forbidden; use gmpxx_defaults::global::set_precision() or thread-local API instead")));
 
 // Forbid thread-unsafe default-precision getter.
 // Use gmpxx_defaults::global::get_precision() or thread-local API instead.
 #undef mpf_get_default_prec
+#undef __gmpf_get_default_prec
 extern "C" mp_bitcnt_t mpf_get_default_prec(void) noexcept __attribute__((error("mpf_get_default_prec() is forbidden; use gmpxx_defaults::global::get_precision() or thread-local API instead")));
 
 // Forbid thread-unsafe initialization relying on global default precision.
 // Use mpf_init2() with explicit precision or mpf_class constructor instead.
 #undef mpf_init
+#undef __gmpf_init
 extern "C" void mpf_init(mpf_t x) noexcept __attribute__((error("mpf_init() is forbidden; use mpf_init2() or mpf_class constructor instead")));
 
 // Forbid thread-unsafe bulk initialization relying on global default precision.
 // Use individual mpf_init2() calls or mpf_class constructors instead.
 #undef mpf_inits
+#undef __gmpf_inits
 extern "C" void mpf_inits(mpf_t x, ...) __attribute__((error("mpf_inits() is forbidden; use individual mpf_init2() calls or mpf_class constructors instead")));
 #endif
 
@@ -223,7 +227,8 @@ namespace detail {
 // Validation helpers
 // ---------------------------------------------
 inline bool is_valid_precision(mp_bitcnt_t prec) noexcept {
-    return prec >= 2; // 2 bits is the absolute minimum accepted by GMP
+    constexpr mp_bitcnt_t kMaxReasonablePrec = 1u << 20;
+    return prec >= 2 && prec <= kMaxReasonablePrec;
 }
 
 inline bool is_valid_base(int base) noexcept { return base >= 2 && base <= max_supported_base; }
@@ -249,7 +254,8 @@ struct GlobalState {
     std::mutex mutex;                                       // Only used for complex operations (env init, warnings)
     std::atomic<mp_bitcnt_t> precision{default_prec_value}; // Atomic for lock-free reads
     std::atomic<int> base{default_base_value};              // Atomic for lock-free reads
-    bool env_initialized = false;                           // Protected by mutex
+    std::atomic<bool> env_initialized{false};               // Protected by mutex
+    std::atomic<std::size_t> revision{0};                   // Bumps on each global change
     std::string env_warning;                                // Protected by mutex
 };
 
@@ -291,13 +297,13 @@ inline void apply_environment(GlobalState& state, bool log_errors) noexcept {
     state.env_warning.clear();
 
     // Reset to library defaults before applying overrides
-    state.precision.store(default_prec_value, std::memory_order_relaxed);
-    state.base.store(default_base_value, std::memory_order_relaxed);
+    state.precision.store(default_prec_value, std::memory_order_release);
+    state.base.store(default_base_value, std::memory_order_release);
 
     /* --- GMPXX_MKII_DEFAULT_PREC ------------------------------------------------ */
     if (const char* s = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
         if (auto v = parse_precision_env(s)) {
-            state.precision.store(*v, std::memory_order_relaxed);
+            state.precision.store(*v, std::memory_order_release);
         } else {
             ok = false;
             state.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC: ";
@@ -309,7 +315,7 @@ inline void apply_environment(GlobalState& state, bool log_errors) noexcept {
     /* --- GMPXX_MKII_DEFAULT_BASE ------------------------------------------------ */
     if (const char* s = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
         if (auto v = parse_base_env(s)) {
-            state.base.store(*v, std::memory_order_relaxed);
+            state.base.store(*v, std::memory_order_release);
         } else {
             ok = false;
             state.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE: ";
@@ -329,7 +335,10 @@ inline GlobalState& get_global_state() noexcept {
     static std::once_flag init_flag;
 
     // Ensure environment is parsed exactly once, safely
-    std::call_once(init_flag, [&] { apply_environment(state, /*log_errors=*/true); });
+    std::call_once(init_flag, [&] {
+        apply_environment(state, /*log_errors=*/true);
+        state.revision.fetch_add(1, std::memory_order_release);
+    });
     return state;
 }
 
@@ -350,8 +359,21 @@ inline int this_thread::get_base() noexcept {
 inline void this_thread::enable_local_config(bool enable) noexcept {
     auto& ts = detail::get_thread_state();
     if (enable && !ts.enabled) {
-        ts.precision = global::get_precision();
-        ts.base = global::get_base();
+        /* ---------------------------------------------------------------
+         * Take a *consistent* snapshot of global precision/base.
+         * We read the global revision counter before/after; if it
+         * changes, another thread updated the globals in-between, so
+         * we retry until both reads agree.
+         * ------------------------------------------------------------ */
+        auto& gs = detail::get_global_state();
+        std::size_t rev_before, rev_after;
+        do {
+            rev_before = gs.revision.load(std::memory_order_acquire);
+            ts.precision = gs.precision.load(std::memory_order_acquire);
+            ts.base = gs.base.load(std::memory_order_acquire);
+            rev_after = gs.revision.load(std::memory_order_acquire);
+        } while (rev_before != rev_after);
+
         ts.enabled = true;
     } else if (!enable && ts.enabled) {
         ts.enabled = false;
@@ -389,6 +411,7 @@ inline void global::set_precision(mp_bitcnt_t prec) {
     auto& gs = detail::get_global_state();
     // Single atomic update is thread-safe; mutex is unnecessary
     gs.precision.store(prec, std::memory_order_release);
+    gs.revision.fetch_add(1, std::memory_order_release); // Publish change
 }
 inline mp_bitcnt_t global::get_precision() noexcept {
     auto& gs = detail::get_global_state();
@@ -401,6 +424,7 @@ inline void global::set_base(int base) {
     auto& gs = detail::get_global_state();
     // Single atomic update is thread-safe; mutex is unnecessary
     gs.base.store(base, std::memory_order_release);
+    gs.revision.fetch_add(1, std::memory_order_release); // Publish change
 }
 inline int global::get_base() noexcept {
     auto& gs = detail::get_global_state();
@@ -412,6 +436,7 @@ inline void global::reset_to_defaults() noexcept {
         std::lock_guard<std::mutex> lock(gs.mutex); // Lock for consistency
         gs.precision.store(default_prec_value, std::memory_order_release);
         gs.base.store(default_base_value, std::memory_order_release);
+        gs.revision.fetch_add(1, std::memory_order_release);
     }
 }
 
@@ -450,6 +475,7 @@ inline bool env::initialize_from_environment(bool force) noexcept {
         return gs.env_warning.empty();
 
     detail::apply_environment(gs, /*log_errors=*/false);
+    gs.revision.fetch_add(1, std::memory_order_release);
     return gs.env_warning.empty();
 }
 
@@ -458,8 +484,9 @@ inline void env::reset_initialization() noexcept {
     std::lock_guard<std::mutex> lock(gs.mutex);
     gs.env_initialized = false;
     gs.env_warning.clear();
-    gs.precision.store(default_prec_value, std::memory_order_relaxed);
-    gs.base.store(default_base_value, std::memory_order_relaxed);
+    gs.precision.store(default_prec_value, std::memory_order_release);
+    gs.base.store(default_base_value, std::memory_order_release);
+    gs.revision.fetch_add(1, std::memory_order_release);
 }
 
 inline std::pair<bool, std::string> env::get_initialization_status() noexcept {
