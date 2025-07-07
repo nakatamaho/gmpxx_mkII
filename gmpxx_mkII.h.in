@@ -71,6 +71,7 @@
 #include <sstream>
 // C++ standard library - Threading
 #include <mutex>
+#include <atomic>
 
 #include <gmp.h>
 
@@ -242,14 +243,14 @@ inline ThreadLocalState& get_thread_state() noexcept {
 }
 
 // ---------------------------------------------
-// Global state guarded by a mutex
+// Global state guarded by a mutex and atomic read
 // ---------------------------------------------
 struct GlobalState {
-    std::mutex mutex;
-    mp_bitcnt_t precision = default_prec_value;
-    int base = default_base_value;
-    bool env_initialized = false;
-    std::string env_warning; // empty => success
+    std::mutex mutex;                                       // Only used for complex operations (env init, warnings)
+    std::atomic<mp_bitcnt_t> precision{default_prec_value}; // Atomic for lock-free reads
+    std::atomic<int> base{default_base_value};              // Atomic for lock-free reads
+    bool env_initialized = false;                           // Protected by mutex
+    std::string env_warning;                                // Protected by mutex
 };
 
 // ---------------------------------------------
@@ -294,13 +295,13 @@ inline GlobalState& get_global_state() noexcept {
             state.env_warning.clear();
 
             // Set default values
-            state.precision = default_prec_value;
-            state.base = default_base_value;
+            state.precision.store(default_prec_value, std::memory_order_relaxed);
+            state.base.store(default_base_value, std::memory_order_relaxed);
 
             // Read GMPXX_MKII_DEFAULT_PREC environment variable
             if (const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
                 if (auto prec = parse_precision_env(prec_env)) {
-                    state.precision = *prec;
+                    state.precision.store(*prec, std::memory_order_relaxed);
                 } else {
                     ok = false;
                     state.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC value: ";
@@ -312,7 +313,7 @@ inline GlobalState& get_global_state() noexcept {
             // Read GMPXX_MKII_DEFAULT_BASE environment variable
             if (const char* base_env = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
                 if (auto base = parse_base_env(base_env)) {
-                    state.base = *base;
+                    state.base.store(*base, std::memory_order_relaxed);
                 } else {
                     ok = false;
                     state.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE value: ";
@@ -378,9 +379,7 @@ inline void this_thread::set_base(int base) {
     auto& ts = detail::get_thread_state();
     ts.base = base;
     ts.enabled = true;
-    // No GMP intrinsic to update for base value stored only in our state.
 }
-
 // ============================================================================
 // Inline implementations global
 // ============================================================================
@@ -396,8 +395,7 @@ inline void global::set_precision(mp_bitcnt_t prec) {
 }
 inline mp_bitcnt_t global::get_precision() noexcept {
     auto& gs = detail::get_global_state();
-    std::lock_guard<std::mutex> lock(gs.mutex);
-    return gs.precision;
+    return gs.precision.load(std::memory_order_acquire); // Lock-free atomic read
 }
 inline void global::set_base(int base) {
     if (!detail::is_valid_base(base)) {
@@ -409,15 +407,14 @@ inline void global::set_base(int base) {
 }
 inline int global::get_base() noexcept {
     auto& gs = detail::get_global_state();
-    std::lock_guard<std::mutex> lock(gs.mutex);
-    return gs.base;
+    return gs.base.load(std::memory_order_acquire); // Lock-free atomic read
 }
 inline void global::reset_to_defaults() noexcept {
     auto& gs = detail::get_global_state();
     {
-        std::lock_guard<std::mutex> lock(gs.mutex);
-        gs.precision = default_prec_value;
-        gs.base = default_base_value;
+        std::lock_guard<std::mutex> lock(gs.mutex); // Lock for consistency
+        gs.precision.store(default_prec_value, std::memory_order_release);
+        gs.base.store(default_base_value, std::memory_order_release);
     }
 }
 
@@ -457,13 +454,13 @@ inline bool env::initialize_from_environment(bool force) noexcept {
     bool ok = true;
     gs.env_warning.clear();
 
-    gs.precision = default_prec_value;
-    gs.base = default_base_value;
+    gs.precision.store(default_prec_value, std::memory_order_relaxed);
+    gs.base.store(default_base_value, std::memory_order_relaxed);
 
     // Precision
     if (const char* prec_env = std::getenv("GMPXX_MKII_DEFAULT_PREC")) {
         if (auto prec = detail::parse_precision_env(prec_env)) {
-            gs.precision = *prec;
+            gs.precision.store(*prec, std::memory_order_relaxed);
         } else {
             ok = false;
             gs.env_warning += "Invalid GMPXX_MKII_DEFAULT_PREC value: ";
@@ -475,7 +472,7 @@ inline bool env::initialize_from_environment(bool force) noexcept {
     // Base
     if (const char* base_env = std::getenv("GMPXX_MKII_DEFAULT_BASE")) {
         if (auto base = detail::parse_base_env(base_env)) {
-            gs.base = *base;
+            gs.base.store(*base, std::memory_order_relaxed);
         } else {
             ok = false;
             gs.env_warning += "Invalid GMPXX_MKII_DEFAULT_BASE value: ";
@@ -493,8 +490,8 @@ inline void env::reset_initialization() noexcept {
     std::lock_guard<std::mutex> lock(gs.mutex);
     gs.env_initialized = false;
     gs.env_warning.clear();
-    gs.precision = default_prec_value;
-    gs.base = default_base_value;
+    gs.precision.store(default_prec_value, std::memory_order_relaxed);
+    gs.base.store(default_base_value, std::memory_order_relaxed);
 }
 
 inline std::pair<bool, std::string> env::get_initialization_status() noexcept {
