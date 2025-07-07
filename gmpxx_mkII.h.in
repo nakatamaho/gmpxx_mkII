@@ -4128,52 +4128,62 @@ inline std::istream& read_mpf_from_stream(std::istream& stream, mpf_t op) {
     return stream;
 }
 inline mpf_class const_pi() {
-    static bool calculated = false;
-    static mp_bitcnt_t calculated_pi_precision = 0;
-    mp_bitcnt_t _default_prec = gmpxx_defaults::this_thread::get_precision();
-    if (!calculated || (calculated && calculated_pi_precision != _default_prec)) {
-        // calculating approximate pi using arithmetic-geometric mean
-        calculated_pi_precision = gmpxx_defaults::this_thread::get_precision();
-        mpf_class zero(0.0, _default_prec);
-        mpf_class quarter(0.25, _default_prec);
-        mpf_class one(1.0, _default_prec);
-        mpf_class two(2.0, _default_prec);
-        mpf_class four(4.0, _default_prec);
-        mpf_class a(one, _default_prec), b(one / sqrt(two), _default_prec), t(quarter, _default_prec), p(one, _default_prec);
-        mpf_class a_next(zero, _default_prec), b_next(zero, _default_prec), t_next(zero, _default_prec), tmp_pi(zero, _default_prec), pi_previous(zero, _default_prec);
-        mpf_class epsilon(1.0, _default_prec);
+    // Get current thread-local precision
+    mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
 
-        caches<>::pi_cached.set_prec(_default_prec);
-        caches<>::pi_cached = zero;
+    // Thread-safe guard for computing and caching pi
+    static std::mutex pi_mutex;
+    static mp_bitcnt_t cached_prec = 0;
 
-        bool converged = false;
-        int iteration = 0;
-        epsilon.div_2exp(_default_prec);
+    std::lock_guard<std::mutex> lock(pi_mutex);
 
-        while (!converged) {
-            iteration++;
-            a_next = (a + b) / two;
-            b_next = sqrt(a * b);
-            t_next = t - p * (a - a_next) * (a - a_next);
+    if (cached_prec != prec) {
+        // Prepare global cache with current precision
+        caches<>::pi_cached.set_prec(prec);
+
+        // Initialize constants for AGM algorithm
+        mpf_class one(1.0, prec);
+        mpf_class two(2.0, prec);
+        mpf_class four(4.0, prec);
+
+        // Set initial AGM values
+        mpf_class a(one, prec);
+        mpf_class b(one / sqrt(two), prec);
+        mpf_class t(0.25, prec);
+        mpf_class p(one, prec);
+
+        mpf_class new_pi(0.0, prec);
+        mpf_class prev_pi(0.0, prec);
+
+        // Convergence threshold: epsilon = 2^(-prec)
+        mpf_class epsilon(1.0, prec);
+        epsilon.div_2exp(prec);
+
+        // Perform AGM iterations until convergence
+        while (true) {
+            mpf_class a_next = (a + b) / two;
+            mpf_class b_next = sqrt(a * b);
+            mpf_class t_next = t - p * (a - a_next) * (a - a_next);
             p = two * p;
 
-            // Update values for the next iteration
             a = a_next;
             b = b_next;
             t = t_next;
 
-            // Calculate pi
-            pi_previous = tmp_pi;
-            tmp_pi = (a + b) * (a + b) / (four * t);
-            // Check for convergence
-            if (abs(tmp_pi - pi_previous) < epsilon) {
-                converged = true;
+            prev_pi = new_pi;
+            new_pi = (a + b) * (a + b) / (four * t);
+
+            if (abs(new_pi - prev_pi) < epsilon) {
+                break;
             }
         }
-        caches<>::pi_cached = tmp_pi;
-        calculated = true;
-        calculated_pi_precision = _default_prec;
+
+        // Update global cache and precision
+        caches<>::pi_cached = new_pi;
+        cached_prec = prec;
     }
+
+    // Return cached pi value
     return caches<>::pi_cached;
 }
 inline mpf_class const_pi(mp_bitcnt_t req_precision) {
