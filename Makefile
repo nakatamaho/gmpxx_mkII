@@ -377,12 +377,18 @@ $(BENCHMARKS03_DIR)/Rgemm_gmp_kernel_openmp_03_mkIISR: $(BENCHMARKS03_DIR)/Rgemm
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -o $@ $< $(LDFLAGS) $(RPATH_FLAGS)
 	$(CXX) $(CXXFLAGS_BENCH) $(INCLUDES) $(GMPXX_MODE_MKIISR) -S -fverbose-asm -g -o $@.s $< $(LDFLAGS)
 
-check: ./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR) $(ORIG_TESTS)
-	./$(TARGET) ./$(TARGET_ORIG) ./$(TARGET_COMPAT) ./$(TARGET_MKIISR)
-	for test in $^ ; do \
-		echo "./$$test"; ./$$test ; \
+TESTBINS := $(addprefix ./, $(TARGET) $(TARGET_ORIG) $(TARGET_COMPAT) \
+                            $(TARGET_MKIISR) $(ORIG_TESTS))
+
+.PHONY: check
+check: $(TESTBINS)
+	@set -e; \
+	for test in $(TESTBINS); do              \
+		[ -x "$$test" ] || continue;     \
+		echo "$$test";                   \
+		"$$test";                        \
 	done
-	make check_env
+	@$(MAKE) check_env
 
 check_env: $(TARGET)
 	@unset GMPXX_MKII_DEFAULT_PREC; \
