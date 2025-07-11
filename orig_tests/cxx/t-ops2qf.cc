@@ -81,7 +81,7 @@ template <class T> void checkqf() {
 int main(void) {
 
     // Enough precision for 1 + denorm_min
-    mpf_set_default_prec(DBL_MANT_DIG - DBL_MIN_EXP + 42);
+    gmpxx_defaults::this_thread::set_precision(DBL_MANT_DIG - DBL_MIN_EXP + 42);
     checkqf<mpq_class>();
     checkqf<mpf_class>();
 
