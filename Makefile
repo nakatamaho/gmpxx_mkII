@@ -44,7 +44,7 @@ EXAMPLES_SOURCES = examples/example01.cpp examples/example02.cpp examples/exampl
 EXAMPLES_OBJECTS = $(EXAMPLES_SOURCES:.cpp=.o)
 EXAMPLES_EXECUTABLES = $(EXAMPLES_SOURCES:.cpp=)
 
-CXXFLAGS_BENCH = -O2 -fopenmp -Wall -Wextra
+CXXFLAGS_BENCH = -O2 -fopenmp -Wall -Wextra -D___GMPXX_DISABLE_THREADSAFE_ONLY___
 BENCHMARKS00_DIR = benchmarks/00_Rdot
 BENCHMARKS00_0 = $(addprefix $(BENCHMARKS00_DIR)/,Rdot_gmp_C_native_01 Rdot_gmp_C_native_openmp_01)
 BENCHMARKS00_1 = $(addprefix $(BENCHMARKS00_DIR)/,\
@@ -126,10 +126,10 @@ $(OBJECTS_MKIISR): $(SOURCES) $(HEADERS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_MKIISR) -c $(SOURCES) -o $@
 
 $(ORIG_TESTS): $(ORIG_TESTS_DIR)/t-% : $(ORIG_TESTS_DIR)/t-%.cc $(HEADERS)
-	$(CXX) -g $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $< $(LDFLAGS)
+	$(CXX) -g $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -D___GMPXX_DISABLE_THREADSAFE_ONLY___ -o $@ $< $(LDFLAGS)
 
 $(ORIG_TESTS_DIR)/t-istream: $(ORIG_TESTS_DIR)/t-istream.cc $(ORIG_TESTS_DIR)/trace.c $(HEADERS)
-	$(CXX) -g $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -o $@ $^ $(LDFLAGS)
+	$(CXX) -g $(CXXFLAGS) $(INCLUDES) $(GMPXX_MODE_COMPAT) -D___GMPXX_DISABLE_THREADSAFE_ONLY___ -o $@ $^ $(LDFLAGS)
 
 $(EXAMPLES_OBJECTS): %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@

@@ -75,11 +75,14 @@
 
 #include <gmp.h>
 
+// we use thread safe functions only, also prohibits non thread safe functions.
+#ifndef ___GMPXX_DISABLE_THREADSAFE_ONLY___
+#define ___GMPXX_THREADSAFE_ONLY___
+#endif
+
 #if defined ___GMPXX_STRICT_COMPATIBILITY___
 #define ___GMPXX_DONT_USE_NAMESPACE___
 #define ___GMPXX_UDL_CHAR___
-#else
-#define ___GMPXX_THREADSAFE_ONLY___
 #endif
 
 #if defined ___GMPXX_THREADSAFE_ONLY___
@@ -106,6 +109,26 @@ extern "C" void mpf_init(mpf_t x) noexcept __attribute__((error("mpf_init() is f
 #undef mpf_inits
 #undef __gmpf_inits
 extern "C" void mpf_inits(mpf_t x, ...) __attribute__((error("mpf_inits() is forbidden; use individual mpf_init2() calls or mpf_class constructors instead")));
+
+#undef mpf_init_set
+#undef __gmpf_init_set
+extern "C" void mpf_init_set(mpf_t rop, const mpf_t op) noexcept __attribute__((error("mpf_init_set() is forbidden; use mpf_init2() with explicit precision then mpf_set() instead")));
+
+#undef mpf_init_set_ui
+#undef __gmpf_init_set_ui
+extern "C" void mpf_init_set_ui(mpf_t rop, unsigned long int op) noexcept __attribute__((error("mpf_init_set_ui() is forbidden; use mpf_init2() with explicit precision then mpf_set_ui() instead")));
+
+#undef mpf_init_set_si
+#undef __gmpf_init_set_si
+extern "C" void mpf_init_set_si(mpf_t rop, signed long int op) noexcept __attribute__((error("mpf_init_set_si() is forbidden; use mpf_init2() with explicit precision then mpf_set_si() instead")));
+
+#undef mpf_init_set_d
+#undef __gmpf_init_set_d
+extern "C" void mpf_init_set_d(mpf_t rop, double op) noexcept __attribute__((error("mpf_init_set_d() is forbidden; use mpf_init2() with explicit precision then mpf_set_d() instead")));
+
+#undef mpf_init_set_str
+#undef __gmpf_init_set_str
+extern "C" int mpf_init_set_str(mpf_t rop, const char* str, int base) noexcept __attribute__((error("mpf_init_set_str() is forbidden; use mpf_init2() with explicit precision then mpf_set_str() instead")));
 #endif
 
 #if defined(_MSC_VER)
@@ -2596,29 +2619,17 @@ class mpf_class {
         mpf_set(value, op);
     }
     mpf_class(const mpz_t op) noexcept {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
         mpf_set_z(value, op);
     }
     mpf_class(const mpq_t op) noexcept {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
         mpf_set_q(value, op);
     }
     mpf_class(const char* str) {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         int base = gmpxx_defaults::this_thread::get_base();
         mpf_init2(value, prec);
         if (mpf_set_str(value, str, base) != 0) {
@@ -2627,11 +2638,7 @@ class mpf_class {
         }
     }
     mpf_class(const std::string& str) {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         int base = gmpxx_defaults::this_thread::get_base();
         mpf_init2(value, prec);
         if (mpf_set_str(value, str.c_str(), base) != 0) {
@@ -2641,74 +2648,53 @@ class mpf_class {
     }
     // constructor for various integer types
     template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0> mpf_class(T op) {
+        mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+        mpf_init2(value, prec);
         if constexpr (std::is_same_v<T, int64_t>) {
             if constexpr (___gmpxx_mkII___long_is_same_as_int64_v || ___gmpxx_mkII___long_is_greater_than_int64_v) {
-                mpf_init_set_si(value, static_cast<long int>(op));
+                mpf_set_si(value, static_cast<long int>(op));
             } else {
                 mpz_class temp(op);
-                mpf_init(value);
                 mpf_set_z(value, temp.get_mpz_t());
             }
         } else if constexpr (std::is_same_v<T, uint64_t>) {
             if constexpr (___gmpxx_mkII___ulong_is_same_as_uint64_v || ___gmpxx_mkII___ulong_is_greater_than_uint64_v) {
-                mpf_init_set_ui(value, static_cast<unsigned long int>(op));
+                mpf_set_ui(value, static_cast<unsigned long int>(op));
             } else {
                 mpz_class temp(op);
-                mpf_init(value);
                 mpf_set_z(value, temp.get_mpz_t());
             }
         } else if constexpr (std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
-            mpf_init_set_si(value, static_cast<long int>(op));
+            mpf_set_si(value, static_cast<long int>(op));
         } else if constexpr (!std::is_signed_v<T> && ___gmpxx_mkII__smaller_or_equal_than_long<T>::value) {
-            mpf_init_set_ui(value, static_cast<unsigned long int>(op));
+            mpf_set_ui(value, static_cast<unsigned long int>(op));
         } else {
             mpz_class temp(op);
-            mpf_init(value);
             mpf_set_z(value, temp.get_mpz_t());
         }
     }
     mpf_class(const unsigned long int op) noexcept {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
         mpf_set_ui(value, op);
     }
     mpf_class(const unsigned int op) noexcept {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
         mpf_set_ui(value, static_cast<unsigned long int>(op));
     }
     mpf_class(const signed long int op) noexcept {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
         mpf_set_si(value, op);
     }
     mpf_class(const signed int op) noexcept {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
         mpf_set_si(value, static_cast<signed long int>(op));
     }
     mpf_class(const double op) noexcept {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
         mpf_set_d(value, op);
     }
@@ -5238,11 +5224,7 @@ class gmp_randclass {
     mpf_class get_f(mp_bitcnt_t prec = 0) {
 #if defined ___GMPXX_MKII_NOPRECCHANGE___
         if (prec == 0) {
-#if defined ___GMPXX_THREADSAFE_ONLY___
             prec = gmpxx_defaults::this_thread::get_precision();
-#else
-            prec = mpf_get_default_prec();
-#endif
         }
 #else
         if (prec == 0) {
