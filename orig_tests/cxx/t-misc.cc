@@ -473,7 +473,8 @@ void check_mpf(void) {
     // mpf_class::get_prec
     {
         mpf_class f;
-        ASSERT_ALWAYS(f.get_prec() == mpf_get_default_prec());
+//        ASSERT_ALWAYS(f.get_prec() == mpf_get_default_prec());
+        ASSERT_ALWAYS(f.get_prec() == gmpxx_defaults::this_thread::get_precision());
     }
 
     // mpf_class::get_str

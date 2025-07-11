@@ -2565,11 +2565,7 @@ class mpf_class {
     ////////////////////////////////////////////////////////////////////////////////////////
     // constructors and destructors
     mpf_class() {
-#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
-#else
-        mp_bitcnt_t prec = mpf_get_default_prec();
-#endif
         mpf_init2(value, prec);
     }
     // The rule of 0/3/5
