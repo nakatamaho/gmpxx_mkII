@@ -2685,7 +2685,11 @@ class mpf_class {
         mpf_set_si(value, op);
     }
     mpf_class(const signed int op) noexcept {
+#if defined ___GMPXX_THREADSAFE_ONLY___
         mp_bitcnt_t prec = gmpxx_defaults::this_thread::get_precision();
+#else
+        mp_bitcnt_t prec = mpf_get_default_prec();
+#endif
         mpf_init2(value, prec);
         mpf_set_si(value, static_cast<signed long int>(op));
     }
