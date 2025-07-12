@@ -1,5 +1,5 @@
 CXX = g++-13
-CXXFLAGS = -Wall -Wextra -O2
+CXXFLAGS = -Wall -Wextra -O2 -std=c++20
 PREFIX = /usr/local
 
 LDFLAGS = -L/home/docker/gmpxx_mkII/i/GMP-6.3.0/lib -lgmp

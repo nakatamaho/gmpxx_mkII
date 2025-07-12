@@ -22,8 +22,8 @@
 
 #pragma once
 
-#if __cplusplus < 201703L
-#error "This class only runs on C++ 17 and later"
+#if __cplusplus < 202002L
+#error "This class only runs on C++ 20 and later"
 #endif
 
 // Feature test macros to ensure proper C99/C11 support
@@ -538,55 +538,70 @@ template <typename U, std::enable_if_t<std::is_integral_v<U>, int> = 0> void mpz
     if constexpr (std::is_signed_v<U>) {
         using UnsignedT = std::make_unsigned_t<U>;
         UnsignedT absOp = static_cast<UnsignedT>(op < 0 ? -op : op);
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-        mpz_import(value, 1, -1, sizeof(U), 0, 0, &absOp);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-        mpz_import(value, 1, 1, sizeof(U), 0, 0, &absOp);
-#else
-        static_assert(false, "mpz_init_import: Unsupported endianness");
-#endif
+
+        if constexpr (std::endian::native == std::endian::little) {
+            mpz_import(value, 1, -1, sizeof(U), 0, 0, &absOp);
+        } else if constexpr (std::endian::native == std::endian::big) {
+            mpz_import(value, 1, 1, sizeof(U), 0, 0, &absOp);
+        } else {
+            static_assert(std::endian::native == std::endian::little || std::endian::native == std::endian::big, "mpz_init_import: Mixed endianness not supported");
+        }
+
         if (op < 0) {
             mpz_neg(value, value);
         }
     } else {
-#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-        mpz_import(value, 1, -1, sizeof(U), 0, 0, &op);
-#elif defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-        mpz_import(value, 1, 1, sizeof(U), 0, 0, &op);
-#else
-        static_assert(false, "mpz_init_import: Unsupported endianness");
-#endif
+        if constexpr (std::endian::native == std::endian::little) {
+            mpz_import(value, 1, -1, sizeof(U), 0, 0, &op);
+        } else if constexpr (std::endian::native == std::endian::big) {
+            mpz_import(value, 1, 1, sizeof(U), 0, 0, &op);
+        } else {
+            static_assert(std::endian::native == std::endian::little || std::endian::native == std::endian::big, "mpz_init_import: Mixed endianness not supported");
+        }
     }
 }
 #ifdef __SIZEOF_INT128__
 std::string int128_to_string(__int128_t value) {
+    if (value == 0) {
+        return "0";
+    }
     bool isNegative = value < 0;
+    __uint128_t absValue;
+
+    // Handle the minimum value case safely
     if (isNegative) {
-        value = -value;
+        // Cast to unsigned to avoid overflow on most negative value
+        absValue = static_cast<__uint128_t>(-static_cast<__uint128_t>(value));
+    } else {
+        absValue = static_cast<__uint128_t>(value);
     }
     std::string result;
+    result.reserve(40); // 128-bit max is about 39 digits + sign
+    // Build digits in reverse order
     do {
-        int digit = value % 10;
-        result.push_back('0' + digit);
-        value /= 10;
-    } while (value != 0);
+        result.push_back('0' + static_cast<char>(absValue % 10));
+        absValue /= 10;
+    } while (absValue != 0);
 
     if (isNegative) {
         result.push_back('-');
     }
-
     std::reverse(result.begin(), result.end());
     return result;
 }
 std::string uint128_to_string(__uint128_t value) {
-    if (value == 0)
+    if (value == 0) {
         return "0";
-    std::string result;
-    while (value > 0) {
-        char digit = '0' + static_cast<char>(value % 10);
-        result.insert(result.begin(), digit);
-        value /= 10;
     }
+    std::string result;
+    result.reserve(40); // 128-bit max is about 39 digits
+    // Build digits in reverse order for consistency and efficiency
+    do {
+        result.push_back('0' + static_cast<char>(value % 10));
+        value /= 10;
+    } while (value != 0);
+
+    std::reverse(result.begin(), result.end());
     return result;
 }
 #endif
