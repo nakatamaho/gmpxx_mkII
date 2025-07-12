@@ -26,20 +26,6 @@
 #error "This class only runs on C++ 20 and later"
 #endif
 
-// Feature test macros to ensure proper C99/C11 support
-#ifndef _ISOC99_SOURCE
-#define _ISOC99_SOURCE
-#endif
-#ifndef _ISOC11_SOURCE
-#define _ISOC11_SOURCE
-#endif
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-
 #define GMPXX_MKII_VERSION_MAJOR 1
 #define GMPXX_MKII_VERSION_MINOR 0
 #define GMPXX_MKII_VERSION_PATCH 0
