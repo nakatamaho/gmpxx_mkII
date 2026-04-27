@@ -110,6 +110,11 @@ all three public numeric types: `mpf_class`, `mpz_class`, and
   comparisons in normal tests.
 - After changing implemented functionality, tests, scope, or known
   gaps, update `STATUS.md` in the same change.
+- After writing or changing program code, check whether `STATUS.md`
+  and `README.md` still describe the current implementation accurately.
+  Update them in the same change when the code changes supported
+  features, build/test instructions, precision/default policies, known
+  limitations, or documented coverage.
 
 ## Architectural invariants
 
