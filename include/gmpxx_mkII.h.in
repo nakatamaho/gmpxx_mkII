@@ -1,0 +1,478 @@
+// SPDX-License-Identifier: BSD-2-Clause
+
+#pragma once
+
+static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
+
+#include <gmp.h>
+
+#include <algorithm>
+#include <atomic>
+#include <concepts>
+#include <cstdint>
+#include <cstdlib>
+#include <limits>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <utility>
+
+#define GMPXX_MKII_VERSION_MAJOR 2
+#define GMPXX_MKII_VERSION_MINOR 0
+#define GMPXX_MKII_VERSION_PATCH 0
+#define GMPXX_MKII_GIT_COMMIT_HASH "@GIT_COMMIT_HASH@"
+
+namespace gmpxx_mkII_detail {
+
+template<class>
+inline constexpr bool always_false_v = false;
+
+inline constexpr std::uint64_t effective_mpf_prec(std::uint64_t requested) noexcept {
+    constexpr std::uint64_t limb_bits = GMP_NUMB_BITS;
+    if (requested == 0) {
+        return 0;
+    }
+    return ((requested + limb_bits - 1) / limb_bits) * limb_bits;
+}
+
+inline constexpr std::uint64_t normalize_mpf_prec(std::uint64_t requested) noexcept {
+    return effective_mpf_prec(requested);
+}
+
+inline mp_bitcnt_t checked_mp_bitcnt(std::uint64_t prec) {
+    if (prec == 0) {
+        throw std::invalid_argument("gmpxx_mkII: precision must be strictly positive");
+    }
+    if constexpr (sizeof(mp_bitcnt_t) < sizeof(std::uint64_t)) {
+        constexpr auto max_val =
+            static_cast<std::uint64_t>(std::numeric_limits<mp_bitcnt_t>::max());
+        if (prec > max_val) {
+            throw std::overflow_error("gmpxx_mkII: precision exceeds mp_bitcnt_t range");
+        }
+    }
+    return static_cast<mp_bitcnt_t>(prec);
+}
+
+inline std::uint64_t parse_default_prec_env() {
+    char const* env = std::getenv("GMPXX_MKII_DEFAULT_PREC");
+    if (env == nullptr || *env == '\0' || *env == '-') {
+        return 512;
+    }
+
+    try {
+        std::string s(env);
+        std::size_t pos = 0;
+        unsigned long long v = std::stoull(s, &pos, 10);
+        if (pos != s.size() || v == 0) {
+            return 512;
+        }
+        return static_cast<std::uint64_t>(v);
+    } catch (...) {
+        return 512;
+    }
+}
+
+inline std::atomic<std::uint64_t>& process_initial_prec() {
+    static std::atomic<std::uint64_t> v{parse_default_prec_env()};
+    return v;
+}
+
+inline std::uint64_t thread_default_prec() {
+    thread_local std::uint64_t prec =
+        process_initial_prec().load(std::memory_order_relaxed);
+    return prec;
+}
+
+template<class T>
+struct scalar_normalize_impl {
+    static_assert(sizeof(T) == 0,
+        "scalar_normalize_t: type T is not a Phase 0/1 scalar leaf "
+        "(must be integral, floating-point, or explicitly supported)");
+};
+
+template<class T>
+    requires (std::is_floating_point_v<T> &&
+              !std::is_same_v<T, long double>)
+struct scalar_normalize_impl<T> {
+    using type = double;
+};
+
+template<class T>
+    requires (std::is_integral_v<T> && std::is_signed_v<T> &&
+              !std::is_same_v<T, bool>)
+struct scalar_normalize_impl<T> {
+    using type = std::int64_t;
+};
+
+template<class T>
+    requires (std::is_integral_v<T> && !std::is_signed_v<T>)
+struct scalar_normalize_impl<T> {
+    using type = std::uint64_t;
+};
+
+#if defined(__SIZEOF_INT128__)
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
+template<>
+struct scalar_normalize_impl<__int128> {};
+
+template<>
+struct scalar_normalize_impl<unsigned __int128> {};
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+#endif
+
+}  // namespace gmpxx_mkII_detail
+
+class gmpxx_defaults {
+public:
+    static void set_initial_default_prec(std::uint64_t bits) {
+        if (bits == 0) {
+            return;
+        }
+        gmpxx_mkII_detail::process_initial_prec().store(bits, std::memory_order_relaxed);
+    }
+};
+
+template<class T>
+using scalar_normalize_t =
+    typename gmpxx_mkII_detail::scalar_normalize_impl<std::remove_cv_t<T>>::type;
+
+class mpf_class;
+
+struct add_op;
+struct sub_op;
+struct mul_op;
+struct div_op;
+struct neg_op;
+struct pos_op;
+
+template<class Op, class X>
+struct unary_expr;
+
+template<class Op, class L, class R>
+struct binary_expr;
+
+template<class T>
+inline constexpr bool is_gmpxx_expr_v = false;
+
+template<class Op, class X>
+inline constexpr bool is_gmpxx_expr_v<unary_expr<Op, X>> = true;
+
+template<class Op, class L, class R>
+inline constexpr bool is_gmpxx_expr_v<binary_expr<Op, L, R>> = true;
+
+template<class T>
+concept gmpxx_expr = is_gmpxx_expr_v<std::remove_cvref_t<T>>;
+
+template<class T>
+concept phase0_operand =
+    std::same_as<std::remove_cvref_t<T>, mpf_class> || gmpxx_expr<T>;
+
+template<class Derived>
+struct expr_base {
+    [[nodiscard]] std::uint64_t suggested_prec() const {
+#if defined(GMPXX_MKII_NOPRECCHANGE)
+        return gmpxx_mkII_detail::thread_default_prec();
+#else
+        return self().suggested_prec_impl();
+#endif
+    }
+
+    [[nodiscard]] mpf_class eval() const;
+
+private:
+    [[nodiscard]] Derived const& self() const {
+        return static_cast<Derived const&>(*this);
+    }
+};
+
+class mpf_class {
+public:
+    mpf_class() {
+        mpf_init2(value, gmpxx_mkII_detail::checked_mp_bitcnt(
+                             gmpxx_mkII_detail::thread_default_prec()));
+    }
+
+    explicit mpf_class(mp_bitcnt_t prec) {
+        mpf_init2(value, prec);
+    }
+
+    mpf_class(double v) : mpf_class() {
+        mpf_set_d(value, v);
+    }
+
+    mpf_class(double v, mp_bitcnt_t prec) : mpf_class(prec) {
+        mpf_set_d(value, v);
+    }
+
+    explicit mpf_class(char const* s) : mpf_class() {
+        set_from_string(s, 10);
+    }
+
+    mpf_class(char const* s, mp_bitcnt_t prec, int base = 10) : mpf_class(prec) {
+        set_from_string(s, base);
+    }
+
+    explicit mpf_class(std::string const& s) : mpf_class(s.c_str()) {}
+
+    mpf_class(std::string const& s, mp_bitcnt_t prec, int base = 10)
+        : mpf_class(s.c_str(), prec, base) {}
+
+    mpf_class(mpf_class const& other) {
+        mpf_init2(value, other.get_prec());
+        mpf_set(value, other.value);
+    }
+
+    mpf_class(mpf_class&& other) noexcept {
+        mpf_init2(value, other.get_prec());
+        mpf_swap(value, other.value);
+    }
+
+    template<gmpxx_expr Expr>
+    mpf_class(Expr const& expr) {
+        std::uint64_t final_prec = expr.suggested_prec();
+        mpf_init2(value, gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+        expr.eval_to_prec(*this, final_prec);
+    }
+
+    ~mpf_class() {
+        mpf_clear(value);
+    }
+
+    mpf_class& operator=(mpf_class const& other) {
+        if (this != &other) {
+            if (get_prec() != other.get_prec()) {
+                mpf_set_prec(value, other.get_prec());
+            }
+            mpf_set(value, other.value);
+        }
+        return *this;
+    }
+
+    mpf_class& operator=(mpf_class&& other) noexcept {
+        if (this != &other) {
+            mpf_swap(value, other.value);
+        }
+        return *this;
+    }
+
+    template<gmpxx_expr Expr>
+    mpf_class& operator=(Expr const& expr) {
+        std::uint64_t final_prec = expr.suggested_prec();
+        if (expr.contains_address(this)) {
+            mpf_class tmp(gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+            expr.eval_to_prec(tmp, final_prec);
+            swap(tmp);
+            return *this;
+        }
+
+        std::uint64_t effective =
+            gmpxx_mkII_detail::effective_mpf_prec(final_prec);
+        if (static_cast<std::uint64_t>(get_prec()) != effective) {
+            mpf_set_prec(value, gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+        }
+        expr.eval_to_prec(*this, final_prec);
+        return *this;
+    }
+
+    [[nodiscard]] mpf_ptr get_mpf_t() {
+        return value;
+    }
+
+    [[nodiscard]] mpf_srcptr get_mpf_t() const {
+        return value;
+    }
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const {
+        return mpf_get_prec(value);
+    }
+
+    [[nodiscard]] bool contains_address(mpf_class const* p) const {
+        return this == p;
+    }
+
+    void swap(mpf_class& other) noexcept {
+        mpf_swap(value, other.value);
+    }
+
+private:
+    void set_from_string(char const* s, int base) {
+        if (mpf_set_str(value, s, base) != 0) {
+            throw std::invalid_argument("gmpxx_mkII: invalid mpf string");
+        }
+    }
+
+    mpf_t value;
+};
+
+struct add_op {
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
+        mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+    }
+};
+
+struct sub_op {
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
+        mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+    }
+};
+
+struct mul_op {
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
+        mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+    }
+};
+
+struct div_op {
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
+        mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+    }
+};
+
+struct neg_op {
+    static void apply(mpf_class& dst, mpf_class const& x) {
+        mpf_neg(dst.get_mpf_t(), x.get_mpf_t());
+    }
+};
+
+struct pos_op {
+    static void apply(mpf_class& dst, mpf_class const& x) {
+        mpf_set(dst.get_mpf_t(), x.get_mpf_t());
+    }
+};
+
+namespace gmpxx_mkII_detail {
+
+inline std::uint64_t prec_of(mpf_class const& x) {
+    return static_cast<std::uint64_t>(x.get_prec());
+}
+
+template<class Op, class X>
+inline std::uint64_t prec_of(unary_expr<Op, X> const& e) {
+    return e.suggested_prec();
+}
+
+template<class Op, class L, class R>
+inline std::uint64_t prec_of(binary_expr<Op, L, R> const& e) {
+    return e.suggested_prec();
+}
+
+}  // namespace gmpxx_mkII_detail
+
+template<class Op, class X>
+struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
+    X const& x;
+
+    explicit unary_expr(X const& x_) : x(x_) {}
+
+    [[nodiscard]] std::uint64_t suggested_prec_impl() const {
+        return gmpxx_mkII_detail::prec_of(x);
+    }
+
+    [[nodiscard]] bool contains_address(mpf_class const* p) const {
+        if constexpr (std::same_as<X, mpf_class>) {
+            return &x == p;
+        } else {
+            return x.contains_address(p);
+        }
+    }
+
+    void eval_to_prec(mpf_class& dst, std::uint64_t final_prec) const {
+        (void)final_prec;
+        if constexpr (std::same_as<X, mpf_class>) {
+            Op::apply(dst, x);
+        } else {
+            x.eval_to_prec(dst, final_prec);
+            Op::apply(dst, dst);
+        }
+    }
+};
+
+template<class Op, class L, class R>
+struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
+    L const& lhs;
+    R const& rhs;
+
+    binary_expr(L const& lhs_, R const& rhs_) : lhs(lhs_), rhs(rhs_) {}
+
+    [[nodiscard]] std::uint64_t suggested_prec_impl() const {
+        return std::max(gmpxx_mkII_detail::prec_of(lhs),
+                        gmpxx_mkII_detail::prec_of(rhs));
+    }
+
+    [[nodiscard]] bool contains_address(mpf_class const* p) const {
+        bool l_hit;
+        if constexpr (std::same_as<L, mpf_class>) {
+            l_hit = &lhs == p;
+        } else {
+            l_hit = lhs.contains_address(p);
+        }
+        if (l_hit) {
+            return true;
+        }
+        if constexpr (std::same_as<R, mpf_class>) {
+            return &rhs == p;
+        } else {
+            return rhs.contains_address(p);
+        }
+    }
+
+    void eval_to_prec(mpf_class& dst, std::uint64_t final_prec) const {
+        constexpr bool l_leaf = std::same_as<L, mpf_class>;
+        constexpr bool r_leaf = std::same_as<R, mpf_class>;
+
+        if constexpr (l_leaf && r_leaf) {
+            Op::apply(dst, lhs, rhs);
+        } else if constexpr (!l_leaf && r_leaf) {
+            lhs.eval_to_prec(dst, final_prec);
+            Op::apply(dst, dst, rhs);
+        } else if constexpr (l_leaf && !r_leaf) {
+            rhs.eval_to_prec(dst, final_prec);
+            Op::apply(dst, lhs, dst);
+        } else {
+            mpf_class tmp(gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+            rhs.eval_to_prec(tmp, final_prec);
+            lhs.eval_to_prec(dst, final_prec);
+            Op::apply(dst, dst, tmp);
+        }
+    }
+};
+
+template<class Derived>
+[[nodiscard]] mpf_class expr_base<Derived>::eval() const {
+    return mpf_class(self());
+}
+
+template<phase0_operand L, phase0_operand R>
+[[nodiscard]] inline auto operator+(L const& l, R const& r) {
+    return binary_expr<add_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
+}
+
+template<phase0_operand L, phase0_operand R>
+[[nodiscard]] inline auto operator-(L const& l, R const& r) {
+    return binary_expr<sub_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
+}
+
+template<phase0_operand L, phase0_operand R>
+[[nodiscard]] inline auto operator*(L const& l, R const& r) {
+    return binary_expr<mul_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
+}
+
+template<phase0_operand L, phase0_operand R>
+[[nodiscard]] inline auto operator/(L const& l, R const& r) {
+    return binary_expr<div_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
+}
+
+template<phase0_operand X>
+[[nodiscard]] inline auto operator-(X const& x) {
+    return unary_expr<neg_op, std::remove_cvref_t<X>>{x};
+}
+
+template<phase0_operand X>
+[[nodiscard]] inline auto operator+(X const& x) {
+    return unary_expr<pos_op, std::remove_cvref_t<X>>{x};
+}
