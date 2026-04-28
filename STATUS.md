@@ -48,9 +48,9 @@ of the v2.0.0 header.
 | User-defined literals | Done for Phase 5 | `_mpz`, `_mpq`, and `_mpf` are available in `gmpxx_mkII::literals`. |
 | Runtime defaults | Done for Phase 5 | Default precision query helpers and a thread-local default base policy are implemented. |
 | Package config | Done for Phase 5 | Installed packages provide `gmpxx_mkIIConfig.cmake`, a version config, and an exported `gmpxx_mkII::gmpxx_mkII` target usable through `find_package`. |
+| Random support | Done after Phase 5 | `gmp_randclass` owns `gmp_randstate_t`, supports default/MT/LC initialization, seeding, random `mpz_class` generation, and random `mpf_class` generation. Bare `get_f()` returns a random floating expression/proxy so assignment into an existing `mpf_class` preserves destination precision. |
 | Fortran bridge | Not planned for v2.0.0 | Fortran bridge APIs are intentionally dropped from the v2.0.0 roadmap. |
-| Random support | Missing by design | `gmp_randclass` and random helpers are deferred. |
-| Test coverage | Present through Phase 5 | Twenty-seven CTest targets cover ABI traits, mpf construction/copy semantics, basic mpf math functions, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, and package config. |
+| Test coverage | Present through Phase 5 | Twenty-eight CTest targets cover ABI traits, mpf construction/copy semantics, basic mpf math functions, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
 
 ## Implementation Summary
 
@@ -71,6 +71,7 @@ of the v2.0.0 header.
 | Comparisons | `cmp()`, comparison operators, comparison materialization helpers | Comparisons are immediate operations. Expression operands are evaluated once, scalar/scalar overloads are rejected, and values are compared through exact GMP rational comparison without string or universal `double` fallback. |
 | String and stream I/O | `get_str()`, `set_str()`, `to_string()`, `operator<<`, `operator>>`, and expression stream output | GMP-allocated strings are released through the active GMP free function. Integer and rational stream output respects `std::dec`, `std::hex`, `std::oct`, and `std::uppercase`; mpf stream output uses GMP formatted output without conversion through `double`. |
 | User-defined literals | `_mpz`, `_mpq`, `_mpf` in `gmpxx_mkII::literals` | Raw numeric literal overloads parse in base 10. String literal overloads use the current wrapper default base. `_mpf` parses literal text directly into `mpf_class` at the wrapper default precision. |
+| Random support | `gmp_randclass`, `random_mpf_expr`, `get_z_bits()`, `get_z_range()`, `get_f()` | `gmp_randclass` is a non-copyable owner for `gmp_randstate_t`. `get_f(mp_bitcnt_t)` and `get_f(mpf_class const&)` return immediate `mpf_class` values. Bare `get_f()` returns `random_mpf_expr`, which evaluates through the normal floating expression assignment path and therefore uses the left-hand side precision on existing-object assignment. |
 | Package config | `gmpxx_mkIIConfig.cmake`, `gmpxx_mkIIConfigVersion.cmake`, `gmpxx_mkIITargets.cmake` | Installed consumers can use `find_package(gmpxx_mkII CONFIG REQUIRED)` and link `gmpxx_mkII::gmpxx_mkII`. The config locates GMP without embedding build-tree paths. |
 
 ## Operator Summary
@@ -93,6 +94,7 @@ of the v2.0.0 header.
 | User-defined literals | Done for Phase 5 | `_mpz`, `_mpq`, and `_mpf` are opt-in under `gmpxx_mkII::literals`. |
 | Defaults/base policy | Done for Phase 5 | `gmpxx_defaults` exposes precision queries and a thread-local default base for no-base string APIs. |
 | Package config | Done for Phase 5 | Install-tree package config supports `find_package(gmpxx_mkII CONFIG REQUIRED)`. |
+| Random support | Done after Phase 5 | `gmp_randclass` is a non-copyable owner for GMP random state and exposes the GMP C++ random generation surface for mpz/mpf values. Bare `get_f()` is expression/proxy based for destination-precision-preserving assignment. |
 | Basic mpf math functions | Done after Phase 5 | `sqrt(mpf_class)`, `abs(mpf_class)`, and legacy `neg(mpf_class)` are available. Remaining math functions are deferred. |
 
 ## Test Summary
@@ -125,24 +127,25 @@ of the v2.0.0 header.
 | `test_io_and_strings` | Present | `get_str()`, `set_str()`, `to_string()`, stream input/output, expression stream output, failure safety, precision preservation, base flags, and GMP-allocated string freeing. |
 | `test_user_defined_literals` | Present | `_mpz`, `_mpq`, and `_mpf` literal construction, large string literals, rational canonicalization, direct mpf text parsing, default-base interaction, and raw numeric literal base independence. |
 | `test_defaults_policy` | Present | Default precision getters, thread-local precision snapshot behavior, independence from GMP global default precision, default-base get/set, no-base string API integration, stream/base independence, invalid-base errors, and thread-local base behavior. |
+| `test_random` | Present | `gmp_randclass` construction modes, deleted copy/move semantics, deterministic seeding, `get_z_bits`, `get_z_range`, immediate `get_f(prec)`/`get_f(mpf)` generation, bare `get_f()` expression/proxy assignment preserving destination precision, and LC initialization failure handling. |
 | `test_package_config` | Present | Installs the project into a temporary prefix, configures an external consumer with `find_package(gmpxx_mkII CONFIG REQUIRED)`, builds it, and runs it. |
-| `GMPXX_MKII_NOPRECCHANGE` build | Present | The same twenty-seven tests pass when expression construction precision is the thread-local default instead of max operand precision. |
+| `GMPXX_MKII_NOPRECCHANGE` build | Present | The same twenty-eight tests pass when expression construction precision is the thread-local default instead of max operand precision. |
 | Environment override check | Present manually | `GMPXX_MKII_DEFAULT_PREC=1024 ctest --test-dir build --output-on-failure` passes. |
 | Clang coverage | Present | Clang passes both default and `GMPXX_MKII_NOPRECCHANGE=ON` Phase 5 builds. |
 | TSan coverage | Present for T4 | ThreadSanitizer build passes `test_thread_safety`. |
-| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all twenty-seven Phase 5 tests. |
+| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all twenty-eight Phase 5 tests. |
 
 ## Verified Build Matrix
 
 | Compiler / Build | Result | Notes |
 |---|---:|---|
-| GCC 15.2.0, default | Pass | All twenty-seven tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-seven tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All twenty-seven tests pass with the slow path forced. |
-| Clang, default | Pass | All twenty-seven tests pass. |
-| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-seven tests pass. |
+| GCC 15.2.0, default | Pass | All twenty-eight tests pass. |
+| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-eight tests pass. |
+| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All twenty-eight tests pass with the slow path forced. |
+| Clang, default | Pass | All twenty-eight tests pass. |
+| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-eight tests pass. |
 | GCC 15.2.0, TSan | Pass | `test_thread_safety` passes. |
-| GCC 15.2.0, ASan/UBSan | Pass | All twenty-seven tests pass. |
+| GCC 15.2.0, ASan/UBSan | Pass | All twenty-eight tests pass. |
 | C++17 direct include | Fails as intended | Header `static_assert(__cplusplus >= 202002L, ...)` fires. |
 
 ## Missing Feature Summary

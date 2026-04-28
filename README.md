@@ -56,6 +56,8 @@ Implemented now:
   immediate-evaluation `operator<<` for expression operands.
 - User-defined literals in `gmpxx_mkII::literals`: `_mpz`, `_mpq`, and
   `_mpf`.
+- `gmp_randclass` random state ownership, seeding, random `mpz_class`
+  generation, and random `mpf_class` generation.
 - Thread-local wrapper default precision initialized from
   `GMPXX_MKII_DEFAULT_PREC`.
 - `gmpxx_defaults` default precision queries and default base policy.
@@ -65,7 +67,6 @@ Implemented now:
 Deferred to later phases:
 
 - Remaining math functions and transcendental functions.
-- Random support.
 - Benchmarks beyond the focused allocation tests.
 
 Fortran bridge support is intentionally not planned for v2.0.0.

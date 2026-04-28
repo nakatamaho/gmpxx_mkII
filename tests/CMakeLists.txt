@@ -40,6 +40,7 @@ add_gmpxx_mkii_test(test_comparisons test_comparisons.cpp)
 add_gmpxx_mkii_test(test_io_and_strings test_io_and_strings.cpp)
 add_gmpxx_mkii_test(test_user_defined_literals test_user_defined_literals.cpp)
 add_gmpxx_mkii_test(test_defaults_policy test_defaults_policy.cpp)
+add_gmpxx_mkii_test(test_random test_random.cpp)
 
 target_link_libraries(test_thread_safety PRIVATE Threads::Threads)
 target_compile_definitions(test_long_width_dispatch_llp64
