@@ -1,11 +1,13 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, header-only wrapper around GNU GMP numeric types.
-The current repository state is the v2.0.0 Phase 0 expression-template
-rewrite: it implements the `mpf_class` floating-point arithmetic core only.
+The current repository state is the v2.0.0 Phase 1 expression-template
+rewrite: it implements the `mpf_class` floating-point arithmetic core plus
+mixed scalar arithmetic.
 
-Phase 0 is intentionally small. It is meant to validate the new lazy
-expression machinery, precision policy, thread-local default precision, and
+The v2.0.0 rewrite is being restored in phases. Phase 1 validates the new
+lazy expression machinery, precision policy, thread-local default precision,
+scalar leaf normalization, compound assignment, long-width dispatch, and
 allocation behavior before restoring the broader v1.0.0 surface.
 
 ## Current Scope
@@ -14,22 +16,25 @@ Implemented now:
 
 - `mpf_class` RAII ownership of `mpf_t`.
 - Lazy expression templates for `+`, `-`, `*`, and `/`.
+- Mixed scalar arithmetic with signed integers, unsigned integers, `float`,
+  and `double`; scalar leaves are normalized internally to `int64_t`,
+  `uint64_t`, or `double`.
 - Unary `+` and unary `-`.
 - Direct expression construction and assignment:
   `mpf_class r = a + b * c;`, `r = (a + b) / c;`.
+- Compound assignment (`+=`, `-=`, `*=`, `/=`) with `mpf_class`,
+  expression, and scalar right-hand sides.
 - `.eval()` for explicitly materializing an expression as `mpf_class`.
 - Operand-max precision propagation by default.
 - `GMPXX_MKII_NOPRECCHANGE` compatibility mode.
 - Thread-local wrapper default precision initialized from
   `GMPXX_MKII_DEFAULT_PREC`.
 - `gmpxx_defaults::set_initial_default_prec(uint64_t)`.
-- CMake + CTest build with five Phase 0 regression tests.
+- CMake + CTest build with Phase 0 and Phase 1 regression tests.
 
 Deferred to later phases:
 
 - `mpz_class` and `mpq_class`.
-- Scalar arithmetic such as `mpf_class + int` or `double * mpf_class`.
-- Compound assignment (`+=`, `-=`, `*=`, `/=`).
 - Comparisons.
 - I/O and formatting.
 - User-defined literals.
@@ -72,6 +77,15 @@ cmake --build build_np -j
 ctest --test-dir build_np --output-on-failure
 ```
 
+LP64-to-LLP64 dispatch simulation for unsigned-long-width scalar paths:
+
+```bash
+cmake -S . -B build_llp64sim -DCMAKE_BUILD_TYPE=Debug \
+      -DCMAKE_CXX_FLAGS="-DGMPXX_MKII_TEST_LLP64_PATH"
+cmake --build build_llp64sim -j
+ctest --test-dir build_llp64sim --output-on-failure -R long_width_dispatch
+```
+
 Optional ThreadSanitizer check for the thread-local default precision tests:
 
 ```bash
@@ -107,7 +121,8 @@ int main() {
     assert(r.get_prec() >= c.get_prec());
 
     mpf_class dst;
-    dst = a + b + c;
+    dst = 2.0 * a + b + 5LL;
+    dst += c * 3u;
 
     auto materialized = (a + b).eval();
     (void)materialized;
@@ -116,8 +131,9 @@ int main() {
 
 ## Expression Lifetime Rule
 
-Phase 0 expression nodes store operands by `const&`. This is deliberate for
-the v2.0.0 Phase 0 performance and ABI experiment, but it means expression
+Phase 1 expression nodes store `mpf_class` leaves and expression subtrees by
+`const&`, while scalar leaves are normalized and stored by value. This is
+deliberate for the v2.0.0 performance and ABI experiment, but expression
 trees must not be saved in `auto` variables.
 
 Use immediate evaluation:
@@ -131,7 +147,7 @@ auto value = (a + b + c).eval();
 Do not save the expression tree:
 
 ```cpp
-auto expr = a + b + c;  // Do not do this in Phase 0.
+auto expr = a + b + c;  // Do not do this in the current L1 storage model.
 mpf_class y = expr;     // Internal references may dangle.
 ```
 
@@ -141,6 +157,7 @@ Default build:
 
 - The expression result precision is the maximum precision of the `mpf_class`
   leaves in the expression tree.
+- Scalar leaves do not contribute precision in the default build.
 - Top-level evaluation computes this final precision once and passes it down
   through the whole expression.
 
@@ -189,7 +206,7 @@ The v1.0.0 eager header is retained for later compatibility work under:
 eager/gmpxx_mkII.h.in
 ```
 
-The Phase 0 header does not include or depend on the eager header.
+The v2.0.0 header does not include or depend on the eager header.
 
 ## License
 

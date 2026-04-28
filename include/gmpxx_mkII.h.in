@@ -8,7 +8,9 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 
 #include <algorithm>
 #include <atomic>
+#include <cfloat>
 #include <concepts>
+#include <cstdio>
 #include <cstdint>
 #include <cstdlib>
 #include <limits>
@@ -23,9 +25,6 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 #define GMPXX_MKII_GIT_COMMIT_HASH "@GIT_COMMIT_HASH@"
 
 namespace gmpxx_mkII_detail {
-
-template<class>
-inline constexpr bool always_false_v = false;
 
 inline constexpr std::uint64_t effective_mpf_prec(std::uint64_t requested) noexcept {
     constexpr std::uint64_t limb_bits = GMP_NUMB_BITS;
@@ -84,11 +83,7 @@ inline std::uint64_t thread_default_prec() {
 }
 
 template<class T>
-struct scalar_normalize_impl {
-    static_assert(sizeof(T) == 0,
-        "scalar_normalize_t: type T is not a Phase 0/1 scalar leaf "
-        "(must be integral, floating-point, or explicitly supported)");
-};
+struct scalar_normalize_impl {};
 
 template<class T>
     requires (std::is_floating_point_v<T> &&
@@ -99,31 +94,18 @@ struct scalar_normalize_impl<T> {
 
 template<class T>
     requires (std::is_integral_v<T> && std::is_signed_v<T> &&
-              !std::is_same_v<T, bool>)
+              !std::is_same_v<T, bool> &&
+              (sizeof(T) <= sizeof(std::int64_t)))
 struct scalar_normalize_impl<T> {
     using type = std::int64_t;
 };
 
 template<class T>
-    requires (std::is_integral_v<T> && !std::is_signed_v<T>)
+    requires (std::is_integral_v<T> && !std::is_signed_v<T> &&
+              (sizeof(T) <= sizeof(std::uint64_t)))
 struct scalar_normalize_impl<T> {
     using type = std::uint64_t;
 };
-
-#if defined(__SIZEOF_INT128__)
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif
-template<>
-struct scalar_normalize_impl<__int128> {};
-
-template<>
-struct scalar_normalize_impl<unsigned __int128> {};
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
-#endif
 
 }  // namespace gmpxx_mkII_detail
 
@@ -139,7 +121,7 @@ public:
 
 template<class T>
 using scalar_normalize_t =
-    typename gmpxx_mkII_detail::scalar_normalize_impl<std::remove_cv_t<T>>::type;
+    typename gmpxx_mkII_detail::scalar_normalize_impl<std::remove_cvref_t<T>>::type;
 
 class mpf_class;
 
@@ -171,6 +153,75 @@ concept gmpxx_expr = is_gmpxx_expr_v<std::remove_cvref_t<T>>;
 template<class T>
 concept phase0_operand =
     std::same_as<std::remove_cvref_t<T>, mpf_class> || gmpxx_expr<T>;
+
+template<class T>
+concept scalar_operand =
+    requires {
+        typename scalar_normalize_t<T>;
+    } &&
+    !std::same_as<std::remove_cvref_t<T>, mpf_class> &&
+    !is_gmpxx_expr_v<std::remove_cvref_t<T>>;
+
+template<class T>
+concept phase1_operand =
+    phase0_operand<T> || scalar_operand<T>;
+
+namespace gmpxx_mkII_detail {
+
+#if defined(GMPXX_MKII_TEST_LLP64_PATH)
+inline constexpr bool ulong_fits_uint64 = false;
+#else
+inline constexpr bool ulong_fits_uint64 =
+    sizeof(unsigned long) >= sizeof(std::uint64_t);
+#endif
+
+inline bool fits_in_ulong(std::uint64_t v) noexcept {
+    if constexpr (ulong_fits_uint64) {
+        return true;
+    } else {
+#if defined(GMPXX_MKII_TEST_LLP64_PATH)
+        constexpr std::uint64_t simulated_max = 0xFFFFFFFFu;
+        return v <= simulated_max;
+#else
+        return v <= static_cast<std::uint64_t>(
+            std::numeric_limits<unsigned long>::max());
+#endif
+    }
+}
+
+inline std::uint64_t safe_negate(std::int64_t v) noexcept {
+    if (v == std::numeric_limits<std::int64_t>::min()) {
+        return static_cast<std::uint64_t>(
+                   std::numeric_limits<std::int64_t>::max()) +
+               std::uint64_t{1};
+    }
+    return static_cast<std::uint64_t>(-(v + 1)) + std::uint64_t{1};
+}
+
+inline mp_bitcnt_t tmp_prec_for_integer(mp_bitcnt_t dst_prec) noexcept {
+    return std::max(dst_prec, static_cast<mp_bitcnt_t>(64));
+}
+
+inline mp_bitcnt_t tmp_prec_for_double(mp_bitcnt_t dst_prec) noexcept {
+    return std::max(dst_prec, static_cast<mp_bitcnt_t>(DBL_MANT_DIG));
+}
+
+template<class T>
+struct operand_storage {
+    using type = T;
+};
+
+template<class T>
+    requires scalar_operand<T>
+struct operand_storage<T> {
+    using type = scalar_normalize_t<T>;
+};
+
+template<class T>
+using operand_storage_t =
+    typename operand_storage<std::remove_cvref_t<T>>::type;
+
+}  // namespace gmpxx_mkII_detail
 
 template<class Derived>
 struct expr_base {
@@ -279,6 +330,35 @@ public:
         return *this;
     }
 
+    mpf_class& operator+=(mpf_class const& rhs);
+    mpf_class& operator-=(mpf_class const& rhs);
+    mpf_class& operator*=(mpf_class const& rhs);
+    mpf_class& operator/=(mpf_class const& rhs);
+
+    template<gmpxx_expr Expr>
+    mpf_class& operator+=(Expr const& expr);
+
+    template<gmpxx_expr Expr>
+    mpf_class& operator-=(Expr const& expr);
+
+    template<gmpxx_expr Expr>
+    mpf_class& operator*=(Expr const& expr);
+
+    template<gmpxx_expr Expr>
+    mpf_class& operator/=(Expr const& expr);
+
+    template<scalar_operand T>
+    mpf_class& operator+=(T const& rhs);
+
+    template<scalar_operand T>
+    mpf_class& operator-=(T const& rhs);
+
+    template<scalar_operand T>
+    mpf_class& operator*=(T const& rhs);
+
+    template<scalar_operand T>
+    mpf_class& operator/=(T const& rhs);
+
     [[nodiscard]] mpf_ptr get_mpf_t() {
         return value;
     }
@@ -309,28 +389,149 @@ private:
     mpf_t value;
 };
 
-struct add_op {
-    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
-        mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+namespace gmpxx_mkII_detail {
+
+inline mpf_class integer_tmp(std::uint64_t v, mp_bitcnt_t dst_prec) {
+    char buf[24];
+    std::snprintf(buf, sizeof(buf), "%llu",
+                  static_cast<unsigned long long>(v));
+    return mpf_class(buf, tmp_prec_for_integer(dst_prec), 10);
+}
+
+inline mpf_class double_tmp(double v, mp_bitcnt_t dst_prec) {
+    return mpf_class(v, tmp_prec_for_double(dst_prec));
+}
+
+inline void add_mpf_uint(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs) {
+    if constexpr (ulong_fits_uint64) {
+        mpf_add_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                   static_cast<unsigned long>(rhs));
+    } else {
+        if (fits_in_ulong(rhs)) {
+            mpf_add_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                       static_cast<unsigned long>(rhs));
+        } else {
+            mpf_class tmp = integer_tmp(rhs, dst.get_prec());
+            mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+        }
     }
+}
+
+inline void sub_mpf_uint(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs) {
+    if constexpr (ulong_fits_uint64) {
+        mpf_sub_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                   static_cast<unsigned long>(rhs));
+    } else {
+        if (fits_in_ulong(rhs)) {
+            mpf_sub_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                       static_cast<unsigned long>(rhs));
+        } else {
+            mpf_class tmp = integer_tmp(rhs, dst.get_prec());
+            mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+        }
+    }
+}
+
+inline void sub_uint_mpf(mpf_class& dst, std::uint64_t lhs, mpf_class const& rhs) {
+    if constexpr (ulong_fits_uint64) {
+        mpf_ui_sub(dst.get_mpf_t(), static_cast<unsigned long>(lhs),
+                   rhs.get_mpf_t());
+    } else {
+        if (fits_in_ulong(lhs)) {
+            mpf_ui_sub(dst.get_mpf_t(), static_cast<unsigned long>(lhs),
+                       rhs.get_mpf_t());
+        } else {
+            mpf_class tmp = integer_tmp(lhs, dst.get_prec());
+            mpf_sub(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
+        }
+    }
+}
+
+inline void mul_mpf_uint(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs) {
+    if constexpr (ulong_fits_uint64) {
+        mpf_mul_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                   static_cast<unsigned long>(rhs));
+    } else {
+        if (fits_in_ulong(rhs)) {
+            mpf_mul_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                       static_cast<unsigned long>(rhs));
+        } else {
+            mpf_class tmp = integer_tmp(rhs, dst.get_prec());
+            mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+        }
+    }
+}
+
+inline void div_mpf_uint(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs) {
+    if constexpr (ulong_fits_uint64) {
+        mpf_div_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                   static_cast<unsigned long>(rhs));
+    } else {
+        if (fits_in_ulong(rhs)) {
+            mpf_div_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
+                       static_cast<unsigned long>(rhs));
+        } else {
+            mpf_class tmp = integer_tmp(rhs, dst.get_prec());
+            mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+        }
+    }
+}
+
+inline void div_uint_mpf(mpf_class& dst, std::uint64_t lhs, mpf_class const& rhs) {
+    if constexpr (ulong_fits_uint64) {
+        mpf_ui_div(dst.get_mpf_t(), static_cast<unsigned long>(lhs),
+                   rhs.get_mpf_t());
+    } else {
+        if (fits_in_ulong(lhs)) {
+            mpf_ui_div(dst.get_mpf_t(), static_cast<unsigned long>(lhs),
+                       rhs.get_mpf_t());
+        } else {
+            mpf_class tmp = integer_tmp(lhs, dst.get_prec());
+            mpf_div(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
+        }
+    }
+}
+
+}  // namespace gmpxx_mkII_detail
+
+struct add_op {
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs);
+    static void apply(mpf_class& dst, std::uint64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::int64_t rhs);
+    static void apply(mpf_class& dst, std::int64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, double rhs);
+    static void apply(mpf_class& dst, double lhs, mpf_class const& rhs);
 };
 
 struct sub_op {
-    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
-        mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
-    }
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs);
+    static void apply(mpf_class& dst, std::uint64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::int64_t rhs);
+    static void apply(mpf_class& dst, std::int64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, double rhs);
+    static void apply(mpf_class& dst, double lhs, mpf_class const& rhs);
 };
 
 struct mul_op {
-    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
-        mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
-    }
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs);
+    static void apply(mpf_class& dst, std::uint64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::int64_t rhs);
+    static void apply(mpf_class& dst, std::int64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, double rhs);
+    static void apply(mpf_class& dst, double lhs, mpf_class const& rhs);
 };
 
 struct div_op {
-    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs) {
-        mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
-    }
+    static void apply(mpf_class& dst, mpf_class const& lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs);
+    static void apply(mpf_class& dst, std::uint64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, std::int64_t rhs);
+    static void apply(mpf_class& dst, std::int64_t lhs, mpf_class const& rhs);
+    static void apply(mpf_class& dst, mpf_class const& lhs, double rhs);
+    static void apply(mpf_class& dst, double lhs, mpf_class const& rhs);
 };
 
 struct neg_op {
@@ -344,6 +545,252 @@ struct pos_op {
         mpf_set(dst.get_mpf_t(), x.get_mpf_t());
     }
 };
+
+inline void add_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          mpf_class const& rhs) {
+    mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+}
+
+inline void add_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::uint64_t rhs) {
+    gmpxx_mkII_detail::add_mpf_uint(dst, lhs, rhs);
+}
+
+inline void add_op::apply(mpf_class& dst, std::uint64_t lhs,
+                          mpf_class const& rhs) {
+    apply(dst, rhs, lhs);
+}
+
+inline void add_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::int64_t rhs) {
+    if (rhs >= 0) {
+        apply(dst, lhs, static_cast<std::uint64_t>(rhs));
+    } else {
+        sub_op::apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+    }
+}
+
+inline void add_op::apply(mpf_class& dst, std::int64_t lhs,
+                          mpf_class const& rhs) {
+    apply(dst, rhs, lhs);
+}
+
+inline void add_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
+    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+}
+
+inline void add_op::apply(mpf_class& dst, double lhs, mpf_class const& rhs) {
+    apply(dst, rhs, lhs);
+}
+
+inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          mpf_class const& rhs) {
+    mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+}
+
+inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::uint64_t rhs) {
+    gmpxx_mkII_detail::sub_mpf_uint(dst, lhs, rhs);
+}
+
+inline void sub_op::apply(mpf_class& dst, std::uint64_t lhs,
+                          mpf_class const& rhs) {
+    gmpxx_mkII_detail::sub_uint_mpf(dst, lhs, rhs);
+}
+
+inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::int64_t rhs) {
+    if (rhs >= 0) {
+        apply(dst, lhs, static_cast<std::uint64_t>(rhs));
+    } else {
+        add_op::apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+    }
+}
+
+inline void sub_op::apply(mpf_class& dst, std::int64_t lhs,
+                          mpf_class const& rhs) {
+    if (lhs >= 0) {
+        apply(dst, static_cast<std::uint64_t>(lhs), rhs);
+    } else {
+        add_op::apply(dst, rhs, gmpxx_mkII_detail::safe_negate(lhs));
+        mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
+    }
+}
+
+inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
+    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+}
+
+inline void sub_op::apply(mpf_class& dst, double lhs, mpf_class const& rhs) {
+    mpf_class tmp = gmpxx_mkII_detail::double_tmp(lhs, dst.get_prec());
+    mpf_sub(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
+}
+
+inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          mpf_class const& rhs) {
+    mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+}
+
+inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::uint64_t rhs) {
+    gmpxx_mkII_detail::mul_mpf_uint(dst, lhs, rhs);
+}
+
+inline void mul_op::apply(mpf_class& dst, std::uint64_t lhs,
+                          mpf_class const& rhs) {
+    apply(dst, rhs, lhs);
+}
+
+inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::int64_t rhs) {
+    if (rhs >= 0) {
+        apply(dst, lhs, static_cast<std::uint64_t>(rhs));
+    } else {
+        apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+        mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
+    }
+}
+
+inline void mul_op::apply(mpf_class& dst, std::int64_t lhs,
+                          mpf_class const& rhs) {
+    apply(dst, rhs, lhs);
+}
+
+inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
+    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+}
+
+inline void mul_op::apply(mpf_class& dst, double lhs, mpf_class const& rhs) {
+    apply(dst, rhs, lhs);
+}
+
+inline void div_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          mpf_class const& rhs) {
+    mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), rhs.get_mpf_t());
+}
+
+inline void div_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::uint64_t rhs) {
+    gmpxx_mkII_detail::div_mpf_uint(dst, lhs, rhs);
+}
+
+inline void div_op::apply(mpf_class& dst, std::uint64_t lhs,
+                          mpf_class const& rhs) {
+    gmpxx_mkII_detail::div_uint_mpf(dst, lhs, rhs);
+}
+
+inline void div_op::apply(mpf_class& dst, mpf_class const& lhs,
+                          std::int64_t rhs) {
+    if (rhs >= 0) {
+        apply(dst, lhs, static_cast<std::uint64_t>(rhs));
+    } else {
+        apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+        mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
+    }
+}
+
+inline void div_op::apply(mpf_class& dst, std::int64_t lhs,
+                          mpf_class const& rhs) {
+    if (lhs >= 0) {
+        apply(dst, static_cast<std::uint64_t>(lhs), rhs);
+    } else {
+        apply(dst, gmpxx_mkII_detail::safe_negate(lhs), rhs);
+        mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
+    }
+}
+
+inline void div_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
+    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
+}
+
+inline void div_op::apply(mpf_class& dst, double lhs, mpf_class const& rhs) {
+    mpf_class tmp = gmpxx_mkII_detail::double_tmp(lhs, dst.get_prec());
+    mpf_div(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
+}
+
+inline mpf_class& mpf_class::operator+=(mpf_class const& rhs) {
+    add_op::apply(*this, *this, rhs);
+    return *this;
+}
+
+inline mpf_class& mpf_class::operator-=(mpf_class const& rhs) {
+    sub_op::apply(*this, *this, rhs);
+    return *this;
+}
+
+inline mpf_class& mpf_class::operator*=(mpf_class const& rhs) {
+    mul_op::apply(*this, *this, rhs);
+    return *this;
+}
+
+inline mpf_class& mpf_class::operator/=(mpf_class const& rhs) {
+    div_op::apply(*this, *this, rhs);
+    return *this;
+}
+
+template<gmpxx_expr Expr>
+inline mpf_class& mpf_class::operator+=(Expr const& expr) {
+    mpf_class tmp(this->get_prec());
+    expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
+    add_op::apply(*this, *this, tmp);
+    return *this;
+}
+
+template<gmpxx_expr Expr>
+inline mpf_class& mpf_class::operator-=(Expr const& expr) {
+    mpf_class tmp(this->get_prec());
+    expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
+    sub_op::apply(*this, *this, tmp);
+    return *this;
+}
+
+template<gmpxx_expr Expr>
+inline mpf_class& mpf_class::operator*=(Expr const& expr) {
+    mpf_class tmp(this->get_prec());
+    expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
+    mul_op::apply(*this, *this, tmp);
+    return *this;
+}
+
+template<gmpxx_expr Expr>
+inline mpf_class& mpf_class::operator/=(Expr const& expr) {
+    mpf_class tmp(this->get_prec());
+    expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
+    div_op::apply(*this, *this, tmp);
+    return *this;
+}
+
+template<scalar_operand T>
+inline mpf_class& mpf_class::operator+=(T const& rhs) {
+    using N = scalar_normalize_t<T>;
+    add_op::apply(*this, *this, static_cast<N>(rhs));
+    return *this;
+}
+
+template<scalar_operand T>
+inline mpf_class& mpf_class::operator-=(T const& rhs) {
+    using N = scalar_normalize_t<T>;
+    sub_op::apply(*this, *this, static_cast<N>(rhs));
+    return *this;
+}
+
+template<scalar_operand T>
+inline mpf_class& mpf_class::operator*=(T const& rhs) {
+    using N = scalar_normalize_t<T>;
+    mul_op::apply(*this, *this, static_cast<N>(rhs));
+    return *this;
+}
+
+template<scalar_operand T>
+inline mpf_class& mpf_class::operator/=(T const& rhs) {
+    using N = scalar_normalize_t<T>;
+    div_op::apply(*this, *this, static_cast<N>(rhs));
+    return *this;
+}
 
 namespace gmpxx_mkII_detail {
 
@@ -394,19 +841,36 @@ struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
 
 template<class Op, class L, class R>
 struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
-    L const& lhs;
-    R const& rhs;
+    using lhs_storage = std::conditional_t<
+        scalar_operand<L>,
+        gmpxx_mkII_detail::operand_storage_t<L>,
+        L const&>;
+    using rhs_storage = std::conditional_t<
+        scalar_operand<R>,
+        gmpxx_mkII_detail::operand_storage_t<R>,
+        R const&>;
+
+    lhs_storage lhs;
+    rhs_storage rhs;
 
     binary_expr(L const& lhs_, R const& rhs_) : lhs(lhs_), rhs(rhs_) {}
 
     [[nodiscard]] std::uint64_t suggested_prec_impl() const {
-        return std::max(gmpxx_mkII_detail::prec_of(lhs),
-                        gmpxx_mkII_detail::prec_of(rhs));
+        if constexpr (scalar_operand<L>) {
+            return gmpxx_mkII_detail::prec_of(rhs);
+        } else if constexpr (scalar_operand<R>) {
+            return gmpxx_mkII_detail::prec_of(lhs);
+        } else {
+            return std::max(gmpxx_mkII_detail::prec_of(lhs),
+                            gmpxx_mkII_detail::prec_of(rhs));
+        }
     }
 
     [[nodiscard]] bool contains_address(mpf_class const* p) const {
         bool l_hit;
-        if constexpr (std::same_as<L, mpf_class>) {
+        if constexpr (scalar_operand<L>) {
+            l_hit = false;
+        } else if constexpr (std::same_as<L, mpf_class>) {
             l_hit = &lhs == p;
         } else {
             l_hit = lhs.contains_address(p);
@@ -414,7 +878,9 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
         if (l_hit) {
             return true;
         }
-        if constexpr (std::same_as<R, mpf_class>) {
+        if constexpr (scalar_operand<R>) {
+            return false;
+        } else if constexpr (std::same_as<R, mpf_class>) {
             return &rhs == p;
         } else {
             return rhs.contains_address(p);
@@ -424,13 +890,15 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
     void eval_to_prec(mpf_class& dst, std::uint64_t final_prec) const {
         constexpr bool l_leaf = std::same_as<L, mpf_class>;
         constexpr bool r_leaf = std::same_as<R, mpf_class>;
+        constexpr bool l_scalar = scalar_operand<L>;
+        constexpr bool r_scalar = scalar_operand<R>;
 
-        if constexpr (l_leaf && r_leaf) {
+        if constexpr ((l_leaf || l_scalar) && (r_leaf || r_scalar)) {
             Op::apply(dst, lhs, rhs);
-        } else if constexpr (!l_leaf && r_leaf) {
+        } else if constexpr (!l_leaf && !l_scalar && (r_leaf || r_scalar)) {
             lhs.eval_to_prec(dst, final_prec);
             Op::apply(dst, dst, rhs);
-        } else if constexpr (l_leaf && !r_leaf) {
+        } else if constexpr ((l_leaf || l_scalar) && !r_leaf && !r_scalar) {
             rhs.eval_to_prec(dst, final_prec);
             Op::apply(dst, lhs, dst);
         } else {
@@ -452,9 +920,41 @@ template<phase0_operand L, phase0_operand R>
     return binary_expr<add_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
 }
 
+template<phase1_operand L, scalar_operand R>
+    requires (!scalar_operand<L>)
+[[nodiscard]] inline auto operator+(L const& l, R const& r) {
+    using NR = scalar_normalize_t<R>;
+    return binary_expr<add_op, std::remove_cvref_t<L>, NR>{
+        l, static_cast<NR>(r)};
+}
+
+template<scalar_operand L, phase1_operand R>
+    requires (!scalar_operand<R>)
+[[nodiscard]] inline auto operator+(L const& l, R const& r) {
+    using NL = scalar_normalize_t<L>;
+    return binary_expr<add_op, NL, std::remove_cvref_t<R>>{
+        static_cast<NL>(l), r};
+}
+
 template<phase0_operand L, phase0_operand R>
 [[nodiscard]] inline auto operator-(L const& l, R const& r) {
     return binary_expr<sub_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
+}
+
+template<phase1_operand L, scalar_operand R>
+    requires (!scalar_operand<L>)
+[[nodiscard]] inline auto operator-(L const& l, R const& r) {
+    using NR = scalar_normalize_t<R>;
+    return binary_expr<sub_op, std::remove_cvref_t<L>, NR>{
+        l, static_cast<NR>(r)};
+}
+
+template<scalar_operand L, phase1_operand R>
+    requires (!scalar_operand<R>)
+[[nodiscard]] inline auto operator-(L const& l, R const& r) {
+    using NL = scalar_normalize_t<L>;
+    return binary_expr<sub_op, NL, std::remove_cvref_t<R>>{
+        static_cast<NL>(l), r};
 }
 
 template<phase0_operand L, phase0_operand R>
@@ -462,9 +962,41 @@ template<phase0_operand L, phase0_operand R>
     return binary_expr<mul_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
 }
 
+template<phase1_operand L, scalar_operand R>
+    requires (!scalar_operand<L>)
+[[nodiscard]] inline auto operator*(L const& l, R const& r) {
+    using NR = scalar_normalize_t<R>;
+    return binary_expr<mul_op, std::remove_cvref_t<L>, NR>{
+        l, static_cast<NR>(r)};
+}
+
+template<scalar_operand L, phase1_operand R>
+    requires (!scalar_operand<R>)
+[[nodiscard]] inline auto operator*(L const& l, R const& r) {
+    using NL = scalar_normalize_t<L>;
+    return binary_expr<mul_op, NL, std::remove_cvref_t<R>>{
+        static_cast<NL>(l), r};
+}
+
 template<phase0_operand L, phase0_operand R>
 [[nodiscard]] inline auto operator/(L const& l, R const& r) {
     return binary_expr<div_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{l, r};
+}
+
+template<phase1_operand L, scalar_operand R>
+    requires (!scalar_operand<L>)
+[[nodiscard]] inline auto operator/(L const& l, R const& r) {
+    using NR = scalar_normalize_t<R>;
+    return binary_expr<div_op, std::remove_cvref_t<L>, NR>{
+        l, static_cast<NR>(r)};
+}
+
+template<scalar_operand L, phase1_operand R>
+    requires (!scalar_operand<R>)
+[[nodiscard]] inline auto operator/(L const& l, R const& r) {
+    using NL = scalar_normalize_t<L>;
+    return binary_expr<div_op, NL, std::remove_cvref_t<R>>{
+        static_cast<NL>(l), r};
 }
 
 template<phase0_operand X>
