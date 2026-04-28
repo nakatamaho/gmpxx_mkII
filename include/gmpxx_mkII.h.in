@@ -642,6 +642,22 @@ public:
         return *this;
     }
 
+    mpf_class& operator=(double rhs) {
+        mpf_set_d(value, rhs);
+        return *this;
+    }
+
+    mpf_class& operator=(char const* rhs) {
+        if (set_str(rhs) != 0) {
+            throw std::invalid_argument("gmpxx_mkII: invalid mpf string");
+        }
+        return *this;
+    }
+
+    mpf_class& operator=(std::string const& rhs) {
+        return *this = rhs.c_str();
+    }
+
     template<gmpxx_expr Expr>
         requires (std::same_as<typename Expr::result_type, mpf_class>)
     mpf_class& operator=(Expr const& expr) {

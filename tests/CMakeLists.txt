@@ -14,6 +14,7 @@ function(add_gmpxx_mkii_test name)
 endfunction()
 
 add_gmpxx_mkii_test(test_abi_fingerprint test_abi_fingerprint.cpp)
+add_gmpxx_mkii_test(test_mpf_construction_copy test_mpf_construction_copy.cpp)
 add_gmpxx_mkii_test(test_numeric_equivalence test_numeric_equivalence.cpp)
 add_gmpxx_mkii_test(test_alloc_count test_alloc_count.cpp)
 add_gmpxx_mkii_test(test_alias_safety test_alias_safety.cpp)

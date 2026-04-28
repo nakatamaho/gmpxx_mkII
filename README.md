@@ -48,6 +48,8 @@ Implemented now:
 - `cmp()`, `==`, `!=`, `<`, `<=`, `>`, and `>=` for wrapper values,
   expression operands, and supported scalar operands.
 - `get_str()`, `set_str()`, and `to_string()` for concrete wrapper values.
+- `mpf_class` assignment from `double`, `char const*`, and `std::string`
+  with destination precision preserved.
 - `operator<<` and `operator>>` for concrete wrapper values, plus
   immediate-evaluation `operator<<` for expression operands.
 - User-defined literals in `gmpxx_mkII::literals`: `_mpz`, `_mpq`, and
