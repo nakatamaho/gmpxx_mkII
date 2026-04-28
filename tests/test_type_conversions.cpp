@@ -109,6 +109,14 @@ void test_compile_time_surface() {
                                signed long>);
     static_assert(std::same_as<decltype(std::declval<mpq_class const&>().get_d()),
                                double>);
+    static_assert(std::same_as<decltype(std::declval<mpq_class&>().get_num_mpz_t()),
+                               mpz_ptr>);
+    static_assert(std::same_as<decltype(std::declval<mpq_class const&>().get_num_mpz_t()),
+                               mpz_srcptr>);
+    static_assert(std::same_as<decltype(std::declval<mpq_class&>().get_den_mpz_t()),
+                               mpz_ptr>);
+    static_assert(std::same_as<decltype(std::declval<mpq_class const&>().get_den_mpz_t()),
+                               mpz_srcptr>);
 #if defined(__SIZEOF_INT128__)
     static_assert(std::is_constructible_v<mpz_class, int128_type>);
     static_assert(std::is_constructible_v<mpz_class, uint128_type>);
@@ -336,6 +344,12 @@ void test_mpq_numerator_denominator_accessors() {
     assert(value.get_den() == mpz_class(std::int64_t{4}));
     assert(mpz_cmp_si(value.get_num_mpz_t(), 3) == 0);
     assert(mpz_cmp_si(value.get_den_mpz_t(), 4) == 0);
+
+    mpz_set_si(value.get_num_mpz_t(), 6);
+    mpz_set_si(value.get_den_mpz_t(), 8);
+    value.canonicalize();
+
+    assert(value == mpq_class("3/4"));
 }
 
 void test_mpq_double_construction() {

@@ -1481,8 +1481,16 @@ public:
         return r;
     }
 
+    [[nodiscard]] mpz_ptr get_num_mpz_t() {
+        return mpq_numref(value);
+    }
+
     [[nodiscard]] mpz_srcptr get_num_mpz_t() const {
         return mpq_numref(value);
+    }
+
+    [[nodiscard]] mpz_ptr get_den_mpz_t() {
+        return mpq_denref(value);
     }
 
     [[nodiscard]] mpz_srcptr get_den_mpz_t() const {

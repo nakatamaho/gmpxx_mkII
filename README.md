@@ -68,8 +68,8 @@ Implemented now:
 
 Deferred to later phases:
 
-- Remaining expression-aware math overloads and non-transcendental functions
-  such as `hypot`, `floor`, `ceil`, and `trunc`.
+- Remaining expression-aware math overloads and special functions beyond the
+  current concrete GMP-only math surface.
 - Benchmarks beyond the focused allocation tests.
 
 Fortran bridge support is intentionally not planned for v2.0.0.
