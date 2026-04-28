@@ -121,6 +121,21 @@ void assert_matches(mpf_class const& got, mpf_class const& a, S scalar,
 
 template<class S>
 void check_scalar(mpf_class const& a, S scalar) {
+    {
+        mpf_class dst("0", 8);
+        mp_bitcnt_t before_prec = dst.get_prec();
+        dst = a + scalar;
+        assert(dst.get_prec() == before_prec);
+        assert_matches(dst, a, scalar, '+', false);
+    }
+    {
+        mpf_class dst("0", 8);
+        mp_bitcnt_t before_prec = dst.get_prec();
+        dst = scalar + a;
+        assert(dst.get_prec() == before_prec);
+        assert_matches(dst, a, scalar, '+', true);
+    }
+
     if (static_cast<scalar_normalize_t<S>>(scalar) != scalar_normalize_t<S>{0}) {
         assert_matches(mpf_class(a + scalar), a, scalar, '+', false);
         assert_matches(mpf_class(scalar + a), a, scalar, '+', true);

@@ -17,7 +17,7 @@ of the v2.0.0 header.
 | Area | Status | Short Description |
 |---|---:|---|
 | Header-only layout | Done | `include/gmpxx_mkII.h.in` is configured to `gmpxx_mkII.h`; no `.cpp` source is used. |
-| CMake scaffold | Done | Provides `gmpxx_mkII::gmpxx_mkII`, inline GMP detection, C++20 requirements, install of the generated header, and test targets. |
+| CMake scaffold | Done | Provides `gmpxx_mkII::gmpxx_mkII`, inline GMP detection, C++20 requirements, install of the generated header, exported target file, and test targets. |
 | C++20 concepts | Done | `gmpxx_expr`, `phase0_operand`, `scalar_operand`, and `phase1_operand` constrain expression and scalar overloads. |
 | `mpf_class` RAII | Done | Owns `mpf_t`; supports default/precision/double/string construction, copy/move, assignment, compound assignment, precision access, raw GMP access, and swap. |
 | Binary expression templates | Done | `binary_expr<Op, L, R>` implements lazy `+`, `-`, `*`, and `/` for `mpf_class`, expression, and scalar operands. |
@@ -25,9 +25,9 @@ of the v2.0.0 header.
 | Scalar expression leaves | Done for Phase 1 | Signed integers, unsigned integers, `float`, and `double` participate in `mpf_class` expressions after ABI-normalizing to `int64_t`, `uint64_t`, or `double`. |
 | Compound assignment | Done for Phase 1 | `+=`, `-=`, `*=`, and `/=` accept `mpf_class`, expression nodes, and scalar operands while preserving left-hand side precision. |
 | Long-width dispatch | Done for Phase 1 | `uint64_t` paths dispatch through `unsigned long` fast paths where valid and through temporary conversion when simulating or running on LLP64. |
-| Expression evaluation | Done | Top-level evaluation computes one final precision, propagates it downward, and uses `contains_address()` for alias-safe assignment. |
+| Expression evaluation | Done | Expression construction and `.eval()` use one computed expression precision. Existing-object expression assignment preserves destination precision and uses `contains_address()` for alias-safe temporary evaluation. |
 | Allocation minimization | Done | Direct chains such as `dst = a + b + c + d` and integer scalar fast paths evaluate with zero temporary `mpf_t` allocations when `dst` is already sized; two independent subtrees use one temporary. |
-| Precision propagation | Done | Default build uses max operand precision. `GMPXX_MKII_NOPRECCHANGE` uses the thread-local default precision. |
+| Precision propagation | Done | Default build uses max operand precision for expression construction and `.eval()`. `GMPXX_MKII_NOPRECCHANGE` uses the thread-local default precision for those paths. Existing-object assignment preserves destination precision. |
 | Default precision policy | Done | `GMPXX_MKII_DEFAULT_PREC` initializes a process-wide requested precision; each thread snapshots it lazily on first use. |
 | `gmpxx_defaults` | Minimal | Only `set_initial_default_prec(uint64_t)` is implemented. No getter, base policy, or legacy initializer is present. |
 | Scalar normalization traits | Done | `scalar_normalize_t<T>` maps scalar categories to `int64_t`, `uint64_t`, and `double`; unsupported types are SFINAE-friendly exclusions. |
@@ -42,7 +42,7 @@ of the v2.0.0 header.
 
 | Component | Implemented Items | Important Notes |
 |---|---|---|
-| `mpf_class` | Default constructor, explicit precision constructor, double constructors, `const char*`/`std::string` constructors, copy/move construction, copy/move assignment, expression construction, expression assignment, compound assignment, destructor, `get_mpf_t()`, `get_prec()`, `contains_address()`, and `swap()` | Default construction uses the wrapper's thread-local requested precision, not GMP's global `mpf_set_default_prec` state. String constructors use `mpf_set_str` directly and throw on parse failure. Existing-object expression assignment may resize to the expression final precision. Compound assignment preserves left-hand side precision. |
+| `mpf_class` | Default constructor, explicit precision constructor, double constructors, `const char*`/`std::string` constructors, copy/move construction, copy/move assignment, expression construction, expression assignment, compound assignment, destructor, `get_mpf_t()`, `get_prec()`, `contains_address()`, and `swap()` | Default construction uses the wrapper's thread-local requested precision, not GMP's global `mpf_set_default_prec` state. String constructors use `mpf_set_str` directly and throw on parse failure. Existing-object expression assignment and compound assignment preserve left-hand side precision. |
 | `gmpxx_defaults` | `set_initial_default_prec(uint64_t)` | `bits == 0` is a no-op. The stored value is requested precision. Threads that have already snapshotted the default are not affected by later stores. |
 | Precision helpers | `effective_mpf_prec()`, `normalize_mpf_prec()`, `checked_mp_bitcnt()`, `parse_default_prec_env()`, `process_initial_prec()`, `thread_default_prec()` | `effective_mpf_prec()` models GMP limb-boundary precision rounding for expected-value checks. Header code narrows precision through `checked_mp_bitcnt()`. |
 | Default precision initialization | `GMPXX_MKII_DEFAULT_PREC` environment parsing | Empty, negative, zero, trailing-garbage, and exception cases fall back to 512 bits. GMP's global default precision APIs are not used by the wrapper. |
@@ -115,7 +115,7 @@ of the v2.0.0 header.
 | User-defined literals | `_mpf`, `_mpz`, and `_mpq` | Phase 5. |
 | Fortran bridge | v1.0.0 compatibility bridge APIs | Phase 5. |
 | Runtime defaults | `gmpxx_defaults::base` and any broader default-policy surface | Phase 5. Phase 1 exposes only `set_initial_default_prec()`. |
-| Package config | Full `find_package(gmpxx_mkII)` config files | Deferred to Phase 5. Phase 1 installs the generated header and exports the target only. |
+| Package config | Full `find_package(gmpxx_mkII)` config files | Deferred to Phase 5. Phase 1 installs the generated header and `gmpxx_mkIITargets.cmake`, but not a full package config. |
 | Benchmarks | Allocation/performance microbenchmarks beyond `test_alloc_count` | Phase 6 or separate benchmark work. |
 
 ## Important Current Semantics
@@ -148,14 +148,16 @@ nodes whose lifetime ended at the end of the original full-expression.
 
 ### Precision Policy
 
-In the default build, expression precision is the maximum effective precision
-reported by the `mpf_class` leaves in the expression tree. The top-level
-evaluation computes this once and passes the requested final precision down
-the whole expression tree.
+In the default build, expression construction and `.eval()` use the maximum
+effective precision reported by the `mpf_class` leaves in the expression tree.
+Assignment to an existing `mpf_class` preserves the destination precision and
+evaluates the right-hand side expression at that precision, matching GMP's
+legacy `gmpxx.h` assignment policy.
 
 When `GMPXX_MKII_NOPRECCHANGE` is defined, expression precision is the current
-thread's wrapper default precision. Operand-specific precision is ignored for
-expression construction in that compatibility mode.
+thread's wrapper default precision for construction and `.eval()`.
+Operand-specific precision is ignored for those paths in that compatibility
+mode; existing-object assignment still preserves destination precision.
 
 ### Default Precision
 

@@ -25,7 +25,9 @@ Implemented now:
 - Compound assignment (`+=`, `-=`, `*=`, `/=`) with `mpf_class`,
   expression, and scalar right-hand sides.
 - `.eval()` for explicitly materializing an expression as `mpf_class`.
-- Operand-max precision propagation by default.
+- Operand-max precision for expression construction and `.eval()` by default.
+- `gmpxx.h`-compatible expression assignment that preserves destination
+  precision.
 - `GMPXX_MKII_NOPRECCHANGE` compatibility mode.
 - Thread-local wrapper default precision initialized from
   `GMPXX_MKII_DEFAULT_PREC`.
@@ -67,6 +69,22 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j
 ctest --test-dir build --output-on-failure
 ```
+
+Install the generated header and exported CMake target file:
+
+```bash
+cmake --install build --prefix /path/to/prefix
+```
+
+This installs:
+
+```text
+include/gmpxx_mkII.h
+lib/cmake/gmpxx_mkII/gmpxx_mkIITargets.cmake
+```
+
+The full `gmpxx_mkIIConfig.cmake` package for direct
+`find_package(gmpxx_mkII)` use is still deferred to a later phase.
 
 `GMPXX_MKII_NOPRECCHANGE` build:
 
@@ -155,8 +173,10 @@ mpf_class y = expr;     // Internal references may dangle.
 
 Default build:
 
-- The expression result precision is the maximum precision of the `mpf_class`
-  leaves in the expression tree.
+- Expression construction and `.eval()` use the maximum precision of the
+  `mpf_class` leaves in the expression tree.
+- Assignment to an existing `mpf_class` preserves the destination precision;
+  the right-hand side expression is evaluated at that precision.
 - Scalar leaves do not contribute precision in the default build.
 - Top-level evaluation computes this final precision once and passes it down
   through the whole expression.
@@ -164,7 +184,10 @@ Default build:
 `GMPXX_MKII_NOPRECCHANGE` build:
 
 - Expression precision is the current thread's wrapper default precision.
-- Operand-specific precision does not affect expression result precision.
+- Operand-specific precision does not affect expression construction or
+  `.eval()` result precision.
+- Assignment to an existing `mpf_class` still preserves the destination
+  precision.
 
 GMP rounds `mpf_t` precision to implementation-dependent limb boundaries.
 `mpf_class::get_prec()` returns the effective GMP precision.

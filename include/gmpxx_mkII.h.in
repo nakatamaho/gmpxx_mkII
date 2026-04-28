@@ -313,19 +313,14 @@ public:
 
     template<gmpxx_expr Expr>
     mpf_class& operator=(Expr const& expr) {
-        std::uint64_t final_prec = expr.suggested_prec();
+        std::uint64_t final_prec = static_cast<std::uint64_t>(get_prec());
         if (expr.contains_address(this)) {
             mpf_class tmp(gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
             expr.eval_to_prec(tmp, final_prec);
-            swap(tmp);
+            mpf_set(value, tmp.value);
             return *this;
         }
 
-        std::uint64_t effective =
-            gmpxx_mkII_detail::effective_mpf_prec(final_prec);
-        if (static_cast<std::uint64_t>(get_prec()) != effective) {
-            mpf_set_prec(value, gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
-        }
         expr.eval_to_prec(*this, final_prec);
         return *this;
     }

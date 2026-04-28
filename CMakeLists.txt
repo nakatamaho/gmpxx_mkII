@@ -12,6 +12,7 @@ option(GMPXX_MKII_NOPRECCHANGE
 
 find_library(GMP_LIBRARY NAMES gmp libgmp REQUIRED HINTS ${GMP_ROOT})
 find_path(GMP_INCLUDE_DIR NAMES gmp.h REQUIRED HINTS ${GMP_ROOT})
+include(GNUInstallDirs)
 
 if(NOT TARGET GMP::GMP)
     add_library(GMP::GMP UNKNOWN IMPORTED)
@@ -40,17 +41,22 @@ add_library(gmpxx_mkII::gmpxx_mkII ALIAS gmpxx_mkII)
 target_compile_features(gmpxx_mkII INTERFACE cxx_std_20)
 target_include_directories(gmpxx_mkII INTERFACE
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
-    "$<INSTALL_INTERFACE:include>")
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 target_link_libraries(gmpxx_mkII INTERFACE GMP::GMP)
 
 if(GMPXX_MKII_NOPRECCHANGE)
     target_compile_definitions(gmpxx_mkII INTERFACE GMPXX_MKII_NOPRECCHANGE)
 endif()
 
-include(GNUInstallDirs)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII.h"
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-install(TARGETS gmpxx_mkII EXPORT gmpxx_mkIITargets)
+install(TARGETS gmpxx_mkII
+        EXPORT gmpxx_mkIITargets
+        INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(EXPORT gmpxx_mkIITargets
+        NAMESPACE gmpxx_mkII::
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII")
+# A full gmpxx_mkIIConfig.cmake package is deferred to Phase 5.
 
 include(CTest)
 if(GMPXX_MKII_BUILD_TESTS)

@@ -129,6 +129,31 @@ void check_set(mpf_class const& a, mpf_class const& b,
     }
 }
 
+void check_assignment_preserves_destination_precision(mpf_class const& a,
+                                                      mpf_class const& b,
+                                                      mpf_class const& c) {
+    constexpr mp_bitcnt_t dst_prec = 128;
+    std::uint64_t requested = gmpxx_mkII_detail::effective_mpf_prec(dst_prec);
+
+    {
+        mpf_class dst("0", dst_prec);
+        mpf_class ref(gmpxx_mkII_detail::checked_mp_bitcnt(requested));
+        mpf_add(ref.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
+        dst = a + b;
+        assert_same("assignment preserves precision: a+b", dst, ref, requested);
+    }
+    {
+        mpf_class dst("0", dst_prec);
+        mpf_class tmp(gmpxx_mkII_detail::checked_mp_bitcnt(requested));
+        mpf_class ref(gmpxx_mkII_detail::checked_mp_bitcnt(requested));
+        mpf_add(tmp.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
+        mpf_mul(ref.get_mpf_t(), tmp.get_mpf_t(), c.get_mpf_t());
+        dst = (a + b) * c;
+        assert_same("assignment preserves precision: (a+b)*c", dst, ref,
+                    requested);
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -147,5 +172,8 @@ int main() {
 
     check_set(mpf_class("3.5", 64), mpf_class("-7.25", 256),
               mpf_class("1e-50", 1024), mpf_class("11.125", 256));
+    check_assignment_preserves_destination_precision(
+        mpf_class("3.5", 64), mpf_class("-7.25", 256),
+        mpf_class("1e-50", 1024));
     return 0;
 }
