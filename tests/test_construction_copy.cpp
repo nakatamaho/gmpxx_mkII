@@ -52,6 +52,8 @@ void test_compile_time_surface() {
     static_assert(std::is_constructible_v<mpf_class, long long, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, unsigned, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, std::uint64_t, mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, mpf_srcptr>);
+    static_assert(std::is_constructible_v<mpf_class, mpf_srcptr, mp_bitcnt_t>);
     static_assert(!std::is_constructible_v<mpf_class, bool, mp_bitcnt_t>);
 
     static_assert(std::is_default_constructible_v<mpz_class>);
@@ -59,6 +61,9 @@ void test_compile_time_surface() {
     static_assert(std::is_move_constructible_v<mpz_class>);
     static_assert(std::is_copy_assignable_v<mpz_class>);
     static_assert(std::is_move_assignable_v<mpz_class>);
+    static_assert(std::is_constructible_v<mpz_class, int>);
+    static_assert(std::is_constructible_v<mpz_class, std::int32_t>);
+    static_assert(std::is_constructible_v<mpz_class, std::uint32_t>);
 
     static_assert(std::is_default_constructible_v<mpq_class>);
     static_assert(std::is_copy_constructible_v<mpq_class>);
@@ -128,6 +133,25 @@ void test_expression_constructor_with_explicit_precision() {
     assert_mpf_equal(value, expected);
 }
 
+void test_raw_mpf_t_constructor() {
+    mpf_t raw;
+    mpf_init2(raw, static_cast<mp_bitcnt_t>(192));
+    int rc = mpf_set_str(raw, "0.0390625", 10);
+    assert(rc == 0);
+
+    mpf_class value(raw);
+    assert(value.get_prec() == mpf_get_prec(raw));
+    assert(mpf_cmp(value.get_mpf_t(), raw) == 0);
+
+    mp_bitcnt_t requested_prec = static_cast<mp_bitcnt_t>(384);
+    mpf_class with_prec(raw, requested_prec);
+    assert(with_prec.get_prec() ==
+           gmpxx_detail::effective_mpf_prec(requested_prec));
+    assert(mpf_cmp(with_prec.get_mpf_t(), raw) == 0);
+
+    mpf_clear(raw);
+}
+
 void test_copy_constructor_preserves_value_and_precision() {
     mpf_class original("3.1415926535", static_cast<mp_bitcnt_t>(384));
     mpf_class copy(original);
@@ -174,6 +198,20 @@ void test_double_assignment_preserves_destination_precision() {
     destination = 3.1415926535;
 
     mpf_class expected(3.1415926535, old_prec);
+    assert(destination.get_prec() == old_prec);
+    assert_mpf_equal(destination, expected);
+}
+
+void test_integral_assignment_preserves_destination_precision() {
+    mpf_class destination("0", static_cast<mp_bitcnt_t>(320));
+    mp_bitcnt_t old_prec = destination.get_prec();
+
+    destination = 0;
+    assert(destination.get_prec() == old_prec);
+    assert(mpf_sgn(destination.get_mpf_t()) == 0);
+
+    destination = -42;
+    mpf_class expected(-42, old_prec);
     assert(destination.get_prec() == old_prec);
     assert_mpf_equal(destination, expected);
 }
@@ -241,6 +279,25 @@ void test_mpz_construction_copy_move_assignment_and_swap() {
     mpz_class zero;
     assert(zero == mpz_class(std::int64_t{0}));
 
+    mpz_class from_int(-123);
+    assert(from_int == mpz_class(std::int64_t{-123}));
+
+    std::int32_t i32 = INT32_C(-0x12345678);
+    mpz_class from_i32(i32);
+    assert(from_i32.get_str() == std::to_string(i32));
+
+    std::uint32_t u32 = UINT32_C(0xfedcba98);
+    mpz_class from_u32(u32);
+    assert(from_u32.get_str() == std::to_string(u32));
+
+    mpz_class assigned_from_i32;
+    assigned_from_i32 = i32;
+    assert(assigned_from_i32 == from_i32);
+
+    mpz_class assigned_from_u32;
+    assigned_from_u32 = u32;
+    assert(assigned_from_u32 == from_u32);
+
     mpz_class original("12345678901234567890");
     mpz_class copied(original);
     assert(copied == original);
@@ -306,11 +363,13 @@ int main() {
     test_zero_with_explicit_precision_replaces_precision_only_ctor();
     test_integral_constructor_with_explicit_precision();
     test_expression_constructor_with_explicit_precision();
+    test_raw_mpf_t_constructor();
     test_copy_constructor_preserves_value_and_precision();
     test_copy_assignment_preserves_value_and_source_precision();
     test_move_constructor_preserves_value();
     test_move_assignment_preserves_value();
     test_double_assignment_preserves_destination_precision();
+    test_integral_assignment_preserves_destination_precision();
     test_string_assignment_preserves_destination_precision();
     test_hex_string_constructor_with_explicit_base();
     test_mpf_swap_member_and_free_function();

@@ -614,6 +614,18 @@ public:
         mpf_set_d(value, v);
     }
 
+    explicit mpf_class(mpf_srcptr v) {
+        note_constructed();
+        mpf_init2(value, mpf_get_prec(v));
+        mpf_set(value, v);
+    }
+
+    mpf_class(mpf_srcptr v, mp_bitcnt_t prec) {
+        note_constructed();
+        mpf_init2(value, prec);
+        mpf_set(value, v);
+    }
+
     mpf_class(bool) = delete;
     mpf_class(bool, mp_bitcnt_t) = delete;
 
@@ -706,6 +718,15 @@ public:
 
     mpf_class& operator=(double rhs) {
         mpf_set_d(value, rhs);
+        return *this;
+    }
+
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    mpf_class& operator=(T rhs) {
+        set_from_integral(rhs);
         return *this;
     }
 
@@ -909,6 +930,16 @@ public:
         set_u64(v);
     }
 
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  !std::same_as<std::remove_cvref_t<T>, std::int64_t> &&
+                  !std::same_as<std::remove_cvref_t<T>, std::uint64_t> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    mpz_class(T v) : mpz_class() {
+        set_from_integral(v);
+    }
+
     mpz_class(double v) : mpz_class() {
         mpz_set_d(value, v);
     }
@@ -945,6 +976,20 @@ public:
         if (this != &other) {
             mpz_swap(value, other.value);
         }
+        return *this;
+    }
+
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    mpz_class& operator=(T rhs) {
+        set_from_integral(rhs);
+        return *this;
+    }
+
+    mpz_class& operator=(double rhs) {
+        mpz_set_d(value, rhs);
         return *this;
     }
 
@@ -1087,6 +1132,19 @@ private:
         if (v < 0) {
             set_u64(gmpxx_detail::safe_negate(v));
             mpz_neg(value, value);
+        } else {
+            set_u64(static_cast<std::uint64_t>(v));
+        }
+    }
+
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    void set_from_integral(T v) {
+        using clean = std::remove_cvref_t<T>;
+        if constexpr (std::is_signed_v<clean>) {
+            set_i64(static_cast<std::int64_t>(v));
         } else {
             set_u64(static_cast<std::uint64_t>(v));
         }
