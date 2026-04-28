@@ -7,6 +7,7 @@
 #include <limits>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 namespace {
 
@@ -15,12 +16,29 @@ void assert_mpf_equal(mpf_class const& got, mpf_class const& expected) {
 }
 
 void test_compile_time_surface() {
+    static_assert(std::is_default_constructible_v<mpf_class>);
+    static_assert(std::is_copy_constructible_v<mpf_class>);
+    static_assert(std::is_move_constructible_v<mpf_class>);
+    static_assert(std::is_copy_assignable_v<mpf_class>);
+    static_assert(std::is_move_assignable_v<mpf_class>);
     static_assert(std::is_constructible_v<mpf_class, int, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, long, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, long long, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, unsigned, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, std::uint64_t, mp_bitcnt_t>);
     static_assert(!std::is_constructible_v<mpf_class, bool, mp_bitcnt_t>);
+
+    static_assert(std::is_default_constructible_v<mpz_class>);
+    static_assert(std::is_copy_constructible_v<mpz_class>);
+    static_assert(std::is_move_constructible_v<mpz_class>);
+    static_assert(std::is_copy_assignable_v<mpz_class>);
+    static_assert(std::is_move_assignable_v<mpz_class>);
+
+    static_assert(std::is_default_constructible_v<mpq_class>);
+    static_assert(std::is_copy_constructible_v<mpq_class>);
+    static_assert(std::is_move_constructible_v<mpq_class>);
+    static_assert(std::is_copy_assignable_v<mpq_class>);
+    static_assert(std::is_move_assignable_v<mpq_class>);
 }
 
 void test_default_constructor_value_zero() {
@@ -68,6 +86,27 @@ void test_copy_assignment_preserves_value_and_source_precision() {
 
     assert(destination.get_prec() == source.get_prec());
     assert_mpf_equal(destination, source);
+}
+
+void test_move_constructor_preserves_value() {
+    mpf_class original("123.0", static_cast<mp_bitcnt_t>(384));
+    mpf_class expected(original);
+
+    mpf_class moved(std::move(original));
+
+    assert(moved.get_prec() == expected.get_prec());
+    assert_mpf_equal(moved, expected);
+}
+
+void test_move_assignment_preserves_value() {
+    mpf_class source("-8.5", static_cast<mp_bitcnt_t>(448));
+    mpf_class expected(source);
+    mpf_class destination;
+
+    destination = std::move(source);
+
+    assert(destination.get_prec() == expected.get_prec());
+    assert_mpf_equal(destination, expected);
 }
 
 void test_double_assignment_preserves_destination_precision() {
@@ -121,6 +160,85 @@ void test_hex_string_constructor_with_explicit_base() {
     assert_mpf_equal(value, expected);
 }
 
+void test_mpf_swap_member_and_free_function() {
+    mpf_class a("123.456", static_cast<mp_bitcnt_t>(192));
+    mpf_class b("789.012", static_cast<mp_bitcnt_t>(320));
+    mpf_class a_original(a);
+    mpf_class b_original(b);
+
+    a.swap(b);
+    assert(a.get_prec() == b_original.get_prec());
+    assert(b.get_prec() == a_original.get_prec());
+    assert_mpf_equal(a, b_original);
+    assert_mpf_equal(b, a_original);
+
+    swap(a, b);
+    assert(a.get_prec() == a_original.get_prec());
+    assert(b.get_prec() == b_original.get_prec());
+    assert_mpf_equal(a, a_original);
+    assert_mpf_equal(b, b_original);
+}
+
+void test_mpz_construction_copy_move_assignment_and_swap() {
+    mpz_class zero;
+    assert(zero == mpz_class(std::int64_t{0}));
+
+    mpz_class original("12345678901234567890");
+    mpz_class copied(original);
+    assert(copied == original);
+
+    mpz_class moved(std::move(original));
+    assert(moved == copied);
+
+    mpz_class assigned;
+    assigned = copied;
+    assert(assigned == copied);
+
+    mpz_class move_assigned;
+    move_assigned = std::move(moved);
+    assert(move_assigned == copied);
+
+    mpz_class a("123456");
+    mpz_class b("789012");
+    a.swap(b);
+    assert(a == mpz_class("789012"));
+    assert(b == mpz_class("123456"));
+
+    swap(a, b);
+    assert(a == mpz_class("123456"));
+    assert(b == mpz_class("789012"));
+}
+
+void test_mpq_construction_copy_move_assignment_and_swap() {
+    mpq_class zero;
+    assert(zero == mpq_class(std::int64_t{0}));
+
+    mpq_class original("355/113");
+    mpq_class copied(original);
+    assert(copied == original);
+
+    mpq_class moved(std::move(original));
+    assert(moved == copied);
+
+    mpq_class assigned;
+    assigned = copied;
+    assert(assigned == copied);
+
+    mpq_class move_assigned;
+    move_assigned = std::move(moved);
+    assert(move_assigned == copied);
+
+    mpq_class a("1/2");
+    mpq_class b("-3/4");
+    a.swap(b);
+    assert(a == mpq_class("-3/4"));
+    assert(b == mpq_class("1/2"));
+
+    swap(a, b);
+    assert(a == mpq_class("1/2"));
+    assert(b == mpq_class("-3/4"));
+}
+
 }  // namespace
 
 int main() {
@@ -129,8 +247,13 @@ int main() {
     test_integral_constructor_with_explicit_precision();
     test_copy_constructor_preserves_value_and_precision();
     test_copy_assignment_preserves_value_and_source_precision();
+    test_move_constructor_preserves_value();
+    test_move_assignment_preserves_value();
     test_double_assignment_preserves_destination_precision();
     test_string_assignment_preserves_destination_precision();
     test_hex_string_constructor_with_explicit_base();
+    test_mpf_swap_member_and_free_function();
+    test_mpz_construction_copy_move_assignment_and_swap();
+    test_mpq_construction_copy_move_assignment_and_swap();
     return 0;
 }

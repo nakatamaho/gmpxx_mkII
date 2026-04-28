@@ -4148,6 +4148,18 @@ inline mpf_class compute_pow(mpf_class const& x_input,
         x, y, std::max(x.get_prec(), y.get_prec()));
 }
 
+inline void swap(mpf_class& lhs, mpf_class& rhs) noexcept {
+    lhs.swap(rhs);
+}
+
+inline void swap(mpz_class& lhs, mpz_class& rhs) noexcept {
+    lhs.swap(rhs);
+}
+
+inline void swap(mpq_class& lhs, mpq_class& rhs) noexcept {
+    lhs.swap(rhs);
+}
+
 namespace gmpxx_mkII {
 
 using ::binary_expr;
@@ -4175,6 +4187,7 @@ using ::pos_op;
 using ::random_mpf_expr;
 using ::sin;
 using ::sqrt;
+using ::swap;
 using ::pow;
 using ::unary_expr;
 

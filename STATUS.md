@@ -51,7 +51,7 @@ of the v2.0.0 header.
 | Package config | Done for Phase 5 | Installed packages provide `gmpxx_mkIIConfig.cmake`, a version config, and an exported `gmpxx_mkII::gmpxx_mkII` target usable through `find_package`. |
 | Random support | Done after Phase 5 | `gmp_randclass` owns `gmp_randstate_t`, supports default/MT/LC initialization, seeding, random `mpz_class` generation, and random `mpf_class` generation. Bare `get_f()` returns a random floating expression/proxy so assignment into an existing `mpf_class` preserves destination precision. |
 | Fortran bridge | Not planned for v2.0.0 | Fortran bridge APIs are intentionally dropped from the v2.0.0 roadmap. |
-| Test coverage | Present through Phase 6 | Twenty-nine CTest targets cover ABI traits, mpf construction/copy semantics, basic mpf math functions, mpf transcendental functions, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
+| Test coverage | Present through Phase 6 | Thirty CTest targets cover ABI traits, construction/copy/swap semantics, type conversions, basic mpf math functions, mpf transcendental functions, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
 
 ## Implementation Summary
 
@@ -105,9 +105,10 @@ of the v2.0.0 header.
 | Test Target | Status | Coverage |
 |---|---:|---|
 | `test_abi_fingerprint` | Present | `scalar_normalize_t` ABI categories, `gmpxx_expr`, `phase0_operand`, operator constraints rejecting scalar/scalar ET operands, and diagnostic-only expression type names. |
-| `test_mpf_construction_copy` | Present | `mpf_class` default construction initializes zero at wrapper default precision; integral+precision construction including `mpf_class(0, precision)` constructs numeric values at requested precision; copy construction and copy assignment preserve value and source precision; double and string assignment preserve destination precision; explicit-base hex string construction works. |
+| `test_construction_copy` | Present | `mpf_class`, `mpz_class`, and `mpq_class` default construction, copy/move construction, copy/move assignment, member/free `swap`, and mpf precision-preserving double/string/integral construction and assignment cases. |
 | `test_mpf_math_functions` | Present | `sqrt(mpf_class)`, `abs(mpf_class)`, and legacy `neg(mpf_class)` match raw GMP references and preserve operand precision. |
 | `test_mpf_transcendent_functions` | Present | `pi`, `log_two`, `log`, `log1p`, `exp`, `expm1`, `sin`, `cos`, `atan`, `atan2`, and `pow` compile-time surface, upstream-derived reference literals, precision-doubling checks, near-zero/near-one paths, trigonometric reduction and axis cases, special values, identities, precision policy, and domain errors. |
+| `test_type_conversions` | Present | `mpz_class` integer/double/string/base construction and assignment, `mpq_class` integer/mpz/double/string/base construction and canonicalization, `mpf_class(mpz_class, precision)`, and mpq numerator/denominator accessors. |
 | `test_numeric_equivalence` | Present | Bit-exact comparison against raw GMP `mpf_t` reference calculations for unary and binary operations, nested expressions, mixed precisions, positive/negative/zero values, string construction, and double construction. |
 | `test_alloc_count` | Present | Registers GMP memory hooks before object construction and verifies allocation counts for `dst = a + b`, `dst = a + b + c`, `dst = a + b + c + d`, and `dst = (a+b) * (c+d)` as `0, 0, 0, 1`. |
 | `test_alias_safety` | Present | Self-alias and mixed-alias expression assignment cases compare against independent raw GMP references. |
@@ -133,23 +134,23 @@ of the v2.0.0 header.
 | `test_defaults_policy` | Present | Default precision getters, thread-local precision snapshot behavior, independence from GMP global default precision, default-base get/set, no-base string API integration, stream/base independence, invalid-base errors, and thread-local base behavior. |
 | `test_random` | Present | `gmp_randclass` construction modes, deleted copy/move semantics, deterministic seeding, `get_z_bits`, `get_z_range`, immediate `get_f(prec)`/`get_f(mpf)` generation, bare `get_f()` expression/proxy assignment preserving destination precision, and LC initialization failure handling. |
 | `test_package_config` | Present | Installs the project into a temporary prefix, configures an external consumer with `find_package(gmpxx_mkII CONFIG REQUIRED)`, builds it, and runs it. |
-| `GMPXX_MKII_NOPRECCHANGE` build | Present | The same twenty-nine tests pass when expression construction precision is the thread-local default instead of max operand precision. |
+| `GMPXX_MKII_NOPRECCHANGE` build | Present | The same thirty tests pass when expression construction precision is the thread-local default instead of max operand precision. |
 | Environment override check | Present manually | `GMPXX_MKII_DEFAULT_PREC=1024 ctest --test-dir build --output-on-failure` passes. |
 | Clang coverage | Present | Clang passes both default and `GMPXX_MKII_NOPRECCHANGE=ON` Phase 5 builds. |
 | TSan coverage | Present for T4 | ThreadSanitizer build passes `test_thread_safety`. |
-| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all twenty-nine Phase 6 tests. |
+| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all thirty Phase 6 tests. |
 
 ## Verified Build Matrix
 
 | Compiler / Build | Result | Notes |
 |---|---:|---|
-| GCC 15.2.0, default | Pass | All twenty-nine tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-nine tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All twenty-nine tests pass with the slow path forced. |
-| Clang, default | Pass | All twenty-nine tests pass. |
-| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-nine tests pass. |
+| GCC 15.2.0, default | Pass | All thirty tests pass. |
+| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All thirty tests pass. |
+| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All thirty tests pass with the slow path forced. |
+| Clang, default | Pass | All thirty tests pass. |
+| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All thirty tests pass. |
 | GCC 15.2.0, TSan | Pass | `test_thread_safety` passes. |
-| GCC 15.2.0, ASan/UBSan | Pass | All twenty-nine tests pass. |
+| GCC 15.2.0, ASan/UBSan | Pass | All thirty tests pass. |
 | C++17 direct include | Fails as intended | Header `static_assert(__cplusplus >= 202002L, ...)` fires. |
 
 ## Missing Feature Summary
