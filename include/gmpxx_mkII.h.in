@@ -812,6 +812,14 @@ public:
         return mpf_get_prec(value);
     }
 
+    void set_prec(mp_bitcnt_t prec) {
+        mpf_set_prec(value, prec);
+    }
+
+    void set_prec_raw(mp_bitcnt_t prec) {
+        mpf_set_prec_raw(value, prec);
+    }
+
     [[nodiscard]] double get_d() const {
         return mpf_get_d(value);
     }
@@ -931,6 +939,11 @@ public:
         note_constructed();
         mpz_init(value);
         mpz_swap(value, other.value);
+    }
+
+    explicit mpz_class(mpz_srcptr v) {
+        note_constructed();
+        mpz_init_set(value, v);
     }
 
     mpz_class(std::int64_t v) : mpz_class() {
@@ -1263,6 +1276,13 @@ public:
         note_constructed();
         mpq_init(value);
         mpq_swap(value, other.value);
+    }
+
+    explicit mpq_class(mpq_srcptr v) {
+        note_constructed();
+        mpq_init(value);
+        mpq_set(value, v);
+        canonicalize();
     }
 
     mpq_class(std::int64_t num, std::int64_t den = 1) : mpq_class() {

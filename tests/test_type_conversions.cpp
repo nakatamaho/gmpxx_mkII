@@ -83,6 +83,8 @@ void test_compile_time_surface() {
     static_assert(std::is_constructible_v<mpq_class,
                                           mpz_class const&,
                                           mpz_class const&>);
+    static_assert(std::is_constructible_v<mpz_class, mpz_srcptr>);
+    static_assert(std::is_constructible_v<mpq_class, mpq_srcptr>);
     static_assert(std::is_constructible_v<mpz_class, mpf_class const&>);
     static_assert(std::is_constructible_v<mpz_class, mpq_class const&>);
     static_assert(std::is_constructible_v<mpf_class, mpz_class const&>);
@@ -187,6 +189,21 @@ void test_mpz_string_assignment() {
     }
     assert(threw);
     assert(unchanged == mpz_class("123"));
+}
+
+void test_raw_gmp_construction() {
+    mpz_t raw_z;
+    mpz_init_set_str(raw_z, "-123456789012345678901234567890", 10);
+    mpz_class z(raw_z);
+    assert(z == mpz_class("-123456789012345678901234567890"));
+    mpz_clear(raw_z);
+
+    mpq_t raw_q;
+    mpq_init(raw_q);
+    mpq_set_str(raw_q, "6/8", 10);
+    mpq_class q(raw_q);
+    assert(q == mpq_class("3/4"));
+    mpq_clear(raw_q);
 }
 
 void test_string_and_base_construction() {
@@ -401,6 +418,7 @@ int main() {
     test_mpz_integer_and_double_construction();
     test_mpz_int128_construction_and_assignment();
     test_mpz_string_assignment();
+    test_raw_gmp_construction();
     test_string_and_base_construction();
     test_mpz_to_mpf_and_mpq_construction();
     test_expression_get_prec_alias();

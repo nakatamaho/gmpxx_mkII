@@ -31,6 +31,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <concepts>
+#include <type_traits>
+#include <utility>
 
 namespace {
 
@@ -53,6 +56,13 @@ void assert_same(mpf_class const& got, mpf_t ref) {
 }  // namespace
 
 int main() {
+    static_assert(std::same_as<decltype(std::declval<mpf_class&>().set_prec(
+                                    std::declval<mp_bitcnt_t>())),
+                               void>);
+    static_assert(std::same_as<decltype(std::declval<mpf_class&>().set_prec_raw(
+                                    std::declval<mp_bitcnt_t>())),
+                               void>);
+
     mpf_class a("1.0", 64);
     mpf_class b("2.0", 1024);
 
@@ -99,6 +109,35 @@ int main() {
         assert_same(r, ref);
 
         mpf_clear(ref);
+    }
+
+    {
+        mpf_class value("1.234567890123456789", 256);
+        mpf_t ref;
+        mpf_init2(ref, value.get_prec());
+        mpf_set(ref, value.get_mpf_t());
+
+        value.set_prec(64);
+        mpf_set_prec(ref, 64);
+
+        assert(value.get_prec() == mpf_get_prec(ref));
+        assert_same(value, ref);
+
+        mpf_clear(ref);
+    }
+
+    {
+        mpf_class value("1.25", 256);
+        const mp_bitcnt_t allocated_prec = value.get_prec();
+
+        value.set_prec_raw(64);
+        assert(value.get_prec() == gmpxx_detail::effective_mpf_prec(64));
+        value = "1.5";
+        mpf_class expected("1.5", value.get_prec());
+        assert(mpf_cmp(value.get_mpf_t(), expected.get_mpf_t()) == 0);
+
+        value.set_prec_raw(allocated_prec);
+        assert(value.get_prec() == allocated_prec);
     }
 
     return 0;
