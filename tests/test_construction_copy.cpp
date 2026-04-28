@@ -183,11 +183,35 @@ void test_move_constructor_preserves_value() {
 void test_move_assignment_preserves_value() {
     mpf_class source("-8.5", static_cast<mp_bitcnt_t>(448));
     mpf_class expected(source);
-    mpf_class destination;
+    mpf_class destination("0", source.get_prec());
 
     destination = std::move(source);
 
     assert(destination.get_prec() == expected.get_prec());
+    assert_mpf_equal(destination, expected);
+}
+
+void test_move_assignment_preserves_destination_precision_on_mismatch() {
+    mpf_class source("2.5", static_cast<mp_bitcnt_t>(512));
+    mpf_class destination("1.25", static_cast<mp_bitcnt_t>(64));
+    mp_bitcnt_t old_prec = destination.get_prec();
+
+    destination = std::move(source);
+
+    mpf_class expected("2.5", old_prec);
+    assert(destination.get_prec() == old_prec);
+    assert_mpf_equal(destination, expected);
+}
+
+void test_move_assignment_uses_same_precision_fast_path_semantics() {
+    mpf_class source("3.75", static_cast<mp_bitcnt_t>(256));
+    mpf_class destination("-1.5", source.get_prec());
+    mp_bitcnt_t old_prec = destination.get_prec();
+    mpf_class expected(source);
+
+    destination = std::move(source);
+
+    assert(destination.get_prec() == old_prec);
     assert_mpf_equal(destination, expected);
 }
 
@@ -368,6 +392,8 @@ int main() {
     test_copy_assignment_preserves_value_and_source_precision();
     test_move_constructor_preserves_value();
     test_move_assignment_preserves_value();
+    test_move_assignment_preserves_destination_precision_on_mismatch();
+    test_move_assignment_uses_same_precision_fast_path_semantics();
     test_double_assignment_preserves_destination_precision();
     test_integral_assignment_preserves_destination_precision();
     test_string_assignment_preserves_destination_precision();

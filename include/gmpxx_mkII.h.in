@@ -724,7 +724,13 @@ public:
     // Rule of 5: move assignment operator.
     mpf_class& operator=(mpf_class&& other) noexcept {
         if (this != &other) {
-            mpf_swap(value, other.value);
+            if (get_prec() == other.get_prec()) {
+                mpf_swap(value, other.value);
+            } else {
+                // Preserve destination precision on mismatch; equal precision
+                // can move the GMP storage with mpf_swap.
+                mpf_set(value, other.value);
+            }
         }
         return *this;
     }
