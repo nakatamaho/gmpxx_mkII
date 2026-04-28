@@ -43,7 +43,7 @@ of the v2.0.0 header.
 | Native integer addmul fusion | Done for Phase 3 | `mpz_class` compound assignment fuses direct `a += b*c` and `a -= b*c` forms through `mpz_addmul`, `mpz_submul`, `mpz_addmul_ui`, and `mpz_submul_ui` where valid. |
 | Comparisons | Done for Phase 4A | `cmp()`, `==`, `!=`, `<`, `<=`, `>`, and `>=` are implemented for `mpf_class`, `mpz_class`, `mpq_class`, supported scalar operands, and expression operands. |
 | Basic GMP math functions | Done after Phase 5 | `sqrt`, `abs`, `neg`, `ceil`, `floor`, `trunc`, `hypot`, sign queries, and exact integer helpers such as `gcd`, `lcm`, `factorial`, `primorial`, and `fibonacci` are implemented through GMP APIs where supported. |
-| GMP-only transcendental functions | Done for Phase 6 | `pi`, `const_pi`, `log_two`, `const_log2`, `log`, `log2`, `log10`, `log1p`, `exp`, `expm1`, `sin`, `cos`, `tan`, `atan`, `atan2`, and `pow` are integrated for concrete `mpf_class` inputs without MPFR/MPC or `double` fallback. |
+| GMP-only transcendental functions | Done for Phase 6 | `pi`, `const_pi`, `e`, `const_e`, `log_two`, `const_log2`, `inv_log_two`, `log_ten`, `const_log10`, `pi_over_two`, `pi_over_four`, `two_pi`, `log`, `log2`, `log10`, `log1p`, `exp`, `exp2`, `exp10`, `expm1`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, and `pow` are integrated for concrete `mpf_class` inputs without MPFR/MPC or `double` fallback. |
 | String conversion | Done for Phase 4B | `get_str()`, `set_str()`, and `to_string()` are implemented for `mpf_class`, `mpz_class`, and `mpq_class` with GMP-compatible parsing and output semantics. Phase 5 no-base overloads use the wrapper default base. |
 | Stream I/O | Done for Phase 4B | `operator<<` and `operator>>` are implemented for concrete wrapper types, and expression nodes support immediate-evaluation stream output. |
 | User-defined literals | Done for Phase 5 | `_mpz`, `_mpq`, and `_mpf` are available in `gmpxx::literals`. |
@@ -51,7 +51,7 @@ of the v2.0.0 header.
 | Package config | Done for Phase 5 | Installed packages provide `gmpxx_mkIIConfig.cmake`, a version config, and an exported `gmpxx_mkII::gmpxx_mkII` target usable through `find_package`. |
 | Random support | Done after Phase 5 | `gmp_randclass` owns `gmp_randstate_t`, supports default/MT/LC initialization, seeding, random `mpz_class` generation, and random `mpf_class` generation. Bare `get_f()` returns a random floating expression/proxy so assignment into an existing `mpf_class` preserves destination precision. |
 | Fortran bridge | Not planned for v2.0.0 | Fortran bridge APIs are intentionally dropped from the v2.0.0 roadmap. |
-| Test coverage | Present through Phase 6 | Thirty CTest targets cover ABI traits, construction/copy/swap semantics, type conversions, basic mpf math functions, mpf transcendental functions, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
+| Test coverage | Present through Phase 6 | Thirty-one maintained CTest targets cover ABI traits, construction/copy/swap semantics, type conversions, basic mpf math functions, mpf transcendental functions, extended constants/transcendentals, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
 
 ## Implementation Summary
 
@@ -72,7 +72,7 @@ of the v2.0.0 header.
 | Comparisons | `cmp()`, comparison operators, comparison materialization helpers | Comparisons are immediate operations. Expression operands are evaluated once, scalar/scalar overloads are rejected, and values are compared through exact GMP rational comparison without string or universal `double` fallback. |
 | String and stream I/O | `get_str()`, `set_str()`, `to_string()`, `operator<<`, `operator>>`, and expression stream output | GMP-allocated strings are released through the active GMP free function. Integer and rational stream output respects `std::dec`, `std::hex`, `std::oct`, and `std::uppercase`; mpf stream output uses GMP formatted output without conversion through `double`. |
 | User-defined literals | `_mpz`, `_mpq`, `_mpf` in `gmpxx::literals` | Raw numeric literal overloads parse in base 10. String literal overloads use the current wrapper default base. `_mpf` parses literal text directly into `mpf_class` at the wrapper default precision. |
-| GMP-only transcendental functions | `pi`, `const_pi`, `log_two`, `const_log2`, `log`, `log2`, `log10`, `log1p`, `exp`, `expm1`, `sin`, `cos`, `tan`, `atan`, `atan2`, and `pow` | Ported and compatibility-completed in the single header. Implementations use `mpf_t` arithmetic, cached AGM constants, and guard precision; no MPFR/MPC dependency or universal `double` fallback is introduced. Concrete `mpf_class` overloads preserve input/result precision policy. |
+| GMP-only transcendental functions | `pi`, `const_pi`, `e`, `const_e`, `log_two`, `const_log2`, `inv_log_two`, `log_ten`, `const_log10`, `pi_over_two`, `pi_over_four`, `two_pi`, `log`, `log2`, `log10`, `log1p`, `exp`, `exp2`, `exp10`, `expm1`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, and `pow` | Ported and compatibility-completed in the single header. Implementations use `mpf_t` arithmetic, cached AGM constants, and guard precision; no MPFR/MPC dependency or universal `double` fallback is introduced. Concrete `mpf_class` overloads preserve input/result precision policy. |
 | Random support | `gmp_randclass`, `random_mpf_expr`, `get_z_bits()`, `get_z_range()`, `get_f()` | `gmp_randclass` is a non-copyable owner for `gmp_randstate_t`. `get_f(mp_bitcnt_t)` and `get_f(mpf_class const&)` return immediate `mpf_class` values. Bare `get_f()` returns `random_mpf_expr`, which evaluates through the normal floating expression assignment path and therefore uses the left-hand side precision on existing-object assignment. |
 | Package config | `gmpxx_mkIIConfig.cmake`, `gmpxx_mkIIConfigVersion.cmake`, `gmpxx_mkIITargets.cmake` | Installed consumers can use `find_package(gmpxx_mkII CONFIG REQUIRED)` and link `gmpxx_mkII::gmpxx_mkII`. The config locates GMP without embedding build-tree paths. |
 
@@ -98,7 +98,7 @@ of the v2.0.0 header.
 | Package config | Done for Phase 5 | Install-tree package config supports `find_package(gmpxx_mkII CONFIG REQUIRED)`. |
 | Random support | Done after Phase 5 | `gmp_randclass` is a non-copyable owner for GMP random state and exposes the GMP C++ random generation surface for mpz/mpf values. Bare `get_f()` is expression/proxy based for destination-precision-preserving assignment. |
 | Basic mpf math functions | Done after Phase 5 | `sqrt(mpf_class)`, `abs(mpf_class)`, and legacy `neg(mpf_class)` are available. Remaining math functions are deferred. |
-| GMP-only transcendental functions | Done for Phase 6 | `pi`, `const_pi`, `log_two`, `const_log2`, `log`, `log2`, `log10`, `log1p`, `exp`, `expm1`, `sin`, `cos`, `tan`, `atan`, `atan2`, and `pow` are available for concrete `mpf_class` values. |
+| GMP-only transcendental functions | Done for Phase 6 | `pi`, `const_pi`, `e`, `const_e`, `log_two`, `const_log2`, `inv_log_two`, `log_ten`, `const_log10`, `pi_over_two`, `pi_over_four`, `two_pi`, `log`, `log2`, `log10`, `log1p`, `exp`, `exp2`, `exp10`, `expm1`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, and `pow` are available for concrete `mpf_class` values. |
 
 ## GMP C++ Binding Checklist
 
@@ -137,6 +137,7 @@ Source: GMP 6.3.0 manual
 | `test_construction_copy` | Present | `mpf_class`, `mpz_class`, and `mpq_class` default construction, copy/move construction, copy/move assignment, member/free `swap`, and mpf precision-preserving double/string/integral construction and assignment cases. |
 | `test_mpf_math_functions` | Present | `sqrt`, `abs`, legacy `neg`, `ceil`, `floor`, `trunc`, `hypot`, `mul_2exp`, `div_2exp`, sign queries, and exact mpz/mpq helper functions match GMP behavior and preserve precision where applicable. |
 | `test_mpf_transcendent_functions` | Present | `pi`, `const_pi`, `log_two`, `const_log2`, `log`, `log2`, `log10`, `log1p`, `exp`, `expm1`, `sin`, `cos`, `tan`, `atan`, `atan2`, and `pow` compile-time surface, upstream-derived reference literals, precision-doubling checks, near-zero/near-one paths, trigonometric reduction and axis cases, special values, identities, precision policy, and domain errors. |
+| `test_mpf_extended_transcendent_functions` | Present | Extended constants (`e`, `log_ten`, `inv_log_two`, `pi_over_two`, `pi_over_four`, `two_pi`), inverse trigonometric functions, hyperbolic functions, inverse hyperbolic functions, `exp2`, `exp10`, compile-time surface, identities, domain errors, and precision preservation. |
 | `test_type_conversions` | Present | `mpz_class` integer/double/string/base construction and assignment, `mpf/mpz/mpq` scalar conversion queries, fit predicates, `mpq_class` integer/mpz/double/string/base construction and canonicalization, `mpf_class(mpz_class, precision)`, and mpq numerator/denominator accessors. |
 | `test_numeric_equivalence` | Present | Bit-exact comparison against raw GMP `mpf_t` reference calculations for unary and binary operations, nested expressions, mixed precisions, positive/negative/zero values, string construction, and double construction. |
 | `test_alloc_count` | Present | Registers GMP memory hooks before object construction and verifies allocation counts for `dst = a + b`, `dst = a + b + c`, `dst = a + b + c + d`, and `dst = (a+b) * (c+d)` as `0, 0, 0, 1`. |
@@ -163,23 +164,23 @@ Source: GMP 6.3.0 manual
 | `test_defaults_policy` | Present | Default precision getters, thread-local precision snapshot behavior, independence from GMP global default precision, default-base get/set, no-base string API integration, stream/base independence, invalid-base errors, and thread-local base behavior. |
 | `test_random` | Present | `gmp_randclass` construction modes, deleted copy/move semantics, deterministic seeding, `get_z_bits`, `get_z_range`, immediate `get_f(prec)`/`get_f(mpf)` generation, bare `get_f()` expression/proxy assignment preserving destination precision, and LC initialization failure handling. |
 | `test_package_config` | Present | Installs the project into a temporary prefix, configures an external consumer with `find_package(gmpxx_mkII CONFIG REQUIRED)`, builds it, and runs it. |
-| `GMPXX_MKII_NOPRECCHANGE` build | Present | The same thirty tests pass when expression construction precision is the thread-local default instead of max operand precision. |
+| `GMPXX_MKII_NOPRECCHANGE` build | Present | The new extended transcendental target and the existing transcendental target pass when expression construction precision is the thread-local default instead of max operand precision; run the full maintained suite before release. |
 | Environment override check | Present manually | `GMPXX_MKII_DEFAULT_PREC=1024 ctest --test-dir build --output-on-failure` passes. |
 | Clang coverage | Present | Clang passes both default and `GMPXX_MKII_NOPRECCHANGE=ON` Phase 5 builds. |
 | TSan coverage | Present for T4 | ThreadSanitizer build passes `test_thread_safety`. |
-| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all thirty Phase 6 tests. |
+| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all thirty Phase 6 tests before the extended transcendental split; rerun for the new target before release. |
 
 ## Verified Build Matrix
 
 | Compiler / Build | Result | Notes |
 |---|---:|---|
-| GCC 15.2.0, default | Pass | All thirty tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All thirty tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All thirty tests pass with the slow path forced. |
-| Clang, default | Pass | All thirty tests pass. |
-| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All thirty tests pass. |
+| GCC 15.2.0, default | Partial rerun | The new `test_mpf_extended_transcendent_functions` target and existing `test_mpf_transcendent_functions` target pass. |
+| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Partial rerun | The new `test_mpf_extended_transcendent_functions` target and existing `test_mpf_transcendent_functions` target pass. |
+| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All thirty tests pass with the slow path forced before the extended transcendental split. |
+| Clang, default | Pass | All thirty tests pass before the extended transcendental split. |
+| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All thirty tests pass before the extended transcendental split. |
 | GCC 15.2.0, TSan | Pass | `test_thread_safety` passes. |
-| GCC 15.2.0, ASan/UBSan | Pass | All thirty tests pass. |
+| GCC 15.2.0, ASan/UBSan | Pass | All thirty tests pass before the extended transcendental split. |
 | C++17 direct include | Fails as intended | Header `static_assert(__cplusplus >= 202002L, ...)` fires. |
 
 ## Missing Feature Summary
@@ -188,7 +189,7 @@ Source: GMP 6.3.0 manual
 |---|---|---|
 | Scalar arithmetic | Additional scalar types beyond the Phase 1 normalized set | Phase 1 supports `int64_t`, `uint64_t`, and `double` leaves only. |
 | Extended native integer fusion | Unary-minus addmul/submul normalization, multiplication-chain fusion, and distributive expansion such as `(b+c)*d` | Deferred beyond Phase 3. Direct `mpz_addmul`/`mpz_submul` compound-assignment fusion is implemented. |
-| Remaining math functions | Expression-aware math overloads and additional special functions beyond the current concrete GMP-only surface | Future GMP-only work; no MPFR/MPC fallback. Basic concrete GMP math helpers, concrete `mpf_class` transcendental functions, and exact integer helpers are implemented. |
+| Remaining math functions | Expression-aware math overloads and special functions beyond the current concrete GMP-only surface, such as gamma/erf/Bessel families and GMP-only remainder APIs | Future GMP-only work; no MPFR/MPC fallback. Basic concrete GMP math helpers, concrete `mpf_class` transcendental functions, inverse trig/hyperbolic helpers, and exact integer helpers are implemented. |
 | Remaining GMP C++ binding compatibility | Raw `mpz_t`/`mpq_t`/`mpf_t` constructors, explicit `mpq_class`/`mpf_class` to `mpz_class` constructors, mutable upstream-style `mpq_class` numerator/denominator references, public `mpf_class::set_prec()`/`set_prec_raw()`, member/static integer helper forms, and full upstream `gmp_randclass(gmp_randalg_t, ...)` constructor compatibility | Tracked in the GMP C++ binding checklist above. These are compatibility surface gaps, not expression-template core gaps. |
 | Extended literal parsing | Additional literal forms beyond `_mpz`, `_mpq`, and `_mpf` in `gmpxx::literals` | The Phase 5 UDL surface is intentionally limited to supported integer, rational, and floating text/machine literal forms. |
 | Fortran bridge | v1.0.0 compatibility bridge APIs | Not planned for v2.0.0. Fortran bridge support was intentionally dropped from the roadmap. |

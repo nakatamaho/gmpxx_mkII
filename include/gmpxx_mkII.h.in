@@ -4137,6 +4137,45 @@ inline mpf_class compute_atan2(mpf_class const& y_input,
     return set_prec_copy(result, target);
 }
 
+inline mpf_class e(precision_type target_precision) {
+    const precision_type target = normalize_target_precision(target_precision);
+    const precision_type work = working_precision_for_exp(target) + 8;
+    return set_prec_copy(compute_exp(make_ui(1, work), work), target);
+}
+
+inline mpf_class log_ten(precision_type target_precision) {
+    const precision_type target = normalize_target_precision(target_precision);
+    const precision_type work = target + guard_bits_for_log(target) + 8;
+    return set_prec_copy(compute_log(make_ui(10, work), work), target);
+}
+
+inline mpf_class inv_log_two(precision_type target_precision) {
+    const precision_type target = normalize_target_precision(target_precision);
+    const precision_type work = working_precision_for_log_two(target) + 8;
+    return set_prec_copy(div(make_ui(1, work), log_two(work), work), target);
+}
+
+inline mpf_class pi_over_two(precision_type target_precision) {
+    const precision_type target = normalize_target_precision(target_precision);
+    mpf_class result = pi(target + 8);
+    mpf_div_2exp(result.get_mpf_t(), result.get_mpf_t(), 1);
+    return set_prec_copy(result, target);
+}
+
+inline mpf_class pi_over_four(precision_type target_precision) {
+    const precision_type target = normalize_target_precision(target_precision);
+    mpf_class result = pi(target + 8);
+    mpf_div_2exp(result.get_mpf_t(), result.get_mpf_t(), 2);
+    return set_prec_copy(result, target);
+}
+
+inline mpf_class two_pi(precision_type target_precision) {
+    const precision_type target = normalize_target_precision(target_precision);
+    mpf_class result = pi(target + 8);
+    mpf_mul_2exp(result.get_mpf_t(), result.get_mpf_t(), 1);
+    return set_prec_copy(result, target);
+}
+
 inline precision_type guard_bits_for_pow(precision_type) {
     return 96;
 }
@@ -4360,6 +4399,62 @@ inline mpf_class compute_pow(mpf_class const& x_input,
     return log_two(target_precision);
 }
 
+[[nodiscard]] inline mpf_class e(mp_bitcnt_t target_precision) {
+    return gmpxx_transcendent_detail::e(target_precision);
+}
+
+[[nodiscard]] inline mpf_class const_e() {
+    return e(gmpxx_defaults::get_default_prec());
+}
+
+[[nodiscard]] inline mpf_class const_e(mp_bitcnt_t target_precision) {
+    return e(target_precision);
+}
+
+[[nodiscard]] inline mpf_class log_ten(mp_bitcnt_t target_precision) {
+    return gmpxx_transcendent_detail::log_ten(target_precision);
+}
+
+[[nodiscard]] inline mpf_class const_log10() {
+    return log_ten(gmpxx_defaults::get_default_prec());
+}
+
+[[nodiscard]] inline mpf_class const_log10(mp_bitcnt_t target_precision) {
+    return log_ten(target_precision);
+}
+
+[[nodiscard]] inline mpf_class inv_log_two(mp_bitcnt_t target_precision) {
+    return gmpxx_transcendent_detail::inv_log_two(target_precision);
+}
+
+[[nodiscard]] inline mpf_class inv_log_two() {
+    return inv_log_two(gmpxx_defaults::get_default_prec());
+}
+
+[[nodiscard]] inline mpf_class pi_over_two(mp_bitcnt_t target_precision) {
+    return gmpxx_transcendent_detail::pi_over_two(target_precision);
+}
+
+[[nodiscard]] inline mpf_class pi_over_two() {
+    return pi_over_two(gmpxx_defaults::get_default_prec());
+}
+
+[[nodiscard]] inline mpf_class pi_over_four(mp_bitcnt_t target_precision) {
+    return gmpxx_transcendent_detail::pi_over_four(target_precision);
+}
+
+[[nodiscard]] inline mpf_class pi_over_four() {
+    return pi_over_four(gmpxx_defaults::get_default_prec());
+}
+
+[[nodiscard]] inline mpf_class two_pi(mp_bitcnt_t target_precision) {
+    return gmpxx_transcendent_detail::two_pi(target_precision);
+}
+
+[[nodiscard]] inline mpf_class two_pi() {
+    return two_pi(gmpxx_defaults::get_default_prec());
+}
+
 [[nodiscard]] inline mpf_class log(mpf_class const& x) {
     return gmpxx_transcendent_detail::compute_log(x, x.get_prec());
 }
@@ -4397,6 +4492,32 @@ inline mpf_class compute_pow(mpf_class const& x_input,
     return gmpxx_transcendent_detail::compute_exp(x, x.get_prec());
 }
 
+[[nodiscard]] inline mpf_class exp2(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_exp(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    return gmpxx_transcendent_detail::set_prec_copy(
+        gmpxx_transcendent_detail::compute_exp(
+            gmpxx_transcendent_detail::mul(
+                x_work, gmpxx_transcendent_detail::log_two(work), work),
+            work),
+        target);
+}
+
+[[nodiscard]] inline mpf_class exp10(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_exp(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    return gmpxx_transcendent_detail::set_prec_copy(
+        gmpxx_transcendent_detail::compute_exp(
+            gmpxx_transcendent_detail::mul(
+                x_work, gmpxx_transcendent_detail::log_ten(work), work),
+            work),
+        target);
+}
+
 [[nodiscard]] inline mpf_class expm1(mpf_class const& x) {
     return gmpxx_transcendent_detail::compute_expm1(x, x.get_prec());
 }
@@ -4421,6 +4542,50 @@ inline mpf_class compute_pow(mpf_class const& x_input,
         target);
 }
 
+[[nodiscard]] inline mpf_class asin(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_trig(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    const mpf_class zero = gmpxx_transcendent_detail::make_ui(0, work);
+    const mpf_class one = gmpxx_transcendent_detail::make_ui(1, work);
+    if (x_work < -one || x_work > one) {
+        throw std::domain_error("asin(x) is undefined for |x| > 1");
+    }
+    mpf_class radicand = gmpxx_transcendent_detail::sub(
+        one, gmpxx_transcendent_detail::sqr(x_work, work), work);
+    if (radicand < zero) {
+        radicand = zero;
+    }
+    return gmpxx_transcendent_detail::set_prec_copy(
+        gmpxx_transcendent_detail::compute_atan2(
+            x_work, gmpxx_transcendent_detail::sqrt_prec(radicand, work),
+            work),
+        target);
+}
+
+[[nodiscard]] inline mpf_class acos(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_trig(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    const mpf_class zero = gmpxx_transcendent_detail::make_ui(0, work);
+    const mpf_class one = gmpxx_transcendent_detail::make_ui(1, work);
+    if (x_work < -one || x_work > one) {
+        throw std::domain_error("acos(x) is undefined for |x| > 1");
+    }
+    mpf_class radicand = gmpxx_transcendent_detail::sub(
+        one, gmpxx_transcendent_detail::sqr(x_work, work), work);
+    if (radicand < zero) {
+        radicand = zero;
+    }
+    return gmpxx_transcendent_detail::set_prec_copy(
+        gmpxx_transcendent_detail::compute_atan2(
+            gmpxx_transcendent_detail::sqrt_prec(radicand, work), x_work,
+            work),
+        target);
+}
+
 [[nodiscard]] inline mpf_class atan(mpf_class const& x) {
     return gmpxx_transcendent_detail::compute_atan(x, x.get_prec());
 }
@@ -4428,6 +4593,113 @@ inline mpf_class compute_pow(mpf_class const& x_input,
 [[nodiscard]] inline mpf_class atan2(mpf_class const& y, mpf_class const& x) {
     return gmpxx_transcendent_detail::compute_atan2(
         y, x, std::max(y.get_prec(), x.get_prec()));
+}
+
+[[nodiscard]] inline mpf_class sinh(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_exp(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    const mpf_class exp_x =
+        gmpxx_transcendent_detail::compute_exp(x_work, work);
+    const mpf_class exp_neg_x =
+        gmpxx_transcendent_detail::compute_exp(
+            gmpxx_transcendent_detail::sub(
+                gmpxx_transcendent_detail::make_ui(0, work), x_work, work),
+            work);
+    mpf_class result =
+        gmpxx_transcendent_detail::sub(exp_x, exp_neg_x, work);
+    mpf_div_2exp(result.get_mpf_t(), result.get_mpf_t(), 1);
+    return gmpxx_transcendent_detail::set_prec_copy(result, target);
+}
+
+[[nodiscard]] inline mpf_class cosh(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_exp(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    const mpf_class exp_x =
+        gmpxx_transcendent_detail::compute_exp(x_work, work);
+    const mpf_class exp_neg_x =
+        gmpxx_transcendent_detail::compute_exp(
+            gmpxx_transcendent_detail::sub(
+                gmpxx_transcendent_detail::make_ui(0, work), x_work, work),
+            work);
+    mpf_class result =
+        gmpxx_transcendent_detail::add(exp_x, exp_neg_x, work);
+    mpf_div_2exp(result.get_mpf_t(), result.get_mpf_t(), 1);
+    return gmpxx_transcendent_detail::set_prec_copy(result, target);
+}
+
+[[nodiscard]] inline mpf_class tanh(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_exp(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    return gmpxx_transcendent_detail::set_prec_copy(
+        gmpxx_transcendent_detail::div(sinh(x_work), cosh(x_work), work),
+        target);
+}
+
+[[nodiscard]] inline mpf_class asinh(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_log(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    const mpf_class one = gmpxx_transcendent_detail::make_ui(1, work);
+    return gmpxx_transcendent_detail::set_prec_copy(
+        gmpxx_transcendent_detail::compute_log(
+            gmpxx_transcendent_detail::add(
+                x_work,
+                gmpxx_transcendent_detail::sqrt_prec(
+                    gmpxx_transcendent_detail::add(
+                        gmpxx_transcendent_detail::sqr(x_work, work), one,
+                        work),
+                    work),
+                work),
+            work),
+        target);
+}
+
+[[nodiscard]] inline mpf_class acosh(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_log(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    const mpf_class one = gmpxx_transcendent_detail::make_ui(1, work);
+    if (x_work < one) {
+        throw std::domain_error("acosh(x) is undefined for x < 1");
+    }
+    return gmpxx_transcendent_detail::set_prec_copy(
+        gmpxx_transcendent_detail::compute_log(
+            gmpxx_transcendent_detail::add(
+                x_work,
+                gmpxx_transcendent_detail::sqrt_prec(
+                    gmpxx_transcendent_detail::sub(
+                        gmpxx_transcendent_detail::sqr(x_work, work), one,
+                        work),
+                    work),
+                work),
+            work),
+        target);
+}
+
+[[nodiscard]] inline mpf_class atanh(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_log1p(target) + 8;
+    const mpf_class x_work = gmpxx_transcendent_detail::set_prec_copy(x, work);
+    const mpf_class one = gmpxx_transcendent_detail::make_ui(1, work);
+    if (x_work <= -one || x_work >= one) {
+        throw std::domain_error("atanh(x) is undefined for |x| >= 1");
+    }
+    mpf_class result = gmpxx_transcendent_detail::compute_log1p(
+        gmpxx_transcendent_detail::div(
+            gmpxx_transcendent_detail::mul_ui(x_work, 2ul, work),
+            gmpxx_transcendent_detail::sub(one, x_work, work), work),
+        work);
+    mpf_div_2exp(result.get_mpf_t(), result.get_mpf_t(), 1);
+    return gmpxx_transcendent_detail::set_prec_copy(result, target);
 }
 
 [[nodiscard]] inline mpf_class pow(mpf_class const& x, mpf_class const& y) {
@@ -4451,9 +4723,15 @@ namespace gmpxx {
 
 using ::binary_expr;
 using ::abs;
+using ::acos;
+using ::acosh;
+using ::asin;
+using ::asinh;
+using ::atanh;
 using ::ceil;
 using ::cmp;
 using ::div_op;
+using ::const_e;
 using ::factorial;
 using ::fibonacci;
 using ::floor;
@@ -4464,15 +4742,22 @@ using ::hypot;
 using ::atan;
 using ::atan2;
 using ::const_log2;
+using ::const_log10;
 using ::const_pi;
 using ::cos;
+using ::cosh;
+using ::e;
 using ::exp;
+using ::exp2;
+using ::exp10;
 using ::expm1;
+using ::inv_log_two;
 using ::lcm;
 using ::log;
 using ::log2;
 using ::log10;
 using ::log1p;
+using ::log_ten;
 using ::log_two;
 using ::mpf_class;
 using ::mpq_class;
@@ -4481,13 +4766,18 @@ using ::mul_op;
 using ::neg_op;
 using ::neg;
 using ::pi;
+using ::pi_over_four;
+using ::pi_over_two;
 using ::pos_op;
 using ::random_mpf_expr;
 using ::sin;
+using ::sinh;
 using ::sgn;
 using ::sqrt;
 using ::swap;
 using ::tan;
+using ::tanh;
+using ::two_pi;
 using ::pow;
 using ::primorial;
 using ::trunc;
