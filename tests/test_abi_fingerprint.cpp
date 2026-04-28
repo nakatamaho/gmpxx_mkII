@@ -44,6 +44,31 @@ static_assert(phase1_operand<mpf_class>);
 static_assert(phase1_operand<binary_expr<add_op, mpf_class, mpf_class>>);
 static_assert(!phase1_operand<long double>);
 
+static_assert(phase2_operand<int>);
+static_assert(phase2_operand<mpf_class>);
+static_assert(phase2_operand<mpz_class>);
+static_assert(phase2_operand<mpq_class>);
+static_assert(mpz_operand<mpz_class>);
+static_assert(!mpz_operand<int>);
+static_assert(!mpz_operand<mpf_class>);
+static_assert(mpq_operand<mpq_class>);
+static_assert(!mpq_operand<int>);
+static_assert(!mpq_operand<mpf_class>);
+
+using gmpxx_mkII_detail::result_type_t;
+static_assert(std::same_as<result_type_t<mpf_class, mpz_class>, mpf_class>);
+static_assert(std::same_as<result_type_t<mpf_class, mpq_class>, mpf_class>);
+static_assert(std::same_as<result_type_t<mpz_class, mpz_class>, mpz_class>);
+static_assert(std::same_as<result_type_t<mpz_class, mpq_class>, mpq_class>);
+static_assert(std::same_as<result_type_t<mpq_class, mpz_class>, mpq_class>);
+static_assert(std::same_as<result_type_t<mpz_class, int>, mpz_class>);
+static_assert(std::same_as<result_type_t<int, mpq_class>, mpq_class>);
+static_assert(std::same_as<result_type_t<mpz_class, double>, mpf_class>);
+static_assert(std::same_as<result_type_t<double, mpq_class>, mpf_class>);
+static_assert(gmpxx_mkII_detail::kind_of_v<
+              binary_expr<add_op, mpf_class, mpz_class>> ==
+              gmpxx_mkII_detail::value_kind::mpf);
+
 static_assert(gmpxx_expr<binary_expr<add_op, mpf_class, mpf_class>>);
 static_assert(gmpxx_expr<unary_expr<neg_op, mpf_class>>);
 static_assert(!gmpxx_expr<mpf_class>);

@@ -9,6 +9,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(GMPXX_MKII_BUILD_TESTS "Build tests" ON)
 option(GMPXX_MKII_NOPRECCHANGE
        "Use thread-local default_prec only (P3) instead of operand max (P2)" OFF)
+option(GMPXX_MKII_INSTRUMENT_WRAPPERS
+       "Enable test-only wrapper constructor counters" OFF)
 
 find_library(GMP_LIBRARY NAMES gmp libgmp REQUIRED HINTS ${GMP_ROOT})
 find_path(GMP_INCLUDE_DIR NAMES gmp.h REQUIRED HINTS ${GMP_ROOT})
@@ -46,6 +48,9 @@ target_link_libraries(gmpxx_mkII INTERFACE GMP::GMP)
 
 if(GMPXX_MKII_NOPRECCHANGE)
     target_compile_definitions(gmpxx_mkII INTERFACE GMPXX_MKII_NOPRECCHANGE)
+endif()
+if(GMPXX_MKII_INSTRUMENT_WRAPPERS)
+    target_compile_definitions(gmpxx_mkII INTERFACE GMPXX_MKII_INSTRUMENT_WRAPPERS)
 endif()
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkII.h"

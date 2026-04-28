@@ -1,22 +1,27 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, header-only wrapper around GNU GMP numeric types.
-The current repository state is the v2.0.0 Phase 1.5 expression-template
-rewrite: it implements the `mpf_class` floating-point arithmetic core plus
-mixed scalar arithmetic.
+The current repository state is the v2.0.0 Phase 2 expression-template
+rewrite: it implements `mpf_class`, `mpz_class`, and `mpq_class` arithmetic
+cores plus mixed scalar arithmetic.
 
-The v2.0.0 rewrite is being restored in phases. Phase 1.5 validates the new
+The v2.0.0 rewrite is being restored in phases. Phase 2 validates the new
 lazy expression machinery, precision policy, thread-local default precision,
 scalar leaf normalization, compound assignment, long-width dispatch,
-power-of-two integer scaling fusion, unary double-negation simplification, and
-allocation behavior before restoring the broader v1.0.0 surface.
+power-of-two integer scaling fusion, unary double-negation simplification,
+integer/rational GMP wrappers, mixed mpf/mpz/mpq expressions, and allocation
+behavior before restoring the broader v1.0.0 surface.
 
 ## Current Scope
 
 Implemented now:
 
 - `mpf_class` RAII ownership of `mpf_t`.
+- `mpz_class` RAII ownership of `mpz_t`.
+- `mpq_class` RAII ownership of `mpq_t`.
 - Lazy expression templates for `+`, `-`, `*`, and `/`.
+- `mpz_class` integer division uses GMP truncating integer quotient semantics.
+- `mpq_class` arithmetic canonicalizes GMP rational results.
 - Mixed scalar arithmetic with signed integers, unsigned integers, `float`,
   and `double`; scalar leaves are normalized internally to `int64_t`,
   `uint64_t`, or `double`.
@@ -36,11 +41,10 @@ Implemented now:
 - Thread-local wrapper default precision initialized from
   `GMPXX_MKII_DEFAULT_PREC`.
 - `gmpxx_defaults::set_initial_default_prec(uint64_t)`.
-- CMake + CTest build with Phase 0, Phase 1, and Phase 1.5 regression tests.
+- CMake + CTest build with Phase 0 through Phase 2 regression tests.
 
 Deferred to later phases:
 
-- `mpz_class` and `mpq_class`.
 - Comparisons.
 - I/O and formatting.
 - User-defined literals.
@@ -153,10 +157,10 @@ int main() {
 
 ## Expression Lifetime Rule
 
-Phase 1 expression nodes store `mpf_class` leaves and expression subtrees by
-`const&`, while scalar leaves are normalized and stored by value. This is
-deliberate for the v2.0.0 performance and ABI experiment, but expression
-trees must not be saved in `auto` variables.
+Phase 2 expression nodes store `mpf_class`, `mpz_class`, `mpq_class`, and
+expression subtrees by `const&`, while scalar leaves are normalized and stored
+by value. This is deliberate for the v2.0.0 performance and ABI experiment,
+but expression trees must not be saved in `auto` variables.
 
 Use immediate evaluation:
 
