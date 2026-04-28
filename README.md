@@ -52,6 +52,8 @@ Implemented now:
   with destination precision preserved.
 - `mpf_class` free functions `sqrt`, `abs`, and legacy `neg`, implemented
   directly through GMP `mpf_t` APIs.
+- GMP-only `mpf_class` transcendental functions: `pi`, `log_two`, `log`,
+  `log1p`, `exp`, `expm1`, `sin`, `cos`, `atan`, `atan2`, and `pow`.
 - `operator<<` and `operator>>` for concrete wrapper values, plus
   immediate-evaluation `operator<<` for expression operands.
 - User-defined literals in `gmpxx_mkII::literals`: `_mpz`, `_mpq`, and
@@ -62,11 +64,12 @@ Implemented now:
   `GMPXX_MKII_DEFAULT_PREC`.
 - `gmpxx_defaults` default precision queries and default base policy.
 - Full CMake package config for install-tree `find_package(gmpxx_mkII)`.
-- CMake + CTest build with Phase 0 through Phase 5 regression tests.
+- CMake + CTest build with Phase 0 through Phase 6 regression tests.
 
 Deferred to later phases:
 
-- Remaining math functions and transcendental functions.
+- Remaining expression-aware math overloads and non-transcendental functions
+  such as `hypot`, `floor`, `ceil`, and `trunc`.
 - Benchmarks beyond the focused allocation tests.
 
 Fortran bridge support is intentionally not planned for v2.0.0.
