@@ -8,6 +8,7 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 
 #include <algorithm>
 #include <atomic>
+#include <bit>
 #include <cfloat>
 #include <concepts>
 #include <cstdio>
@@ -204,6 +205,14 @@ inline mp_bitcnt_t tmp_prec_for_integer(mp_bitcnt_t dst_prec) noexcept {
 
 inline mp_bitcnt_t tmp_prec_for_double(mp_bitcnt_t dst_prec) noexcept {
     return std::max(dst_prec, static_cast<mp_bitcnt_t>(DBL_MANT_DIG));
+}
+
+inline bool is_power_of_two(std::uint64_t v) noexcept {
+    return v != 0 && (v & (v - 1)) == 0;
+}
+
+inline mp_bitcnt_t power_of_two_exponent(std::uint64_t v) noexcept {
+    return static_cast<mp_bitcnt_t>(std::countr_zero(v));
 }
 
 template<class T>
@@ -443,6 +452,12 @@ inline void sub_uint_mpf(mpf_class& dst, std::uint64_t lhs, mpf_class const& rhs
 }
 
 inline void mul_mpf_uint(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs) {
+    if (is_power_of_two(rhs)) {
+        mpf_mul_2exp(dst.get_mpf_t(), lhs.get_mpf_t(),
+                     power_of_two_exponent(rhs));
+        return;
+    }
+
     if constexpr (ulong_fits_uint64) {
         mpf_mul_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
                    static_cast<unsigned long>(rhs));
@@ -458,6 +473,12 @@ inline void mul_mpf_uint(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs
 }
 
 inline void div_mpf_uint(mpf_class& dst, mpf_class const& lhs, std::uint64_t rhs) {
+    if (is_power_of_two(rhs)) {
+        mpf_div_2exp(dst.get_mpf_t(), lhs.get_mpf_t(),
+                     power_of_two_exponent(rhs));
+        return;
+    }
+
     if constexpr (ulong_fits_uint64) {
         mpf_div_ui(dst.get_mpf_t(), lhs.get_mpf_t(),
                    static_cast<unsigned long>(rhs));
@@ -811,6 +832,10 @@ struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
 
     explicit unary_expr(X const& x_) : x(x_) {}
 
+    [[nodiscard]] X const& operand() const noexcept {
+        return x;
+    }
+
     [[nodiscard]] std::uint64_t suggested_prec_impl() const {
         return gmpxx_mkII_detail::prec_of(x);
     }
@@ -997,6 +1022,11 @@ template<scalar_operand L, phase1_operand R>
 template<phase0_operand X>
 [[nodiscard]] inline auto operator-(X const& x) {
     return unary_expr<neg_op, std::remove_cvref_t<X>>{x};
+}
+
+template<class X>
+[[nodiscard]] inline auto operator-(unary_expr<neg_op, X> const& x) {
+    return unary_expr<pos_op, X>{x.operand()};
 }
 
 template<phase0_operand X>

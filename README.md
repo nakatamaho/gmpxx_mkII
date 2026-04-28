@@ -1,13 +1,14 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, header-only wrapper around GNU GMP numeric types.
-The current repository state is the v2.0.0 Phase 1 expression-template
+The current repository state is the v2.0.0 Phase 1.5 expression-template
 rewrite: it implements the `mpf_class` floating-point arithmetic core plus
 mixed scalar arithmetic.
 
-The v2.0.0 rewrite is being restored in phases. Phase 1 validates the new
+The v2.0.0 rewrite is being restored in phases. Phase 1.5 validates the new
 lazy expression machinery, precision policy, thread-local default precision,
-scalar leaf normalization, compound assignment, long-width dispatch, and
+scalar leaf normalization, compound assignment, long-width dispatch,
+power-of-two integer scaling fusion, unary double-negation simplification, and
 allocation behavior before restoring the broader v1.0.0 surface.
 
 ## Current Scope
@@ -29,10 +30,13 @@ Implemented now:
 - `gmpxx.h`-compatible expression assignment that preserves destination
   precision.
 - `GMPXX_MKII_NOPRECCHANGE` compatibility mode.
+- Unary `-(-x)` simplification through a positive identity expression node.
+- Integer power-of-two multiplication/division fusion through
+  `mpf_mul_2exp` and `mpf_div_2exp` where applicable.
 - Thread-local wrapper default precision initialized from
   `GMPXX_MKII_DEFAULT_PREC`.
 - `gmpxx_defaults::set_initial_default_prec(uint64_t)`.
-- CMake + CTest build with Phase 0 and Phase 1 regression tests.
+- CMake + CTest build with Phase 0, Phase 1, and Phase 1.5 regression tests.
 
 Deferred to later phases:
 
