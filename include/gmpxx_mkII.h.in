@@ -647,7 +647,10 @@ public:
         set_from_integral(v);
     }
 
+    mpf_class(mpz_class const& v);
     mpf_class(mpz_class const& v, mp_bitcnt_t prec);
+    mpf_class(mpq_class const& v);
+    mpf_class(mpq_class const& v, mp_bitcnt_t prec);
 
     explicit mpf_class(char const* s) : mpf_class() {
         set_from_string(s, gmpxx_detail::use_default_base);
@@ -720,6 +723,9 @@ public:
         mpf_set_d(value, rhs);
         return *this;
     }
+
+    mpf_class& operator=(mpz_class const& rhs);
+    mpf_class& operator=(mpq_class const& rhs);
 
     template<class T>
         requires (std::is_integral_v<std::remove_cvref_t<T>> &&
@@ -944,6 +950,9 @@ public:
         mpz_set_d(value, v);
     }
 
+    mpz_class(mpf_class const& v);
+    mpz_class(mpq_class const& v);
+
     mpz_class(char const* s, int base = gmpxx_detail::use_default_base)
         : mpz_class() {
         if (mpz_set_str(value, s, gmpxx_detail::normalize_base_arg(base)) != 0) {
@@ -992,6 +1001,9 @@ public:
         mpz_set_d(value, rhs);
         return *this;
     }
+
+    mpz_class& operator=(mpf_class const& rhs);
+    mpz_class& operator=(mpq_class const& rhs);
 
     template<gmpxx_expr Expr>
         requires (std::same_as<typename Expr::result_type, mpz_class>)
@@ -1168,6 +1180,10 @@ void mpf_class::set_from_integral(T v) {
     }
 }
 
+inline mpf_class::mpf_class(mpz_class const& v) : mpf_class() {
+    mpf_set_z(value, v.get_mpz_t());
+}
+
 inline mpf_class::mpf_class(mpz_class const& v, mp_bitcnt_t prec)
     : mpf_class(0.0, prec) {
     mpf_set_z(value, v.get_mpz_t());
@@ -1204,6 +1220,11 @@ public:
 
     mpq_class(mpz_class const& num) : mpq_class() {
         mpq_set_z(value, num.get_mpz_t());
+    }
+
+    mpq_class(mpf_class const& num) : mpq_class() {
+        mpq_set_f(value, num.get_mpf_t());
+        canonicalize();
     }
 
     mpq_class(mpz_class const& num, mpz_class const& den) : mpq_class() {
@@ -1250,6 +1271,17 @@ public:
         if (this != &other) {
             mpq_swap(value, other.value);
         }
+        return *this;
+    }
+
+    mpq_class& operator=(mpz_class const& rhs) {
+        mpq_set_z(value, rhs.get_mpz_t());
+        return *this;
+    }
+
+    mpq_class& operator=(mpf_class const& rhs) {
+        mpq_set_f(value, rhs.get_mpf_t());
+        canonicalize();
         return *this;
     }
 
@@ -1378,6 +1410,43 @@ private:
 
     mpq_t value;
 };
+
+inline mpf_class::mpf_class(mpq_class const& v) : mpf_class() {
+    mpf_set_q(value, v.get_mpq_t());
+}
+
+inline mpf_class::mpf_class(mpq_class const& v, mp_bitcnt_t prec)
+    : mpf_class(0.0, prec) {
+    mpf_set_q(value, v.get_mpq_t());
+}
+
+inline mpf_class& mpf_class::operator=(mpz_class const& rhs) {
+    mpf_set_z(value, rhs.get_mpz_t());
+    return *this;
+}
+
+inline mpf_class& mpf_class::operator=(mpq_class const& rhs) {
+    mpf_set_q(value, rhs.get_mpq_t());
+    return *this;
+}
+
+inline mpz_class::mpz_class(mpf_class const& v) : mpz_class() {
+    mpz_set_f(value, v.get_mpf_t());
+}
+
+inline mpz_class::mpz_class(mpq_class const& v) : mpz_class() {
+    mpz_set_q(value, v.get_mpq_t());
+}
+
+inline mpz_class& mpz_class::operator=(mpf_class const& rhs) {
+    mpz_set_f(value, rhs.get_mpf_t());
+    return *this;
+}
+
+inline mpz_class& mpz_class::operator=(mpq_class const& rhs) {
+    mpz_set_q(value, rhs.get_mpq_t());
+    return *this;
+}
 
 class gmp_randclass {
 public:

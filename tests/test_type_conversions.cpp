@@ -49,11 +49,19 @@ void test_compile_time_surface() {
     static_assert(std::is_constructible_v<mpz_class, std::uint64_t>);
     static_assert(std::is_constructible_v<mpq_class, double>);
     static_assert(std::is_constructible_v<mpq_class, mpz_class const&>);
+    static_assert(std::is_constructible_v<mpq_class, mpf_class const&>);
     static_assert(std::is_constructible_v<mpq_class,
                                           mpz_class const&,
                                           mpz_class const&>);
+    static_assert(std::is_constructible_v<mpz_class, mpf_class const&>);
+    static_assert(std::is_constructible_v<mpz_class, mpq_class const&>);
+    static_assert(std::is_constructible_v<mpf_class, mpz_class const&>);
     static_assert(std::is_constructible_v<mpf_class,
                                           mpz_class const&,
+                                          mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, mpq_class const&>);
+    static_assert(std::is_constructible_v<mpf_class,
+                                          mpq_class const&,
                                           mp_bitcnt_t>);
     static_assert(std::same_as<decltype(std::declval<mpf_class const&>().get_d()),
                                double>);
@@ -123,6 +131,10 @@ void test_string_and_base_construction() {
 void test_mpz_to_mpf_and_mpq_construction() {
     mpz_class z("-31415926535");
 
+    mpf_class f_default(z);
+    assert(f_default.get_prec() == gmpxx_defaults::get_default_prec());
+    assert_mpf_equal(f_default, mpf_class("-31415926535", f_default.get_prec()));
+
     mpf_class f(z, static_cast<mp_bitcnt_t>(512));
     assert(f.get_prec() == gmpxx_detail::effective_mpf_prec(512));
     assert_mpf_equal(f, mpf_class("-31415926535", f.get_prec()));
@@ -133,6 +145,67 @@ void test_mpz_to_mpf_and_mpq_construction() {
     mpq_class q_from_pair(mpz_class(std::int64_t{355}),
                           mpz_class(std::int64_t{113}));
     assert(q_from_pair == mpq_class("355/113"));
+}
+
+void test_wrapper_to_wrapper_construction() {
+    mpf_class f_pos("4.5", static_cast<mp_bitcnt_t>(256));
+    mpf_class f_neg("-4.5", static_cast<mp_bitcnt_t>(256));
+
+    mpz_class z_from_f_pos(f_pos);
+    mpz_class z_from_f_neg(f_neg);
+    assert(z_from_f_pos == mpz_class(4));
+    assert(z_from_f_neg == mpz_class(-4));
+
+    mpq_class q_from_f(f_pos);
+    assert(q_from_f == mpq_class("9/2"));
+
+    mpq_class q("3000/13");
+    mpz_class z_from_q(q);
+    assert(z_from_q == mpz_class(230));
+
+    mpf_class f_from_q(q, static_cast<mp_bitcnt_t>(384));
+    assert(f_from_q.get_prec() == gmpxx_detail::effective_mpf_prec(384));
+    mpf_class expected_from_q(0, f_from_q.get_prec());
+    mpf_set_q(expected_from_q.get_mpf_t(), q.get_mpq_t());
+    assert_mpf_equal(f_from_q, expected_from_q);
+
+    mpf_class f_from_q_default(q);
+    assert(f_from_q_default.get_prec() == gmpxx_defaults::get_default_prec());
+    mpf_class expected_default(0, f_from_q_default.get_prec());
+    mpf_set_q(expected_default.get_mpf_t(), q.get_mpq_t());
+    assert_mpf_equal(f_from_q_default, expected_default);
+}
+
+void test_wrapper_to_wrapper_assignment() {
+    mpf_class f("4.5", static_cast<mp_bitcnt_t>(256));
+    mpq_class q("3000/13");
+    mpz_class z("-31415926535");
+
+    mpz_class z_assigned;
+    z_assigned = f;
+    assert(z_assigned == mpz_class(4));
+    z_assigned = q;
+    assert(z_assigned == mpz_class(230));
+
+    mpq_class q_assigned;
+    q_assigned = f;
+    assert(q_assigned == mpq_class("9/2"));
+    q_assigned = z;
+    assert(q_assigned == mpq_class("-31415926535"));
+
+    mpf_class f_assigned("0", static_cast<mp_bitcnt_t>(192));
+    mp_bitcnt_t old_prec = f_assigned.get_prec();
+    f_assigned = z;
+    assert(f_assigned.get_prec() == old_prec);
+    mpf_class expected_z(0, old_prec);
+    mpf_set_z(expected_z.get_mpf_t(), z.get_mpz_t());
+    assert_mpf_equal(f_assigned, expected_z);
+
+    f_assigned = q;
+    assert(f_assigned.get_prec() == old_prec);
+    mpf_class expected_q(0, old_prec);
+    mpf_set_q(expected_q.get_mpf_t(), q.get_mpq_t());
+    assert_mpf_equal(f_assigned, expected_q);
 }
 
 void test_mpq_numerator_denominator_accessors() {
@@ -223,6 +296,8 @@ int main() {
     test_mpz_integer_and_double_construction();
     test_string_and_base_construction();
     test_mpz_to_mpf_and_mpq_construction();
+    test_wrapper_to_wrapper_construction();
+    test_wrapper_to_wrapper_assignment();
     test_mpq_numerator_denominator_accessors();
     test_mpq_double_construction();
     test_mpf_scalar_conversions_and_fit_queries();
