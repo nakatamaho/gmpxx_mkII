@@ -3,7 +3,10 @@
 #include "gmpxx_mkII.h"
 
 #include <cassert>
+#include <cstdint>
+#include <limits>
 #include <string>
+#include <type_traits>
 
 namespace {
 
@@ -11,10 +14,42 @@ void assert_mpf_equal(mpf_class const& got, mpf_class const& expected) {
     assert(mpf_cmp(got.get_mpf_t(), expected.get_mpf_t()) == 0);
 }
 
+void test_compile_time_surface() {
+    static_assert(std::is_constructible_v<mpf_class, int, mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, long, mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, long long, mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, unsigned, mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, std::uint64_t, mp_bitcnt_t>);
+    static_assert(!std::is_constructible_v<mpf_class, bool, mp_bitcnt_t>);
+}
+
 void test_default_constructor_value_zero() {
     mpf_class value;
     assert(mpf_sgn(value.get_mpf_t()) == 0);
     assert(value.get_prec() == gmpxx_defaults::get_default_prec());
+}
+
+void test_integral_constructor_with_explicit_precision() {
+    mp_bitcnt_t requested_prec = static_cast<mp_bitcnt_t>(384);
+
+    mpf_class zero(0, requested_prec);
+    assert(mpf_sgn(zero.get_mpf_t()) == 0);
+    assert(zero.get_prec() ==
+           gmpxx_mkII_detail::effective_mpf_prec(requested_prec));
+
+    mpf_class negative(-42, requested_prec);
+    mpf_class negative_expected(requested_prec);
+    mpf_set_si(negative_expected.get_mpf_t(), -42);
+    assert(negative.get_prec() == negative_expected.get_prec());
+    assert_mpf_equal(negative, negative_expected);
+
+    std::uint64_t large = std::numeric_limits<std::uint64_t>::max();
+    mpf_class unsigned_value(large, requested_prec);
+    mpz_class large_z(large);
+    mpf_class unsigned_expected(requested_prec);
+    mpf_set_z(unsigned_expected.get_mpf_t(), large_z.get_mpz_t());
+    assert(unsigned_value.get_prec() == unsigned_expected.get_prec());
+    assert_mpf_equal(unsigned_value, unsigned_expected);
 }
 
 void test_copy_constructor_preserves_value_and_precision() {
@@ -89,7 +124,9 @@ void test_hex_string_constructor_with_explicit_base() {
 }  // namespace
 
 int main() {
+    test_compile_time_surface();
     test_default_constructor_value_zero();
+    test_integral_constructor_with_explicit_precision();
     test_copy_constructor_preserves_value_and_precision();
     test_copy_assignment_preserves_value_and_source_precision();
     test_double_assignment_preserves_destination_precision();

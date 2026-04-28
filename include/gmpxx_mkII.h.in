@@ -590,6 +590,16 @@ public:
         mpf_set_d(value, v);
     }
 
+    mpf_class(bool, mp_bitcnt_t) = delete;
+
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    mpf_class(T v, mp_bitcnt_t prec) : mpf_class(prec) {
+        set_from_integral(v);
+    }
+
     explicit mpf_class(char const* s) : mpf_class() {
         set_from_string(s, gmpxx_mkII_detail::use_default_base);
     }
@@ -771,6 +781,12 @@ private:
         }
     }
 
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    void set_from_integral(T v);
+
     mpf_t value;
 };
 
@@ -951,6 +967,21 @@ private:
 
     mpz_t value;
 };
+
+template<class T>
+    requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+              !std::same_as<std::remove_cvref_t<T>, bool> &&
+              (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+void mpf_class::set_from_integral(T v) {
+    using clean = std::remove_cvref_t<T>;
+    if constexpr (std::is_signed_v<clean>) {
+        mpz_class z(static_cast<std::int64_t>(v));
+        mpf_set_z(value, z.get_mpz_t());
+    } else {
+        mpz_class z(static_cast<std::uint64_t>(v));
+        mpf_set_z(value, z.get_mpz_t());
+    }
+}
 
 class mpq_class {
 public:
