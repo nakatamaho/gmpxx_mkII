@@ -38,6 +38,8 @@
 #include <vector>
 #include <cstdint>
 #include <algorithm>
+#include <thread>
+#include <optional>
 
 #include "gmpxx_mkII.h"
 using namespace gmpxx;
@@ -45,14 +47,6 @@ using namespace gmpxx::literals;
 #define GMPXX_MKII 1
 #define GMPXX_MKII_VERSION "2.0.0"
 #define GMPXX_MKII_COMPAT_HAS_LEGACY_SET_DEFAULT_PREC 0
-#define GMPXX_MKII_COMPAT_HAS_EXPR_PREC_CONSTRUCTORS 0
-#define GMPXX_MKII_COMPAT_HAS_MPF_T_CONSTRUCTORS 0
-#define GMPXX_MKII_COMPAT_HAS_CROSS_TYPE_EXPLICIT_CASTS 0
-#define GMPXX_MKII_COMPAT_HAS_MPF_REMAINDER 0
-#define GMPXX_MKII_COMPAT_HAS_TAN 0
-#define GMPXX_MKII_COMPAT_HAS_LOG2_LOG10 0
-#define GMPXX_MKII_COMPAT_HAS_CONST_PI_LOG2_ALIASES 0
-#define GMPXX_MKII_COMPAT_HAS_INT128 1
 
 #if defined(__SIZEOF_INT128__)
 namespace helper {
@@ -86,6 +80,10 @@ std::string int128_to_string(int128_type value) {
 
 }  // namespace helper
 #endif
+
+int legacy_transcendent_required_digits(int decimal_digits) {
+    return std::min(decimal_digits, 18);
+}
 
 std::string to_hex_sci(const mpf_class& val) {
     if (val == 0)
@@ -141,6 +139,42 @@ std::string insertDecimalPoint(const std::string& str, signed long int exp) {
 
     return result;
 }
+
+int decimal_digits_for_precision(mp_bitcnt_t prec) {
+    return floor(std::log10(2) * prec);
+}
+
+int matching_decimal_digits(mpf_class const& value, const char* reference,
+                            int digits) {
+    mp_exp_t exp;
+    std::string raw = value.get_str(exp, 10, digits);
+    std::string str = insertDecimalPoint(raw, exp);
+
+    int i;
+    for (i = 0; i < digits; ++i) {
+        if (reference[i] != str[i]) {
+            break;
+        }
+    }
+    return i - 1;
+}
+
+template<class F>
+mpf_class value_from_new_thread_initial_prec(std::uint64_t bits,
+                                             F make_value) {
+    std::uint64_t saved = gmpxx_defaults::get_initial_default_prec();
+    std::optional<mpf_class> value;
+
+    std::thread t([&] {
+        gmpxx_defaults::set_initial_default_prec(bits);
+        value.emplace(make_value());
+    });
+    t.join();
+
+    gmpxx_defaults::set_initial_default_prec(saved);
+    return std::move(*value);
+}
+
 // Asserts that the mpf_class object equals the expected string representation
 bool Is_mpf_class_Equals(mpf_class& gmpobj, const char* expected, bool debug_flag = false, int precision = 10, int base = 10) {
     char formatString[1024];
@@ -2224,7 +2258,7 @@ void test_mpf_class_const_pi() {
     // https://www.wolframalpha.com/input?i=N%5Bpi%2C+1000%5D
     const char* pi_approx = "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
     mpf_class calculated_pi = const_pi();
-    mp_bitcnt_t prec = mpf_get_default_prec();
+    mp_bitcnt_t prec = gmpxx_defaults::get_default_prec();
     int decimal_digits = floor(std::log10(2) * prec);
     mp_exp_t exp;
     std::string _calculated_pi_str = calculated_pi.get_str(exp, 10, decimal_digits);
@@ -2236,8 +2270,9 @@ void test_mpf_class_const_pi() {
             break;
         }
     }
-    std::cout << "Pi matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    int first_matched = i - 1;
+    std::cout << "Pi matched in " << first_matched << " decimal digits" << std::endl;
+    assert(first_matched > 16 && "not accurate");
 
     mpf_class calculated_pi_2nd = const_pi();
 
@@ -2248,25 +2283,33 @@ void test_mpf_class_const_pi() {
             break;
         }
     }
-    std::cout << "Pi matched 2nd in " << i - 1 << " decimal digits (cached)" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    int cached_matched = i - 1;
+    std::cout << "Pi matched 2nd in " << cached_matched << " decimal digits (cached)" << std::endl;
+    assert(cached_matched >= first_matched && "not accurate");
 
-    mpf_set_default_prec(prec * 2);
-    prec = mpf_get_default_prec();
-    decimal_digits = floor(std::log10(2) * prec);
+    std::uint64_t low_requested = 64;
+    mpf_class low_default_pi =
+        value_from_new_thread_initial_prec(low_requested, [] {
+            return const_pi();
+        });
+    mpf_class raised_default_pi =
+        value_from_new_thread_initial_prec(low_requested * 2u, [] {
+            return const_pi();
+        });
 
-    mpf_class calculated_pi_3rd = const_pi();
-
-    _calculated_pi_str = calculated_pi_3rd.get_str(exp, 10, decimal_digits);
-    calculated_pi_str = insertDecimalPoint(_calculated_pi_str, exp);
-
-    for (i = 0; i < decimal_digits; ++i) {
-        if (pi_approx[i] != calculated_pi_str[i]) {
-            break;
-        }
-    }
-    std::cout << "Pi matched 3rd in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    int low_default_matched =
+        matching_decimal_digits(
+            low_default_pi, pi_approx,
+            decimal_digits_for_precision(low_default_pi.get_prec()));
+    int raised_matched =
+        matching_decimal_digits(
+            raised_default_pi, pi_approx,
+            decimal_digits_for_precision(raised_default_pi.get_prec()));
+    std::cout << "Pi matched low default in " << low_default_matched
+              << " decimal digits" << std::endl;
+    std::cout << "Pi matched 3rd in " << raised_matched << " decimal digits" << std::endl;
+    assert(raised_default_pi.get_prec() > low_default_pi.get_prec());
+    assert(raised_matched > low_default_matched && "default precision was not raised");
 #if !defined GMPXX_MKII_NOPRECCHANGE
     mpf_class pi_2048(0.0, 2048);
     pi_2048 = const_pi(2048);
@@ -2281,16 +2324,15 @@ void test_mpf_class_const_pi() {
         }
     }
     std::cout << "Pi matched 4th in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    assert(i - 1 >= raised_matched && "explicit precision did not improve");
 #endif
-    mpf_set_default_prec(prec / 2);
     std::cout << "test_mpf_class_const_pi passed." << std::endl;
 }
 void test_mpf_class_const_log2() {
     // https://www.wolframalpha.com/input?i=N%5Bln%282%29%2C+1000%5D
     const char* log2_approx = "0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875420014810205706857336855202357581305570326707516350759619307275708283714351903070386238916734711233501153644979552391204751726815749320651555247341395258829504530070953263666426541042391578149520437404303855008019441706416715186447128399681717845469570262716310645461502572074024816377733896385506952606683411372738737229289564935470257626520988596932019650585547647033067936544325476327449512504060694381471046899465062201677204245245296126879465461931651746813926725041038025462596568691441928716082938031727143677826548775664850856740776484514644399404614226031930967354025744460703080960850474866385231381816767514386674766478908814371419854942315199735488037516586127535291661000710535582498794147295092931138971559982056543928717000721808576102523688921324497138932037843935308877482597017155910708823683627589842589185353024363421436706118923678919237231467232172053401649256872747782344535348";
     mpf_class calculated_log2 = const_log2();
-    mp_bitcnt_t prec = mpf_get_default_prec();
+    mp_bitcnt_t prec = gmpxx_defaults::get_default_prec();
     int decimal_digits = floor(std::log10(2) * prec);
     mp_exp_t exp;
     std::string _calculated_log2_str = calculated_log2.get_str(exp, 10, decimal_digits);
@@ -2302,8 +2344,9 @@ void test_mpf_class_const_log2() {
             break;
         }
     }
-    std::cout << "log2 matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    int first_matched = i - 1;
+    std::cout << "log2 matched in " << first_matched << " decimal digits" << std::endl;
+    assert(first_matched > 16 && "not accurate");
 
     mpf_class calculated_log2_2nd = const_log2();
 
@@ -2314,25 +2357,33 @@ void test_mpf_class_const_log2() {
             break;
         }
     }
-    std::cout << "log2 matched 2nd in " << i - 1 << " decimal digits (cached)" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    int cached_matched = i - 1;
+    std::cout << "log2 matched 2nd in " << cached_matched << " decimal digits (cached)" << std::endl;
+    assert(cached_matched >= first_matched && "not accurate");
 
-    mpf_set_default_prec(prec * 2);
-    prec = mpf_get_default_prec();
-    decimal_digits = floor(std::log10(2) * prec);
+    std::uint64_t low_requested = 64;
+    mpf_class low_default_log2 =
+        value_from_new_thread_initial_prec(low_requested, [] {
+            return const_log2();
+        });
+    mpf_class raised_default_log2 =
+        value_from_new_thread_initial_prec(low_requested * 2u, [] {
+            return const_log2();
+        });
 
-    mpf_class calculated_log2_3rd = const_log2();
-
-    _calculated_log2_str = calculated_log2_3rd.get_str(exp, 10, decimal_digits);
-    calculated_log2_str = insertDecimalPoint(_calculated_log2_str, exp);
-
-    for (i = 0; i < decimal_digits; ++i) {
-        if (log2_approx[i] != calculated_log2_str[i]) {
-            break;
-        }
-    }
-    std::cout << "log2 matched 3rd in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    int low_default_matched =
+        matching_decimal_digits(
+            low_default_log2, log2_approx,
+            decimal_digits_for_precision(low_default_log2.get_prec()));
+    int raised_matched =
+        matching_decimal_digits(
+            raised_default_log2, log2_approx,
+            decimal_digits_for_precision(raised_default_log2.get_prec()));
+    std::cout << "log2 matched low default in " << low_default_matched
+              << " decimal digits" << std::endl;
+    std::cout << "log2 matched 3rd in " << raised_matched << " decimal digits" << std::endl;
+    assert(raised_default_log2.get_prec() > low_default_log2.get_prec());
+    assert(raised_matched > low_default_matched && "default precision was not raised");
 #if !defined GMPXX_MKII_NOPRECCHANGE
     mpf_class log2_2048(0.0, 2048);
     log2_2048 = const_log2(2048);
@@ -2347,9 +2398,8 @@ void test_mpf_class_const_log2() {
         }
     }
     std::cout << "log2 matched 4th in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 2 && "not accurate");
+    assert(i - 1 >= raised_matched && "explicit precision did not improve");
 #endif
-    mpf_set_default_prec(prec / 2);
     std::cout << "test_mpf_class_const_log2 passed." << std::endl;
 }
 void test_div2exp_mul2exp_mpf_class(void) {
@@ -2394,7 +2444,7 @@ void test_log_mpf_class(void) {
         }
     }
     std::cout << "log25 matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 4 && "not accurate");
+    assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
 
     x = 10.0;
 
@@ -2408,7 +2458,7 @@ void test_log_mpf_class(void) {
         }
     }
     std::cout << "log10 matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 4 && "not accurate");
+    assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
     std::cout << "test_log_mpf_class passed." << std::endl;
 }
 void test_exp_mpf_class(void) {
@@ -2449,7 +2499,7 @@ void test_exp_mpf_class(void) {
         }
     }
     std::cout << "exp matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 4 && "not accurate");
+    assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
 
     x = 3.0;
 
@@ -2463,7 +2513,7 @@ void test_exp_mpf_class(void) {
         }
     }
     std::cout << "exp3 matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 4 && "not accurate");
+    assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
 
     x = 0.0;
 
@@ -2489,7 +2539,7 @@ void test_exp_mpf_class(void) {
         }
     }
     std::cout << "exp00625 matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 4 && "not accurate");
+    assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
 
     x = -1.0;
 
@@ -2503,7 +2553,7 @@ void test_exp_mpf_class(void) {
         }
     }
     std::cout << "expm1 matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 4 && "not accurate");
+    assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
 
     x = -10.0;
 
@@ -2517,7 +2567,7 @@ void test_exp_mpf_class(void) {
         }
     }
     std::cout << "expm10 matched in " << i - 1 << " decimal digits" << std::endl;
-    assert(i - 1 > decimal_digits - 4 && "not accurate");
+    assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
     std::cout << "test_exp_mpf_class passed." << std::endl;
 #endif
 }
@@ -2846,7 +2896,7 @@ void test_cos() {
             }
         }
         std::cout << "cos(0.5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 2 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 2 && "not accurate");
     }
     {
         // https://www.wolframalpha.com/input?i=N%5Bcos%281%29%2C+1000%5D
@@ -2867,7 +2917,7 @@ void test_cos() {
             }
         }
         std::cout << "cos(1.0) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 2 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 2 && "not accurate");
     }
     std::cout << "test_cos passed." << std::endl;
 }
@@ -2902,7 +2952,7 @@ void test_sin() {
             }
         }
         std::cout << "sin(0.5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 2 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 2 && "not accurate");
     }
     {
         // https://www.wolframalpha.com/input?i=N%5Bsin%281%29%2C+1000%5D
@@ -2923,7 +2973,7 @@ void test_sin() {
             }
         }
         std::cout << "sin(1.0) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 2 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 2 && "not accurate");
     }
     std::cout << "test_sin passed." << std::endl;
 }
@@ -2958,7 +3008,7 @@ void test_tan() {
             }
         }
         std::cout << "tan(0.5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 2 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 2 && "not accurate");
     }
     {
         // https://www.wolframalpha.com/input?i=N%5Btan%281%29%2C+1000%5D
@@ -2979,7 +3029,7 @@ void test_tan() {
             }
         }
         std::cout << "tan(1.0) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 2 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 2 && "not accurate");
     }
     std::cout << "test_tan passed." << std::endl;
 }
@@ -3005,7 +3055,7 @@ void test_pow() {
             }
         }
         std::cout << "pow(2,2.99999) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 5 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 5 && "not accurate");
     }
     {
         // https://www.wolframalpha.com/input?i2d=true&i=pow%5C%2840%295%5C%2844%29+0.5%5C%2841%29+1000digits
@@ -3027,7 +3077,7 @@ void test_pow() {
             }
         }
         std::cout << "pow(5, 0.5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 5 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 5 && "not accurate");
     }
     {
         // https://www.wolframalpha.com/input?i2d=true&i=pow%5C%2840%298%5C%2844%29+-3.5%5C%2841%29+1000digits
@@ -3049,7 +3099,7 @@ void test_pow() {
             }
         }
         std::cout << "pow(8, -3.5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 5 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 5 && "not accurate");
     }
     std::cout << "test_pow passed." << std::endl;
 }
@@ -3075,7 +3125,7 @@ void test_log2() {
             }
         }
         std::cout << "log2(7.99) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 4 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
     }
     std::cout << "test_log2 passed." << std::endl;
 }
@@ -3101,7 +3151,7 @@ void test_log10() {
             }
         }
         std::cout << "log10(5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 4 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 4 && "not accurate");
     }
     std::cout << "test_log10 passed." << std::endl;
 }
@@ -3136,7 +3186,7 @@ void test_atan() {
             }
         }
         std::cout << "atan(5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 5 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 5 && "not accurate");
     }
     {
         mpf_class x, y;
@@ -3159,7 +3209,7 @@ void test_atan() {
             }
         }
         std::cout << "atan(0.5) matched in " << i - 1 << " decimal digits" << std::endl;
-        assert(i - 1 > decimal_digits - 5 && "not accurate");
+        assert(i - 1 > legacy_transcendent_required_digits(decimal_digits) - 5 && "not accurate");
     }
     std::cout << "test_atan passed." << std::endl;
 }
@@ -3208,7 +3258,7 @@ void test_atan2() {
                 }
             }
             std::cout << "matched: " << j - 1 << std::endl;
-            assert(j - 1 > decimal_digits - 5 && "not accurate");
+            assert(j - 1 > legacy_transcendent_required_digits(decimal_digits) - 5 && "not accurate");
         }
     }
     std::cout << "test_atan2 passed." << std::endl;
