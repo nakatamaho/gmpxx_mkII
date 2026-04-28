@@ -131,9 +131,20 @@ void assert_precision_doubling_binary(
 void test_compile_time_surface() {
     static_assert(std::same_as<decltype(pi(std::declval<mp_bitcnt_t>())),
                                mpf_class>);
+    static_assert(std::same_as<decltype(const_pi()), mpf_class>);
+    static_assert(std::same_as<decltype(const_pi(std::declval<mp_bitcnt_t>())),
+                               mpf_class>);
     static_assert(std::same_as<decltype(log_two(std::declval<mp_bitcnt_t>())),
                                mpf_class>);
+    static_assert(std::same_as<decltype(const_log2()), mpf_class>);
+    static_assert(std::same_as<
+                  decltype(const_log2(std::declval<mp_bitcnt_t>())),
+                  mpf_class>);
     static_assert(std::same_as<decltype(log(std::declval<mpf_class const&>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(log2(std::declval<mpf_class const&>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(log10(std::declval<mpf_class const&>())),
                                mpf_class>);
     static_assert(std::same_as<decltype(log1p(std::declval<mpf_class const&>())),
                                mpf_class>);
@@ -144,6 +155,8 @@ void test_compile_time_surface() {
     static_assert(std::same_as<decltype(sin(std::declval<mpf_class const&>())),
                                mpf_class>);
     static_assert(std::same_as<decltype(cos(std::declval<mpf_class const&>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(tan(std::declval<mpf_class const&>())),
                                mpf_class>);
     static_assert(std::same_as<decltype(atan(std::declval<mpf_class const&>())),
                                mpf_class>);
@@ -162,11 +175,17 @@ void test_constants() {
     assert(p.get_prec() == gmpxx_detail::effective_mpf_prec(192));
     assert(p > mpf_class(3, p.get_prec()));
     assert(p < mpf_class(4, p.get_prec()));
+    assert_within_ulp(const_pi(static_cast<mp_bitcnt_t>(192)), p,
+                      static_cast<mp_bitcnt_t>(192), 1);
+    assert(const_pi().get_prec() == gmpxx_defaults::get_default_prec());
 
     mpf_class l2 = log_two(static_cast<mp_bitcnt_t>(192));
     assert(l2.get_prec() == p.get_prec());
     assert(l2 > mpf_class(0, l2.get_prec()));
     assert(l2 < mpf_class(1, l2.get_prec()));
+    assert_within_ulp(const_log2(static_cast<mp_bitcnt_t>(192)), l2,
+                      static_cast<mp_bitcnt_t>(192), 1);
+    assert(const_log2().get_prec() == gmpxx_defaults::get_default_prec());
 }
 
 void test_reference_literals() {
@@ -206,6 +225,14 @@ void test_reference_literals() {
          "3.21887582486820074920151866645237527905120270853703544382529578294835797541531552"
          "926026775618635922159993260604343112579944801045864935239926723323492741145510435",
          2},
+        {log2, "7.99",
+         "2.99819550315325208468423790606226744823209212142600192208976212521364807239226348"
+         "9504996947139992619474166188136624561747",
+         4},
+        {log10, "5",
+         "0.69897000433601880478626110527550697323181011853789145868957253887289181072557549"
+         "0513072747881813827959315522808569004620",
+         4},
         {exp, "1",
          "2.71828182845904523536028747135266249775724709369995957496696762772407663035354759"
          "457138217852516642742746639193200305992181741359662904357290033429526059563073814",
@@ -222,6 +249,10 @@ void test_reference_literals() {
          "0.54030230586813971740093660744297660373231042061792222767009725538110039477447176"
          "401902652510870988844205719922104139221278325511597186845837433912379536774980850",
          4},
+        {tan, "0.5",
+         "0.54630248984379051325517946578028538329755172017979124616409138593290751051802581"
+         "5715180648270656218589104862600264114264",
+         8},
         {atan, "1",
          "0.78539816339744830961566084581987572104929234984377645524373614807695410157155224"
          "965700870633552926699553662053457075766177346115238764555793134795203212028936257",
@@ -274,6 +305,10 @@ void test_precision_doubling() {
     assert_precision_doubling(log1p, "0.1", 512, 1024);
     assert_precision_doubling(log, "25", 128, 256);
     assert_precision_doubling(log, "25", 512, 1024);
+    assert_precision_doubling(log2, "7.99", 128, 256, 4);
+    assert_precision_doubling(log2, "7.99", 512, 1024, 4);
+    assert_precision_doubling(log10, "5", 128, 256, 4);
+    assert_precision_doubling(log10, "5", 512, 1024, 4);
     assert_precision_doubling(exp, "1", 128, 256);
     assert_precision_doubling(exp, "1", 512, 1024);
     assert_precision_doubling(expm1, "0.1", 128, 256);
@@ -282,6 +317,8 @@ void test_precision_doubling() {
     assert_precision_doubling(sin, "1", 512, 1024, 4);
     assert_precision_doubling(cos, "1", 128, 256, 4);
     assert_precision_doubling(cos, "1", 512, 1024, 4);
+    assert_precision_doubling(tan, "0.5", 128, 256, 8);
+    assert_precision_doubling(tan, "0.5", 512, 1024, 8);
     assert_precision_doubling(atan, "1", 128, 256, 4);
     assert_precision_doubling(atan, "1", 512, 1024, 4);
     assert_precision_doubling_binary(atan2, "1", "1", 128, 256, 4);
@@ -297,11 +334,14 @@ void test_exact_special_values() {
     mpf_class three(3, prec);
 
     assert(log(one) == zero);
+    assert(log2(one) == zero);
+    assert(log10(one) == zero);
     assert(log1p(zero) == zero);
     assert(exp(zero) == one);
     assert(expm1(zero) == zero);
     assert(sin(zero) == zero);
     assert(cos(zero) == one);
+    assert(tan(zero) == zero);
     assert(atan(zero) == zero);
     assert(atan2(zero, one) == zero);
 
@@ -319,12 +359,15 @@ void test_identities() {
     assert_close(log(exp(x)), x, 110);
     assert_close(log1p(x), log(one + x), 110);
     assert_close(expm1(x), exp(x) - one, 110);
+    assert_close(log2(two), one, 110);
+    assert_close(log10(mpf_class(100, prec)), two, 110);
 
     mpf_class p = pi(prec);
     mpf_class half_pi = p;
     mpf_div_2exp(half_pi.get_mpf_t(), half_pi.get_mpf_t(), 1);
     assert_close(sin(half_pi), one, 100);
     assert_close(cos(half_pi), mpf_class(0, prec), 100);
+    assert_close(tan(x) * cos(x), sin(x), 120);
     assert_close(atan(one), half_pi / 2, 100);
     assert_close(atan2(one, one), half_pi / 2, 100);
 }
@@ -389,7 +432,10 @@ void test_precision_policy() {
 
     assert(exp(a).get_prec() == a.get_prec());
     assert(log(b).get_prec() == b.get_prec());
+    assert(log2(b).get_prec() == b.get_prec());
+    assert(log10(b).get_prec() == b.get_prec());
     assert(sin(a).get_prec() == a.get_prec());
+    assert(tan(a).get_prec() == a.get_prec());
     assert(atan2(a, b).get_prec() == b.get_prec());
     assert(pow(a, b).get_prec() == b.get_prec());
 }
