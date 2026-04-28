@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+@PACKAGE_INIT@
+
+find_library(GMP_LIBRARY NAMES gmp libgmp REQUIRED)
+find_path(GMP_INCLUDE_DIR NAMES gmp.h REQUIRED)
+
+if(NOT TARGET GMP::GMP)
+    add_library(GMP::GMP UNKNOWN IMPORTED)
+    set_target_properties(GMP::GMP PROPERTIES
+        IMPORTED_LOCATION "${GMP_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${GMP_INCLUDE_DIR}")
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/gmpxx_mkIITargets.cmake")
+
+check_required_components(gmpxx_mkII)

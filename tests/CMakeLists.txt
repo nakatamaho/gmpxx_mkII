@@ -36,6 +36,8 @@ add_gmpxx_mkii_test(test_mpz_addmul_alloc_count_llp64
     test_mpz_addmul_alloc_count.cpp)
 add_gmpxx_mkii_test(test_comparisons test_comparisons.cpp)
 add_gmpxx_mkii_test(test_io_and_strings test_io_and_strings.cpp)
+add_gmpxx_mkii_test(test_user_defined_literals test_user_defined_literals.cpp)
+add_gmpxx_mkii_test(test_defaults_policy test_defaults_policy.cpp)
 
 target_link_libraries(test_thread_safety PRIVATE Threads::Threads)
 target_compile_definitions(test_long_width_dispatch_llp64
@@ -58,3 +60,12 @@ set_tests_properties(test_mpz_mpq_alloc_count PROPERTIES RUN_SERIAL TRUE LABELS 
 set_tests_properties(test_mpz_addmul_alloc_count PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)
 set_tests_properties(test_mpz_addmul_alloc_count_llp64 PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)
 set_tests_properties(test_io_and_strings PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/package_smoke/run_package_smoke.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/run_package_smoke.cmake"
+    @ONLY)
+add_test(NAME test_package_config
+         COMMAND "${CMAKE_COMMAND}" -P
+                 "${CMAKE_CURRENT_BINARY_DIR}/run_package_smoke.cmake")
+set_tests_properties(test_package_config PROPERTIES RUN_SERIAL TRUE LABELS package)

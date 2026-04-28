@@ -15,6 +15,7 @@ option(GMPXX_MKII_INSTRUMENT_WRAPPERS
 find_library(GMP_LIBRARY NAMES gmp libgmp REQUIRED HINTS ${GMP_ROOT})
 find_path(GMP_INCLUDE_DIR NAMES gmp.h REQUIRED HINTS ${GMP_ROOT})
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 if(NOT TARGET GMP::GMP)
     add_library(GMP::GMP UNKNOWN IMPORTED)
@@ -61,7 +62,19 @@ install(TARGETS gmpxx_mkII
 install(EXPORT gmpxx_mkIITargets
         NAMESPACE gmpxx_mkII::
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII")
-# A full gmpxx_mkIIConfig.cmake package is deferred to Phase 5.
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/gmpxx_mkIIConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkIIConfig.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII")
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkIIConfigVersion.cmake"
+    VERSION "${PROJECT_VERSION}"
+    COMPATIBILITY SameMajorVersion)
+install(FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkIIConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/gmpxx_mkIIConfigVersion.cmake"
+        DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/gmpxx_mkII")
 
 include(CTest)
 if(GMPXX_MKII_BUILD_TESTS)

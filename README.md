@@ -1,17 +1,18 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, header-only wrapper around GNU GMP numeric types.
-The current repository state is the v2.0.0 Phase 4B expression-template
+The current repository state is the v2.0.0 Phase 5 expression-template
 rewrite: it implements `mpf_class`, `mpz_class`, and `mpq_class` arithmetic
 cores plus mixed scalar arithmetic.
 
-The v2.0.0 rewrite is being restored in phases. Phase 4B validates the new
+The v2.0.0 rewrite is being restored in phases. Phase 5 validates the new
 lazy expression machinery, precision policy, thread-local default precision,
 scalar leaf normalization, compound assignment, long-width dispatch,
 power-of-two integer scaling fusion, unary double-negation simplification,
 integer/rational GMP wrappers, mixed mpf/mpz/mpq expressions, native mpz
 multiply-add fusion, comparison operators, string conversion, stream I/O,
-and allocation behavior before restoring the broader v1.0.0 surface.
+user-defined literals, runtime defaults/base policy, package config support,
+and allocation behavior before restoring any remaining v1.0.0 surface.
 
 ## Current Scope
 
@@ -49,16 +50,21 @@ Implemented now:
 - `get_str()`, `set_str()`, and `to_string()` for concrete wrapper values.
 - `operator<<` and `operator>>` for concrete wrapper values, plus
   immediate-evaluation `operator<<` for expression operands.
+- User-defined literals in `gmpxx_mkII::literals`: `_mpz`, `_mpq`, and
+  `_mpf`.
 - Thread-local wrapper default precision initialized from
   `GMPXX_MKII_DEFAULT_PREC`.
-- `gmpxx_defaults::set_initial_default_prec(uint64_t)`.
-- CMake + CTest build with Phase 0 through Phase 4B regression tests.
+- `gmpxx_defaults` default precision queries and default base policy.
+- Full CMake package config for install-tree `find_package(gmpxx_mkII)`.
+- CMake + CTest build with Phase 0 through Phase 5 regression tests.
 
 Deferred to later phases:
 
-- User-defined literals.
-- Fortran bridge compatibility.
-- Full `find_package(gmpxx_mkII)` package config.
+- Math functions and transcendental functions.
+- Random support.
+- Benchmarks beyond the focused allocation tests.
+
+Fortran bridge support is intentionally not planned for v2.0.0.
 
 See [STATUS.md](STATUS.md) for the detailed implementation matrix.
 
@@ -87,7 +93,7 @@ cmake --build build -j
 ctest --test-dir build --output-on-failure
 ```
 
-Install the generated header and exported CMake target file:
+Install the generated header, exported CMake target, and package config files:
 
 ```bash
 cmake --install build --prefix /path/to/prefix
@@ -97,11 +103,19 @@ This installs:
 
 ```text
 include/gmpxx_mkII.h
+lib/cmake/gmpxx_mkII/gmpxx_mkIIConfig.cmake
+lib/cmake/gmpxx_mkII/gmpxx_mkIIConfigVersion.cmake
 lib/cmake/gmpxx_mkII/gmpxx_mkIITargets.cmake
 ```
 
-The full `gmpxx_mkIIConfig.cmake` package for direct
-`find_package(gmpxx_mkII)` use is still deferred to a later phase.
+An installed consumer can use:
+
+```cmake
+find_package(gmpxx_mkII CONFIG REQUIRED)
+
+add_executable(example example.cpp)
+target_link_libraries(example PRIVATE gmpxx_mkII::gmpxx_mkII)
+```
 
 `GMPXX_MKII_NOPRECCHANGE` build:
 
@@ -166,7 +180,7 @@ int main() {
 
 ## Expression Lifetime Rule
 
-Phase 4B expression nodes store `mpf_class`, `mpz_class`, `mpq_class`, and
+Phase 5 expression nodes store `mpf_class`, `mpz_class`, `mpq_class`, and
 expression subtrees by `const&`, while scalar leaves are normalized and stored
 by value. This is deliberate for the v2.0.0 performance and ABI experiment,
 but expression trees must not be saved in `auto` variables.
@@ -234,6 +248,52 @@ mpf_class x;
 ```
 
 `set_initial_default_prec(0)` is a no-op.
+
+Query helpers are available:
+
+```cpp
+auto requested = gmpxx_defaults::get_initial_default_prec();
+auto effective = gmpxx_defaults::get_default_prec();
+```
+
+`get_initial_default_prec()` returns the current process-wide requested
+initial precision. `get_default_prec()` returns the effective precision used by
+default-constructed `mpf_class` objects in the current thread.
+
+## Default Base
+
+String constructors and string APIs without an explicit base use a
+thread-local wrapper default base. The initial base is 10.
+
+```cpp
+gmpxx_defaults::set_default_base(16);
+
+mpz_class z("ff");
+mpq_class q("10/20");
+
+assert(z == mpz_class(255));
+assert(q == mpq_class("1/2", 10));
+assert(z.get_str() == "ff");
+```
+
+Valid bases are 2 through 62. Invalid bases throw `std::invalid_argument`.
+Stream formatting does not use this default base; `operator<<` follows the
+stream's `std::dec`, `std::hex`, and `std::oct` flags.
+
+## User-Defined Literals
+
+Literals are opt-in under `gmpxx_mkII::literals`:
+
+```cpp
+using namespace gmpxx_mkII::literals;
+
+mpz_class z = "123456789012345678901234567890"_mpz;
+mpq_class q = "2/4"_mpq;
+mpf_class f = 1.25_mpf;
+```
+
+Raw numeric literal forms are parsed in base 10. String literal forms use the
+current wrapper default base.
 
 ## Reference Material
 

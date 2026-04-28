@@ -87,6 +87,27 @@ inline std::uint64_t thread_default_prec() {
     return prec;
 }
 
+inline constexpr int use_default_base = std::numeric_limits<int>::min();
+
+inline void validate_default_base(int base) {
+    if (base < 2 || base > 62) {
+        throw std::invalid_argument("gmpxx_mkII: default base must be in [2, 62]");
+    }
+}
+
+inline int& thread_default_base_ref() {
+    thread_local int base = 10;
+    return base;
+}
+
+inline int thread_default_base() noexcept {
+    return thread_default_base_ref();
+}
+
+inline int normalize_base_arg(int base) noexcept {
+    return base == use_default_base ? thread_default_base() : base;
+}
+
 class gmp_string {
 public:
     explicit gmp_string(char* ptr) noexcept : ptr_(ptr) {}
@@ -168,6 +189,25 @@ public:
             return;
         }
         gmpxx_mkII_detail::process_initial_prec().store(bits, std::memory_order_relaxed);
+    }
+
+    static std::uint64_t get_initial_default_prec() {
+        return gmpxx_mkII_detail::process_initial_prec().load(std::memory_order_relaxed);
+    }
+
+    static mp_bitcnt_t get_default_prec() {
+        return gmpxx_mkII_detail::checked_mp_bitcnt(
+            gmpxx_mkII_detail::effective_mpf_prec(
+                gmpxx_mkII_detail::thread_default_prec()));
+    }
+
+    static void set_default_base(int base) {
+        gmpxx_mkII_detail::validate_default_base(base);
+        gmpxx_mkII_detail::thread_default_base_ref() = base;
+    }
+
+    static int get_default_base() noexcept {
+        return gmpxx_mkII_detail::thread_default_base();
     }
 };
 
@@ -546,16 +586,18 @@ public:
     }
 
     explicit mpf_class(char const* s) : mpf_class() {
-        set_from_string(s, 10);
+        set_from_string(s, gmpxx_mkII_detail::use_default_base);
     }
 
-    mpf_class(char const* s, mp_bitcnt_t prec, int base = 10) : mpf_class(prec) {
+    mpf_class(char const* s, mp_bitcnt_t prec,
+              int base = gmpxx_mkII_detail::use_default_base) : mpf_class(prec) {
         set_from_string(s, base);
     }
 
     explicit mpf_class(std::string const& s) : mpf_class(s.c_str()) {}
 
-    mpf_class(std::string const& s, mp_bitcnt_t prec, int base = 10)
+    mpf_class(std::string const& s, mp_bitcnt_t prec,
+              int base = gmpxx_mkII_detail::use_default_base)
         : mpf_class(s.c_str(), prec, base) {}
 
     mpf_class(mpf_class const& other) {
@@ -661,22 +703,27 @@ public:
     }
 
     [[nodiscard]] std::string get_str(
-        mp_exp_t& exp, int base = 10, std::size_t n_digits = 0) const {
+        mp_exp_t& exp,
+        int base = gmpxx_mkII_detail::use_default_base,
+        std::size_t n_digits = 0) const {
         gmpxx_mkII_detail::gmp_string s(
-            mpf_get_str(nullptr, &exp, base, n_digits, value));
+            mpf_get_str(nullptr, &exp, gmpxx_mkII_detail::normalize_base_arg(base),
+                        n_digits, value));
         return s ? std::string(s.c_str()) : std::string();
     }
 
-    int set_str(char const* s, int base = 10) {
+    int set_str(char const* s, int base = gmpxx_mkII_detail::use_default_base) {
         mpf_class tmp(get_prec());
-        int rc = mpf_set_str(tmp.value, s, base);
+        int rc = mpf_set_str(
+            tmp.value, s, gmpxx_mkII_detail::normalize_base_arg(base));
         if (rc == 0) {
             mpf_set(value, tmp.value);
         }
         return rc;
     }
 
-    int set_str(std::string const& s, int base = 10) {
+    int set_str(std::string const& s,
+                int base = gmpxx_mkII_detail::use_default_base) {
         return set_str(s.c_str(), base);
     }
 
@@ -698,7 +745,7 @@ private:
     }
 
     void set_from_string(char const* s, int base) {
-        if (mpf_set_str(value, s, base) != 0) {
+        if (mpf_set_str(value, s, gmpxx_mkII_detail::normalize_base_arg(base)) != 0) {
             throw std::invalid_argument("gmpxx_mkII: invalid mpf string");
         }
     }
@@ -738,13 +785,15 @@ public:
         mpz_set_d(value, v);
     }
 
-    mpz_class(char const* s, int base = 10) : mpz_class() {
-        if (mpz_set_str(value, s, base) != 0) {
+    mpz_class(char const* s, int base = gmpxx_mkII_detail::use_default_base)
+        : mpz_class() {
+        if (mpz_set_str(value, s, gmpxx_mkII_detail::normalize_base_arg(base)) != 0) {
             throw std::invalid_argument("gmpxx_mkII: invalid mpz string");
         }
     }
 
-    mpz_class(std::string const& s, int base = 10)
+    mpz_class(std::string const& s,
+              int base = gmpxx_mkII_detail::use_default_base)
         : mpz_class(s.c_str(), base) {}
 
     template<gmpxx_expr Expr>
@@ -820,25 +869,30 @@ public:
         return value;
     }
 
-    [[nodiscard]] std::string get_str(int base = 10) const {
-        gmpxx_mkII_detail::gmp_string s(mpz_get_str(nullptr, base, value));
+    [[nodiscard]] std::string get_str(
+        int base = gmpxx_mkII_detail::use_default_base) const {
+        gmpxx_mkII_detail::gmp_string s(mpz_get_str(
+            nullptr, gmpxx_mkII_detail::normalize_base_arg(base), value));
         return s ? std::string(s.c_str()) : std::string();
     }
 
-    int set_str(char const* s, int base = 10) {
+    int set_str(char const* s, int base = gmpxx_mkII_detail::use_default_base) {
         mpz_class tmp;
-        int rc = mpz_set_str(tmp.value, s, base);
+        int rc = mpz_set_str(
+            tmp.value, s, gmpxx_mkII_detail::normalize_base_arg(base));
         if (rc == 0) {
             swap(tmp);
         }
         return rc;
     }
 
-    int set_str(std::string const& s, int base = 10) {
+    int set_str(std::string const& s,
+                int base = gmpxx_mkII_detail::use_default_base) {
         return set_str(s.c_str(), base);
     }
 
-    [[nodiscard]] std::string to_string(int base = 10) const {
+    [[nodiscard]] std::string to_string(
+        int base = gmpxx_mkII_detail::use_default_base) const {
         return get_str(base);
     }
 
@@ -921,14 +975,16 @@ public:
         canonicalize();
     }
 
-    mpq_class(char const* s, int base = 10) : mpq_class() {
-        if (mpq_set_str(value, s, base) != 0) {
+    mpq_class(char const* s, int base = gmpxx_mkII_detail::use_default_base)
+        : mpq_class() {
+        if (mpq_set_str(value, s, gmpxx_mkII_detail::normalize_base_arg(base)) != 0) {
             throw std::invalid_argument("gmpxx_mkII: invalid mpq string");
         }
         canonicalize();
     }
 
-    mpq_class(std::string const& s, int base = 10)
+    mpq_class(std::string const& s,
+              int base = gmpxx_mkII_detail::use_default_base)
         : mpq_class(s.c_str(), base) {}
 
     template<gmpxx_expr Expr>
@@ -1003,14 +1059,17 @@ public:
         return value;
     }
 
-    [[nodiscard]] std::string get_str(int base = 10) const {
-        gmpxx_mkII_detail::gmp_string s(mpq_get_str(nullptr, base, value));
+    [[nodiscard]] std::string get_str(
+        int base = gmpxx_mkII_detail::use_default_base) const {
+        gmpxx_mkII_detail::gmp_string s(mpq_get_str(
+            nullptr, gmpxx_mkII_detail::normalize_base_arg(base), value));
         return s ? std::string(s.c_str()) : std::string();
     }
 
-    int set_str(char const* s, int base = 10) {
+    int set_str(char const* s, int base = gmpxx_mkII_detail::use_default_base) {
         mpq_class tmp;
-        int rc = mpq_set_str(tmp.value, s, base);
+        int rc = mpq_set_str(
+            tmp.value, s, gmpxx_mkII_detail::normalize_base_arg(base));
         if (rc == 0) {
             tmp.canonicalize();
             swap(tmp);
@@ -1018,11 +1077,13 @@ public:
         return rc;
     }
 
-    int set_str(std::string const& s, int base = 10) {
+    int set_str(std::string const& s,
+                int base = gmpxx_mkII_detail::use_default_base) {
         return set_str(s.c_str(), base);
     }
 
-    [[nodiscard]] std::string to_string(int base = 10) const {
+    [[nodiscard]] std::string to_string(
+        int base = gmpxx_mkII_detail::use_default_base) const {
         return get_str(base);
     }
 
@@ -2827,3 +2888,57 @@ template<phase2_operand X>
 [[nodiscard]] inline auto operator+(X const& x) {
     return unary_expr<pos_op, std::remove_cvref_t<X>>{x};
 }
+
+namespace gmpxx_mkII {
+
+using ::binary_expr;
+using ::cmp;
+using ::div_op;
+using ::gmpxx_defaults;
+using ::mpf_class;
+using ::mpq_class;
+using ::mpz_class;
+using ::mul_op;
+using ::neg_op;
+using ::pos_op;
+using ::unary_expr;
+
+namespace literals {
+
+inline mpz_class operator""_mpz(unsigned long long value) {
+    return mpz_class(static_cast<std::uint64_t>(value));
+}
+
+inline mpz_class operator""_mpz(char const* text) {
+    return mpz_class(text, 10);
+}
+
+inline mpz_class operator""_mpz(char const* text, std::size_t) {
+    return mpz_class(text);
+}
+
+inline mpq_class operator""_mpq(unsigned long long value) {
+    return mpq_class(mpz_class(static_cast<std::uint64_t>(value)));
+}
+
+inline mpq_class operator""_mpq(char const* text) {
+    return mpq_class(text, 10);
+}
+
+inline mpq_class operator""_mpq(char const* text, std::size_t) {
+    return mpq_class(text);
+}
+
+inline mpf_class operator""_mpf(char const* text) {
+    return mpf_class(text, gmpxx_mkII_detail::checked_mp_bitcnt(
+                               gmpxx_mkII_detail::thread_default_prec()),
+                     10);
+}
+
+inline mpf_class operator""_mpf(char const* text, std::size_t) {
+    return mpf_class(text);
+}
+
+}  // namespace literals
+
+}  // namespace gmpxx_mkII
