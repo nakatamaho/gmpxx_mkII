@@ -73,6 +73,24 @@ void test_default_constructor_value_zero() {
     assert(value.get_prec() == gmpxx_defaults::get_default_prec());
 }
 
+void test_bare_integral_constructor_is_value_not_precision() {
+    mpf_class value(384);
+    mpf_class expected(384, gmpxx_defaults::get_default_prec());
+
+    assert(value.get_prec() == gmpxx_defaults::get_default_prec());
+    assert_mpf_equal(value, expected);
+}
+
+void test_zero_with_explicit_precision_replaces_precision_only_ctor() {
+    mp_bitcnt_t requested_prec = static_cast<mp_bitcnt_t>(384);
+
+    mpf_class value(0.0, requested_prec);
+
+    assert(mpf_sgn(value.get_mpf_t()) == 0);
+    assert(value.get_prec() ==
+           gmpxx_detail::effective_mpf_prec(requested_prec));
+}
+
 void test_integral_constructor_with_explicit_precision() {
     mp_bitcnt_t requested_prec = static_cast<mp_bitcnt_t>(384);
 
@@ -94,6 +112,20 @@ void test_integral_constructor_with_explicit_precision() {
     mpf_set_z(unsigned_expected.get_mpf_t(), large_z.get_mpz_t());
     assert(unsigned_value.get_prec() == unsigned_expected.get_prec());
     assert_mpf_equal(unsigned_value, unsigned_expected);
+}
+
+void test_expression_constructor_with_explicit_precision() {
+    mpf_class a("1.25", static_cast<mp_bitcnt_t>(128));
+    mpf_class b("2.5", static_cast<mp_bitcnt_t>(512));
+    mp_bitcnt_t requested_prec = static_cast<mp_bitcnt_t>(320);
+
+    mpf_class value(a + b, requested_prec);
+    mpf_class expected(0.0, requested_prec);
+    mpf_add(expected.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
+
+    assert(value.get_prec() ==
+           gmpxx_detail::effective_mpf_prec(requested_prec));
+    assert_mpf_equal(value, expected);
 }
 
 void test_copy_constructor_preserves_value_and_precision() {
@@ -270,7 +302,10 @@ void test_mpq_construction_copy_move_assignment_and_swap() {
 int main() {
     test_compile_time_surface();
     test_default_constructor_value_zero();
+    test_bare_integral_constructor_is_value_not_precision();
+    test_zero_with_explicit_precision_replaces_precision_only_ctor();
     test_integral_constructor_with_explicit_precision();
+    test_expression_constructor_with_explicit_precision();
     test_copy_constructor_preserves_value_and_precision();
     test_copy_assignment_preserves_value_and_source_precision();
     test_move_constructor_preserves_value();
