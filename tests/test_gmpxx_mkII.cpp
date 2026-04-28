@@ -37,6 +37,7 @@
 #include <sstream>
 #include <vector>
 #include <cstdint>
+#include <algorithm>
 
 #include "gmpxx_mkII.h"
 using namespace gmpxx;
@@ -51,7 +52,40 @@ using namespace gmpxx::literals;
 #define GMPXX_MKII_COMPAT_HAS_TAN 0
 #define GMPXX_MKII_COMPAT_HAS_LOG2_LOG10 0
 #define GMPXX_MKII_COMPAT_HAS_CONST_PI_LOG2_ALIASES 0
-#define GMPXX_MKII_COMPAT_HAS_INT128 0
+#define GMPXX_MKII_COMPAT_HAS_INT128 1
+
+#if defined(__SIZEOF_INT128__)
+namespace helper {
+
+using int128_type = gmpxx_detail::int128_type;
+using uint128_type = gmpxx_detail::uint128_type;
+
+std::string uint128_to_string(uint128_type value) {
+    if (value == 0) {
+        return "0";
+    }
+
+    std::string result;
+    while (value != 0) {
+        unsigned digit = static_cast<unsigned>(value % 10);
+        result.push_back(static_cast<char>('0' + digit));
+        value /= 10;
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+std::string int128_to_string(int128_type value) {
+    if (value < 0) {
+        uint128_type magnitude =
+            static_cast<uint128_type>(-(value + 1)) + 1u;
+        return "-" + uint128_to_string(magnitude);
+    }
+    return uint128_to_string(static_cast<uint128_type>(value));
+}
+
+}  // namespace helper
+#endif
 
 std::string to_hex_sci(const mpf_class& val) {
     if (val == 0)
@@ -3326,8 +3360,7 @@ void test_int64_t_uint64_t_int32_t_uint32_t_assignment() {
     }
 }
 void test_int128_t_uint128_t_assignment() {
-#if 0
-    // TODO: Restore if compiler-specific __int128 support is accepted.
+#ifdef __SIZEOF_INT128__
     {
         __int128_t testValue = (__int128_t)0x0123456789ABCDEF * 0xFEDCBA9876543210;
         mpz_class value;
@@ -3360,8 +3393,7 @@ void test_int128_t_uint128_t_assignment() {
 #endif
 }
 void test_int128_t_uint128_t_constructor() {
-#if 0
-    // TODO: Restore if compiler-specific __int128 support is accepted.
+#ifdef __SIZEOF_INT128__
     {
         __int128_t testValue = (__int128_t)0x0123456789ABCDEF * 0xFEDCBA9876543210;
         mpz_class value(testValue);

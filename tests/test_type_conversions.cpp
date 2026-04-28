@@ -28,6 +28,7 @@
 
 #include "gmpxx_mkII.h"
 
+#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <concepts>
@@ -42,6 +43,35 @@ namespace {
 void assert_mpf_equal(mpf_class const& got, mpf_class const& expected) {
     assert(mpf_cmp(got.get_mpf_t(), expected.get_mpf_t()) == 0);
 }
+
+#if defined(__SIZEOF_INT128__)
+using int128_type = gmpxx_detail::int128_type;
+using uint128_type = gmpxx_detail::uint128_type;
+
+std::string uint128_to_string(uint128_type value) {
+    if (value == 0) {
+        return "0";
+    }
+
+    std::string result;
+    while (value != 0) {
+        unsigned digit = static_cast<unsigned>(value % 10);
+        result.push_back(static_cast<char>('0' + digit));
+        value /= 10;
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+std::string int128_to_string(int128_type value) {
+    if (value < 0) {
+        uint128_type magnitude =
+            static_cast<uint128_type>(-(value + 1)) + 1u;
+        return "-" + uint128_to_string(magnitude);
+    }
+    return uint128_to_string(static_cast<uint128_type>(value));
+}
+#endif
 
 void test_compile_time_surface() {
     static_assert(std::is_constructible_v<mpz_class, double>);
@@ -77,6 +107,12 @@ void test_compile_time_surface() {
                                signed long>);
     static_assert(std::same_as<decltype(std::declval<mpq_class const&>().get_d()),
                                double>);
+#if defined(__SIZEOF_INT128__)
+    static_assert(std::is_constructible_v<mpz_class, int128_type>);
+    static_assert(std::is_constructible_v<mpz_class, uint128_type>);
+    static_assert(std::is_assignable_v<mpz_class&, int128_type>);
+    static_assert(std::is_assignable_v<mpz_class&, uint128_type>);
+#endif
 }
 
 void test_mpz_integer_and_double_construction() {
@@ -101,6 +137,35 @@ void test_mpz_integer_and_double_construction() {
     mpz_class assigned_double;
     assigned_double = 31415926535.0;
     assert(assigned_double == mpz_class("31415926535"));
+}
+
+void test_mpz_int128_construction_and_assignment() {
+#if defined(__SIZEOF_INT128__)
+    int128_type signed_value =
+        static_cast<int128_type>(0x0123456789ABCDEFULL) *
+        static_cast<int128_type>(0x0FEDCBA987654321ULL);
+    int128_type signed_negative = -signed_value;
+    uint128_type unsigned_value =
+        static_cast<uint128_type>(0xFEDCBA9876543210ULL) *
+        static_cast<uint128_type>(0xFFFFFFFFFFFFFFFFULL);
+
+    mpz_class from_signed(signed_value);
+    assert(from_signed.get_str() == int128_to_string(signed_value));
+
+    mpz_class from_negative(signed_negative);
+    assert(from_negative.get_str() == int128_to_string(signed_negative));
+
+    mpz_class from_unsigned(unsigned_value);
+    assert(from_unsigned.get_str() == uint128_to_string(unsigned_value));
+
+    mpz_class assigned;
+    assigned = signed_value;
+    assert(assigned == from_signed);
+    assigned = signed_negative;
+    assert(assigned == from_negative);
+    assigned = unsigned_value;
+    assert(assigned == from_unsigned);
+#endif
 }
 
 void test_string_and_base_construction() {
@@ -294,6 +359,7 @@ void test_mpq_scalar_conversion() {
 int main() {
     test_compile_time_surface();
     test_mpz_integer_and_double_construction();
+    test_mpz_int128_construction_and_assignment();
     test_string_and_base_construction();
     test_mpz_to_mpf_and_mpq_construction();
     test_wrapper_to_wrapper_construction();

@@ -58,6 +58,11 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 
 namespace gmpxx_detail {
 
+#if defined(__SIZEOF_INT128__)
+__extension__ typedef __int128 int128_type;
+__extension__ typedef unsigned __int128 uint128_type;
+#endif
+
 inline constexpr std::uint64_t effective_mpf_prec(std::uint64_t requested) noexcept {
     constexpr std::uint64_t limb_bits = GMP_NUMB_BITS;
     if (requested == 0) {
@@ -936,6 +941,16 @@ public:
         set_u64(v);
     }
 
+#if defined(__SIZEOF_INT128__)
+    mpz_class(gmpxx_detail::int128_type v) : mpz_class() {
+        set_i128(v);
+    }
+
+    mpz_class(gmpxx_detail::uint128_type v) : mpz_class() {
+        set_u128(v);
+    }
+#endif
+
     template<class T>
         requires (std::is_integral_v<std::remove_cvref_t<T>> &&
                   !std::same_as<std::remove_cvref_t<T>, bool> &&
@@ -1001,6 +1016,18 @@ public:
         mpz_set_d(value, rhs);
         return *this;
     }
+
+#if defined(__SIZEOF_INT128__)
+    mpz_class& operator=(gmpxx_detail::int128_type rhs) {
+        set_i128(rhs);
+        return *this;
+    }
+
+    mpz_class& operator=(gmpxx_detail::uint128_type rhs) {
+        set_u128(rhs);
+        return *this;
+    }
+#endif
 
     mpz_class& operator=(mpf_class const& rhs);
     mpz_class& operator=(mpq_class const& rhs);
@@ -1148,6 +1175,23 @@ private:
             set_u64(static_cast<std::uint64_t>(v));
         }
     }
+
+#if defined(__SIZEOF_INT128__)
+    void set_u128(gmpxx_detail::uint128_type v) {
+        mpz_import(value, 1, -1, sizeof(v), 0, 0, &v);
+    }
+
+    void set_i128(gmpxx_detail::int128_type v) {
+        if (v < 0) {
+            gmpxx_detail::uint128_type magnitude =
+                static_cast<gmpxx_detail::uint128_type>(-(v + 1)) + 1u;
+            set_u128(magnitude);
+            mpz_neg(value, value);
+        } else {
+            set_u128(static_cast<gmpxx_detail::uint128_type>(v));
+        }
+    }
+#endif
 
     template<class T>
         requires (std::is_integral_v<std::remove_cvref_t<T>> &&
