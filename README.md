@@ -28,9 +28,11 @@ Implemented now:
 - Unary `+` and unary `-`.
 - Direct expression construction and assignment:
   `mpf_class r = a + b * c;`, `r = (a + b) / c;`.
-- Compound assignment (`+=`, `-=`, `*=`, `/=`) with `mpf_class`,
-  expression, and scalar right-hand sides.
-- `.eval()` for explicitly materializing an expression as `mpf_class`.
+- Compound assignment (`+=`, `-=`, `*=`, `/=`) for `mpf_class`,
+  `mpz_class`, and `mpq_class` with wrapper, expression, and scalar
+  right-hand sides where supported.
+- `.eval()` for explicitly materializing an expression as its result type
+  (`mpf_class`, `mpz_class`, or `mpq_class`).
 - Operand-max precision for expression construction and `.eval()` by default.
 - `gmpxx.h`-compatible expression assignment that preserves destination
   precision.
@@ -185,7 +187,8 @@ Default build:
   `mpf_class` leaves in the expression tree.
 - Assignment to an existing `mpf_class` preserves the destination precision;
   the right-hand side expression is evaluated at that precision.
-- Scalar leaves do not contribute precision in the default build.
+- Scalar, `mpz_class`, and `mpq_class` leaves do not contribute floating
+  precision in the default build.
 - Top-level evaluation computes this final precision once and passes it down
   through the whole expression.
 
@@ -196,6 +199,8 @@ Default build:
   `.eval()` result precision.
 - Assignment to an existing `mpf_class` still preserves the destination
   precision.
+- Exact `mpz_class` and `mpq_class` expressions are not precision-bearing in
+  either build mode.
 
 GMP rounds `mpf_t` precision to implementation-dependent limb boundaries.
 `mpf_class::get_prec()` returns the effective GMP precision.
