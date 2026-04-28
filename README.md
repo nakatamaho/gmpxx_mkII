@@ -1,17 +1,17 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, header-only wrapper around GNU GMP numeric types.
-The current repository state is the v2.0.0 Phase 4A expression-template
+The current repository state is the v2.0.0 Phase 4B expression-template
 rewrite: it implements `mpf_class`, `mpz_class`, and `mpq_class` arithmetic
 cores plus mixed scalar arithmetic.
 
-The v2.0.0 rewrite is being restored in phases. Phase 4A validates the new
+The v2.0.0 rewrite is being restored in phases. Phase 4B validates the new
 lazy expression machinery, precision policy, thread-local default precision,
 scalar leaf normalization, compound assignment, long-width dispatch,
 power-of-two integer scaling fusion, unary double-negation simplification,
 integer/rational GMP wrappers, mixed mpf/mpz/mpq expressions, native mpz
-multiply-add fusion, comparison operators, and allocation behavior before
-restoring the broader v1.0.0 surface.
+multiply-add fusion, comparison operators, string conversion, stream I/O,
+and allocation behavior before restoring the broader v1.0.0 surface.
 
 ## Current Scope
 
@@ -46,14 +46,16 @@ Implemented now:
   and `mpz_submul_ui` where valid.
 - `cmp()`, `==`, `!=`, `<`, `<=`, `>`, and `>=` for wrapper values,
   expression operands, and supported scalar operands.
+- `get_str()`, `set_str()`, and `to_string()` for concrete wrapper values.
+- `operator<<` and `operator>>` for concrete wrapper values, plus
+  immediate-evaluation `operator<<` for expression operands.
 - Thread-local wrapper default precision initialized from
   `GMPXX_MKII_DEFAULT_PREC`.
 - `gmpxx_defaults::set_initial_default_prec(uint64_t)`.
-- CMake + CTest build with Phase 0 through Phase 4A regression tests.
+- CMake + CTest build with Phase 0 through Phase 4B regression tests.
 
 Deferred to later phases:
 
-- I/O and formatting.
 - User-defined literals.
 - Fortran bridge compatibility.
 - Full `find_package(gmpxx_mkII)` package config.
@@ -164,7 +166,7 @@ int main() {
 
 ## Expression Lifetime Rule
 
-Phase 4A expression nodes store `mpf_class`, `mpz_class`, `mpq_class`, and
+Phase 4B expression nodes store `mpf_class`, `mpz_class`, `mpq_class`, and
 expression subtrees by `const&`, while scalar leaves are normalized and stored
 by value. This is deliberate for the v2.0.0 performance and ABI experiment,
 but expression trees must not be saved in `auto` variables.

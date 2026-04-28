@@ -14,7 +14,11 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
+#include <ios>
+#include <istream>
 #include <limits>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -82,6 +86,53 @@ inline std::uint64_t thread_default_prec() {
         process_initial_prec().load(std::memory_order_relaxed);
     return prec;
 }
+
+class gmp_string {
+public:
+    explicit gmp_string(char* ptr) noexcept : ptr_(ptr) {}
+
+    ~gmp_string() {
+        reset();
+    }
+
+    gmp_string(gmp_string const&) = delete;
+    gmp_string& operator=(gmp_string const&) = delete;
+
+    gmp_string(gmp_string&& other) noexcept : ptr_(other.ptr_) {
+        other.ptr_ = nullptr;
+    }
+
+    gmp_string& operator=(gmp_string&& other) noexcept {
+        if (this != &other) {
+            reset();
+            ptr_ = other.ptr_;
+            other.ptr_ = nullptr;
+        }
+        return *this;
+    }
+
+    [[nodiscard]] char const* c_str() const noexcept {
+        return ptr_;
+    }
+
+    [[nodiscard]] explicit operator bool() const noexcept {
+        return ptr_ != nullptr;
+    }
+
+private:
+    void reset() noexcept {
+        if (ptr_ == nullptr) {
+            return;
+        }
+
+        void (*free_func)(void*, std::size_t) = nullptr;
+        mp_get_memory_functions(nullptr, nullptr, &free_func);
+        free_func(ptr_, std::strlen(ptr_) + 1);
+        ptr_ = nullptr;
+    }
+
+    char* ptr_ = nullptr;
+};
 
 template<class T>
 struct scalar_normalize_impl {};
@@ -609,6 +660,28 @@ public:
         return mpf_get_prec(value);
     }
 
+    [[nodiscard]] std::string get_str(
+        mp_exp_t& exp, int base = 10, std::size_t n_digits = 0) const {
+        gmpxx_mkII_detail::gmp_string s(
+            mpf_get_str(nullptr, &exp, base, n_digits, value));
+        return s ? std::string(s.c_str()) : std::string();
+    }
+
+    int set_str(char const* s, int base = 10) {
+        mpf_class tmp(get_prec());
+        int rc = mpf_set_str(tmp.value, s, base);
+        if (rc == 0) {
+            mpf_set(value, tmp.value);
+        }
+        return rc;
+    }
+
+    int set_str(std::string const& s, int base = 10) {
+        return set_str(s.c_str(), base);
+    }
+
+    [[nodiscard]] std::string to_string(std::size_t n_digits = 0) const;
+
     [[nodiscard]] bool contains_address(mpf_class const* p) const {
         return this == p;
     }
@@ -745,6 +818,28 @@ public:
 
     [[nodiscard]] mpz_srcptr get_mpz_t() const {
         return value;
+    }
+
+    [[nodiscard]] std::string get_str(int base = 10) const {
+        gmpxx_mkII_detail::gmp_string s(mpz_get_str(nullptr, base, value));
+        return s ? std::string(s.c_str()) : std::string();
+    }
+
+    int set_str(char const* s, int base = 10) {
+        mpz_class tmp;
+        int rc = mpz_set_str(tmp.value, s, base);
+        if (rc == 0) {
+            swap(tmp);
+        }
+        return rc;
+    }
+
+    int set_str(std::string const& s, int base = 10) {
+        return set_str(s.c_str(), base);
+    }
+
+    [[nodiscard]] std::string to_string(int base = 10) const {
+        return get_str(base);
     }
 
     [[nodiscard]] bool contains_address(mpz_class const* p) const {
@@ -908,6 +1003,29 @@ public:
         return value;
     }
 
+    [[nodiscard]] std::string get_str(int base = 10) const {
+        gmpxx_mkII_detail::gmp_string s(mpq_get_str(nullptr, base, value));
+        return s ? std::string(s.c_str()) : std::string();
+    }
+
+    int set_str(char const* s, int base = 10) {
+        mpq_class tmp;
+        int rc = mpq_set_str(tmp.value, s, base);
+        if (rc == 0) {
+            tmp.canonicalize();
+            swap(tmp);
+        }
+        return rc;
+    }
+
+    int set_str(std::string const& s, int base = 10) {
+        return set_str(s.c_str(), base);
+    }
+
+    [[nodiscard]] std::string to_string(int base = 10) const {
+        return get_str(base);
+    }
+
     [[nodiscard]] mpz_class get_num() const {
         mpz_class r;
         mpz_set(r.get_mpz_t(), mpq_numref(value));
@@ -946,7 +1064,103 @@ private:
     mpq_t value;
 };
 
+inline std::string mpf_class::to_string(std::size_t n_digits) const {
+    mp_exp_t exp = 0;
+    std::string digits = get_str(exp, 10, n_digits);
+    if (digits.empty()) {
+        return "0";
+    }
+
+    bool negative = digits.front() == '-';
+    if (negative) {
+        digits.erase(digits.begin());
+    }
+
+    std::string out;
+    if (negative) {
+        out.push_back('-');
+    }
+
+    if (exp <= 0) {
+        out += "0.";
+        out.append(static_cast<std::size_t>(-exp), '0');
+        out += digits;
+    } else if (static_cast<std::size_t>(exp) >= digits.size()) {
+        out += digits;
+        out.append(static_cast<std::size_t>(exp) - digits.size(), '0');
+    } else {
+        out += digits.substr(0, static_cast<std::size_t>(exp));
+        out.push_back('.');
+        out += digits.substr(static_cast<std::size_t>(exp));
+    }
+
+    return out;
+}
+
 namespace gmpxx_mkII_detail {
+
+inline int stream_integer_base(std::ios_base const& os) noexcept {
+    auto basefield = os.flags() & std::ios_base::basefield;
+    if (basefield == std::ios_base::hex) {
+        return (os.flags() & std::ios_base::uppercase) ? -16 : 16;
+    }
+    if (basefield == std::ios_base::oct) {
+        return 8;
+    }
+    return 10;
+}
+
+inline int stream_input_base(std::ios_base const& is) noexcept {
+    auto basefield = is.flags() & std::ios_base::basefield;
+    if (basefield == std::ios_base::hex) {
+        return 16;
+    }
+    if (basefield == std::ios_base::oct) {
+        return 8;
+    }
+    if (basefield == std::ios_base::dec) {
+        return 10;
+    }
+    return 0;
+}
+
+inline std::string mpf_format_string(std::ios_base const& os) {
+    char conv = 'g';
+    auto floatfield = os.flags() & std::ios_base::floatfield;
+    if (floatfield == std::ios_base::scientific) {
+        conv = 'e';
+    } else if (floatfield == std::ios_base::fixed) {
+        conv = 'f';
+    }
+
+    if (os.flags() & std::ios_base::uppercase) {
+        conv = static_cast<char>(conv - 'a' + 'A');
+    }
+
+    std::string fmt = "%.*F";
+    fmt.push_back(conv);
+    return fmt;
+}
+
+inline std::string format_mpf(mpf_class const& value, std::ios_base const& os) {
+    std::streamsize stream_prec = os.precision();
+    if (stream_prec < 0) {
+        stream_prec = 6;
+    }
+    if (stream_prec > static_cast<std::streamsize>(std::numeric_limits<int>::max())) {
+        stream_prec = std::numeric_limits<int>::max();
+    }
+
+    char* raw = nullptr;
+    int count = gmp_asprintf(
+        &raw, mpf_format_string(os).c_str(), static_cast<int>(stream_prec),
+        value.get_mpf_t());
+    gmp_string formatted(raw);
+    if (count < 0 || !formatted) {
+        return {};
+    }
+    return std::string(formatted.c_str());
+}
 
 inline mpf_class integer_tmp(std::uint64_t v, mp_bitcnt_t dst_prec) {
     char buf[24];
@@ -2304,6 +2518,110 @@ template<class L, class R>
     requires comparison_pair<L, R>
 bool operator>=(L const& lhs, R const& rhs) {
     return cmp(lhs, rhs) >= 0;
+}
+
+inline std::ostream& operator<<(std::ostream& os, mpz_class const& value) {
+    try {
+        os << value.get_str(gmpxx_mkII_detail::stream_integer_base(os));
+    } catch (...) {
+        os.setstate(std::ios_base::badbit);
+    }
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, mpq_class const& value) {
+    try {
+        os << value.get_str(gmpxx_mkII_detail::stream_integer_base(os));
+    } catch (...) {
+        os.setstate(std::ios_base::badbit);
+    }
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, mpf_class const& value) {
+    try {
+        std::string s = gmpxx_mkII_detail::format_mpf(value, os);
+        if (s.empty()) {
+            os.setstate(std::ios_base::badbit);
+        } else {
+            os << s;
+        }
+    } catch (...) {
+        os.setstate(std::ios_base::badbit);
+    }
+    return os;
+}
+
+template<gmpxx_expr Expr>
+inline std::ostream& operator<<(std::ostream& os, Expr const& expr) {
+    auto value = expr.eval();
+    os << value;
+    return os;
+}
+
+inline std::istream& operator>>(std::istream& is, mpz_class& value) {
+    std::istream::sentry sentry(is);
+    if (!sentry) {
+        return is;
+    }
+
+    std::string token;
+    if (!(is >> token)) {
+        return is;
+    }
+
+    mpz_class tmp;
+    if (tmp.set_str(token, gmpxx_mkII_detail::stream_input_base(is)) == 0) {
+        value.swap(tmp);
+    } else {
+        is.setstate(std::ios_base::failbit);
+    }
+    return is;
+}
+
+inline std::istream& operator>>(std::istream& is, mpq_class& value) {
+    std::istream::sentry sentry(is);
+    if (!sentry) {
+        return is;
+    }
+
+    std::string token;
+    if (!(is >> token)) {
+        return is;
+    }
+
+    mpq_class tmp;
+    if (tmp.set_str(token, gmpxx_mkII_detail::stream_input_base(is)) == 0) {
+        value.swap(tmp);
+    } else {
+        is.setstate(std::ios_base::failbit);
+    }
+    return is;
+}
+
+inline std::istream& operator>>(std::istream& is, mpf_class& value) {
+    std::istream::sentry sentry(is);
+    if (!sentry) {
+        return is;
+    }
+
+    std::string token;
+    if (!(is >> token)) {
+        return is;
+    }
+
+    int base = gmpxx_mkII_detail::stream_input_base(is);
+    if (base == 0) {
+        base = 10;
+    }
+
+    mpf_class tmp(value.get_prec());
+    if (tmp.set_str(token, base) == 0) {
+        value.swap(tmp);
+    } else {
+        is.setstate(std::ios_base::failbit);
+    }
+    return is;
 }
 
 template<phase0_operand L, phase0_operand R>
