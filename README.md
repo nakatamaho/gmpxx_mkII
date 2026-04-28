@@ -50,6 +50,8 @@ Implemented now:
 - `get_str()`, `set_str()`, and `to_string()` for concrete wrapper values.
 - `mpf_class` assignment from `double`, `char const*`, and `std::string`
   with destination precision preserved.
+- `mpf_class` free functions `sqrt`, `abs`, and legacy `neg`, implemented
+  directly through GMP `mpf_t` APIs.
 - `operator<<` and `operator>>` for concrete wrapper values, plus
   immediate-evaluation `operator<<` for expression operands.
 - User-defined literals in `gmpxx_mkII::literals`: `_mpz`, `_mpq`, and
@@ -62,7 +64,7 @@ Implemented now:
 
 Deferred to later phases:
 
-- Math functions and transcendental functions.
+- Remaining math functions and transcendental functions.
 - Random support.
 - Benchmarks beyond the focused allocation tests.
 

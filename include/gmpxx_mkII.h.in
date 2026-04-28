@@ -2905,9 +2905,28 @@ template<phase2_operand X>
     return unary_expr<pos_op, std::remove_cvref_t<X>>{x};
 }
 
+[[nodiscard]] inline mpf_class sqrt(mpf_class const& x) {
+    mpf_class result(x.get_prec());
+    mpf_sqrt(result.get_mpf_t(), x.get_mpf_t());
+    return result;
+}
+
+[[nodiscard]] inline mpf_class abs(mpf_class const& x) {
+    mpf_class result(x.get_prec());
+    mpf_abs(result.get_mpf_t(), x.get_mpf_t());
+    return result;
+}
+
+[[nodiscard]] inline mpf_class neg(mpf_class const& x) {
+    mpf_class result(x.get_prec());
+    mpf_neg(result.get_mpf_t(), x.get_mpf_t());
+    return result;
+}
+
 namespace gmpxx_mkII {
 
 using ::binary_expr;
+using ::abs;
 using ::cmp;
 using ::div_op;
 using ::gmpxx_defaults;
@@ -2916,7 +2935,9 @@ using ::mpq_class;
 using ::mpz_class;
 using ::mul_op;
 using ::neg_op;
+using ::neg;
 using ::pos_op;
+using ::sqrt;
 using ::unary_expr;
 
 namespace literals {

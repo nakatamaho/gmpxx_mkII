@@ -42,6 +42,7 @@ of the v2.0.0 header.
 | `mpz_class` / `mpq_class` | Done through Phase 5 | Declared, owned, and accepted as expression operands. |
 | Native integer addmul fusion | Done for Phase 3 | `mpz_class` compound assignment fuses direct `a += b*c` and `a -= b*c` forms through `mpz_addmul`, `mpz_submul`, `mpz_addmul_ui`, and `mpz_submul_ui` where valid. |
 | Comparisons | Done for Phase 4A | `cmp()`, `==`, `!=`, `<`, `<=`, `>`, and `>=` are implemented for `mpf_class`, `mpz_class`, `mpq_class`, supported scalar operands, and expression operands. |
+| Basic mpf math functions | Done after Phase 5 | `sqrt(mpf_class)`, `abs(mpf_class)`, and legacy `neg(mpf_class)` are implemented directly through GMP `mpf_t` APIs and preserve operand precision. |
 | String conversion | Done for Phase 4B | `get_str()`, `set_str()`, and `to_string()` are implemented for `mpf_class`, `mpz_class`, and `mpq_class` with GMP-compatible parsing and output semantics. Phase 5 no-base overloads use the wrapper default base. |
 | Stream I/O | Done for Phase 4B | `operator<<` and `operator>>` are implemented for concrete wrapper types, and expression nodes support immediate-evaluation stream output. |
 | User-defined literals | Done for Phase 5 | `_mpz`, `_mpq`, and `_mpf` are available in `gmpxx_mkII::literals`. |
@@ -49,7 +50,7 @@ of the v2.0.0 header.
 | Package config | Done for Phase 5 | Installed packages provide `gmpxx_mkIIConfig.cmake`, a version config, and an exported `gmpxx_mkII::gmpxx_mkII` target usable through `find_package`. |
 | Fortran bridge | Not planned for v2.0.0 | Fortran bridge APIs are intentionally dropped from the v2.0.0 roadmap. |
 | Random support | Missing by design | `gmp_randclass` and random helpers are deferred. |
-| Test coverage | Present through Phase 5 | Twenty-six CTest targets cover ABI traits, mpf construction/copy semantics, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, and package config. |
+| Test coverage | Present through Phase 5 | Twenty-seven CTest targets cover ABI traits, mpf construction/copy semantics, basic mpf math functions, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, and package config. |
 
 ## Implementation Summary
 
@@ -92,7 +93,7 @@ of the v2.0.0 header.
 | User-defined literals | Done for Phase 5 | `_mpz`, `_mpq`, and `_mpf` are opt-in under `gmpxx_mkII::literals`. |
 | Defaults/base policy | Done for Phase 5 | `gmpxx_defaults` exposes precision queries and a thread-local default base for no-base string APIs. |
 | Package config | Done for Phase 5 | Install-tree package config supports `find_package(gmpxx_mkII CONFIG REQUIRED)`. |
-| Math functions | Missing by design | `abs`, `sqrt`, `hypot`, `floor`, `ceil`, `trunc`, transcendental functions, and related overloads are deferred. |
+| Basic mpf math functions | Done after Phase 5 | `sqrt(mpf_class)`, `abs(mpf_class)`, and legacy `neg(mpf_class)` are available. Remaining math functions are deferred. |
 
 ## Test Summary
 
@@ -100,6 +101,7 @@ of the v2.0.0 header.
 |---|---:|---|
 | `test_abi_fingerprint` | Present | `scalar_normalize_t` ABI categories, `gmpxx_expr`, `phase0_operand`, operator constraints rejecting scalar/scalar ET operands, and diagnostic-only expression type names. |
 | `test_mpf_construction_copy` | Present | `mpf_class` default construction initializes zero at wrapper default precision; copy construction and copy assignment preserve value and source precision; double and string assignment preserve destination precision; explicit-base hex string construction works. |
+| `test_mpf_math_functions` | Present | `sqrt(mpf_class)`, `abs(mpf_class)`, and legacy `neg(mpf_class)` match raw GMP references and preserve operand precision. |
 | `test_numeric_equivalence` | Present | Bit-exact comparison against raw GMP `mpf_t` reference calculations for unary and binary operations, nested expressions, mixed precisions, positive/negative/zero values, string construction, and double construction. |
 | `test_alloc_count` | Present | Registers GMP memory hooks before object construction and verifies allocation counts for `dst = a + b`, `dst = a + b + c`, `dst = a + b + c + d`, and `dst = (a+b) * (c+d)` as `0, 0, 0, 1`. |
 | `test_alias_safety` | Present | Self-alias and mixed-alias expression assignment cases compare against independent raw GMP references. |
@@ -124,23 +126,23 @@ of the v2.0.0 header.
 | `test_user_defined_literals` | Present | `_mpz`, `_mpq`, and `_mpf` literal construction, large string literals, rational canonicalization, direct mpf text parsing, default-base interaction, and raw numeric literal base independence. |
 | `test_defaults_policy` | Present | Default precision getters, thread-local precision snapshot behavior, independence from GMP global default precision, default-base get/set, no-base string API integration, stream/base independence, invalid-base errors, and thread-local base behavior. |
 | `test_package_config` | Present | Installs the project into a temporary prefix, configures an external consumer with `find_package(gmpxx_mkII CONFIG REQUIRED)`, builds it, and runs it. |
-| `GMPXX_MKII_NOPRECCHANGE` build | Present | The same twenty-six tests pass when expression construction precision is the thread-local default instead of max operand precision. |
+| `GMPXX_MKII_NOPRECCHANGE` build | Present | The same twenty-seven tests pass when expression construction precision is the thread-local default instead of max operand precision. |
 | Environment override check | Present manually | `GMPXX_MKII_DEFAULT_PREC=1024 ctest --test-dir build --output-on-failure` passes. |
 | Clang coverage | Present | Clang passes both default and `GMPXX_MKII_NOPRECCHANGE=ON` Phase 5 builds. |
 | TSan coverage | Present for T4 | ThreadSanitizer build passes `test_thread_safety`. |
-| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all twenty-six Phase 5 tests. |
+| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all twenty-seven Phase 5 tests. |
 
 ## Verified Build Matrix
 
 | Compiler / Build | Result | Notes |
 |---|---:|---|
-| GCC 15.2.0, default | Pass | All twenty-six tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-six tests pass. |
-| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All twenty-six tests pass with the slow path forced. |
-| Clang, default | Pass | All twenty-six tests pass. |
-| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-six tests pass. |
+| GCC 15.2.0, default | Pass | All twenty-seven tests pass. |
+| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-seven tests pass. |
+| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All twenty-seven tests pass with the slow path forced. |
+| Clang, default | Pass | All twenty-seven tests pass. |
+| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All twenty-seven tests pass. |
 | GCC 15.2.0, TSan | Pass | `test_thread_safety` passes. |
-| GCC 15.2.0, ASan/UBSan | Pass | All twenty-six tests pass. |
+| GCC 15.2.0, ASan/UBSan | Pass | All twenty-seven tests pass. |
 | C++17 direct include | Fails as intended | Header `static_assert(__cplusplus >= 202002L, ...)` fires. |
 
 ## Missing Feature Summary
@@ -149,7 +151,7 @@ of the v2.0.0 header.
 |---|---|---|
 | Scalar arithmetic | Additional scalar types beyond the Phase 1 normalized set | Phase 1 supports `int64_t`, `uint64_t`, and `double` leaves only. |
 | Extended native integer fusion | Unary-minus addmul/submul normalization, multiplication-chain fusion, and distributive expansion such as `(b+c)*d` | Deferred beyond Phase 3. Direct `mpz_addmul`/`mpz_submul` compound-assignment fusion is implemented. |
-| Math functions | `abs`, `sqrt`, `hypot`, `floor`, `ceil`, and later transcendental functions | Future GMP-only work; no MPFR/MPC fallback. |
+| Remaining math functions | Expression-aware math overloads, `hypot`, `floor`, `ceil`, `trunc`, and later transcendental functions | Future GMP-only work; no MPFR/MPC fallback. Basic concrete `sqrt(mpf_class)`, `abs(mpf_class)`, and `neg(mpf_class)` are implemented. |
 | Extended literal parsing | Additional literal forms beyond `_mpz`, `_mpq`, and `_mpf` in `gmpxx_mkII::literals` | The Phase 5 UDL surface is intentionally limited to supported integer, rational, and floating text/machine literal forms. |
 | Fortran bridge | v1.0.0 compatibility bridge APIs | Not planned for v2.0.0. Fortran bridge support was intentionally dropped from the roadmap. |
 | Benchmarks | Allocation/performance microbenchmarks beyond `test_alloc_count` | Phase 6 or separate benchmark work. |
