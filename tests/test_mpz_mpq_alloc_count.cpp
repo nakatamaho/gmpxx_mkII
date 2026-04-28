@@ -14,19 +14,19 @@
 namespace {
 
 std::uint64_t mpf_count() {
-    return gmpxx_mkII_detail::mpf_ctor_count.load(std::memory_order_relaxed);
+    return gmpxx_detail::mpf_ctor_count.load(std::memory_order_relaxed);
 }
 
 std::uint64_t mpz_count() {
-    return gmpxx_mkII_detail::mpz_ctor_count.load(std::memory_order_relaxed);
+    return gmpxx_detail::mpz_ctor_count.load(std::memory_order_relaxed);
 }
 
 std::uint64_t mpq_count() {
-    return gmpxx_mkII_detail::mpq_ctor_count.load(std::memory_order_relaxed);
+    return gmpxx_detail::mpq_ctor_count.load(std::memory_order_relaxed);
 }
 
 void reset() {
-    gmpxx_mkII_detail::reset_wrapper_counters();
+    gmpxx_detail::reset_wrapper_counters();
 }
 
 }  // namespace

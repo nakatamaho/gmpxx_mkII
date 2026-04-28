@@ -13,7 +13,7 @@
 
 namespace {
 
-using gmpxx_mkII_detail::is_mpz_addmul_fusable_v;
+using gmpxx_detail::is_mpz_addmul_fusable_v;
 
 static_assert(is_mpz_addmul_fusable_v<
               decltype(std::declval<mpz_class const&>() *
@@ -54,27 +54,27 @@ static_assert(!is_mpz_addmul_fusable_v<
               decltype(std::declval<mpz_class const&>() * 1.0)>);
 
 std::uint64_t addmul_count() {
-    return gmpxx_mkII_detail::test_mpz_addmul_fused_count.load(
+    return gmpxx_detail::test_mpz_addmul_fused_count.load(
         std::memory_order_relaxed);
 }
 
 std::uint64_t submul_count() {
-    return gmpxx_mkII_detail::test_mpz_submul_fused_count.load(
+    return gmpxx_detail::test_mpz_submul_fused_count.load(
         std::memory_order_relaxed);
 }
 
 std::uint64_t addmul_ui_count() {
-    return gmpxx_mkII_detail::test_mpz_addmul_ui_fused_count.load(
+    return gmpxx_detail::test_mpz_addmul_ui_fused_count.load(
         std::memory_order_relaxed);
 }
 
 std::uint64_t submul_ui_count() {
-    return gmpxx_mkII_detail::test_mpz_submul_ui_fused_count.load(
+    return gmpxx_detail::test_mpz_submul_ui_fused_count.load(
         std::memory_order_relaxed);
 }
 
 void reset_counters() {
-    gmpxx_mkII_detail::reset_mpz_addmul_fusion_counters();
+    gmpxx_detail::reset_mpz_addmul_fusion_counters();
 }
 
 void assert_equal(mpz_class const& got, mpz_t expected) {
@@ -132,8 +132,8 @@ void check_addmul_scalar(mpz_class const& a0, mpz_class const& b,
     assert_equal(a, ref);
     const std::uint64_t mag = s >= 0
         ? static_cast<std::uint64_t>(s)
-        : gmpxx_mkII_detail::safe_negate(s);
-    const bool ui_path = gmpxx_mkII_detail::fits_in_ulong(mag);
+        : gmpxx_detail::safe_negate(s);
+    const bool ui_path = gmpxx_detail::fits_in_ulong(mag);
     if (s >= 0 && ui_path) {
         assert(addmul_ui_count() == 1);
         assert(submul_ui_count() == 0);
@@ -176,8 +176,8 @@ void check_submul_scalar(mpz_class const& a0, mpz_class const& b,
     assert_equal(a, ref);
     const std::uint64_t mag = s >= 0
         ? static_cast<std::uint64_t>(s)
-        : gmpxx_mkII_detail::safe_negate(s);
-    const bool ui_path = gmpxx_mkII_detail::fits_in_ulong(mag);
+        : gmpxx_detail::safe_negate(s);
+    const bool ui_path = gmpxx_detail::fits_in_ulong(mag);
     if (s >= 0 && ui_path) {
         assert(addmul_ui_count() == 0);
         assert(submul_ui_count() == 1);
@@ -218,7 +218,7 @@ void check_addmul_u64(mpz_class const& a0, mpz_class const& b,
         a += b * s;
     }
     assert_equal(a, ref);
-    if (gmpxx_mkII_detail::fits_in_ulong(s)) {
+    if (gmpxx_detail::fits_in_ulong(s)) {
         assert(addmul_ui_count() == 1);
         assert(addmul_count() == 0);
     } else {
@@ -244,7 +244,7 @@ void check_submul_u64(mpz_class const& a0, mpz_class const& b,
         a -= b * s;
     }
     assert_equal(a, ref);
-    if (gmpxx_mkII_detail::fits_in_ulong(s)) {
+    if (gmpxx_detail::fits_in_ulong(s)) {
         assert(submul_ui_count() == 1);
         assert(submul_count() == 0);
     } else {

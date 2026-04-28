@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <concepts>
+#include <cstdint>
 #include <utility>
 
 namespace {
@@ -23,13 +24,46 @@ void test_compile_time_surface() {
                   decltype(neg(std::declval<mpf_class const&>())),
                   mpf_class>);
     static_assert(std::same_as<
-                  decltype(gmpxx_mkII::sqrt(std::declval<mpf_class const&>())),
+                  decltype(ceil(std::declval<mpf_class const&>())),
                   mpf_class>);
     static_assert(std::same_as<
-                  decltype(gmpxx_mkII::abs(std::declval<mpf_class const&>())),
+                  decltype(floor(std::declval<mpf_class const&>())),
                   mpf_class>);
     static_assert(std::same_as<
-                  decltype(gmpxx_mkII::neg(std::declval<mpf_class const&>())),
+                  decltype(trunc(std::declval<mpf_class const&>())),
+                  mpf_class>);
+    static_assert(std::same_as<
+                  decltype(hypot(std::declval<mpf_class const&>(),
+                                  std::declval<mpf_class const&>())),
+                  mpf_class>);
+    static_assert(std::same_as<
+                  decltype(sgn(std::declval<mpf_class const&>())),
+                  int>);
+    static_assert(std::same_as<
+                  decltype(abs(std::declval<mpz_class const&>())),
+                  mpz_class>);
+    static_assert(std::same_as<
+                  decltype(abs(std::declval<mpq_class const&>())),
+                  mpq_class>);
+    static_assert(std::same_as<
+                  decltype(sqrt(std::declval<mpz_class const&>())),
+                  mpz_class>);
+    static_assert(std::same_as<
+                  decltype(gcd(std::declval<mpz_class const&>(),
+                                std::declval<mpz_class const&>())),
+                  mpz_class>);
+    static_assert(std::same_as<
+                  decltype(lcm(std::declval<mpz_class const&>(),
+                                std::declval<mpz_class const&>())),
+                  mpz_class>);
+    static_assert(std::same_as<
+                  decltype(gmpxx::sqrt(std::declval<mpf_class const&>())),
+                  mpf_class>);
+    static_assert(std::same_as<
+                  decltype(gmpxx::abs(std::declval<mpf_class const&>())),
+                  mpf_class>);
+    static_assert(std::same_as<
+                  decltype(gmpxx::neg(std::declval<mpf_class const&>())),
                   mpf_class>);
 }
 
@@ -44,7 +78,7 @@ void test_sqrt() {
     assert_mpf_equal(result, expected);
 
     mpf_class zero("0.0", static_cast<mp_bitcnt_t>(192));
-    result = gmpxx_mkII::sqrt(zero);
+    result = gmpxx::sqrt(zero);
 
     mpf_class zero_expected(zero.get_prec());
     mpf_sqrt(zero_expected.get_mpf_t(), zero.get_mpf_t());
@@ -64,7 +98,7 @@ void test_abs() {
     assert_mpf_equal(result, expected);
 
     mpf_class positive("2.25", static_cast<mp_bitcnt_t>(128));
-    result = gmpxx_mkII::abs(positive);
+    result = gmpxx::abs(positive);
 
     mpf_class positive_expected(positive.get_prec());
     mpf_abs(positive_expected.get_mpf_t(), positive.get_mpf_t());
@@ -84,13 +118,59 @@ void test_neg() {
     assert_mpf_equal(result, expected);
 
     mpf_class positive("2.25", static_cast<mp_bitcnt_t>(160));
-    result = gmpxx_mkII::neg(positive);
+    result = gmpxx::neg(positive);
 
     mpf_class positive_expected(positive.get_prec());
     mpf_neg(positive_expected.get_mpf_t(), positive.get_mpf_t());
 
     assert(result.get_prec() == positive.get_prec());
     assert_mpf_equal(result, positive_expected);
+}
+
+void test_rounding_functions() {
+    mpf_class positive("123.456", static_cast<mp_bitcnt_t>(256));
+    mpf_class negative("-123.456", static_cast<mp_bitcnt_t>(256));
+
+    assert_mpf_equal(ceil(positive), mpf_class("124", positive.get_prec()));
+    assert_mpf_equal(ceil(negative), mpf_class("-123", negative.get_prec()));
+    assert_mpf_equal(floor(positive), mpf_class("123", positive.get_prec()));
+    assert_mpf_equal(floor(negative), mpf_class("-124", negative.get_prec()));
+    assert_mpf_equal(trunc(positive), mpf_class("123", positive.get_prec()));
+    assert_mpf_equal(trunc(negative), mpf_class("-123", negative.get_prec()));
+
+    assert(ceil(positive).get_prec() == positive.get_prec());
+    assert(floor(negative).get_prec() == negative.get_prec());
+    assert(trunc(negative).get_prec() == negative.get_prec());
+}
+
+void test_hypot_and_scaling() {
+    mpf_class x("3.0", static_cast<mp_bitcnt_t>(192));
+    mpf_class y("4.0", static_cast<mp_bitcnt_t>(384));
+    mpf_class result = hypot(x, y);
+
+    assert(result.get_prec() == y.get_prec());
+    assert_mpf_equal(result, mpf_class("5.0", result.get_prec()));
+
+    mpf_class value("2.0", static_cast<mp_bitcnt_t>(256));
+    value.div_2exp(1);
+    assert_mpf_equal(value, mpf_class("1.0", value.get_prec()));
+    value.mul_2exp(1);
+    assert_mpf_equal(value, mpf_class("2.0", value.get_prec()));
+}
+
+void test_sign_and_exact_math_functions() {
+    assert(sgn(mpf_class("123.456")) > 0);
+    assert(sgn(mpf_class("-123.456")) < 0);
+    assert(sgn(mpf_class("0")) == 0);
+
+    assert(abs(mpz_class("-456")) == mpz_class("456"));
+    assert(abs(mpq_class("-1/3")) == mpq_class("1/3"));
+    assert(sqrt(mpz_class("24")) == mpz_class("4"));
+    assert(gcd(mpz_class("24"), mpz_class("36")) == mpz_class("12"));
+    assert(lcm(mpz_class("24"), mpz_class("36")) == mpz_class("72"));
+    assert(factorial(mpz_class(std::int64_t{5})) == mpz_class("120"));
+    assert(primorial(mpz_class(std::int64_t{5})) == mpz_class("30"));
+    assert(fibonacci(mpz_class(std::int64_t{7})) == mpz_class("13"));
 }
 
 }  // namespace
@@ -100,5 +180,8 @@ int main() {
     test_sqrt();
     test_abs();
     test_neg();
+    test_rounding_functions();
+    test_hypot_and_scaling();
+    test_sign_and_exact_math_functions();
     return 0;
 }

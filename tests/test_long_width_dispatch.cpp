@@ -55,10 +55,10 @@ void assert_add_i64(mpf_class const& a, std::int64_t value) {
 
 int main() {
 #if defined(GMPXX_MKII_TEST_LLP64_PATH)
-    static_assert(!gmpxx_mkII_detail::ulong_fits_uint64);
-    assert(!gmpxx_mkII_detail::fits_in_ulong(std::uint64_t{1} << 50));
+    static_assert(!gmpxx_detail::ulong_fits_uint64);
+    assert(!gmpxx_detail::fits_in_ulong(std::uint64_t{1} << 50));
 #else
-    static_assert(gmpxx_mkII_detail::ulong_fits_uint64 ==
+    static_assert(gmpxx_detail::ulong_fits_uint64 ==
                   (sizeof(unsigned long) >= sizeof(std::uint64_t)));
 #endif
 

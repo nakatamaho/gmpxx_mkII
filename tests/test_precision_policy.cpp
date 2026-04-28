@@ -12,8 +12,8 @@ std::uint64_t construction_prec(mpf_class const& a, mpf_class const& b) {
 #if defined(GMPXX_MKII_NOPRECCHANGE)
     (void)a;
     (void)b;
-    return gmpxx_mkII_detail::effective_mpf_prec(
-        gmpxx_mkII_detail::thread_default_prec());
+    return gmpxx_detail::effective_mpf_prec(
+        gmpxx_detail::thread_default_prec());
 #else
     return std::max(static_cast<std::uint64_t>(a.get_prec()),
                     static_cast<std::uint64_t>(b.get_prec()));

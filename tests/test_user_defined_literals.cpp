@@ -12,7 +12,7 @@ void assert_mpf_equal(mpf_class const& lhs, mpf_class const& rhs) {
 }
 
 void test_mpz_literals() {
-    using namespace gmpxx_mkII::literals;
+    using namespace gmpxx::literals;
 
     mpz_class a = 42_mpz;
     mpz_class b = "123456789012345678901234567890"_mpz;
@@ -22,7 +22,7 @@ void test_mpz_literals() {
 }
 
 void test_mpq_literals() {
-    using namespace gmpxx_mkII::literals;
+    using namespace gmpxx::literals;
 
     mpq_class a = 42_mpq;
     mpq_class b = "2/4"_mpq;
@@ -32,7 +32,7 @@ void test_mpq_literals() {
 }
 
 void test_mpf_literals() {
-    using namespace gmpxx_mkII::literals;
+    using namespace gmpxx::literals;
 
     mpf_class a = 1.25_mpf;
     mpf_class b = "1.25"_mpf;
@@ -45,7 +45,7 @@ void test_mpf_literals() {
 }
 
 void test_string_literals_use_default_base() {
-    using namespace gmpxx_mkII::literals;
+    using namespace gmpxx::literals;
 
     gmpxx_defaults::set_default_base(16);
 

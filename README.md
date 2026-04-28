@@ -56,7 +56,7 @@ Implemented now:
   `log1p`, `exp`, `expm1`, `sin`, `cos`, `atan`, `atan2`, and `pow`.
 - `operator<<` and `operator>>` for concrete wrapper values, plus
   immediate-evaluation `operator<<` for expression operands.
-- User-defined literals in `gmpxx_mkII::literals`: `_mpz`, `_mpq`, and
+- User-defined literals in `gmpxx::literals`: `_mpz`, `_mpq`, and
   `_mpf`.
 - `gmp_randclass` random state ownership, seeding, random `mpz_class`
   generation, and random `mpf_class` generation.
@@ -290,10 +290,10 @@ stream's `std::dec`, `std::hex`, and `std::oct` flags.
 
 ## User-Defined Literals
 
-Literals are opt-in under `gmpxx_mkII::literals`:
+Literals are opt-in under `gmpxx::literals`:
 
 ```cpp
-using namespace gmpxx_mkII::literals;
+using namespace gmpxx::literals;
 
 mpz_class z = "123456789012345678901234567890"_mpz;
 mpq_class q = "2/4"_mpq;

@@ -53,7 +53,7 @@ void test_integral_constructor_with_explicit_precision() {
     mpf_class zero(0, requested_prec);
     assert(mpf_sgn(zero.get_mpf_t()) == 0);
     assert(zero.get_prec() ==
-           gmpxx_mkII_detail::effective_mpf_prec(requested_prec));
+           gmpxx_detail::effective_mpf_prec(requested_prec));
 
     mpf_class negative(-42, requested_prec);
     mpf_class negative_expected(requested_prec);

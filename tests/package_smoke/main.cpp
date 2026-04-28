@@ -3,8 +3,8 @@
 #include <gmpxx_mkII.h>
 
 int main() {
-    using namespace gmpxx_mkII;
-    using namespace gmpxx_mkII::literals;
+    using namespace gmpxx;
+    using namespace gmpxx::literals;
 
     mpz_class z = "100000000000000000000"_mpz + 1_mpz;
     mpq_class q = "2/4"_mpq + "1/2"_mpq;

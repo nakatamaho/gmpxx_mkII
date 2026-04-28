@@ -3,10 +3,13 @@
 #include "gmpxx_mkII.h"
 
 #include <cassert>
+#include <climits>
+#include <concepts>
 #include <cstdint>
 #include <limits>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 namespace {
 
@@ -26,6 +29,20 @@ void test_compile_time_surface() {
     static_assert(std::is_constructible_v<mpf_class,
                                           mpz_class const&,
                                           mp_bitcnt_t>);
+    static_assert(std::same_as<decltype(std::declval<mpf_class const&>().get_d()),
+                               double>);
+    static_assert(std::same_as<decltype(std::declval<mpf_class const&>().get_ui()),
+                               unsigned long>);
+    static_assert(std::same_as<decltype(std::declval<mpf_class const&>().get_si()),
+                               signed long>);
+    static_assert(std::same_as<decltype(std::declval<mpz_class const&>().get_d()),
+                               double>);
+    static_assert(std::same_as<decltype(std::declval<mpz_class const&>().get_ui()),
+                               unsigned long>);
+    static_assert(std::same_as<decltype(std::declval<mpz_class const&>().get_si()),
+                               signed long>);
+    static_assert(std::same_as<decltype(std::declval<mpq_class const&>().get_d()),
+                               double>);
 }
 
 void test_mpz_integer_and_double_construction() {
@@ -81,7 +98,7 @@ void test_mpz_to_mpf_and_mpq_construction() {
     mpz_class z("-31415926535");
 
     mpf_class f(z, static_cast<mp_bitcnt_t>(512));
-    assert(f.get_prec() == gmpxx_mkII_detail::effective_mpf_prec(512));
+    assert(f.get_prec() == gmpxx_detail::effective_mpf_prec(512));
     assert_mpf_equal(f, mpf_class("-31415926535", f.get_prec()));
 
     mpq_class q_from_z(z);
@@ -96,6 +113,8 @@ void test_mpq_numerator_denominator_accessors() {
     mpq_class value("3/4");
     assert(value.get_num() == mpz_class(std::int64_t{3}));
     assert(value.get_den() == mpz_class(std::int64_t{4}));
+    assert(mpz_cmp_si(value.get_num_mpz_t(), 3) == 0);
+    assert(mpz_cmp_si(value.get_den_mpz_t(), 4) == 0);
 }
 
 void test_mpq_double_construction() {
@@ -104,6 +123,71 @@ void test_mpq_double_construction() {
 
     mpq_class negative(-0.25);
     assert(negative == mpq_class("-1/4"));
+}
+
+void test_mpf_scalar_conversions_and_fit_queries() {
+    mpf_class pos("123");
+    assert(pos.get_d() == 123.0);
+    assert(pos.get_ui() == 123UL);
+    assert(pos.get_si() == 123L);
+    assert(pos.fits_sint_p());
+    assert(pos.fits_slong_p());
+    assert(pos.fits_sshort_p());
+    assert(pos.fits_uint_p());
+    assert(pos.fits_ulong_p());
+    assert(pos.fits_ushort_p());
+
+    mpf_class fractional("123.456");
+    assert(fractional.get_ui() == 123UL);
+    assert(fractional.get_si() == 123L);
+
+    mpf_class negative("-123.456");
+    assert(negative.get_si() == -123L);
+
+    mpf_class large("999999999999999999999999999999");
+    assert(!large.fits_sint_p());
+    assert(!large.fits_uint_p());
+}
+
+void test_mpz_scalar_conversions_and_fit_queries() {
+    mpz_class small("123");
+    assert(small.get_d() == 123.0);
+    assert(small.get_si() == 123L);
+    assert(small.get_ui() == 123UL);
+    assert(small.fits_sint_p());
+    assert(small.fits_slong_p());
+    assert(small.fits_sshort_p());
+    assert(small.fits_uint_p());
+    assert(small.fits_ulong_p());
+    assert(small.fits_ushort_p());
+
+    mpz_class negative("-123");
+    assert(negative.get_si() == -123L);
+    assert(negative.fits_sint_p());
+    assert(negative.fits_slong_p());
+    assert(negative.fits_sshort_p());
+    assert(!negative.fits_uint_p());
+
+    mpz_class large("1234567890123456789012345678901234567890");
+    assert(!large.fits_sint_p());
+    assert(!large.fits_slong_p());
+    assert(!large.fits_sshort_p());
+    assert(!large.fits_uint_p());
+    assert(!large.fits_ulong_p());
+    assert(!large.fits_ushort_p());
+
+    mpz_class ushort_max(std::to_string(USHRT_MAX));
+    assert(ushort_max.fits_ushort_p());
+    ushort_max += 1;
+    assert(!ushort_max.fits_ushort_p());
+}
+
+void test_mpq_scalar_conversion() {
+    mpq_class value("1/4");
+    assert(value.get_d() == 0.25);
+
+    mpq_class negative("-3/4");
+    assert(negative.get_d() == -0.75);
 }
 
 }  // namespace
@@ -115,5 +199,8 @@ int main() {
     test_mpz_to_mpf_and_mpq_construction();
     test_mpq_numerator_denominator_accessors();
     test_mpq_double_construction();
+    test_mpf_scalar_conversions_and_fit_queries();
+    test_mpz_scalar_conversions_and_fit_queries();
+    test_mpq_scalar_conversion();
     return 0;
 }

@@ -55,7 +55,7 @@ static_assert(mpq_operand<mpq_class>);
 static_assert(!mpq_operand<int>);
 static_assert(!mpq_operand<mpf_class>);
 
-using gmpxx_mkII_detail::result_type_t;
+using gmpxx_detail::result_type_t;
 static_assert(std::same_as<result_type_t<mpf_class, mpz_class>, mpf_class>);
 static_assert(std::same_as<result_type_t<mpf_class, mpq_class>, mpf_class>);
 static_assert(std::same_as<result_type_t<mpz_class, mpz_class>, mpz_class>);
@@ -65,9 +65,9 @@ static_assert(std::same_as<result_type_t<mpz_class, int>, mpz_class>);
 static_assert(std::same_as<result_type_t<int, mpq_class>, mpq_class>);
 static_assert(std::same_as<result_type_t<mpz_class, double>, mpf_class>);
 static_assert(std::same_as<result_type_t<double, mpq_class>, mpf_class>);
-static_assert(gmpxx_mkII_detail::kind_of_v<
+static_assert(gmpxx_detail::kind_of_v<
               binary_expr<add_op, mpf_class, mpz_class>> ==
-              gmpxx_mkII_detail::value_kind::mpf);
+              gmpxx_detail::value_kind::mpf);
 
 static_assert(gmpxx_expr<binary_expr<add_op, mpf_class, mpf_class>>);
 static_assert(gmpxx_expr<unary_expr<neg_op, mpf_class>>);

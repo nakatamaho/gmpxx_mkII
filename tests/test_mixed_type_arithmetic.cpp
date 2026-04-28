@@ -46,8 +46,8 @@ int main() {
         assert_mpf_equal(got, ref);
 #if defined(GMPXX_MKII_NOPRECCHANGE)
         assert(static_cast<std::uint64_t>(got.get_prec()) ==
-               gmpxx_mkII_detail::effective_mpf_prec(
-                   gmpxx_mkII_detail::thread_default_prec()));
+               gmpxx_detail::effective_mpf_prec(
+                   gmpxx_detail::thread_default_prec()));
 #else
         assert(static_cast<std::uint64_t>(got.get_prec()) ==
                static_cast<std::uint64_t>(f.get_prec()));

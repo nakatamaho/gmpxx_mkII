@@ -30,7 +30,7 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 #define GMPXX_MKII_VERSION_PATCH 0
 #define GMPXX_MKII_GIT_COMMIT_HASH "@GIT_COMMIT_HASH@"
 
-namespace gmpxx_mkII_detail {
+namespace gmpxx_detail {
 
 inline constexpr std::uint64_t effective_mpf_prec(std::uint64_t requested) noexcept {
     constexpr std::uint64_t limb_bits = GMP_NUMB_BITS;
@@ -181,7 +181,7 @@ struct scalar_normalize_impl<T> {
     using type = std::uint64_t;
 };
 
-}  // namespace gmpxx_mkII_detail
+}  // namespace gmpxx_detail
 
 class gmpxx_defaults {
 public:
@@ -189,32 +189,32 @@ public:
         if (bits == 0) {
             return;
         }
-        gmpxx_mkII_detail::process_initial_prec().store(bits, std::memory_order_relaxed);
+        gmpxx_detail::process_initial_prec().store(bits, std::memory_order_relaxed);
     }
 
     static std::uint64_t get_initial_default_prec() {
-        return gmpxx_mkII_detail::process_initial_prec().load(std::memory_order_relaxed);
+        return gmpxx_detail::process_initial_prec().load(std::memory_order_relaxed);
     }
 
     static mp_bitcnt_t get_default_prec() {
-        return gmpxx_mkII_detail::checked_mp_bitcnt(
-            gmpxx_mkII_detail::effective_mpf_prec(
-                gmpxx_mkII_detail::thread_default_prec()));
+        return gmpxx_detail::checked_mp_bitcnt(
+            gmpxx_detail::effective_mpf_prec(
+                gmpxx_detail::thread_default_prec()));
     }
 
     static void set_default_base(int base) {
-        gmpxx_mkII_detail::validate_default_base(base);
-        gmpxx_mkII_detail::thread_default_base_ref() = base;
+        gmpxx_detail::validate_default_base(base);
+        gmpxx_detail::thread_default_base_ref() = base;
     }
 
     static int get_default_base() noexcept {
-        return gmpxx_mkII_detail::thread_default_base();
+        return gmpxx_detail::thread_default_base();
     }
 };
 
 template<class T>
 using scalar_normalize_t =
-    typename gmpxx_mkII_detail::scalar_normalize_impl<std::remove_cvref_t<T>>::type;
+    typename gmpxx_detail::scalar_normalize_impl<std::remove_cvref_t<T>>::type;
 
 class mpf_class;
 class mpz_class;
@@ -285,7 +285,7 @@ concept comparison_pair =
     comparison_operand<R> &&
     !(scalar_operand<L> && scalar_operand<R>);
 
-namespace gmpxx_mkII_detail {
+namespace gmpxx_detail {
 
 #if defined(GMPXX_MKII_INSTRUMENT_WRAPPERS)
 inline std::atomic<std::uint64_t> mpf_ctor_count{0};
@@ -548,13 +548,13 @@ void addmul_fused_apply(mpz_class& dst, Expr const& expr);
 template<class Expr>
 void submul_fused_apply(mpz_class& dst, Expr const& expr);
 
-}  // namespace gmpxx_mkII_detail
+}  // namespace gmpxx_detail
 
 template<class Derived>
 struct expr_base {
     [[nodiscard]] std::uint64_t suggested_prec() const {
 #if defined(GMPXX_MKII_NOPRECCHANGE)
-        return gmpxx_mkII_detail::thread_default_prec();
+        return gmpxx_detail::thread_default_prec();
 #else
         return self().suggested_prec_impl();
 #endif
@@ -574,8 +574,8 @@ class mpf_class {
 public:
     mpf_class() {
         note_constructed();
-        mpf_init2(value, gmpxx_mkII_detail::checked_mp_bitcnt(
-                             gmpxx_mkII_detail::thread_default_prec()));
+        mpf_init2(value, gmpxx_detail::checked_mp_bitcnt(
+                             gmpxx_detail::thread_default_prec()));
     }
 
     explicit mpf_class(mp_bitcnt_t prec) {
@@ -604,18 +604,18 @@ public:
     mpf_class(mpz_class const& v, mp_bitcnt_t prec);
 
     explicit mpf_class(char const* s) : mpf_class() {
-        set_from_string(s, gmpxx_mkII_detail::use_default_base);
+        set_from_string(s, gmpxx_detail::use_default_base);
     }
 
     mpf_class(char const* s, mp_bitcnt_t prec,
-              int base = gmpxx_mkII_detail::use_default_base) : mpf_class(prec) {
+              int base = gmpxx_detail::use_default_base) : mpf_class(prec) {
         set_from_string(s, base);
     }
 
     explicit mpf_class(std::string const& s) : mpf_class(s.c_str()) {}
 
     mpf_class(std::string const& s, mp_bitcnt_t prec,
-              int base = gmpxx_mkII_detail::use_default_base)
+              int base = gmpxx_detail::use_default_base)
         : mpf_class(s.c_str(), prec, base) {}
 
     mpf_class(mpf_class const& other) {
@@ -635,7 +635,7 @@ public:
     mpf_class(Expr const& expr) {
         note_constructed();
         std::uint64_t final_prec = expr.suggested_prec();
-        mpf_init2(value, gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+        mpf_init2(value, gmpxx_detail::checked_mp_bitcnt(final_prec));
         expr.eval_to_prec(*this, final_prec);
     }
 
@@ -681,7 +681,7 @@ public:
     mpf_class& operator=(Expr const& expr) {
         std::uint64_t final_prec = static_cast<std::uint64_t>(get_prec());
         if (expr.contains_address(this)) {
-            mpf_class tmp(gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+            mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(final_prec));
             expr.eval_to_prec(tmp, final_prec);
             mpf_set(value, tmp.value);
             return *this;
@@ -736,20 +736,64 @@ public:
         return mpf_get_prec(value);
     }
 
+    [[nodiscard]] double get_d() const {
+        return mpf_get_d(value);
+    }
+
+    [[nodiscard]] unsigned long get_ui() const {
+        return mpf_get_ui(value);
+    }
+
+    [[nodiscard]] signed long get_si() const {
+        return mpf_get_si(value);
+    }
+
+    [[nodiscard]] bool fits_sint_p() const {
+        return mpf_fits_sint_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_slong_p() const {
+        return mpf_fits_slong_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_sshort_p() const {
+        return mpf_fits_sshort_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_uint_p() const {
+        return mpf_fits_uint_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_ulong_p() const {
+        return mpf_fits_ulong_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_ushort_p() const {
+        return mpf_fits_ushort_p(value) != 0;
+    }
+
+    void mul_2exp(mp_bitcnt_t exp) {
+        mpf_mul_2exp(value, value, exp);
+    }
+
+    void div_2exp(mp_bitcnt_t exp) {
+        mpf_div_2exp(value, value, exp);
+    }
+
     [[nodiscard]] std::string get_str(
         mp_exp_t& exp,
-        int base = gmpxx_mkII_detail::use_default_base,
+        int base = gmpxx_detail::use_default_base,
         std::size_t n_digits = 0) const {
-        gmpxx_mkII_detail::gmp_string s(
-            mpf_get_str(nullptr, &exp, gmpxx_mkII_detail::normalize_base_arg(base),
+        gmpxx_detail::gmp_string s(
+            mpf_get_str(nullptr, &exp, gmpxx_detail::normalize_base_arg(base),
                         n_digits, value));
         return s ? std::string(s.c_str()) : std::string();
     }
 
-    int set_str(char const* s, int base = gmpxx_mkII_detail::use_default_base) {
+    int set_str(char const* s, int base = gmpxx_detail::use_default_base) {
         mpf_class tmp(get_prec());
         int rc = mpf_set_str(
-            tmp.value, s, gmpxx_mkII_detail::normalize_base_arg(base));
+            tmp.value, s, gmpxx_detail::normalize_base_arg(base));
         if (rc == 0) {
             mpf_set(value, tmp.value);
         }
@@ -757,7 +801,7 @@ public:
     }
 
     int set_str(std::string const& s,
-                int base = gmpxx_mkII_detail::use_default_base) {
+                int base = gmpxx_detail::use_default_base) {
         return set_str(s.c_str(), base);
     }
 
@@ -774,12 +818,12 @@ public:
 private:
     static void note_constructed() noexcept {
 #if defined(GMPXX_MKII_INSTRUMENT_WRAPPERS)
-        gmpxx_mkII_detail::mpf_ctor_count.fetch_add(1, std::memory_order_relaxed);
+        gmpxx_detail::mpf_ctor_count.fetch_add(1, std::memory_order_relaxed);
 #endif
     }
 
     void set_from_string(char const* s, int base) {
-        if (mpf_set_str(value, s, gmpxx_mkII_detail::normalize_base_arg(base)) != 0) {
+        if (mpf_set_str(value, s, gmpxx_detail::normalize_base_arg(base)) != 0) {
             throw std::invalid_argument("gmpxx_mkII: invalid mpf string");
         }
     }
@@ -825,15 +869,15 @@ public:
         mpz_set_d(value, v);
     }
 
-    mpz_class(char const* s, int base = gmpxx_mkII_detail::use_default_base)
+    mpz_class(char const* s, int base = gmpxx_detail::use_default_base)
         : mpz_class() {
-        if (mpz_set_str(value, s, gmpxx_mkII_detail::normalize_base_arg(base)) != 0) {
+        if (mpz_set_str(value, s, gmpxx_detail::normalize_base_arg(base)) != 0) {
             throw std::invalid_argument("gmpxx_mkII: invalid mpz string");
         }
     }
 
     mpz_class(std::string const& s,
-              int base = gmpxx_mkII_detail::use_default_base)
+              int base = gmpxx_detail::use_default_base)
         : mpz_class(s.c_str(), base) {}
 
     template<gmpxx_expr Expr>
@@ -910,16 +954,16 @@ public:
     }
 
     [[nodiscard]] std::string get_str(
-        int base = gmpxx_mkII_detail::use_default_base) const {
-        gmpxx_mkII_detail::gmp_string s(mpz_get_str(
-            nullptr, gmpxx_mkII_detail::normalize_base_arg(base), value));
+        int base = gmpxx_detail::use_default_base) const {
+        gmpxx_detail::gmp_string s(mpz_get_str(
+            nullptr, gmpxx_detail::normalize_base_arg(base), value));
         return s ? std::string(s.c_str()) : std::string();
     }
 
-    int set_str(char const* s, int base = gmpxx_mkII_detail::use_default_base) {
+    int set_str(char const* s, int base = gmpxx_detail::use_default_base) {
         mpz_class tmp;
         int rc = mpz_set_str(
-            tmp.value, s, gmpxx_mkII_detail::normalize_base_arg(base));
+            tmp.value, s, gmpxx_detail::normalize_base_arg(base));
         if (rc == 0) {
             swap(tmp);
         }
@@ -927,13 +971,49 @@ public:
     }
 
     int set_str(std::string const& s,
-                int base = gmpxx_mkII_detail::use_default_base) {
+                int base = gmpxx_detail::use_default_base) {
         return set_str(s.c_str(), base);
     }
 
     [[nodiscard]] std::string to_string(
-        int base = gmpxx_mkII_detail::use_default_base) const {
+        int base = gmpxx_detail::use_default_base) const {
         return get_str(base);
+    }
+
+    [[nodiscard]] double get_d() const {
+        return mpz_get_d(value);
+    }
+
+    [[nodiscard]] signed long get_si() const {
+        return mpz_get_si(value);
+    }
+
+    [[nodiscard]] unsigned long get_ui() const {
+        return mpz_get_ui(value);
+    }
+
+    [[nodiscard]] bool fits_sint_p() const {
+        return mpz_fits_sint_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_slong_p() const {
+        return mpz_fits_slong_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_sshort_p() const {
+        return mpz_fits_sshort_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_uint_p() const {
+        return mpz_fits_uint_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_ulong_p() const {
+        return mpz_fits_ulong_p(value) != 0;
+    }
+
+    [[nodiscard]] bool fits_ushort_p() const {
+        return mpz_fits_ushort_p(value) != 0;
     }
 
     [[nodiscard]] bool contains_address(mpz_class const* p) const {
@@ -951,7 +1031,7 @@ public:
 private:
     static void note_constructed() noexcept {
 #if defined(GMPXX_MKII_INSTRUMENT_WRAPPERS)
-        gmpxx_mkII_detail::mpz_ctor_count.fetch_add(1, std::memory_order_relaxed);
+        gmpxx_detail::mpz_ctor_count.fetch_add(1, std::memory_order_relaxed);
 #endif
     }
 
@@ -961,7 +1041,7 @@ private:
 
     void set_i64(std::int64_t v) {
         if (v < 0) {
-            set_u64(gmpxx_mkII_detail::safe_negate(v));
+            set_u64(gmpxx_detail::safe_negate(v));
             mpz_neg(value, value);
         } else {
             set_u64(static_cast<std::uint64_t>(v));
@@ -1035,16 +1115,16 @@ public:
         canonicalize();
     }
 
-    mpq_class(char const* s, int base = gmpxx_mkII_detail::use_default_base)
+    mpq_class(char const* s, int base = gmpxx_detail::use_default_base)
         : mpq_class() {
-        if (mpq_set_str(value, s, gmpxx_mkII_detail::normalize_base_arg(base)) != 0) {
+        if (mpq_set_str(value, s, gmpxx_detail::normalize_base_arg(base)) != 0) {
             throw std::invalid_argument("gmpxx_mkII: invalid mpq string");
         }
         canonicalize();
     }
 
     mpq_class(std::string const& s,
-              int base = gmpxx_mkII_detail::use_default_base)
+              int base = gmpxx_detail::use_default_base)
         : mpq_class(s.c_str(), base) {}
 
     template<gmpxx_expr Expr>
@@ -1120,16 +1200,16 @@ public:
     }
 
     [[nodiscard]] std::string get_str(
-        int base = gmpxx_mkII_detail::use_default_base) const {
-        gmpxx_mkII_detail::gmp_string s(mpq_get_str(
-            nullptr, gmpxx_mkII_detail::normalize_base_arg(base), value));
+        int base = gmpxx_detail::use_default_base) const {
+        gmpxx_detail::gmp_string s(mpq_get_str(
+            nullptr, gmpxx_detail::normalize_base_arg(base), value));
         return s ? std::string(s.c_str()) : std::string();
     }
 
-    int set_str(char const* s, int base = gmpxx_mkII_detail::use_default_base) {
+    int set_str(char const* s, int base = gmpxx_detail::use_default_base) {
         mpq_class tmp;
         int rc = mpq_set_str(
-            tmp.value, s, gmpxx_mkII_detail::normalize_base_arg(base));
+            tmp.value, s, gmpxx_detail::normalize_base_arg(base));
         if (rc == 0) {
             tmp.canonicalize();
             swap(tmp);
@@ -1138,13 +1218,17 @@ public:
     }
 
     int set_str(std::string const& s,
-                int base = gmpxx_mkII_detail::use_default_base) {
+                int base = gmpxx_detail::use_default_base) {
         return set_str(s.c_str(), base);
     }
 
     [[nodiscard]] std::string to_string(
-        int base = gmpxx_mkII_detail::use_default_base) const {
+        int base = gmpxx_detail::use_default_base) const {
         return get_str(base);
+    }
+
+    [[nodiscard]] double get_d() const {
+        return mpq_get_d(value);
     }
 
     [[nodiscard]] mpz_class get_num() const {
@@ -1157,6 +1241,14 @@ public:
         mpz_class r;
         mpz_set(r.get_mpz_t(), mpq_denref(value));
         return r;
+    }
+
+    [[nodiscard]] mpz_srcptr get_num_mpz_t() const {
+        return mpq_numref(value);
+    }
+
+    [[nodiscard]] mpz_srcptr get_den_mpz_t() const {
+        return mpq_denref(value);
     }
 
     [[nodiscard]] bool contains_address(mpq_class const* p) const {
@@ -1178,7 +1270,7 @@ public:
 private:
     static void note_constructed() noexcept {
 #if defined(GMPXX_MKII_INSTRUMENT_WRAPPERS)
-        gmpxx_mkII_detail::mpq_ctor_count.fetch_add(1, std::memory_order_relaxed);
+        gmpxx_detail::mpq_ctor_count.fetch_add(1, std::memory_order_relaxed);
 #endif
     }
 
@@ -1254,7 +1346,7 @@ public:
         if (!mpz_fits_ulong_p(bits.get_mpz_t())) {
             throw std::overflow_error("gmpxx_mkII: random bit count is too large");
         }
-        return get_z_bits(gmpxx_mkII_detail::checked_mp_bitcnt(
+        return get_z_bits(gmpxx_detail::checked_mp_bitcnt(
             static_cast<std::uint64_t>(mpz_get_ui(bits.get_mpz_t()))));
     }
 
@@ -1320,13 +1412,13 @@ public:
 
     [[nodiscard]] mpf_class eval() const {
         std::uint64_t final_prec = suggested_prec();
-        mpf_class result(gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+        mpf_class result(gmpxx_detail::checked_mp_bitcnt(final_prec));
         eval_to_prec(result, final_prec);
         return result;
     }
 
     void eval_to_prec(mpf_class& dst, std::uint64_t final_prec) const {
-        mp_bitcnt_t prec = gmpxx_mkII_detail::checked_mp_bitcnt(final_prec);
+        mp_bitcnt_t prec = gmpxx_detail::checked_mp_bitcnt(final_prec);
         rng_->generate_mpf(dst, prec);
     }
 
@@ -1383,7 +1475,7 @@ inline std::string mpf_class::to_string(std::size_t n_digits) const {
     return out;
 }
 
-namespace gmpxx_mkII_detail {
+namespace gmpxx_detail {
 
 inline int stream_integer_base(std::ios_base const& os) noexcept {
     auto basefield = os.flags() & std::ios_base::basefield;
@@ -1630,7 +1722,7 @@ inline mpq_class as_mpq(T const& v) {
     }
 }
 
-}  // namespace gmpxx_mkII_detail
+}  // namespace gmpxx_detail
 
 struct add_op {
     template<class Dst, class L, class R>
@@ -1709,17 +1801,17 @@ inline void add_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, rhs);
+            gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, lhs);
+            gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_add(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
             mpf_class ltmp(dst.get_prec());
             mpf_class rtmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(ltmp, lhs);
-            gmpxx_mkII_detail::set_mpf_from_value(rtmp, rhs);
+            gmpxx_detail::set_mpf_from_value(ltmp, lhs);
+            gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_add(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
         }
     } else if constexpr (std::same_as<Dst, mpz_class>) {
@@ -1727,8 +1819,8 @@ inline void add_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpz_class>) {
             mpz_add(dst.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
         } else {
-            mpz_class ltmp = gmpxx_mkII_detail::as_mpz(lhs);
-            mpz_class rtmp = gmpxx_mkII_detail::as_mpz(rhs);
+            mpz_class ltmp = gmpxx_detail::as_mpz(lhs);
+            mpz_class rtmp = gmpxx_detail::as_mpz(rhs);
             mpz_add(dst.get_mpz_t(), ltmp.get_mpz_t(), rtmp.get_mpz_t());
         }
     } else {
@@ -1736,8 +1828,8 @@ inline void add_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpq_class>) {
             mpq_add(dst.get_mpq_t(), lhs.get_mpq_t(), rhs.get_mpq_t());
         } else {
-            mpq_class ltmp = gmpxx_mkII_detail::as_mpq(lhs);
-            mpq_class rtmp = gmpxx_mkII_detail::as_mpq(rhs);
+            mpq_class ltmp = gmpxx_detail::as_mpq(lhs);
+            mpq_class rtmp = gmpxx_detail::as_mpq(rhs);
             mpq_add(dst.get_mpq_t(), ltmp.get_mpq_t(), rtmp.get_mpq_t());
         }
     }
@@ -1748,17 +1840,17 @@ inline void sub_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, rhs);
+            gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, lhs);
+            gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_sub(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
             mpf_class ltmp(dst.get_prec());
             mpf_class rtmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(ltmp, lhs);
-            gmpxx_mkII_detail::set_mpf_from_value(rtmp, rhs);
+            gmpxx_detail::set_mpf_from_value(ltmp, lhs);
+            gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_sub(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
         }
     } else if constexpr (std::same_as<Dst, mpz_class>) {
@@ -1766,8 +1858,8 @@ inline void sub_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpz_class>) {
             mpz_sub(dst.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
         } else {
-            mpz_class ltmp = gmpxx_mkII_detail::as_mpz(lhs);
-            mpz_class rtmp = gmpxx_mkII_detail::as_mpz(rhs);
+            mpz_class ltmp = gmpxx_detail::as_mpz(lhs);
+            mpz_class rtmp = gmpxx_detail::as_mpz(rhs);
             mpz_sub(dst.get_mpz_t(), ltmp.get_mpz_t(), rtmp.get_mpz_t());
         }
     } else {
@@ -1775,8 +1867,8 @@ inline void sub_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpq_class>) {
             mpq_sub(dst.get_mpq_t(), lhs.get_mpq_t(), rhs.get_mpq_t());
         } else {
-            mpq_class ltmp = gmpxx_mkII_detail::as_mpq(lhs);
-            mpq_class rtmp = gmpxx_mkII_detail::as_mpq(rhs);
+            mpq_class ltmp = gmpxx_detail::as_mpq(lhs);
+            mpq_class rtmp = gmpxx_detail::as_mpq(rhs);
             mpq_sub(dst.get_mpq_t(), ltmp.get_mpq_t(), rtmp.get_mpq_t());
         }
     }
@@ -1787,17 +1879,17 @@ inline void mul_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, rhs);
+            gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, lhs);
+            gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_mul(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
             mpf_class ltmp(dst.get_prec());
             mpf_class rtmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(ltmp, lhs);
-            gmpxx_mkII_detail::set_mpf_from_value(rtmp, rhs);
+            gmpxx_detail::set_mpf_from_value(ltmp, lhs);
+            gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_mul(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
         }
     } else if constexpr (std::same_as<Dst, mpz_class>) {
@@ -1805,8 +1897,8 @@ inline void mul_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpz_class>) {
             mpz_mul(dst.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
         } else {
-            mpz_class ltmp = gmpxx_mkII_detail::as_mpz(lhs);
-            mpz_class rtmp = gmpxx_mkII_detail::as_mpz(rhs);
+            mpz_class ltmp = gmpxx_detail::as_mpz(lhs);
+            mpz_class rtmp = gmpxx_detail::as_mpz(rhs);
             mpz_mul(dst.get_mpz_t(), ltmp.get_mpz_t(), rtmp.get_mpz_t());
         }
     } else {
@@ -1814,8 +1906,8 @@ inline void mul_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpq_class>) {
             mpq_mul(dst.get_mpq_t(), lhs.get_mpq_t(), rhs.get_mpq_t());
         } else {
-            mpq_class ltmp = gmpxx_mkII_detail::as_mpq(lhs);
-            mpq_class rtmp = gmpxx_mkII_detail::as_mpq(rhs);
+            mpq_class ltmp = gmpxx_detail::as_mpq(lhs);
+            mpq_class rtmp = gmpxx_detail::as_mpq(rhs);
             mpq_mul(dst.get_mpq_t(), ltmp.get_mpq_t(), rtmp.get_mpq_t());
         }
     }
@@ -1826,17 +1918,17 @@ inline void div_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, rhs);
+            gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
             mpf_class tmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(tmp, lhs);
+            gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_div(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
             mpf_class ltmp(dst.get_prec());
             mpf_class rtmp(dst.get_prec());
-            gmpxx_mkII_detail::set_mpf_from_value(ltmp, lhs);
-            gmpxx_mkII_detail::set_mpf_from_value(rtmp, rhs);
+            gmpxx_detail::set_mpf_from_value(ltmp, lhs);
+            gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_div(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
         }
     } else if constexpr (std::same_as<Dst, mpz_class>) {
@@ -1844,8 +1936,8 @@ inline void div_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpz_class>) {
             mpz_tdiv_q(dst.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
         } else {
-            mpz_class ltmp = gmpxx_mkII_detail::as_mpz(lhs);
-            mpz_class rtmp = gmpxx_mkII_detail::as_mpz(rhs);
+            mpz_class ltmp = gmpxx_detail::as_mpz(lhs);
+            mpz_class rtmp = gmpxx_detail::as_mpz(rhs);
             mpz_tdiv_q(dst.get_mpz_t(), ltmp.get_mpz_t(), rtmp.get_mpz_t());
         }
     } else {
@@ -1853,8 +1945,8 @@ inline void div_op::apply(Dst& dst, L const& lhs, R const& rhs) {
                       std::same_as<std::remove_cvref_t<R>, mpq_class>) {
             mpq_div(dst.get_mpq_t(), lhs.get_mpq_t(), rhs.get_mpq_t());
         } else {
-            mpq_class ltmp = gmpxx_mkII_detail::as_mpq(lhs);
-            mpq_class rtmp = gmpxx_mkII_detail::as_mpq(rhs);
+            mpq_class ltmp = gmpxx_detail::as_mpq(lhs);
+            mpq_class rtmp = gmpxx_detail::as_mpq(rhs);
             mpq_div(dst.get_mpq_t(), ltmp.get_mpq_t(), rtmp.get_mpq_t());
         }
     }
@@ -1867,7 +1959,7 @@ inline void add_op::apply(mpf_class& dst, mpf_class const& lhs,
 
 inline void add_op::apply(mpf_class& dst, mpf_class const& lhs,
                           std::uint64_t rhs) {
-    gmpxx_mkII_detail::add_mpf_uint(dst, lhs, rhs);
+    gmpxx_detail::add_mpf_uint(dst, lhs, rhs);
 }
 
 inline void add_op::apply(mpf_class& dst, std::uint64_t lhs,
@@ -1880,7 +1972,7 @@ inline void add_op::apply(mpf_class& dst, mpf_class const& lhs,
     if (rhs >= 0) {
         apply(dst, lhs, static_cast<std::uint64_t>(rhs));
     } else {
-        sub_op::apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+        sub_op::apply(dst, lhs, gmpxx_detail::safe_negate(rhs));
     }
 }
 
@@ -1890,7 +1982,7 @@ inline void add_op::apply(mpf_class& dst, std::int64_t lhs,
 }
 
 inline void add_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
-    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_class tmp = gmpxx_detail::double_tmp(rhs, dst.get_prec());
     mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
 }
 
@@ -1905,12 +1997,12 @@ inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs,
 
 inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs,
                           std::uint64_t rhs) {
-    gmpxx_mkII_detail::sub_mpf_uint(dst, lhs, rhs);
+    gmpxx_detail::sub_mpf_uint(dst, lhs, rhs);
 }
 
 inline void sub_op::apply(mpf_class& dst, std::uint64_t lhs,
                           mpf_class const& rhs) {
-    gmpxx_mkII_detail::sub_uint_mpf(dst, lhs, rhs);
+    gmpxx_detail::sub_uint_mpf(dst, lhs, rhs);
 }
 
 inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs,
@@ -1918,7 +2010,7 @@ inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs,
     if (rhs >= 0) {
         apply(dst, lhs, static_cast<std::uint64_t>(rhs));
     } else {
-        add_op::apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+        add_op::apply(dst, lhs, gmpxx_detail::safe_negate(rhs));
     }
 }
 
@@ -1927,18 +2019,18 @@ inline void sub_op::apply(mpf_class& dst, std::int64_t lhs,
     if (lhs >= 0) {
         apply(dst, static_cast<std::uint64_t>(lhs), rhs);
     } else {
-        add_op::apply(dst, rhs, gmpxx_mkII_detail::safe_negate(lhs));
+        add_op::apply(dst, rhs, gmpxx_detail::safe_negate(lhs));
         mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
     }
 }
 
 inline void sub_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
-    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_class tmp = gmpxx_detail::double_tmp(rhs, dst.get_prec());
     mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
 }
 
 inline void sub_op::apply(mpf_class& dst, double lhs, mpf_class const& rhs) {
-    mpf_class tmp = gmpxx_mkII_detail::double_tmp(lhs, dst.get_prec());
+    mpf_class tmp = gmpxx_detail::double_tmp(lhs, dst.get_prec());
     mpf_sub(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
 }
 
@@ -1949,7 +2041,7 @@ inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs,
 
 inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs,
                           std::uint64_t rhs) {
-    gmpxx_mkII_detail::mul_mpf_uint(dst, lhs, rhs);
+    gmpxx_detail::mul_mpf_uint(dst, lhs, rhs);
 }
 
 inline void mul_op::apply(mpf_class& dst, std::uint64_t lhs,
@@ -1962,7 +2054,7 @@ inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs,
     if (rhs >= 0) {
         apply(dst, lhs, static_cast<std::uint64_t>(rhs));
     } else {
-        apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+        apply(dst, lhs, gmpxx_detail::safe_negate(rhs));
         mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
     }
 }
@@ -1973,7 +2065,7 @@ inline void mul_op::apply(mpf_class& dst, std::int64_t lhs,
 }
 
 inline void mul_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
-    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_class tmp = gmpxx_detail::double_tmp(rhs, dst.get_prec());
     mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
 }
 
@@ -1988,12 +2080,12 @@ inline void div_op::apply(mpf_class& dst, mpf_class const& lhs,
 
 inline void div_op::apply(mpf_class& dst, mpf_class const& lhs,
                           std::uint64_t rhs) {
-    gmpxx_mkII_detail::div_mpf_uint(dst, lhs, rhs);
+    gmpxx_detail::div_mpf_uint(dst, lhs, rhs);
 }
 
 inline void div_op::apply(mpf_class& dst, std::uint64_t lhs,
                           mpf_class const& rhs) {
-    gmpxx_mkII_detail::div_uint_mpf(dst, lhs, rhs);
+    gmpxx_detail::div_uint_mpf(dst, lhs, rhs);
 }
 
 inline void div_op::apply(mpf_class& dst, mpf_class const& lhs,
@@ -2001,7 +2093,7 @@ inline void div_op::apply(mpf_class& dst, mpf_class const& lhs,
     if (rhs >= 0) {
         apply(dst, lhs, static_cast<std::uint64_t>(rhs));
     } else {
-        apply(dst, lhs, gmpxx_mkII_detail::safe_negate(rhs));
+        apply(dst, lhs, gmpxx_detail::safe_negate(rhs));
         mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
     }
 }
@@ -2011,18 +2103,18 @@ inline void div_op::apply(mpf_class& dst, std::int64_t lhs,
     if (lhs >= 0) {
         apply(dst, static_cast<std::uint64_t>(lhs), rhs);
     } else {
-        apply(dst, gmpxx_mkII_detail::safe_negate(lhs), rhs);
+        apply(dst, gmpxx_detail::safe_negate(lhs), rhs);
         mpf_neg(dst.get_mpf_t(), dst.get_mpf_t());
     }
 }
 
 inline void div_op::apply(mpf_class& dst, mpf_class const& lhs, double rhs) {
-    mpf_class tmp = gmpxx_mkII_detail::double_tmp(rhs, dst.get_prec());
+    mpf_class tmp = gmpxx_detail::double_tmp(rhs, dst.get_prec());
     mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
 }
 
 inline void div_op::apply(mpf_class& dst, double lhs, mpf_class const& rhs) {
-    mpf_class tmp = gmpxx_mkII_detail::double_tmp(lhs, dst.get_prec());
+    mpf_class tmp = gmpxx_detail::double_tmp(lhs, dst.get_prec());
     mpf_div(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
 }
 
@@ -2138,8 +2230,8 @@ inline mpz_class& mpz_class::operator%=(mpz_class const& rhs) {
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpz_class>)
 inline mpz_class& mpz_class::operator+=(Expr const& expr) {
-    if constexpr (gmpxx_mkII_detail::is_mpz_addmul_fusable_v<Expr>) {
-        gmpxx_mkII_detail::addmul_fused_apply(*this, expr);
+    if constexpr (gmpxx_detail::is_mpz_addmul_fusable_v<Expr>) {
+        gmpxx_detail::addmul_fused_apply(*this, expr);
     } else {
         mpz_class tmp;
         expr.eval_to(tmp);
@@ -2151,8 +2243,8 @@ inline mpz_class& mpz_class::operator+=(Expr const& expr) {
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpz_class>)
 inline mpz_class& mpz_class::operator-=(Expr const& expr) {
-    if constexpr (gmpxx_mkII_detail::is_mpz_addmul_fusable_v<Expr>) {
-        gmpxx_mkII_detail::submul_fused_apply(*this, expr);
+    if constexpr (gmpxx_detail::is_mpz_addmul_fusable_v<Expr>) {
+        gmpxx_detail::submul_fused_apply(*this, expr);
     } else {
         mpz_class tmp;
         expr.eval_to(tmp);
@@ -2291,7 +2383,7 @@ inline mpq_class& mpq_class::operator/=(T const& rhs) {
     return *this;
 }
 
-namespace gmpxx_mkII_detail {
+namespace gmpxx_detail {
 
 inline std::uint64_t prec_of(mpf_class const& x) {
     return static_cast<std::uint64_t>(x.get_prec());
@@ -2307,11 +2399,11 @@ inline std::uint64_t prec_of(binary_expr<Op, L, R> const& e) {
     return e.suggested_prec();
 }
 
-}  // namespace gmpxx_mkII_detail
+}  // namespace gmpxx_detail
 
 template<class Op, class X>
 struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
-    using result_type = gmpxx_mkII_detail::result_or_self_t<X>;
+    using result_type = gmpxx_detail::result_or_self_t<X>;
 
     X const& x;
 
@@ -2322,10 +2414,10 @@ struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
     }
 
     [[nodiscard]] std::uint64_t suggested_prec_impl() const {
-        if constexpr (gmpxx_mkII_detail::has_mpf_precision_v<X>) {
-            return gmpxx_mkII_detail::prec_of(x);
+        if constexpr (gmpxx_detail::has_mpf_precision_v<X>) {
+            return gmpxx_detail::prec_of(x);
         } else {
-            return gmpxx_mkII_detail::thread_default_prec();
+            return gmpxx_detail::thread_default_prec();
         }
     }
 
@@ -2394,15 +2486,15 @@ struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
 
 template<class Op, class L, class R>
 struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
-    using result_type = gmpxx_mkII_detail::result_type_t<L, R>;
+    using result_type = gmpxx_detail::result_type_t<L, R>;
 
     using lhs_storage = std::conditional_t<
         scalar_operand<L>,
-        gmpxx_mkII_detail::operand_storage_t<L>,
+        gmpxx_detail::operand_storage_t<L>,
         L const&>;
     using rhs_storage = std::conditional_t<
         scalar_operand<R>,
-        gmpxx_mkII_detail::operand_storage_t<R>,
+        gmpxx_detail::operand_storage_t<R>,
         R const&>;
 
     lhs_storage lhs;
@@ -2411,16 +2503,16 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
     binary_expr(L const& lhs_, R const& rhs_) : lhs(lhs_), rhs(rhs_) {}
 
     [[nodiscard]] std::uint64_t suggested_prec_impl() const {
-        if constexpr (gmpxx_mkII_detail::has_mpf_precision_v<L> &&
-                      gmpxx_mkII_detail::has_mpf_precision_v<R>) {
-            return std::max(gmpxx_mkII_detail::prec_of(lhs),
-                            gmpxx_mkII_detail::prec_of(rhs));
-        } else if constexpr (gmpxx_mkII_detail::has_mpf_precision_v<L>) {
-            return gmpxx_mkII_detail::prec_of(lhs);
-        } else if constexpr (gmpxx_mkII_detail::has_mpf_precision_v<R>) {
-            return gmpxx_mkII_detail::prec_of(rhs);
+        if constexpr (gmpxx_detail::has_mpf_precision_v<L> &&
+                      gmpxx_detail::has_mpf_precision_v<R>) {
+            return std::max(gmpxx_detail::prec_of(lhs),
+                            gmpxx_detail::prec_of(rhs));
+        } else if constexpr (gmpxx_detail::has_mpf_precision_v<L>) {
+            return gmpxx_detail::prec_of(lhs);
+        } else if constexpr (gmpxx_detail::has_mpf_precision_v<R>) {
+            return gmpxx_detail::prec_of(rhs);
         } else {
-            return gmpxx_mkII_detail::thread_default_prec();
+            return gmpxx_detail::thread_default_prec();
         }
     }
 
@@ -2519,7 +2611,7 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
             rhs.eval_to_prec(dst, final_prec);
             Op::apply(dst, lhs, dst);
         } else {
-            mpf_class tmp(gmpxx_mkII_detail::checked_mp_bitcnt(final_prec));
+            mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(final_prec));
             rhs.eval_to_prec(tmp, final_prec);
             lhs.eval_to_prec(dst, final_prec);
             Op::apply(dst, dst, tmp);
@@ -2571,7 +2663,7 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
     }
 };
 
-namespace gmpxx_mkII_detail {
+namespace gmpxx_detail {
 
 inline void note_mpz_addmul_fused() noexcept {
 #if defined(GMPXX_MKII_TEST_FUSION_COUNTERS)
@@ -2687,7 +2779,7 @@ inline void submul_fused_apply(mpz_class& dst, Expr const& expr) {
     mpz_addmul_fused_apply_impl<false>(dst, expr);
 }
 
-}  // namespace gmpxx_mkII_detail
+}  // namespace gmpxx_detail
 
 template<class Derived>
 [[nodiscard]] auto expr_base<Derived>::eval() const {
@@ -2705,7 +2797,7 @@ void expr_base<Derived>::eval_to(mpq_class& dst) const {
     self().eval_to_mpq(dst);
 }
 
-namespace gmpxx_mkII_detail {
+namespace gmpxx_detail {
 
 inline int normalize_cmp_result(int value) noexcept {
     return (value > 0) - (value < 0);
@@ -2760,14 +2852,14 @@ int cmp_values(L const& lhs, R const& rhs) {
     return normalize_cmp_result(mpq_cmp(lq.get_mpq_t(), rq.get_mpq_t()));
 }
 
-}  // namespace gmpxx_mkII_detail
+}  // namespace gmpxx_detail
 
 template<class L, class R>
     requires comparison_pair<L, R>
 int cmp(L const& lhs, R const& rhs) {
-    auto lhs_value = gmpxx_mkII_detail::materialize_for_cmp(lhs);
-    auto rhs_value = gmpxx_mkII_detail::materialize_for_cmp(rhs);
-    return gmpxx_mkII_detail::cmp_values(lhs_value, rhs_value);
+    auto lhs_value = gmpxx_detail::materialize_for_cmp(lhs);
+    auto rhs_value = gmpxx_detail::materialize_for_cmp(rhs);
+    return gmpxx_detail::cmp_values(lhs_value, rhs_value);
 }
 
 template<class L, class R>
@@ -2808,7 +2900,7 @@ bool operator>=(L const& lhs, R const& rhs) {
 
 inline std::ostream& operator<<(std::ostream& os, mpz_class const& value) {
     try {
-        os << value.get_str(gmpxx_mkII_detail::stream_integer_base(os));
+        os << value.get_str(gmpxx_detail::stream_integer_base(os));
     } catch (...) {
         os.setstate(std::ios_base::badbit);
     }
@@ -2817,7 +2909,7 @@ inline std::ostream& operator<<(std::ostream& os, mpz_class const& value) {
 
 inline std::ostream& operator<<(std::ostream& os, mpq_class const& value) {
     try {
-        os << value.get_str(gmpxx_mkII_detail::stream_integer_base(os));
+        os << value.get_str(gmpxx_detail::stream_integer_base(os));
     } catch (...) {
         os.setstate(std::ios_base::badbit);
     }
@@ -2826,7 +2918,7 @@ inline std::ostream& operator<<(std::ostream& os, mpq_class const& value) {
 
 inline std::ostream& operator<<(std::ostream& os, mpf_class const& value) {
     try {
-        std::string s = gmpxx_mkII_detail::format_mpf(value, os);
+        std::string s = gmpxx_detail::format_mpf(value, os);
         if (s.empty()) {
             os.setstate(std::ios_base::badbit);
         } else {
@@ -2857,7 +2949,7 @@ inline std::istream& operator>>(std::istream& is, mpz_class& value) {
     }
 
     mpz_class tmp;
-    if (tmp.set_str(token, gmpxx_mkII_detail::stream_input_base(is)) == 0) {
+    if (tmp.set_str(token, gmpxx_detail::stream_input_base(is)) == 0) {
         value.swap(tmp);
     } else {
         is.setstate(std::ios_base::failbit);
@@ -2877,7 +2969,7 @@ inline std::istream& operator>>(std::istream& is, mpq_class& value) {
     }
 
     mpq_class tmp;
-    if (tmp.set_str(token, gmpxx_mkII_detail::stream_input_base(is)) == 0) {
+    if (tmp.set_str(token, gmpxx_detail::stream_input_base(is)) == 0) {
         value.swap(tmp);
     } else {
         is.setstate(std::ios_base::failbit);
@@ -2896,7 +2988,7 @@ inline std::istream& operator>>(std::istream& is, mpf_class& value) {
         return is;
     }
 
-    int base = gmpxx_mkII_detail::stream_input_base(is);
+    int base = gmpxx_detail::stream_input_base(is);
     if (base == 0) {
         base = 10;
     }
@@ -2935,8 +3027,8 @@ template<phase2_operand L, phase2_operand R>
     requires (!(phase1_operand<L> && phase1_operand<R>) &&
               !(scalar_operand<L> && scalar_operand<R>))
 [[nodiscard]] inline auto operator+(L const& l, R const& r) {
-    using NL = gmpxx_mkII_detail::operand_storage_t<L>;
-    using NR = gmpxx_mkII_detail::operand_storage_t<R>;
+    using NL = gmpxx_detail::operand_storage_t<L>;
+    using NR = gmpxx_detail::operand_storage_t<R>;
     if constexpr (scalar_operand<L> && !scalar_operand<R>) {
         return binary_expr<add_op, NL, std::remove_cvref_t<R>>{
             static_cast<NL>(l), r};
@@ -2974,8 +3066,8 @@ template<phase2_operand L, phase2_operand R>
     requires (!(phase1_operand<L> && phase1_operand<R>) &&
               !(scalar_operand<L> && scalar_operand<R>))
 [[nodiscard]] inline auto operator-(L const& l, R const& r) {
-    using NL = gmpxx_mkII_detail::operand_storage_t<L>;
-    using NR = gmpxx_mkII_detail::operand_storage_t<R>;
+    using NL = gmpxx_detail::operand_storage_t<L>;
+    using NR = gmpxx_detail::operand_storage_t<R>;
     if constexpr (scalar_operand<L> && !scalar_operand<R>) {
         return binary_expr<sub_op, NL, std::remove_cvref_t<R>>{
             static_cast<NL>(l), r};
@@ -3013,8 +3105,8 @@ template<phase2_operand L, phase2_operand R>
     requires (!(phase1_operand<L> && phase1_operand<R>) &&
               !(scalar_operand<L> && scalar_operand<R>))
 [[nodiscard]] inline auto operator*(L const& l, R const& r) {
-    using NL = gmpxx_mkII_detail::operand_storage_t<L>;
-    using NR = gmpxx_mkII_detail::operand_storage_t<R>;
+    using NL = gmpxx_detail::operand_storage_t<L>;
+    using NR = gmpxx_detail::operand_storage_t<R>;
     if constexpr (scalar_operand<L> && !scalar_operand<R>) {
         return binary_expr<mul_op, NL, std::remove_cvref_t<R>>{
             static_cast<NL>(l), r};
@@ -3052,8 +3144,8 @@ template<phase2_operand L, phase2_operand R>
     requires (!(phase1_operand<L> && phase1_operand<R>) &&
               !(scalar_operand<L> && scalar_operand<R>))
 [[nodiscard]] inline auto operator/(L const& l, R const& r) {
-    using NL = gmpxx_mkII_detail::operand_storage_t<L>;
-    using NR = gmpxx_mkII_detail::operand_storage_t<R>;
+    using NL = gmpxx_detail::operand_storage_t<L>;
+    using NR = gmpxx_detail::operand_storage_t<R>;
     if constexpr (scalar_operand<L> && !scalar_operand<R>) {
         return binary_expr<div_op, NL, std::remove_cvref_t<R>>{
             static_cast<NL>(l), r};
@@ -3114,7 +3206,7 @@ template<phase2_operand X>
     return unary_expr<pos_op, std::remove_cvref_t<X>>{x};
 }
 
-namespace gmpxx_mkII_transcendent_detail {
+namespace gmpxx_transcendent_detail {
 
 using precision_type = mp_bitcnt_t;
 
@@ -4082,12 +4174,41 @@ inline mpf_class compute_pow(mpf_class const& x_input,
     return set_prec_copy(compute_exp(exponent_product, work), target);
 }
 
-}  // namespace gmpxx_mkII_transcendent_detail
+}  // namespace gmpxx_transcendent_detail
 
 [[nodiscard]] inline mpf_class sqrt(mpf_class const& x) {
     mpf_class result(x.get_prec());
     mpf_sqrt(result.get_mpf_t(), x.get_mpf_t());
     return result;
+}
+
+[[nodiscard]] inline mpf_class ceil(mpf_class const& x) {
+    mpf_class result(x.get_prec());
+    mpf_ceil(result.get_mpf_t(), x.get_mpf_t());
+    return result;
+}
+
+[[nodiscard]] inline mpf_class floor(mpf_class const& x) {
+    mpf_class result(x.get_prec());
+    mpf_floor(result.get_mpf_t(), x.get_mpf_t());
+    return result;
+}
+
+[[nodiscard]] inline mpf_class trunc(mpf_class const& x) {
+    mpf_class result(x.get_prec());
+    mpf_trunc(result.get_mpf_t(), x.get_mpf_t());
+    return result;
+}
+
+[[nodiscard]] inline mpf_class hypot(mpf_class const& x, mpf_class const& y) {
+    mp_bitcnt_t prec = std::max(x.get_prec(), y.get_prec());
+    mpf_class sum(prec);
+    mpf_class x2(prec);
+    mpf_class y2(prec);
+    mpf_mul(x2.get_mpf_t(), x.get_mpf_t(), x.get_mpf_t());
+    mpf_mul(y2.get_mpf_t(), y.get_mpf_t(), y.get_mpf_t());
+    mpf_add(sum.get_mpf_t(), x2.get_mpf_t(), y2.get_mpf_t());
+    return sqrt(sum);
 }
 
 [[nodiscard]] inline mpf_class abs(mpf_class const& x) {
@@ -4102,49 +4223,118 @@ inline mpf_class compute_pow(mpf_class const& x_input,
     return result;
 }
 
+[[nodiscard]] inline int sgn(mpf_class const& x) {
+    return mpf_sgn(x.get_mpf_t());
+}
+
+[[nodiscard]] inline int sgn(mpz_class const& x) {
+    return x.sgn();
+}
+
+[[nodiscard]] inline int sgn(mpq_class const& x) {
+    return x.sgn();
+}
+
+[[nodiscard]] inline mpz_class abs(mpz_class const& x) {
+    mpz_class result;
+    mpz_abs(result.get_mpz_t(), x.get_mpz_t());
+    return result;
+}
+
+[[nodiscard]] inline mpq_class abs(mpq_class const& x) {
+    mpq_class result;
+    mpq_abs(result.get_mpq_t(), x.get_mpq_t());
+    return result;
+}
+
+[[nodiscard]] inline mpz_class sqrt(mpz_class const& x) {
+    mpz_class result;
+    mpz_sqrt(result.get_mpz_t(), x.get_mpz_t());
+    return result;
+}
+
+[[nodiscard]] inline mpz_class gcd(mpz_class const& x, mpz_class const& y) {
+    mpz_class result;
+    mpz_gcd(result.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t());
+    return result;
+}
+
+[[nodiscard]] inline mpz_class lcm(mpz_class const& x, mpz_class const& y) {
+    mpz_class result;
+    mpz_lcm(result.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t());
+    return result;
+}
+
+[[nodiscard]] inline mpz_class factorial(mpz_class const& n) {
+    if (n.sgn() < 0 || !n.fits_ulong_p()) {
+        throw std::domain_error("gmpxx_mkII: factorial argument out of range");
+    }
+    mpz_class result;
+    mpz_fac_ui(result.get_mpz_t(), n.get_ui());
+    return result;
+}
+
+[[nodiscard]] inline mpz_class primorial(mpz_class const& n) {
+    if (n.sgn() < 0 || !n.fits_ulong_p()) {
+        throw std::domain_error("gmpxx_mkII: primorial argument out of range");
+    }
+    mpz_class result;
+    mpz_primorial_ui(result.get_mpz_t(), n.get_ui());
+    return result;
+}
+
+[[nodiscard]] inline mpz_class fibonacci(mpz_class const& n) {
+    if (n.sgn() < 0 || !n.fits_ulong_p()) {
+        throw std::domain_error("gmpxx_mkII: fibonacci argument out of range");
+    }
+    mpz_class result;
+    mpz_fib_ui(result.get_mpz_t(), n.get_ui());
+    return result;
+}
+
 [[nodiscard]] inline mpf_class pi(mp_bitcnt_t target_precision) {
-    return gmpxx_mkII_transcendent_detail::pi(target_precision);
+    return gmpxx_transcendent_detail::pi(target_precision);
 }
 
 [[nodiscard]] inline mpf_class log_two(mp_bitcnt_t target_precision) {
-    return gmpxx_mkII_transcendent_detail::log_two(target_precision);
+    return gmpxx_transcendent_detail::log_two(target_precision);
 }
 
 [[nodiscard]] inline mpf_class log(mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_log(x, x.get_prec());
+    return gmpxx_transcendent_detail::compute_log(x, x.get_prec());
 }
 
 [[nodiscard]] inline mpf_class log1p(mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_log1p(x, x.get_prec());
+    return gmpxx_transcendent_detail::compute_log1p(x, x.get_prec());
 }
 
 [[nodiscard]] inline mpf_class exp(mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_exp(x, x.get_prec());
+    return gmpxx_transcendent_detail::compute_exp(x, x.get_prec());
 }
 
 [[nodiscard]] inline mpf_class expm1(mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_expm1(x, x.get_prec());
+    return gmpxx_transcendent_detail::compute_expm1(x, x.get_prec());
 }
 
 [[nodiscard]] inline mpf_class sin(mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_sin(x, x.get_prec());
+    return gmpxx_transcendent_detail::compute_sin(x, x.get_prec());
 }
 
 [[nodiscard]] inline mpf_class cos(mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_cos(x, x.get_prec());
+    return gmpxx_transcendent_detail::compute_cos(x, x.get_prec());
 }
 
 [[nodiscard]] inline mpf_class atan(mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_atan(x, x.get_prec());
+    return gmpxx_transcendent_detail::compute_atan(x, x.get_prec());
 }
 
 [[nodiscard]] inline mpf_class atan2(mpf_class const& y, mpf_class const& x) {
-    return gmpxx_mkII_transcendent_detail::compute_atan2(
+    return gmpxx_transcendent_detail::compute_atan2(
         y, x, std::max(y.get_prec(), x.get_prec()));
 }
 
 [[nodiscard]] inline mpf_class pow(mpf_class const& x, mpf_class const& y) {
-    return gmpxx_mkII_transcendent_detail::compute_pow(
+    return gmpxx_transcendent_detail::compute_pow(
         x, y, std::max(x.get_prec(), y.get_prec()));
 }
 
@@ -4160,19 +4350,26 @@ inline void swap(mpq_class& lhs, mpq_class& rhs) noexcept {
     lhs.swap(rhs);
 }
 
-namespace gmpxx_mkII {
+namespace gmpxx {
 
 using ::binary_expr;
 using ::abs;
+using ::ceil;
 using ::cmp;
 using ::div_op;
+using ::factorial;
+using ::fibonacci;
+using ::floor;
 using ::gmpxx_defaults;
 using ::gmp_randclass;
+using ::gcd;
+using ::hypot;
 using ::atan;
 using ::atan2;
 using ::cos;
 using ::exp;
 using ::expm1;
+using ::lcm;
 using ::log;
 using ::log1p;
 using ::log_two;
@@ -4186,9 +4383,12 @@ using ::pi;
 using ::pos_op;
 using ::random_mpf_expr;
 using ::sin;
+using ::sgn;
 using ::sqrt;
 using ::swap;
 using ::pow;
+using ::primorial;
+using ::trunc;
 using ::unary_expr;
 
 namespace literals {
@@ -4218,8 +4418,8 @@ inline mpq_class operator""_mpq(char const* text, std::size_t) {
 }
 
 inline mpf_class operator""_mpf(char const* text) {
-    return mpf_class(text, gmpxx_mkII_detail::checked_mp_bitcnt(
-                               gmpxx_mkII_detail::thread_default_prec()),
+    return mpf_class(text, gmpxx_detail::checked_mp_bitcnt(
+                               gmpxx_detail::thread_default_prec()),
                      10);
 }
 
@@ -4229,4 +4429,4 @@ inline mpf_class operator""_mpf(char const* text, std::size_t) {
 
 }  // namespace literals
 
-}  // namespace gmpxx_mkII
+}  // namespace gmpxx

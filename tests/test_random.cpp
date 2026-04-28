@@ -26,8 +26,8 @@ void test_compile_time_surface() {
     static_assert(!std::is_copy_assignable_v<gmp_randclass>);
     static_assert(!std::is_move_constructible_v<gmp_randclass>);
     static_assert(!std::is_move_assignable_v<gmp_randclass>);
-    static_assert(std::is_same_v<gmpxx_mkII::gmp_randclass, gmp_randclass>);
-    static_assert(std::is_same_v<gmpxx_mkII::random_mpf_expr,
+    static_assert(std::is_same_v<gmpxx::gmp_randclass, gmp_randclass>);
+    static_assert(std::is_same_v<gmpxx::random_mpf_expr,
                                  random_mpf_expr>);
     static_assert(gmpxx_expr<random_mpf_expr>);
     static_assert(std::same_as<random_mpf_expr::result_type, mpf_class>);
@@ -46,7 +46,7 @@ void test_deterministic_seed_with_ui() {
 
     mpf_class f1 = r1.get_f(static_cast<mp_bitcnt_t>(256));
     mpf_class f2 = r2.get_f(static_cast<mp_bitcnt_t>(256));
-    assert(f1.get_prec() == gmpxx_mkII_detail::effective_mpf_prec(256));
+    assert(f1.get_prec() == gmpxx_detail::effective_mpf_prec(256));
     assert(f2.get_prec() == f1.get_prec());
     assert_mpf_equal(f1, f2);
     assert(f1 >= mpf_class(0.0, f1.get_prec()));

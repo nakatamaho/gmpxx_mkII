@@ -133,7 +133,7 @@ void test_compile_time_surface() {
 
 void test_constants() {
     mpf_class p = pi(static_cast<mp_bitcnt_t>(192));
-    assert(p.get_prec() == gmpxx_mkII_detail::effective_mpf_prec(192));
+    assert(p.get_prec() == gmpxx_detail::effective_mpf_prec(192));
     assert(p > mpf_class(3, p.get_prec()));
     assert(p < mpf_class(4, p.get_prec()));
 

@@ -25,8 +25,8 @@ void count_free(void* p, std::size_t) {
 
 void presize(mpf_class& x, std::uint64_t requested) {
     if (static_cast<std::uint64_t>(x.get_prec()) !=
-        gmpxx_mkII_detail::effective_mpf_prec(requested)) {
-        mpf_set_prec(x.get_mpf_t(), gmpxx_mkII_detail::checked_mp_bitcnt(requested));
+        gmpxx_detail::effective_mpf_prec(requested)) {
+        mpf_set_prec(x.get_mpf_t(), gmpxx_detail::checked_mp_bitcnt(requested));
     }
 }
 
@@ -36,9 +36,9 @@ int main() {
     mp_set_memory_functions(count_alloc, count_realloc, count_free);
 
     constexpr std::uint64_t requested = 256;
-    mpf_class a("1.5", gmpxx_mkII_detail::checked_mp_bitcnt(requested));
-    mpf_class b("2.5", gmpxx_mkII_detail::checked_mp_bitcnt(requested));
-    mpf_class dst(gmpxx_mkII_detail::checked_mp_bitcnt(requested));
+    mpf_class a("1.5", gmpxx_detail::checked_mp_bitcnt(requested));
+    mpf_class b("2.5", gmpxx_detail::checked_mp_bitcnt(requested));
+    mpf_class dst(gmpxx_detail::checked_mp_bitcnt(requested));
     presize(dst, requested);
 
     alloc_count = 0;

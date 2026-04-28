@@ -32,7 +32,7 @@ void test_precision_thread_snapshots() {
     std::thread fresh([] {
         mpf_class x;
         assert(x.get_prec() ==
-               gmpxx_mkII_detail::effective_mpf_prec(1024));
+               gmpxx_detail::effective_mpf_prec(1024));
         assert(gmpxx_defaults::get_default_prec() == x.get_prec());
     });
     fresh.join();
@@ -58,7 +58,7 @@ void test_precision_independent_from_gmp_global() {
         gmpxx_defaults::set_initial_default_prec(1536);
         mpf_class x;
         assert(x.get_prec() ==
-               gmpxx_mkII_detail::effective_mpf_prec(1536));
+               gmpxx_detail::effective_mpf_prec(1536));
         assert(x.get_prec() != static_cast<mp_bitcnt_t>(64));
     });
     t.join();
