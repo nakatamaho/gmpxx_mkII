@@ -168,6 +168,27 @@ void test_mpz_int128_construction_and_assignment() {
 #endif
 }
 
+void test_mpz_string_assignment() {
+    mpz_class from_cstr;
+    from_cstr = "14142135624";
+    assert(from_cstr == mpz_class("14142135624"));
+
+    std::string z_text = "31415926535";
+    mpz_class from_string;
+    from_string = z_text;
+    assert(from_string == mpz_class("31415926535"));
+
+    mpz_class unchanged("123");
+    bool threw = false;
+    try {
+        unchanged = "not-an-integer";
+    } catch (std::invalid_argument const&) {
+        threw = true;
+    }
+    assert(threw);
+    assert(unchanged == mpz_class("123"));
+}
+
 void test_string_and_base_construction() {
     mpz_class from_cstr = "14142135624";
     assert(from_cstr == mpz_class("14142135624"));
@@ -210,6 +231,25 @@ void test_mpz_to_mpf_and_mpq_construction() {
     mpq_class q_from_pair(mpz_class(std::int64_t{355}),
                           mpz_class(std::int64_t{113}));
     assert(q_from_pair == mpq_class("355/113"));
+}
+
+void test_expression_get_prec_alias() {
+    mpf_class low("1", static_cast<mp_bitcnt_t>(64));
+    mpf_class high("2", static_cast<mp_bitcnt_t>(1024));
+    mpz_class z("3");
+
+#if defined(GMPXX_MKII_NOPRECCHANGE)
+    mp_bitcnt_t expected = gmpxx_defaults::get_default_prec();
+#else
+    mp_bitcnt_t expected = high.get_prec();
+#endif
+
+    assert((low + high).get_prec() == expected);
+    assert((z + high).get_prec() == expected);
+    assert((high + z).get_prec() == expected);
+    assert((z - high).get_prec() == expected);
+    assert((high - z).get_prec() == expected);
+    assert((-(high + z)).get_prec() == expected);
 }
 
 void test_wrapper_to_wrapper_construction() {
@@ -360,8 +400,10 @@ int main() {
     test_compile_time_surface();
     test_mpz_integer_and_double_construction();
     test_mpz_int128_construction_and_assignment();
+    test_mpz_string_assignment();
     test_string_and_base_construction();
     test_mpz_to_mpf_and_mpq_construction();
+    test_expression_get_prec_alias();
     test_wrapper_to_wrapper_construction();
     test_wrapper_to_wrapper_assignment();
     test_mpq_numerator_denominator_accessors();

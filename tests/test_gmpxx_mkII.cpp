@@ -1032,13 +1032,10 @@ void testInitializationAndAssignmentString_mpz_class() {
     std::cout << "Constructor initialization with decimal '" << expectedDecimalValue << "' test passed." << std::endl;
 
     // Testing initialization with a decimal number using an assignment operator
-#if 0
-    // TODO: Restore after mpz_class string assignment is implemented.
     mpz_class b;
     b = expectedDecimalValue;
     assert(Is_mpz_class_Equals(b, expectedDecimalValue));
     std::cout << "Assignment initialization with decimal '" << expectedDecimalValue << "' test passed." << std::endl;
-#endif
 
     // Testing initialization with a decimal number using a constructor
     std::string expectedDecimalValueString = "31415926535";
@@ -1047,13 +1044,10 @@ void testInitializationAndAssignmentString_mpz_class() {
     std::cout << "Constructor initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
 
     // Testing initialization with a decimal number using an assignment operator
-#if 0
-    // TODO: Restore after mpz_class std::string assignment is implemented.
     mpz_class d;
     d = expectedDecimalValueString;
     assert(Is_mpz_class_Equals(d, expectedDecimalValueString.c_str()));
     std::cout << "Assignment initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
-#endif
 
     // Testing initialization with a hexadecimal number using an assignment operator
     const char* expectedHexValue = "66814286504060421741230023322616923956";
@@ -2589,10 +2583,7 @@ void test_precisions_mixed() {
         assert(a.get_prec() == 512);
         a = b + c;
         assert(a == 6);
-#if 0
-        // TODO: Restore after expression nodes expose legacy get_prec().
         assert((b + c).get_prec() == 1024);
-#endif
         assert(a.get_prec() == 512);
     }
     {
@@ -2602,10 +2593,7 @@ void test_precisions_mixed() {
         assert(a.get_prec() == 512);
         a = c + b;
         assert(a == 8);
-#if 0
-        // TODO: Restore after expression nodes expose legacy get_prec().
         assert((c + b).get_prec() == 1024);
-#endif
         assert(a.get_prec() == 512);
     }
     {
@@ -2615,10 +2603,7 @@ void test_precisions_mixed() {
         assert(a.get_prec() == 512);
         a = b - c;
         assert(a == 0);
-#if 0
-        // TODO: Restore after expression nodes expose legacy get_prec().
         assert((b - c).get_prec() == 1024);
-#endif
         assert(a.get_prec() == 512);
     }
     {
@@ -2628,10 +2613,7 @@ void test_precisions_mixed() {
         assert(a.get_prec() == 512);
         a = c - b;
         assert(a == -2);
-#if 0
-        // TODO: Restore after expression nodes expose legacy get_prec().
         assert((c - b).get_prec() == 1024);
-#endif
         assert(a.get_prec() == 512);
     }
     std::cout << "test_precisions_mixed passed." << std::endl;

@@ -1017,6 +1017,17 @@ public:
         return *this;
     }
 
+    mpz_class& operator=(char const* rhs) {
+        if (set_str(rhs) != 0) {
+            throw std::invalid_argument("gmpxx_mkII: invalid mpz string");
+        }
+        return *this;
+    }
+
+    mpz_class& operator=(std::string const& rhs) {
+        return *this = rhs.c_str();
+    }
+
 #if defined(__SIZEOF_INT128__)
     mpz_class& operator=(gmpxx_detail::int128_type rhs) {
         set_i128(rhs);
@@ -2636,6 +2647,11 @@ struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
         }
     }
 
+    [[nodiscard]] mp_bitcnt_t get_prec() const
+        requires (std::same_as<result_type, mpf_class>) {
+        return gmpxx_detail::checked_mp_bitcnt(this->suggested_prec());
+    }
+
     [[nodiscard]] bool contains_address(mpf_class const* p) const {
         if constexpr (std::same_as<X, mpf_class>) {
             return &x == p;
@@ -2729,6 +2745,11 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
         } else {
             return gmpxx_detail::thread_default_prec();
         }
+    }
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const
+        requires (std::same_as<result_type, mpf_class>) {
+        return gmpxx_detail::checked_mp_bitcnt(this->suggested_prec());
     }
 
     [[nodiscard]] bool contains_address(mpf_class const* p) const {
