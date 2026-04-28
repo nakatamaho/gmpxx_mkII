@@ -76,7 +76,7 @@ mpf_class ulp_for_value(mpf_class const& value, mp_bitcnt_t precision) {
 void assert_close(mpf_class const& got, mpf_class const& expected,
                   mp_bitcnt_t tolerance_bits) {
     mp_bitcnt_t prec = std::max(got.get_prec(), expected.get_prec());
-    mpf_class diff(prec);
+    mpf_class diff(0.0, prec);
     mpf_sub(diff.get_mpf_t(), got.get_mpf_t(), expected.get_mpf_t());
     mpf_abs(diff.get_mpf_t(), diff.get_mpf_t());
 
@@ -86,7 +86,7 @@ void assert_close(mpf_class const& got, mpf_class const& expected,
 
 void assert_within_ulp(mpf_class const& got, mpf_class const& expected,
                        mp_bitcnt_t precision, unsigned long max_ulps = 1) {
-    mpf_class diff(precision + 8);
+    mpf_class diff(0.0, static_cast<mp_bitcnt_t>(precision + 8));
     mpf_set(diff.get_mpf_t(), got.get_mpf_t());
     mpf_sub(diff.get_mpf_t(), diff.get_mpf_t(), expected.get_mpf_t());
     mpf_abs(diff.get_mpf_t(), diff.get_mpf_t());

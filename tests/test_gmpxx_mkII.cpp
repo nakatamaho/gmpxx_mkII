@@ -29,21 +29,29 @@
 
 #include <iostream>
 #include <cassert>
+#include <climits>
 #include <cstring>
 #include <string>
 #include <iomanip>
 #include <cmath>
+#include <sstream>
 #include <vector>
 #include <cstdint>
 
-#if defined USE_ORIGINAL_GMPXX
-#include <gmpxx.h>
-#else
 #include "gmpxx_mkII.h"
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___
 using namespace gmpxx;
-#endif
-#endif
+using namespace gmpxx::literals;
+#define GMPXX_MKII 1
+#define GMPXX_MKII_VERSION "2.0.0"
+#define GMPXX_MKII_COMPAT_HAS_LEGACY_SET_DEFAULT_PREC 0
+#define GMPXX_MKII_COMPAT_HAS_EXPR_PREC_CONSTRUCTORS 0
+#define GMPXX_MKII_COMPAT_HAS_MPF_T_CONSTRUCTORS 0
+#define GMPXX_MKII_COMPAT_HAS_CROSS_TYPE_EXPLICIT_CASTS 0
+#define GMPXX_MKII_COMPAT_HAS_MPF_REMAINDER 0
+#define GMPXX_MKII_COMPAT_HAS_TAN 0
+#define GMPXX_MKII_COMPAT_HAS_LOG2_LOG10 0
+#define GMPXX_MKII_COMPAT_HAS_CONST_PI_LOG2_ALIASES 0
+#define GMPXX_MKII_COMPAT_HAS_INT128 0
 
 std::string to_hex_sci(const mpf_class& val) {
     if (val == 0)
@@ -172,7 +180,7 @@ bool Is_mpq_class_Equals(mpq_class& gmpobj, const char* expected, bool debug_fla
     }
 }
 void testDefaultPrecision() {
-#if !defined ___GMPXX_STRICT_COMPATIBILITY___ && !defined USE_ORIGINAL_GMPXX
+#if GMPXX_MKII_COMPAT_HAS_LEGACY_SET_DEFAULT_PREC
     mpf_class f("1.5");
     mp_bitcnt_t defaultPrec = gmpxx_defaults::get_default_prec();
     assert(defaultPrec == f.get_prec());
@@ -256,10 +264,9 @@ void testInitializationAndAssignmentDouble() {
     std::cout << "testInitializationAndAssignmentDouble passed" << std::endl;
 }
 void testInitializationAndAssignmentString() {
-#if !defined USE_ORIGINAL_GMPXX
     // Testing initialization with a decimal number using a constructor
     const char* expectedDecimalValue = "1.4142135624";
-    mpf_class a = expectedDecimalValue;
+    mpf_class a(expectedDecimalValue);
     assert(Is_mpf_class_Equals(a, expectedDecimalValue));
     std::cout << "Constructor initialization with decimal '" << expectedDecimalValue << "' test passed." << std::endl;
 
@@ -271,7 +278,7 @@ void testInitializationAndAssignmentString() {
 
     // Testing initialization with a decimal number using a constructor
     std::string expectedDecimalValueString = "3.1415926535";
-    mpf_class c = expectedDecimalValueString;
+    mpf_class c(expectedDecimalValueString);
     assert(Is_mpf_class_Equals(c, expectedDecimalValueString.c_str()));
     std::cout << "Constructor initialization with decimal '" << expectedDecimalValueString << "' test passed." << std::endl;
 
@@ -287,15 +294,15 @@ void testInitializationAndAssignmentString() {
     assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 
-    gmpxx_defaults::base = 16;
+    gmpxx_defaults::set_default_base(16);
     // Testing initialization with a hexadecimal number using a constructor
     mpf_class f;
     e = inputHexValue;
-    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, gmpxx_defaults::base));
+    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12,
+                               gmpxx_defaults::get_default_base()));
     std::cout << "Constructor initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
-    gmpxx_defaults::base = 10;
+    gmpxx_defaults::set_default_base(10);
     std::cout << "testInitializationAndAssignmentString passed" << std::endl;
-#endif
 }
 void testAddition() {
     mpf_class a(1.5);
@@ -393,13 +400,11 @@ void testSqrt() {
     std::cout << "testSqrt passed." << std::endl;
 }
 void testNeg() {
-#if !defined USE_ORIGINAL_GMPXX
     mpf_class a(-3.5);
     mpf_class result = neg(a);
-    mpf_class expected = "3.5";
+    mpf_class expected("3.5");
     assert(result == expected);
     std::cout << "testNeg passed." << std::endl;
-#endif
 }
 void testAbs() {
     mpf_class a(-3.5);
@@ -928,7 +933,6 @@ void testInitializationAndAssignmentDouble_mpz_class() {
 //     test_int32_t_uint32_t_constructor();
 //     test_int64_t_uint64_t_int32_t_uint32_t_assignment();
 void testInitializationAndAssignment_int64_t_uint64_t_mpz_class() {
-#if !defined USE_ORIGINAL_GMPXX
     int64_t testValue = INT64_C(-9223372036854775807);
     const char* expectedValue = "-9223372036854775807";
 
@@ -953,7 +957,6 @@ void testInitializationAndAssignment_int64_t_uint64_t_mpz_class() {
     assert(Is_mpz_class_Equals(d, expectedValue2, true));
     std::cout << "Substitution from int64_t using assignment test passed." << std::endl;
     std::cout << "testInitializationAndAssignment_int64_t_uint64_t_mpz_class passed." << std::endl;
-#endif
 }
 void testInitializationAndAssignment_mpz_class_mpf_class() {
     mpf_class testValue("-31415926535");
@@ -1188,17 +1191,14 @@ void testMathFunctions_mpz_class() {
 }
 template <class T> T test_func(const T& a, const T& b) { return a * b; }
 void test_mpf_class_extention() {
-#if !defined USE_ORIGINAL_GMPXX
     mpf_class f(2), g(1), h(3);
 
     mpf_class result;
     result = test_func(f * h, g);
 
     std::cout << "The result of test_func(f * h, g) is: " << result << std::endl;
-#endif
 }
 void test_mpz_class_extention() {
-#if !defined USE_ORIGINAL_GMPXX
     mpz_class f(2), g(1), h(3);
 
     mpz_class result;
@@ -1206,7 +1206,6 @@ void test_mpz_class_extention() {
 
     std::cout << "The result of test_func(f * h, g) is: " << result << std::endl;
     std::cout << "test_mpz_class_extention passed." << std::endl;
-#endif
 }
 void test_set_str_mpz_class() {
     mpz_class a, b, c, d, e, f;
@@ -1320,7 +1319,6 @@ void testOutputOperator_mpz_class() {
     std::cout << "testOutputOperator_mpz_class passed." << std::endl;
 }
 void test_mpz_class_addition() {
-#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(1), c;
         uint64_t b = 2;
@@ -1333,7 +1331,6 @@ void test_mpz_class_addition() {
         a += b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
-#endif
     {
         mpz_class a(-1), c;
         signed long int b = 2;
@@ -1409,7 +1406,6 @@ void test_mpz_class_addition() {
     std::cout << "test_mpz_class_addition passed." << std::endl;
 }
 void test_mpz_class_subtraction() {
-#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(1), c;
         uint64_t b = 2;
@@ -1423,7 +1419,6 @@ void test_mpz_class_subtraction() {
         a -= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
-#endif
     {
         mpz_class a(-1), c;
         signed long int b = 2;
@@ -1505,7 +1500,6 @@ void test_mpz_class_subtraction() {
     std::cout << "test_mpz_class_subtraction passed." << std::endl;
 }
 void test_mpz_class_multiplication() {
-#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(3), c;
         const char* expectedValue = "6";
@@ -1518,7 +1512,6 @@ void test_mpz_class_multiplication() {
         a *= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
-#endif
     {
         mpz_class a(3), c;
         const char* expectedValue = "6";
@@ -1609,7 +1602,6 @@ void test_mpz_class_division() {
         a /= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
-#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(6), c, d;
         const char* expectedValue = "3";
@@ -1624,7 +1616,6 @@ void test_mpz_class_division() {
         a /= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
-#endif
     {
         mpz_class a(6), c, d;
         const char* expectedValue = "3";
@@ -1743,7 +1734,6 @@ void test_mpz_class_modulus() {
         a %= b;
         assert(Is_mpz_class_Equals(a, expectedValue2));
     }
-#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(5), c, d;
         const char* expectedValue = "1";
@@ -1758,7 +1748,6 @@ void test_mpz_class_modulus() {
         a %= b;
         assert(Is_mpz_class_Equals(a, expectedValue));
     }
-#endif
     {
         mpz_class a(5), c, d;
         const char* expectedValue = "1";
@@ -2015,7 +2004,7 @@ void test_mpq_class_literal() {
     assert(Is_mpq_class_Equals(num3, num3_expected));
     assert(Is_mpq_class_Equals(num4, num4_expected));
     assert(Is_mpq_class_Equals(num5, num5_expected));
-#if !defined USE_ORIGINAL_GMPXX && !defined ___GMPXX_STRICT_COMPATIBILITY___
+#if 1
     mpq_class num6 = "314159"_mpq;
     mpq_class num7 = "271828"_mpq;
     mpq_class num8 = "0"_mpq;
@@ -2137,14 +2126,12 @@ void test_mpq_class_functions() {
         input >> a;
         assert(a == mpq_class("5"));
     }
-#if !defined USE_ORIGINAL_GMPXX
     {
         std::istringstream input("invalid");
         mpq_class a;
         input >> a;
         assert(input.fail());
     }
-#endif
     std::cout << "test_mpq_class_functions passed." << std::endl;
 }
 void test_mpz_class_comparison_int() {
@@ -2164,7 +2151,6 @@ void test_mpz_class_comparison_int() {
     std::cout << "test_mpz_class_comparison_int tests passed successfully." << std::endl;
 }
 void test_mpf_class_const_pi() {
-#if !defined USE_ORIGINAL_GMPXX
     // https://www.wolframalpha.com/input?i=N%5Bpi%2C+1000%5D
     const char* pi_approx = "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
     mpf_class calculated_pi = const_pi();
@@ -2228,11 +2214,9 @@ void test_mpf_class_const_pi() {
     assert(i - 1 > decimal_digits - 2 && "not accurate");
 #endif
     mpf_set_default_prec(prec / 2);
-#endif
     std::cout << "test_mpf_class_const_pi passed." << std::endl;
 }
 void test_mpf_class_const_log2() {
-#if !defined USE_ORIGINAL_GMPXX
     // https://www.wolframalpha.com/input?i=N%5Bln%282%29%2C+1000%5D
     const char* log2_approx = "0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875420014810205706857336855202357581305570326707516350759619307275708283714351903070386238916734711233501153644979552391204751726815749320651555247341395258829504530070953263666426541042391578149520437404303855008019441706416715186447128399681717845469570262716310645461502572074024816377733896385506952606683411372738737229289564935470257626520988596932019650585547647033067936544325476327449512504060694381471046899465062201677204245245296126879465461931651746813926725041038025462596568691441928716082938031727143677826548775664850856740776484514644399404614226031930967354025744460703080960850474866385231381816767514386674766478908814371419854942315199735488037516586127535291661000710535582498794147295092931138971559982056543928717000721808576102523688921324497138932037843935308877482597017155910708823683627589842589185353024363421436706118923678919237231467232172053401649256872747782344535348";
     mpf_class calculated_log2 = const_log2();
@@ -2297,10 +2281,8 @@ void test_mpf_class_const_log2() {
 #endif
     mpf_set_default_prec(prec / 2);
     std::cout << "test_mpf_class_const_log2 passed." << std::endl;
-#endif
 }
 void test_div2exp_mul2exp_mpf_class(void) {
-#if !defined USE_ORIGINAL_GMPXX
     mpf_class value(2.0);
 
     value.div_2exp(1); // value should now be 1.0
@@ -2312,10 +2294,8 @@ void test_div2exp_mul2exp_mpf_class(void) {
     std::cout << "After mul_2exp: " << value << std::endl;
 
     std::cout << "test_div2exp_mul2exp_mpf_class passed." << std::endl;
-#endif
 }
 void test_log_mpf_class(void) {
-#if !defined USE_ORIGINAL_GMPXX
     // https://www.wolframalpha.com/input?i=N%5Bln%2825%29%2C+1000%5D
     const char* log25_approx = "3.218875824868200749201518666452375279051202708537035443825295782948357975415315529260267756186359221599932606043431125799448010458649352399267233234927411455104359274994366491306985712404683050114540310387201759554779451376387081425532309462443619055897042585642716119445135344570574480923178896356729342657347996849275519186378847687868706902101950108908389481002731974175734766426261145944081318970767677447325507753091125436323023319861830486414729823355727801351745171557532783167673647900850975912478968062003965394234981987482996961915242033822028757724806708643025446251469176923119574583961773141368040133199688945399946435362373035202440405956816218039295053399530137841317957826763143432414455549119541068640775574993658750722267601893528096660570004349549759416014286931232719794082517802675283048034011777197469896975575942108628356640402906124181231577581343196250334998082868344244073889400185371187519570984237923572865751753696644116711923993582633393018646777063170797964741970862926";
     // https://www.wolframalpha.com/input?i=N%5Bln%2810%29%2C+1000%5D
@@ -2360,10 +2340,9 @@ void test_log_mpf_class(void) {
     std::cout << "log10 matched in " << i - 1 << " decimal digits" << std::endl;
     assert(i - 1 > decimal_digits - 4 && "not accurate");
     std::cout << "test_log_mpf_class passed." << std::endl;
-#endif
 }
 void test_exp_mpf_class(void) {
-#if !defined USE_ORIGINAL_GMPXX && !defined ___GMPXX_STRICT_COMPATIBILITY___
+#if 1
     // https://www.wolframalpha.com/input?i=+N%5Be%2C1000%5D
     const char* exp_approx = "2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427427466391932003059921817413596629043572900334295260595630738132328627943490763233829880753195251019011573834187930702154089149934884167509244761460668082264800168477411853742345442437107539077744992069551702761838606261331384583000752044933826560297606737113200709328709127443747047230696977209310141692836819025515108657463772111252389784425056953696770785449969967946864454905987931636889230098793127736178215424999229576351482208269895193668033182528869398496465105820939239829488793320362509443117301238197068416140397019837679320683282376464804295311802328782509819455815301756717361332069811250996181881593041690351598888519345807273866738589422879228499892086805825749279610484198444363463244968487560233624827041978623209002160990235304369941849146314093431738143640546253152096183690888707016768396424378140592714563549061303107208510383750510115747704171898610687396965521267154688957035035";
     // https://www.wolframalpha.com/input?i=+N%5Be%5E3%2C1000%5D
@@ -2657,7 +2636,6 @@ void test_misc() {
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
-#if !defined USE_ORIGINAL_GMPXX
     {
         mpz_class a(UINT64_C(2862933555777941757));
         unsigned long c = 0, m2exp = 32;
@@ -2669,7 +2647,6 @@ void test_misc() {
             gmp_printf("%.78Ff\n", f.get_mpf_t());
         }
     }
-#endif
     {
         unsigned long m2exp_size = 64;
         gmp_randclass r3(gmp_randinit_lc_2exp_size, m2exp_size);
@@ -2727,7 +2704,7 @@ void test_misc() {
         gmp_printf("%.78Ff\n", g.get_mpf_t());
         mpf_set_default_prec(512);
     }
-#if defined GMPXX_MKII_NOPRECCHANGE || defined USE_ORIGINAL_GMPXX
+#if defined GMPXX_MKII_NOPRECCHANGE
     {
         // Another clear difference between the original macro-based implementation and my C++17 implementation
         // r2.get_f() knows the precision of f in the original implementation, whereas my implementation does not.
@@ -2747,7 +2724,6 @@ void test_misc() {
 #endif
 }
 void test_reminder() {
-#if !defined USE_ORIGINAL_GMPXX
     std::vector<mpf_class> x_values = {mpf_class("10.5"), mpf_class("23.7"), mpf_class("5.3"), mpf_class("-15.8"), mpf_class("-7.6")};
     std::vector<mpf_class> y_values = {mpf_class("3.2"), mpf_class("4.5"), mpf_class("2.1"), mpf_class("6.1"), mpf_class("2.3")};
     mpf_class epsilon;
@@ -2767,11 +2743,9 @@ void test_reminder() {
         assert(abs(x - reconstructed_x) < epsilon * 2.0 && "Check failed: reconstructed_x does not match original x");
     }
     std::cout << "test_reminder passed." << std::endl;
-#endif
 }
 
 void test_cos() {
-#if !defined USE_ORIGINAL_GMPXX
 #ifdef NOT_COMPILE
     {
         for (int i = -30; i < 30; i++) {
@@ -2826,10 +2800,8 @@ void test_cos() {
         assert(i - 1 > decimal_digits - 2 && "not accurate");
     }
     std::cout << "test_cos passed." << std::endl;
-#endif
 }
 void test_sin() {
-#if !defined USE_ORIGINAL_GMPXX
 #if defined NOT_COMPILE
     {
         for (int i = -30; i < 30; i++) {
@@ -2884,10 +2856,8 @@ void test_sin() {
         assert(i - 1 > decimal_digits - 2 && "not accurate");
     }
     std::cout << "test_sin passed." << std::endl;
-#endif
 }
 void test_tan() {
-#if !defined USE_ORIGINAL_GMPXX
 #if defined NOT_COMPILE
     {
         for (int i = -30; i < 30; i++) {
@@ -2942,10 +2912,8 @@ void test_tan() {
         assert(i - 1 > decimal_digits - 2 && "not accurate");
     }
     std::cout << "test_tan passed." << std::endl;
-#endif
 }
 void test_pow() {
-#if !defined USE_ORIGINAL_GMPXX
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=pow%282%2C+2.99999%29+1000digits
@@ -3014,10 +2982,8 @@ void test_pow() {
         assert(i - 1 > decimal_digits - 5 && "not accurate");
     }
     std::cout << "test_pow passed." << std::endl;
-#endif
 }
 void test_log2() {
-#if !defined USE_ORIGINAL_GMPXX
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Blog2%280.5%29%2C+1000%5D
@@ -3042,10 +3008,8 @@ void test_log2() {
         assert(i - 1 > decimal_digits - 4 && "not accurate");
     }
     std::cout << "test_log2 passed." << std::endl;
-#endif
 }
 void test_log10() {
-#if !defined USE_ORIGINAL_GMPXX
     mpf_class x, y;
     {
         // https://www.wolframalpha.com/input?i=N%5Blog10%280.5%29%2C+1000%5D
@@ -3070,10 +3034,8 @@ void test_log10() {
         assert(i - 1 > decimal_digits - 4 && "not accurate");
     }
     std::cout << "test_log10 passed." << std::endl;
-#endif
 }
 void test_atan() {
-#if !defined USE_ORIGINAL_GMPXX
 #if defined NOT_COMPILE
     {
         for (int i = -30; i < 30; i++) {
@@ -3130,10 +3092,8 @@ void test_atan() {
         assert(i - 1 > decimal_digits - 5 && "not accurate");
     }
     std::cout << "test_atan passed." << std::endl;
-#endif
 }
 void test_atan2() {
-#if !defined USE_ORIGINAL_GMPXX
     {
         const char* pi_str = "3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648233786783165271201909145648566923460348610454326648213393607260249141273724587006606315588174881520920962829254091715364367892590360011330530548820466521384146951941511609433057270365759591953092186117381932611793105118548074462379962749567351885752724891227938183011949129833673362440656643086021394946395224737190702179860943702770539217176293176752384674818467669405132000568127145263560827785771342757789609173637178721468440901224953430146549585371050792279689258923542019956112129021960864034418159813629774771309960518707211349999998372978049951059731732816096318595024459455346908302642522308253344685035261931188171010003137838752886587533208381420617177669147303598253490428755468731159562863882353787593751957781857780532171226806613001927876611195909216420199";
         const char* pi_2_str = "1.570796326794896619231321691639751442098584699687552910487472296153908203143104499314017412671058533991074043256641153323546922304775291115862679704064240558725142051350969260552779822311474477465190982214405487832966723064237824116893391582635600954572824283461730174305227163324106696803630124570636862293503303157794087440760460481414627045857682183946295180005665265274410233260692073475970755804716528635182879795976546093058690966305896552559274037231189981374783675942876362445613969091505974564916836681220328321543010697473197612368595351089930471851385269608588146588376192337409233834702566000284063572631780413892885671378894804586818589360734220450612476715073274792685525396139844629461771009978056064510980432017209079906814887385654980259353605674999999186489024975529865866408048159297512229727673454151321261154126672342517630965594085505001568919376443293766604190710308588834573651799126745214377734365579781431941176893796875978890928890266085613403306500963938305597954608210099";
@@ -3182,11 +3142,9 @@ void test_atan2() {
         }
     }
     std::cout << "test_atan2 passed." << std::endl;
-#endif
 }
 
 void test_int64_t_uint64_t_constructor() {
-#if !defined USE_ORIGINAL_GMPXX
     {
         int64_t testValue = INT64_C(-0x6EDCBA9876543210);
         mpz_class value(testValue);
@@ -3215,11 +3173,9 @@ void test_int64_t_uint64_t_constructor() {
         assert(actual == expected && "Comparison failed: The strings do not match.");
         std::cout << "Comparison passed: The strings match." << std::endl;
     }
-#endif
 }
 
 void test_int32_t_uint32_t_constructor() {
-#if !defined USE_ORIGINAL_GMPXX
     {
         int32_t testValue = INT32_C(-0x12345678);
         mpz_class value(testValue);
@@ -3249,10 +3205,8 @@ void test_int32_t_uint32_t_constructor() {
         assert(actual == expected && "uint32_t constructor test failed: The strings do not match.");
         std::cout << "uint32_t constructor test passed!" << std::endl;
     }
-#endif
 }
 void test_int64_t_uint64_t_int32_t_uint32_t_assignment() {
-#if !defined USE_ORIGINAL_GMPXX
     {
         int64_t testValue = INT64_C(-0x7EDCBA9876543210);
         mpz_class value;
@@ -3313,10 +3267,8 @@ void test_int64_t_uint64_t_int32_t_uint32_t_assignment() {
         assert(actual == expected && "uint32_t assignment test failed.");
         std::cout << "uint32_t assignment test passed!" << std::endl;
     }
-#endif
 }
 void test_int128_t_uint128_t_assignment() {
-#if !defined USE_ORIGINAL_GMPXX
 #ifdef __SIZEOF_INT128__
     {
         __int128_t testValue = (__int128_t)0x0123456789ABCDEF * 0xFEDCBA9876543210;
@@ -3348,10 +3300,8 @@ void test_int128_t_uint128_t_assignment() {
         std::cout << "__uint128_t assignment test passed!" << std::endl;
     }
 #endif
-#endif
 }
 void test_int128_t_uint128_t_constructor() {
-#if !defined USE_ORIGINAL_GMPXX
 #ifdef __SIZEOF_INT128__
     {
         __int128_t testValue = (__int128_t)0x0123456789ABCDEF * 0xFEDCBA9876543210;
@@ -3396,16 +3346,10 @@ void test_int128_t_uint128_t_constructor() {
         std::cout << "__uint128_t construction test passed!" << std::endl;
     }
 #endif
-#endif
 }
 
 int main() {
-#if defined USE_ORIGINAL_GMPXX
-    mpf_set_default_prec(512);
-#endif
-#if !defined USE_ORIGINAL_GMPXX
     std::cout << "GMPXX_MKII version: " << GMPXX_MKII_VERSION << std::endl;
-#endif
     // mpf_class
     testDefaultPrecision();
     testDefaultConstructor();

@@ -97,7 +97,7 @@ void test_sqrt() {
     mpf_class four("4.0", static_cast<mp_bitcnt_t>(256));
     mpf_class result = sqrt(four);
 
-    mpf_class expected(four.get_prec());
+    mpf_class expected(0.0, four.get_prec());
     mpf_sqrt(expected.get_mpf_t(), four.get_mpf_t());
 
     assert(result.get_prec() == four.get_prec());
@@ -106,7 +106,7 @@ void test_sqrt() {
     mpf_class zero("0.0", static_cast<mp_bitcnt_t>(192));
     result = gmpxx::sqrt(zero);
 
-    mpf_class zero_expected(zero.get_prec());
+    mpf_class zero_expected(0.0, zero.get_prec());
     mpf_sqrt(zero_expected.get_mpf_t(), zero.get_mpf_t());
 
     assert(result.get_prec() == zero.get_prec());

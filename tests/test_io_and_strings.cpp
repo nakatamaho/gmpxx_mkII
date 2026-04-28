@@ -144,7 +144,7 @@ void test_mpf_strings() {
     assert(!f.to_string().empty());
     assert(f.get_prec() == old_prec);
 
-    mpf_class g(static_cast<mp_bitcnt_t>(128));
+    mpf_class g(0.0, static_cast<mp_bitcnt_t>(128));
     assert(g.set_str("1.25") == 0);
     assert_mpf_equal(g, f);
     assert(g.get_prec() == old_prec);

@@ -67,7 +67,7 @@ int main() {
 
         r = -(-(a + b));
 
-        mpf_class ref(old_prec);
+        mpf_class ref(0.0, old_prec);
         mpf_add(ref.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
 
         assert(r.get_prec() == old_prec);
@@ -78,7 +78,7 @@ int main() {
         mpf_class r("1.0", 128);
         mp_bitcnt_t old_prec = r.get_prec();
 
-        mpf_class ref(old_prec);
+        mpf_class ref(0.0, old_prec);
         mpf_set(ref.get_mpf_t(), r.get_mpf_t());
         mpf_add(ref.get_mpf_t(), ref.get_mpf_t(), a.get_mpf_t());
 

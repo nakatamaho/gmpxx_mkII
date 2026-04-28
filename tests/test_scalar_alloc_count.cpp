@@ -64,7 +64,7 @@ int main() {
     constexpr std::uint64_t requested = 256;
     mpf_class a("1.5", gmpxx_detail::checked_mp_bitcnt(requested));
     mpf_class b("2.5", gmpxx_detail::checked_mp_bitcnt(requested));
-    mpf_class dst(gmpxx_detail::checked_mp_bitcnt(requested));
+    mpf_class dst(0.0, gmpxx_detail::checked_mp_bitcnt(requested));
     presize(dst, requested);
 
     alloc_count = 0;

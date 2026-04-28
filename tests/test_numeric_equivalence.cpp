@@ -68,7 +68,7 @@ void assert_same(char const* label, mpf_class const& got, mpf_class const& ref,
 }
 
 mpf_class ref_unary(mpf_class const& a, std::uint64_t requested, bool neg) {
-    mpf_class ref(gmpxx_detail::checked_mp_bitcnt(requested));
+    mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(requested));
     if (neg) {
         mpf_neg(ref.get_mpf_t(), a.get_mpf_t());
     } else {
@@ -79,7 +79,7 @@ mpf_class ref_unary(mpf_class const& a, std::uint64_t requested, bool neg) {
 
 mpf_class ref_binary(mpf_class const& a, mpf_class const& b,
                      std::uint64_t requested, char op) {
-    mpf_class ref(gmpxx_detail::checked_mp_bitcnt(requested));
+    mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(requested));
     if (op == '+') {
         mpf_add(ref.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
     } else if (op == '-') {
@@ -106,22 +106,22 @@ void check_set(mpf_class const& a, mpf_class const& b,
 
     std::uint64_t p3 = final_requested({&a, &b, &c});
     {
-        mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(p3));
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(p3));
+        mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(p3));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(p3));
         mpf_add(tmp.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
         mpf_mul(ref.get_mpf_t(), tmp.get_mpf_t(), c.get_mpf_t());
         assert_same("(a+b)*c", mpf_class((a + b) * c), ref, p3);
     }
     {
-        mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(p3));
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(p3));
+        mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(p3));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(p3));
         mpf_sub(tmp.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
         mpf_div(ref.get_mpf_t(), tmp.get_mpf_t(), c.get_mpf_t());
         assert_same("(a-b)/c", mpf_class((a - b) / c), ref, p3);
     }
     {
-        mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(p3));
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(p3));
+        mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(p3));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(p3));
         mpf_sub(tmp.get_mpf_t(), b.get_mpf_t(), c.get_mpf_t());
         mpf_add(ref.get_mpf_t(), a.get_mpf_t(), tmp.get_mpf_t());
         assert_same("a+(b-c)", mpf_class(a + (b - c)), ref, p3);
@@ -129,17 +129,17 @@ void check_set(mpf_class const& a, mpf_class const& b,
 
     std::uint64_t p4 = final_requested({&a, &b, &c, &d});
     {
-        mpf_class left(gmpxx_detail::checked_mp_bitcnt(p4));
-        mpf_class right(gmpxx_detail::checked_mp_bitcnt(p4));
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(p4));
+        mpf_class left(0.0, gmpxx_detail::checked_mp_bitcnt(p4));
+        mpf_class right(0.0, gmpxx_detail::checked_mp_bitcnt(p4));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(p4));
         mpf_add(left.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
         mpf_sub(right.get_mpf_t(), c.get_mpf_t(), d.get_mpf_t());
         mpf_mul(ref.get_mpf_t(), left.get_mpf_t(), right.get_mpf_t());
         assert_same("(a+b)*(c-d)", mpf_class((a + b) * (c - d)), ref, p4);
     }
     {
-        mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(p4));
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(p4));
+        mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(p4));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(p4));
         mpf_mul(tmp.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
         mpf_add(tmp.get_mpf_t(), tmp.get_mpf_t(), c.get_mpf_t());
         mpf_div(ref.get_mpf_t(), tmp.get_mpf_t(), d.get_mpf_t());
@@ -147,8 +147,8 @@ void check_set(mpf_class const& a, mpf_class const& b,
     }
     {
         std::uint64_t p1 = final_requested({&a});
-        mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(p1));
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(p1));
+        mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(p1));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(p1));
         mpf_neg(tmp.get_mpf_t(), a.get_mpf_t());
         mpf_neg(ref.get_mpf_t(), tmp.get_mpf_t());
         assert_same("-(-a)", mpf_class(-(-a)), ref, p1);
@@ -163,15 +163,15 @@ void check_assignment_preserves_destination_precision(mpf_class const& a,
 
     {
         mpf_class dst("0", dst_prec);
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(requested));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(requested));
         mpf_add(ref.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
         dst = a + b;
         assert_same("assignment preserves precision: a+b", dst, ref, requested);
     }
     {
         mpf_class dst("0", dst_prec);
-        mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(requested));
-        mpf_class ref(gmpxx_detail::checked_mp_bitcnt(requested));
+        mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(requested));
+        mpf_class ref(0.0, gmpxx_detail::checked_mp_bitcnt(requested));
         mpf_add(tmp.get_mpf_t(), a.get_mpf_t(), b.get_mpf_t());
         mpf_mul(ref.get_mpf_t(), tmp.get_mpf_t(), c.get_mpf_t());
         dst = (a + b) * c;

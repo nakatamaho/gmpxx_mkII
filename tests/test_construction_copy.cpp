@@ -82,7 +82,7 @@ void test_integral_constructor_with_explicit_precision() {
            gmpxx_detail::effective_mpf_prec(requested_prec));
 
     mpf_class negative(-42, requested_prec);
-    mpf_class negative_expected(requested_prec);
+    mpf_class negative_expected(0.0, requested_prec);
     mpf_set_si(negative_expected.get_mpf_t(), -42);
     assert(negative.get_prec() == negative_expected.get_prec());
     assert_mpf_equal(negative, negative_expected);
@@ -90,7 +90,7 @@ void test_integral_constructor_with_explicit_precision() {
     std::uint64_t large = std::numeric_limits<std::uint64_t>::max();
     mpf_class unsigned_value(large, requested_prec);
     mpz_class large_z(large);
-    mpf_class unsigned_expected(requested_prec);
+    mpf_class unsigned_expected(0.0, requested_prec);
     mpf_set_z(unsigned_expected.get_mpf_t(), large_z.get_mpz_t());
     assert(unsigned_value.get_prec() == unsigned_expected.get_prec());
     assert_mpf_equal(unsigned_value, unsigned_expected);
@@ -178,7 +178,7 @@ void test_hex_string_constructor_with_explicit_base() {
 
     mpf_class value(hex_digits, requested_prec, 16);
 
-    mpf_class expected(requested_prec);
+    mpf_class expected(0.0, requested_prec);
     int rc = mpf_set_str(expected.get_mpf_t(), hex_digits, 16);
     assert(rc == 0);
 

@@ -604,26 +604,34 @@ public:
                              gmpxx_detail::thread_default_prec()));
     }
 
-    explicit mpf_class(mp_bitcnt_t prec) {
-        note_constructed();
-        mpf_init2(value, prec);
-    }
-
     mpf_class(double v) : mpf_class() {
         mpf_set_d(value, v);
     }
 
-    mpf_class(double v, mp_bitcnt_t prec) : mpf_class(prec) {
+    mpf_class(double v, mp_bitcnt_t prec) {
+        note_constructed();
+        mpf_init2(value, prec);
         mpf_set_d(value, v);
     }
 
+    mpf_class(bool) = delete;
     mpf_class(bool, mp_bitcnt_t) = delete;
 
     template<class T>
         requires (std::is_integral_v<std::remove_cvref_t<T>> &&
                   !std::same_as<std::remove_cvref_t<T>, bool> &&
                   (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
-    mpf_class(T v, mp_bitcnt_t prec) : mpf_class(prec) {
+    mpf_class(T v) : mpf_class() {
+        set_from_integral(v);
+    }
+
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    mpf_class(T v, mp_bitcnt_t prec) {
+        note_constructed();
+        mpf_init2(value, prec);
         set_from_integral(v);
     }
 
@@ -634,7 +642,9 @@ public:
     }
 
     mpf_class(char const* s, mp_bitcnt_t prec,
-              int base = gmpxx_detail::use_default_base) : mpf_class(prec) {
+              int base = gmpxx_detail::use_default_base) {
+        note_constructed();
+        mpf_init2(value, prec);
         set_from_string(s, base);
     }
 
@@ -663,6 +673,14 @@ public:
         std::uint64_t final_prec = expr.suggested_prec();
         mpf_init2(value, gmpxx_detail::checked_mp_bitcnt(final_prec));
         expr.eval_to_prec(*this, final_prec);
+    }
+
+    template<gmpxx_expr Expr>
+        requires (std::same_as<typename Expr::result_type, mpf_class>)
+    mpf_class(Expr const& expr, mp_bitcnt_t prec) {
+        note_constructed();
+        mpf_init2(value, prec);
+        expr.eval_to_prec(*this, static_cast<std::uint64_t>(prec));
     }
 
     ~mpf_class() {
@@ -707,7 +725,7 @@ public:
     mpf_class& operator=(Expr const& expr) {
         std::uint64_t final_prec = static_cast<std::uint64_t>(get_prec());
         if (expr.contains_address(this)) {
-            mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(final_prec));
+            mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(final_prec));
             expr.eval_to_prec(tmp, final_prec);
             mpf_set(value, tmp.value);
             return *this;
@@ -1093,7 +1111,7 @@ void mpf_class::set_from_integral(T v) {
 }
 
 inline mpf_class::mpf_class(mpz_class const& v, mp_bitcnt_t prec)
-    : mpf_class(prec) {
+    : mpf_class(0.0, prec) {
     mpf_set_z(value, v.get_mpz_t());
 }
 
@@ -1391,7 +1409,7 @@ public:
     [[nodiscard]] mpf_class get_f(mp_bitcnt_t prec) {
         mp_bitcnt_t result_prec =
             prec == 0 ? gmpxx_defaults::get_default_prec() : prec;
-        mpf_class result(result_prec);
+        mpf_class result(0.0, result_prec);
         generate_mpf(result, result_prec);
         return result;
     }
@@ -1438,7 +1456,7 @@ public:
 
     [[nodiscard]] mpf_class eval() const {
         std::uint64_t final_prec = suggested_prec();
-        mpf_class result(gmpxx_detail::checked_mp_bitcnt(final_prec));
+        mpf_class result(0.0, gmpxx_detail::checked_mp_bitcnt(final_prec));
         eval_to_prec(result, final_prec);
         return result;
     }
@@ -1826,16 +1844,16 @@ template<class Dst, class L, class R>
 inline void add_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_add(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_add(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
-            mpf_class ltmp(dst.get_prec());
-            mpf_class rtmp(dst.get_prec());
+            mpf_class ltmp(0.0, dst.get_prec());
+            mpf_class rtmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(ltmp, lhs);
             gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_add(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
@@ -1865,16 +1883,16 @@ template<class Dst, class L, class R>
 inline void sub_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_sub(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_sub(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
-            mpf_class ltmp(dst.get_prec());
-            mpf_class rtmp(dst.get_prec());
+            mpf_class ltmp(0.0, dst.get_prec());
+            mpf_class rtmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(ltmp, lhs);
             gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_sub(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
@@ -1904,16 +1922,16 @@ template<class Dst, class L, class R>
 inline void mul_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_mul(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_mul(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
-            mpf_class ltmp(dst.get_prec());
-            mpf_class rtmp(dst.get_prec());
+            mpf_class ltmp(0.0, dst.get_prec());
+            mpf_class rtmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(ltmp, lhs);
             gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_mul(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
@@ -1943,16 +1961,16 @@ template<class Dst, class L, class R>
 inline void div_op::apply(Dst& dst, L const& lhs, R const& rhs) {
     if constexpr (std::same_as<Dst, mpf_class>) {
         if constexpr (std::same_as<std::remove_cvref_t<L>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, rhs);
             mpf_div(dst.get_mpf_t(), lhs.get_mpf_t(), tmp.get_mpf_t());
         } else if constexpr (std::same_as<std::remove_cvref_t<R>, mpf_class>) {
-            mpf_class tmp(dst.get_prec());
+            mpf_class tmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(tmp, lhs);
             mpf_div(dst.get_mpf_t(), tmp.get_mpf_t(), rhs.get_mpf_t());
         } else {
-            mpf_class ltmp(dst.get_prec());
-            mpf_class rtmp(dst.get_prec());
+            mpf_class ltmp(0.0, dst.get_prec());
+            mpf_class rtmp(0.0, dst.get_prec());
             gmpxx_detail::set_mpf_from_value(ltmp, lhs);
             gmpxx_detail::set_mpf_from_value(rtmp, rhs);
             mpf_div(dst.get_mpf_t(), ltmp.get_mpf_t(), rtmp.get_mpf_t());
@@ -2167,7 +2185,7 @@ inline mpf_class& mpf_class::operator/=(mpf_class const& rhs) {
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpf_class>)
 inline mpf_class& mpf_class::operator+=(Expr const& expr) {
-    mpf_class tmp(this->get_prec());
+    mpf_class tmp(0.0, this->get_prec());
     expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
     add_op::apply(*this, *this, tmp);
     return *this;
@@ -2176,7 +2194,7 @@ inline mpf_class& mpf_class::operator+=(Expr const& expr) {
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpf_class>)
 inline mpf_class& mpf_class::operator-=(Expr const& expr) {
-    mpf_class tmp(this->get_prec());
+    mpf_class tmp(0.0, this->get_prec());
     expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
     sub_op::apply(*this, *this, tmp);
     return *this;
@@ -2185,7 +2203,7 @@ inline mpf_class& mpf_class::operator-=(Expr const& expr) {
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpf_class>)
 inline mpf_class& mpf_class::operator*=(Expr const& expr) {
-    mpf_class tmp(this->get_prec());
+    mpf_class tmp(0.0, this->get_prec());
     expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
     mul_op::apply(*this, *this, tmp);
     return *this;
@@ -2194,7 +2212,7 @@ inline mpf_class& mpf_class::operator*=(Expr const& expr) {
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpf_class>)
 inline mpf_class& mpf_class::operator/=(Expr const& expr) {
-    mpf_class tmp(this->get_prec());
+    mpf_class tmp(0.0, this->get_prec());
     expr.eval_to_prec(tmp, static_cast<std::uint64_t>(this->get_prec()));
     div_op::apply(*this, *this, tmp);
     return *this;
@@ -2637,7 +2655,7 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
             rhs.eval_to_prec(dst, final_prec);
             Op::apply(dst, lhs, dst);
         } else {
-            mpf_class tmp(gmpxx_detail::checked_mp_bitcnt(final_prec));
+            mpf_class tmp(0.0, gmpxx_detail::checked_mp_bitcnt(final_prec));
             rhs.eval_to_prec(tmp, final_prec);
             lhs.eval_to_prec(dst, final_prec);
             Op::apply(dst, dst, tmp);
@@ -4203,34 +4221,34 @@ inline mpf_class compute_pow(mpf_class const& x_input,
 }  // namespace gmpxx_transcendent_detail
 
 [[nodiscard]] inline mpf_class sqrt(mpf_class const& x) {
-    mpf_class result(x.get_prec());
+    mpf_class result(0.0, x.get_prec());
     mpf_sqrt(result.get_mpf_t(), x.get_mpf_t());
     return result;
 }
 
 [[nodiscard]] inline mpf_class ceil(mpf_class const& x) {
-    mpf_class result(x.get_prec());
+    mpf_class result(0.0, x.get_prec());
     mpf_ceil(result.get_mpf_t(), x.get_mpf_t());
     return result;
 }
 
 [[nodiscard]] inline mpf_class floor(mpf_class const& x) {
-    mpf_class result(x.get_prec());
+    mpf_class result(0.0, x.get_prec());
     mpf_floor(result.get_mpf_t(), x.get_mpf_t());
     return result;
 }
 
 [[nodiscard]] inline mpf_class trunc(mpf_class const& x) {
-    mpf_class result(x.get_prec());
+    mpf_class result(0.0, x.get_prec());
     mpf_trunc(result.get_mpf_t(), x.get_mpf_t());
     return result;
 }
 
 [[nodiscard]] inline mpf_class hypot(mpf_class const& x, mpf_class const& y) {
     mp_bitcnt_t prec = std::max(x.get_prec(), y.get_prec());
-    mpf_class sum(prec);
-    mpf_class x2(prec);
-    mpf_class y2(prec);
+    mpf_class sum(0.0, prec);
+    mpf_class x2(0.0, prec);
+    mpf_class y2(0.0, prec);
     mpf_mul(x2.get_mpf_t(), x.get_mpf_t(), x.get_mpf_t());
     mpf_mul(y2.get_mpf_t(), y.get_mpf_t(), y.get_mpf_t());
     mpf_add(sum.get_mpf_t(), x2.get_mpf_t(), y2.get_mpf_t());
@@ -4238,13 +4256,13 @@ inline mpf_class compute_pow(mpf_class const& x_input,
 }
 
 [[nodiscard]] inline mpf_class abs(mpf_class const& x) {
-    mpf_class result(x.get_prec());
+    mpf_class result(0.0, x.get_prec());
     mpf_abs(result.get_mpf_t(), x.get_mpf_t());
     return result;
 }
 
 [[nodiscard]] inline mpf_class neg(mpf_class const& x) {
-    mpf_class result(x.get_prec());
+    mpf_class result(0.0, x.get_prec());
     mpf_neg(result.get_mpf_t(), x.get_mpf_t());
     return result;
 }
