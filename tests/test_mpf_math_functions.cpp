@@ -28,15 +28,29 @@
 
 #include "gmpxx_mkII.h"
 
+#include <algorithm>
 #include <cassert>
 #include <concepts>
 #include <cstdint>
+#include <stdexcept>
 #include <utility>
 
 namespace {
 
 void assert_mpf_equal(mpf_class const& got, mpf_class const& expected) {
     assert(mpf_cmp(got.get_mpf_t(), expected.get_mpf_t()) == 0);
+}
+
+void assert_mpf_close(
+    mpf_class const& got,
+    mpf_class const& expected,
+    mp_bitcnt_t tolerance_bits) {
+    mp_bitcnt_t prec = std::max(got.get_prec(), expected.get_prec());
+    mpf_class diff = abs(got - expected);
+    mpf_class tolerance(1, prec);
+    mpf_div_2exp(tolerance.get_mpf_t(), tolerance.get_mpf_t(),
+                 tolerance_bits);
+    assert(diff < tolerance);
 }
 
 void test_compile_time_surface() {
@@ -58,6 +72,14 @@ void test_compile_time_surface() {
     static_assert(std::same_as<
                   decltype(trunc(std::declval<mpf_class const&>())),
                   mpf_class>);
+    static_assert(std::same_as<
+                  decltype(mpf_remainder(
+                      std::declval<mpf_class const&>(),
+                      std::declval<mpf_class const&>())),
+                  mpf_class>);
+    static_assert(std::same_as<
+                  decltype(std::declval<mpf_class&>().set_epsilon()),
+                  void>);
     static_assert(std::same_as<
                   decltype(hypot(std::declval<mpf_class const&>(),
                                   std::declval<mpf_class const&>())),
@@ -184,6 +206,53 @@ void test_hypot_and_scaling() {
     assert_mpf_equal(value, mpf_class("2.0", value.get_prec()));
 }
 
+void test_epsilon_and_remainder() {
+    mpf_class epsilon(0, static_cast<mp_bitcnt_t>(128));
+    epsilon.set_epsilon();
+    mpf_class expected_epsilon(1, epsilon.get_prec());
+    mpf_div_2exp(expected_epsilon.get_mpf_t(),
+                 expected_epsilon.get_mpf_t(),
+                 epsilon.get_prec() - 1);
+    assert_mpf_equal(epsilon, expected_epsilon);
+
+    struct case_data {
+        char const* x;
+        char const* y;
+        char const* quotient;
+        char const* remainder;
+    };
+
+    case_data cases[] = {
+        {"10.5", "3.2", "3", "0.9"},
+        {"23.7", "4.5", "5", "1.2"},
+        {"5.3", "2.1", "2", "1.1"},
+        {"-15.8", "6.1", "-3", "2.5"},
+        {"-7.6", "2.3", "-4", "1.6"},
+    };
+
+    for (case_data const& c : cases) {
+        mpf_class x(c.x, static_cast<mp_bitcnt_t>(256));
+        mpf_class y(c.y, static_cast<mp_bitcnt_t>(256));
+        mpz_class quotient;
+        mpf_class remainder = mpf_remainder(x, y, &quotient);
+
+        assert(quotient == mpz_class(c.quotient));
+        assert_mpf_close(remainder, mpf_class(c.remainder, remainder.get_prec()),
+                         220);
+
+        mpf_class reconstructed = quotient * y + remainder;
+        assert_mpf_close(reconstructed, x, 220);
+    }
+
+    bool threw = false;
+    try {
+        (void)mpf_remainder(mpf_class("1"), mpf_class("0"));
+    } catch (std::domain_error const&) {
+        threw = true;
+    }
+    assert(threw);
+}
+
 void test_sign_and_exact_math_functions() {
     assert(sgn(mpf_class("123.456")) > 0);
     assert(sgn(mpf_class("-123.456")) < 0);
@@ -208,6 +277,7 @@ int main() {
     test_neg();
     test_rounding_functions();
     test_hypot_and_scaling();
+    test_epsilon_and_remainder();
     test_sign_and_exact_math_functions();
     return 0;
 }

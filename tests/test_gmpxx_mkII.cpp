@@ -2794,8 +2794,6 @@ void test_misc() {
 #endif
 }
 void test_reminder() {
-#if 0
-    // TODO: Restore after set_epsilon() and mpf_remainder() are implemented.
     std::vector<mpf_class> x_values = {mpf_class("10.5"), mpf_class("23.7"), mpf_class("5.3"), mpf_class("-15.8"), mpf_class("-7.6")};
     std::vector<mpf_class> y_values = {mpf_class("3.2"), mpf_class("4.5"), mpf_class("2.1"), mpf_class("6.1"), mpf_class("2.3")};
     mpf_class epsilon;
@@ -2815,7 +2813,6 @@ void test_reminder() {
         assert(abs(x - reconstructed_x) < epsilon * 2.0 && "Check failed: reconstructed_x does not match original x");
     }
     std::cout << "test_reminder passed." << std::endl;
-#endif
 }
 
 void test_cos() {

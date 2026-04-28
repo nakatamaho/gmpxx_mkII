@@ -869,6 +869,14 @@ public:
         mpf_div_2exp(value, value, exp);
     }
 
+    void set_epsilon() {
+        mp_bitcnt_t bits = get_prec();
+        mpf_set_ui(value, 1);
+        if (bits > 0) {
+            mpf_div_2exp(value, value, bits - 1);
+        }
+    }
+
     [[nodiscard]] std::string get_str(
         mp_exp_t& exp,
         int base = gmpxx_detail::use_default_base,
@@ -4510,6 +4518,30 @@ inline mpf_class compute_pow(mpf_class const& x_input,
     return result;
 }
 
+[[nodiscard]] inline mpf_class mpf_remainder(
+    mpf_class const& x,
+    mpf_class const& y,
+    mpz_class* quotient_out = nullptr) {
+    if (mpf_sgn(y.get_mpf_t()) == 0) {
+        throw std::domain_error("gmpxx_mkII: mpf_remainder divisor is zero");
+    }
+
+    mpf_class quotient = x / y;
+    mpz_class int_quotient(quotient);
+    if (quotient_out != nullptr) {
+        *quotient_out = int_quotient;
+    }
+
+    mpf_class remainder = x - int_quotient * y;
+    if (remainder < 0) {
+        remainder += y;
+        if (quotient_out != nullptr) {
+            *quotient_out -= 1;
+        }
+    }
+    return remainder;
+}
+
 [[nodiscard]] inline mpf_class hypot(mpf_class const& x, mpf_class const& y) {
     mp_bitcnt_t prec = std::max(x.get_prec(), y.get_prec());
     mpf_class sum(0.0, prec);
@@ -4987,6 +5019,7 @@ using ::log1p;
 using ::log_ten;
 using ::log_two;
 using ::mpf_class;
+using ::mpf_remainder;
 using ::mpq_class;
 using ::mpz_class;
 using ::mul_op;
