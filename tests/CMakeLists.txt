@@ -30,13 +30,29 @@ add_gmpxx_mkii_test(test_mpz_arithmetic test_mpz_arithmetic.cpp)
 add_gmpxx_mkii_test(test_mpq_arithmetic test_mpq_arithmetic.cpp)
 add_gmpxx_mkii_test(test_mixed_type_arithmetic test_mixed_type_arithmetic.cpp)
 add_gmpxx_mkii_test(test_mpz_mpq_alloc_count test_mpz_mpq_alloc_count.cpp)
+add_gmpxx_mkii_test(test_mpz_addmul_fusion test_mpz_addmul_fusion.cpp)
+add_gmpxx_mkii_test(test_mpz_addmul_alloc_count test_mpz_addmul_alloc_count.cpp)
+add_gmpxx_mkii_test(test_mpz_addmul_alloc_count_llp64
+    test_mpz_addmul_alloc_count.cpp)
+add_gmpxx_mkii_test(test_comparisons test_comparisons.cpp)
 
 target_link_libraries(test_thread_safety PRIVATE Threads::Threads)
 target_compile_definitions(test_long_width_dispatch_llp64
     PRIVATE GMPXX_MKII_TEST_LLP64_PATH)
 target_compile_definitions(test_mpz_mpq_alloc_count
     PRIVATE GMPXX_MKII_INSTRUMENT_WRAPPERS)
+target_compile_definitions(test_mpz_addmul_fusion
+    PRIVATE GMPXX_MKII_TEST_FUSION_COUNTERS)
+target_compile_definitions(test_mpz_addmul_alloc_count
+    PRIVATE GMPXX_MKII_INSTRUMENT_WRAPPERS
+            GMPXX_MKII_TEST_FUSION_COUNTERS)
+target_compile_definitions(test_mpz_addmul_alloc_count_llp64
+    PRIVATE GMPXX_MKII_INSTRUMENT_WRAPPERS
+            GMPXX_MKII_TEST_FUSION_COUNTERS
+            GMPXX_MKII_TEST_LLP64_PATH)
 
 set_tests_properties(test_alloc_count PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)
 set_tests_properties(test_scalar_alloc_count PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)
 set_tests_properties(test_mpz_mpq_alloc_count PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)
+set_tests_properties(test_mpz_addmul_alloc_count PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)
+set_tests_properties(test_mpz_addmul_alloc_count_llp64 PROPERTIES RUN_SERIAL TRUE LABELS alloc-count)

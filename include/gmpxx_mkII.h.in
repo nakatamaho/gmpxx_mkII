@@ -179,6 +179,15 @@ template<class T>
 concept phase2_operand =
     phase1_operand<T> || mpz_operand<T> || mpq_operand<T>;
 
+template<class T>
+concept comparison_operand = phase2_operand<T>;
+
+template<class L, class R>
+concept comparison_pair =
+    comparison_operand<L> &&
+    comparison_operand<R> &&
+    !(scalar_operand<L> && scalar_operand<R>);
+
 namespace gmpxx_mkII_detail {
 
 #if defined(GMPXX_MKII_INSTRUMENT_WRAPPERS)
@@ -190,6 +199,20 @@ inline void reset_wrapper_counters() noexcept {
     mpf_ctor_count.store(0, std::memory_order_relaxed);
     mpz_ctor_count.store(0, std::memory_order_relaxed);
     mpq_ctor_count.store(0, std::memory_order_relaxed);
+}
+#endif
+
+#if defined(GMPXX_MKII_TEST_FUSION_COUNTERS)
+inline std::atomic<std::uint64_t> test_mpz_addmul_fused_count{0};
+inline std::atomic<std::uint64_t> test_mpz_submul_fused_count{0};
+inline std::atomic<std::uint64_t> test_mpz_addmul_ui_fused_count{0};
+inline std::atomic<std::uint64_t> test_mpz_submul_ui_fused_count{0};
+
+inline void reset_mpz_addmul_fusion_counters() noexcept {
+    test_mpz_addmul_fused_count.store(0, std::memory_order_relaxed);
+    test_mpz_submul_fused_count.store(0, std::memory_order_relaxed);
+    test_mpz_addmul_ui_fused_count.store(0, std::memory_order_relaxed);
+    test_mpz_submul_ui_fused_count.store(0, std::memory_order_relaxed);
 }
 #endif
 
@@ -388,6 +411,45 @@ struct operand_storage<T> {
 template<class T>
 using operand_storage_t =
     typename operand_storage<std::remove_cvref_t<T>>::type;
+
+template<class T, bool IsScalar = scalar_operand<T>>
+struct is_integral_scalar_leaf_impl : std::false_type {};
+
+template<class T>
+struct is_integral_scalar_leaf_impl<T, true>
+    : std::bool_constant<
+          std::same_as<scalar_normalize_t<T>, std::int64_t> ||
+          std::same_as<scalar_normalize_t<T>, std::uint64_t>> {};
+
+template<class T>
+inline constexpr bool is_integral_scalar_leaf_v =
+    is_integral_scalar_leaf_impl<std::remove_cvref_t<T>>::value;
+
+template<class T>
+inline constexpr bool is_mpz_addmul_operand_v =
+    std::same_as<std::remove_cvref_t<T>, mpz_class> ||
+    is_integral_scalar_leaf_v<T>;
+
+template<class T>
+struct is_mpz_addmul_fusable_impl : std::false_type {};
+
+template<class L, class R>
+struct is_mpz_addmul_fusable_impl<binary_expr<mul_op, L, R>>
+    : std::bool_constant<
+          is_mpz_addmul_operand_v<L> &&
+          is_mpz_addmul_operand_v<R> &&
+          (std::same_as<std::remove_cvref_t<L>, mpz_class> ||
+           std::same_as<std::remove_cvref_t<R>, mpz_class>)> {};
+
+template<class Expr>
+inline constexpr bool is_mpz_addmul_fusable_v =
+    is_mpz_addmul_fusable_impl<std::remove_cvref_t<Expr>>::value;
+
+template<class Expr>
+void addmul_fused_apply(mpz_class& dst, Expr const& expr);
+
+template<class Expr>
+void submul_fused_apply(mpz_class& dst, Expr const& expr);
 
 }  // namespace gmpxx_mkII_detail
 
@@ -1576,18 +1638,26 @@ inline mpz_class& mpz_class::operator%=(mpz_class const& rhs) {
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpz_class>)
 inline mpz_class& mpz_class::operator+=(Expr const& expr) {
-    mpz_class tmp;
-    expr.eval_to(tmp);
-    add_op::apply(*this, *this, tmp);
+    if constexpr (gmpxx_mkII_detail::is_mpz_addmul_fusable_v<Expr>) {
+        gmpxx_mkII_detail::addmul_fused_apply(*this, expr);
+    } else {
+        mpz_class tmp;
+        expr.eval_to(tmp);
+        add_op::apply(*this, *this, tmp);
+    }
     return *this;
 }
 
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpz_class>)
 inline mpz_class& mpz_class::operator-=(Expr const& expr) {
-    mpz_class tmp;
-    expr.eval_to(tmp);
-    sub_op::apply(*this, *this, tmp);
+    if constexpr (gmpxx_mkII_detail::is_mpz_addmul_fusable_v<Expr>) {
+        gmpxx_mkII_detail::submul_fused_apply(*this, expr);
+    } else {
+        mpz_class tmp;
+        expr.eval_to(tmp);
+        sub_op::apply(*this, *this, tmp);
+    }
     return *this;
 }
 
@@ -2001,6 +2071,124 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
     }
 };
 
+namespace gmpxx_mkII_detail {
+
+inline void note_mpz_addmul_fused() noexcept {
+#if defined(GMPXX_MKII_TEST_FUSION_COUNTERS)
+    test_mpz_addmul_fused_count.fetch_add(1, std::memory_order_relaxed);
+#endif
+}
+
+inline void note_mpz_submul_fused() noexcept {
+#if defined(GMPXX_MKII_TEST_FUSION_COUNTERS)
+    test_mpz_submul_fused_count.fetch_add(1, std::memory_order_relaxed);
+#endif
+}
+
+inline void note_mpz_addmul_ui_fused() noexcept {
+#if defined(GMPXX_MKII_TEST_FUSION_COUNTERS)
+    test_mpz_addmul_ui_fused_count.fetch_add(1, std::memory_order_relaxed);
+#endif
+}
+
+inline void note_mpz_submul_ui_fused() noexcept {
+#if defined(GMPXX_MKII_TEST_FUSION_COUNTERS)
+    test_mpz_submul_ui_fused_count.fetch_add(1, std::memory_order_relaxed);
+#endif
+}
+
+template<bool Add>
+inline void mpz_addmul_apply_unsigned(
+    mpz_class& dst, mpz_class const& lhs, std::uint64_t rhs) {
+    if (fits_in_ulong(rhs)) {
+        if constexpr (Add) {
+            note_mpz_addmul_ui_fused();
+            mpz_addmul_ui(dst.get_mpz_t(), lhs.get_mpz_t(),
+                          static_cast<unsigned long>(rhs));
+        } else {
+            note_mpz_submul_ui_fused();
+            mpz_submul_ui(dst.get_mpz_t(), lhs.get_mpz_t(),
+                          static_cast<unsigned long>(rhs));
+        }
+    } else {
+        mpz_class tmp(rhs);
+        if constexpr (Add) {
+            note_mpz_addmul_fused();
+            mpz_addmul(dst.get_mpz_t(), lhs.get_mpz_t(), tmp.get_mpz_t());
+        } else {
+            note_mpz_submul_fused();
+            mpz_submul(dst.get_mpz_t(), lhs.get_mpz_t(), tmp.get_mpz_t());
+        }
+    }
+}
+
+template<bool Add>
+inline void mpz_addmul_apply_signed(
+    mpz_class& dst, mpz_class const& lhs, std::int64_t rhs) {
+    if (rhs >= 0) {
+        mpz_addmul_apply_unsigned<Add>(
+            dst, lhs, static_cast<std::uint64_t>(rhs));
+    } else {
+        mpz_addmul_apply_unsigned<!Add>(dst, lhs, safe_negate(rhs));
+    }
+}
+
+template<bool Add, class Scalar>
+inline void mpz_addmul_apply_scalar(
+    mpz_class& dst, mpz_class const& lhs, Scalar rhs) {
+    using scalar_type = scalar_normalize_t<Scalar>;
+    static_assert(std::same_as<scalar_type, std::int64_t> ||
+                  std::same_as<scalar_type, std::uint64_t>);
+    if constexpr (std::same_as<scalar_type, std::int64_t>) {
+        mpz_addmul_apply_signed<Add>(
+            dst, lhs, static_cast<std::int64_t>(rhs));
+    } else {
+        mpz_addmul_apply_unsigned<Add>(
+            dst, lhs, static_cast<std::uint64_t>(rhs));
+    }
+}
+
+template<bool Add>
+inline void mpz_addmul_apply_pair(
+    mpz_class& dst, mpz_class const& lhs, mpz_class const& rhs) {
+    if constexpr (Add) {
+        note_mpz_addmul_fused();
+        mpz_addmul(dst.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
+    } else {
+        note_mpz_submul_fused();
+        mpz_submul(dst.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
+    }
+}
+
+template<bool Add, class L, class R>
+inline void mpz_addmul_fused_apply_impl(
+    mpz_class& dst, binary_expr<mul_op, L, R> const& expr) {
+    if constexpr (std::same_as<L, mpz_class> && std::same_as<R, mpz_class>) {
+        mpz_addmul_apply_pair<Add>(dst, expr.lhs, expr.rhs);
+    } else if constexpr (std::same_as<L, mpz_class> &&
+                         is_integral_scalar_leaf_v<R>) {
+        mpz_addmul_apply_scalar<Add>(dst, expr.lhs, expr.rhs);
+    } else {
+        static_assert(is_integral_scalar_leaf_v<L> &&
+                      std::same_as<R, mpz_class>);
+        mpz_addmul_apply_scalar<Add>(dst, expr.rhs, expr.lhs);
+    }
+}
+
+template<class Expr>
+inline void addmul_fused_apply(mpz_class& dst, Expr const& expr) {
+    static_assert(is_mpz_addmul_fusable_v<Expr>);
+    mpz_addmul_fused_apply_impl<true>(dst, expr);
+}
+
+template<class Expr>
+inline void submul_fused_apply(mpz_class& dst, Expr const& expr) {
+    static_assert(is_mpz_addmul_fusable_v<Expr>);
+    mpz_addmul_fused_apply_impl<false>(dst, expr);
+}
+
+}  // namespace gmpxx_mkII_detail
+
 template<class Derived>
 [[nodiscard]] auto expr_base<Derived>::eval() const {
     using result_type = typename Derived::result_type;
@@ -2015,6 +2203,107 @@ void expr_base<Derived>::eval_to(mpz_class& dst) const {
 template<class Derived>
 void expr_base<Derived>::eval_to(mpq_class& dst) const {
     self().eval_to_mpq(dst);
+}
+
+namespace gmpxx_mkII_detail {
+
+inline int normalize_cmp_result(int value) noexcept {
+    return (value > 0) - (value < 0);
+}
+
+inline mpq_class to_mpq_for_cmp(mpq_class const& value) {
+    return value;
+}
+
+inline mpq_class to_mpq_for_cmp(mpz_class const& value) {
+    return mpq_class(value);
+}
+
+inline mpq_class to_mpq_for_cmp(mpf_class const& value) {
+    mpq_class result;
+    mpq_set_f(result.get_mpq_t(), value.get_mpf_t());
+    result.canonicalize();
+    return result;
+}
+
+inline mpq_class to_mpq_for_cmp(std::int64_t value) {
+    return mpq_class(value);
+}
+
+inline mpq_class to_mpq_for_cmp(std::uint64_t value) {
+    mpz_class z(value);
+    return mpq_class(z);
+}
+
+inline mpq_class to_mpq_for_cmp(double value) {
+    mpf_class tmp(value, static_cast<mp_bitcnt_t>(DBL_MANT_DIG));
+    return to_mpq_for_cmp(tmp);
+}
+
+template<class T>
+auto materialize_for_cmp(T const& value) {
+    using clean = std::remove_cvref_t<T>;
+    if constexpr (is_gmpxx_expr_v<clean>) {
+        return value.eval();
+    } else if constexpr (scalar_operand<clean>) {
+        using normalized = scalar_normalize_t<clean>;
+        return static_cast<normalized>(value);
+    } else {
+        return value;
+    }
+}
+
+template<class L, class R>
+int cmp_values(L const& lhs, R const& rhs) {
+    mpq_class lq = to_mpq_for_cmp(lhs);
+    mpq_class rq = to_mpq_for_cmp(rhs);
+    return normalize_cmp_result(mpq_cmp(lq.get_mpq_t(), rq.get_mpq_t()));
+}
+
+}  // namespace gmpxx_mkII_detail
+
+template<class L, class R>
+    requires comparison_pair<L, R>
+int cmp(L const& lhs, R const& rhs) {
+    auto lhs_value = gmpxx_mkII_detail::materialize_for_cmp(lhs);
+    auto rhs_value = gmpxx_mkII_detail::materialize_for_cmp(rhs);
+    return gmpxx_mkII_detail::cmp_values(lhs_value, rhs_value);
+}
+
+template<class L, class R>
+    requires comparison_pair<L, R>
+bool operator==(L const& lhs, R const& rhs) {
+    return cmp(lhs, rhs) == 0;
+}
+
+template<class L, class R>
+    requires comparison_pair<L, R>
+bool operator!=(L const& lhs, R const& rhs) {
+    return cmp(lhs, rhs) != 0;
+}
+
+template<class L, class R>
+    requires comparison_pair<L, R>
+bool operator<(L const& lhs, R const& rhs) {
+    return cmp(lhs, rhs) < 0;
+}
+
+template<class L, class R>
+    requires comparison_pair<L, R>
+bool operator<=(L const& lhs, R const& rhs) {
+    return cmp(lhs, rhs) <= 0;
+}
+
+template<class L, class R>
+    requires comparison_pair<L, R>
+bool operator>(L const& lhs, R const& rhs) {
+    return cmp(lhs, rhs) > 0;
+}
+
+template<class L, class R>
+    requires comparison_pair<L, R>
+bool operator>=(L const& lhs, R const& rhs) {
+    return cmp(lhs, rhs) >= 0;
 }
 
 template<phase0_operand L, phase0_operand R>
