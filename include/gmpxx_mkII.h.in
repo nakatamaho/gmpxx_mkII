@@ -674,12 +674,14 @@ public:
               int base = gmpxx_detail::use_default_base)
         : mpf_class(s.c_str(), prec, base) {}
 
+    // Rule of 5: copy constructor.
     mpf_class(mpf_class const& other) {
         note_constructed();
         mpf_init2(value, other.get_prec());
         mpf_set(value, other.value);
     }
 
+    // Rule of 5: move constructor.
     mpf_class(mpf_class&& other) noexcept {
         note_constructed();
         mpf_init2(value, other.get_prec());
@@ -703,10 +705,12 @@ public:
         expr.eval_to_prec(*this, static_cast<std::uint64_t>(prec));
     }
 
+    // Rule of 5: destructor.
     ~mpf_class() {
         mpf_clear(value);
     }
 
+    // Rule of 5: copy assignment operator.
     mpf_class& operator=(mpf_class const& other) {
         if (this != &other) {
             if (get_prec() != other.get_prec()) {
@@ -717,6 +721,7 @@ public:
         return *this;
     }
 
+    // Rule of 5: move assignment operator.
     mpf_class& operator=(mpf_class&& other) noexcept {
         if (this != &other) {
             mpf_swap(value, other.value);
@@ -930,11 +935,13 @@ public:
         mpz_init(value);
     }
 
+    // Rule of 5: copy constructor.
     mpz_class(mpz_class const& other) {
         note_constructed();
         mpz_init_set(value, other.value);
     }
 
+    // Rule of 5: move constructor.
     mpz_class(mpz_class&& other) noexcept {
         note_constructed();
         mpz_init(value);
@@ -998,10 +1005,12 @@ public:
         expr.eval_to(*this);
     }
 
+    // Rule of 5: destructor.
     ~mpz_class() {
         mpz_clear(value);
     }
 
+    // Rule of 5: copy assignment operator.
     mpz_class& operator=(mpz_class const& other) {
         if (this != &other) {
             mpz_set(value, other.value);
@@ -1009,6 +1018,7 @@ public:
         return *this;
     }
 
+    // Rule of 5: move assignment operator.
     mpz_class& operator=(mpz_class&& other) noexcept {
         if (this != &other) {
             mpz_swap(value, other.value);
@@ -1266,12 +1276,14 @@ public:
         mpq_init(value);
     }
 
+    // Rule of 5: copy constructor.
     mpq_class(mpq_class const& other) {
         note_constructed();
         mpq_init(value);
         mpq_set(value, other.value);
     }
 
+    // Rule of 5: move constructor.
     mpq_class(mpq_class&& other) noexcept {
         note_constructed();
         mpq_init(value);
@@ -1331,10 +1343,12 @@ public:
         expr.eval_to(*this);
     }
 
+    // Rule of 5: destructor.
     ~mpq_class() {
         mpq_clear(value);
     }
 
+    // Rule of 5: copy assignment operator.
     mpq_class& operator=(mpq_class const& other) {
         if (this != &other) {
             mpq_set(value, other.value);
@@ -1342,6 +1356,7 @@ public:
         return *this;
     }
 
+    // Rule of 5: move assignment operator.
     mpq_class& operator=(mpq_class&& other) noexcept {
         if (this != &other) {
             mpq_swap(value, other.value);
