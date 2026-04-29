@@ -718,12 +718,20 @@ public:
     }
 
     template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpf_class>)
+    mpf_class(Expr const& expr);
+
+    template<gmpxx_expr Expr>
         requires (std::same_as<typename Expr::result_type, mpf_class>)
     mpf_class(Expr const& expr, mp_bitcnt_t prec) {
         note_constructed();
         mpf_init2(value, prec);
         expr.eval_to_prec(*this, static_cast<std::uint64_t>(prec));
     }
+
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpf_class>)
+    mpf_class(Expr const& expr, mp_bitcnt_t prec);
 
     // Rule of 5: destructor.
     ~mpf_class() {
@@ -1068,6 +1076,10 @@ public:
     mpz_class(Expr const& expr) : mpz_class() {
         expr.eval_to(*this);
     }
+
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpz_class>)
+    explicit mpz_class(Expr const& expr);
 
     // Rule of 5: destructor.
     ~mpz_class() {
@@ -1462,6 +1474,14 @@ public:
         expr.eval_to(*this);
     }
 
+    template<gmpxx_expr Expr>
+        requires (std::same_as<typename Expr::result_type, mpz_class>)
+    mpq_class(Expr const& expr);
+
+    template<gmpxx_expr Expr>
+        requires (std::same_as<typename Expr::result_type, mpf_class>)
+    explicit mpq_class(Expr const& expr);
+
     // Rule of 5: destructor.
     ~mpq_class() {
         mpq_clear(value);
@@ -1696,9 +1716,24 @@ inline mpf_class::mpf_class(mpq_class const& v) : mpf_class() {
     mpf_set_q(value, v.get_mpq_t());
 }
 
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpf_class>)
+inline mpf_class::mpf_class(Expr const& expr) : mpf_class() {
+    typename Expr::result_type tmp(expr);
+    *this = tmp;
+}
+
 inline mpf_class::mpf_class(mpq_class const& v, mp_bitcnt_t prec)
     : mpf_class(0.0, prec) {
     mpf_set_q(value, v.get_mpq_t());
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpf_class>)
+inline mpf_class::mpf_class(Expr const& expr, mp_bitcnt_t prec)
+    : mpf_class(0.0, prec) {
+    typename Expr::result_type tmp(expr);
+    *this = tmp;
 }
 
 inline mpf_class::mpf_class(mpf_class const& v, mp_bitcnt_t prec)
@@ -1724,6 +1759,13 @@ inline mpz_class::mpz_class(mpq_class const& v) : mpz_class() {
     mpz_set_q(value, v.get_mpq_t());
 }
 
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpz_class>)
+inline mpz_class::mpz_class(Expr const& expr) : mpz_class() {
+    typename Expr::result_type tmp(expr);
+    *this = tmp;
+}
+
 inline mpz_class& mpz_class::operator=(mpf_class const& rhs) {
     mpz_set_f(value, rhs.get_mpf_t());
     return *this;
@@ -1732,6 +1774,20 @@ inline mpz_class& mpz_class::operator=(mpf_class const& rhs) {
 inline mpz_class& mpz_class::operator=(mpq_class const& rhs) {
     mpz_set_q(value, rhs.get_mpq_t());
     return *this;
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpz_class>)
+inline mpq_class::mpq_class(Expr const& expr) : mpq_class() {
+    typename Expr::result_type tmp(expr);
+    *this = tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+inline mpq_class::mpq_class(Expr const& expr) : mpq_class() {
+    typename Expr::result_type tmp(expr);
+    *this = tmp;
 }
 
 class gmp_randclass {

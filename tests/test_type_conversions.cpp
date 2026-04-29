@@ -522,6 +522,70 @@ void test_explicit_bool_conversion() {
     static_assert(std::same_as<decltype(fi), int>);
 }
 
+int overload_z(mpz_class) { return 0; }
+int overload_q(mpq_class) { return 1; }
+int overload_f(mpf_class) { return 2; }
+int overload_zq(mpz_class) { return 0; }
+int overload_zq(mpq_class) { return 1; }
+int overload_zf(mpz_class) { return 0; }
+int overload_zf(mpf_class) { return 2; }
+int overload_qf(mpq_class) { return 1; }
+int overload_qf(mpf_class) { return 2; }
+int overload_zqf(mpz_class) { return 0; }
+int overload_zqf(mpq_class) { return 1; }
+int overload_zqf(mpf_class) { return 2; }
+
+void test_legacy_mixed_wrapper_expression_conversions() {
+    mpz_class z = 42;
+    mpq_class q = 33;
+    mpf_class f = 18;
+
+    assert(overload_z(z) == 0);
+    assert(overload_z(-z) == 0);
+    assert(overload_q(z) == 1);
+    assert(overload_q(-z) == 1);
+    assert(overload_q(q) == 1);
+    assert(overload_q(-q) == 1);
+    assert(overload_f(z) == 2);
+    assert(overload_f(-z) == 2);
+    assert(overload_f(q) == 2);
+    assert(overload_f(-q) == 2);
+    assert(overload_f(f) == 2);
+    assert(overload_f(-f) == 2);
+    assert(overload_zq(z) == 0);
+    assert(overload_zq(q) == 1);
+    assert(overload_zq(-q) == 1);
+    assert(overload_zf(z) == 0);
+    assert(overload_zf(f) == 2);
+    assert(overload_zf(-f) == 2);
+    assert(overload_qf(q) == 1);
+    assert(overload_qf(f) == 2);
+    assert(overload_qf(-f) == 2);
+    assert(overload_zqf(z) == 0);
+    assert(overload_zqf(q) == 1);
+    assert(overload_zqf(f) == 2);
+    assert(overload_zqf(-f) == 2);
+
+    assert(overload_zqf(mpz_class(z)) == 0);
+    assert(overload_zqf(mpz_class(-z)) == 0);
+    assert(overload_zqf(mpz_class(q)) == 0);
+    assert(overload_zqf(mpz_class(-q)) == 0);
+    assert(overload_zqf(mpz_class(f)) == 0);
+    assert(overload_zqf(mpz_class(-f)) == 0);
+    assert(overload_zqf(mpq_class(z)) == 1);
+    assert(overload_zqf(mpq_class(-z)) == 1);
+    assert(overload_zqf(mpq_class(q)) == 1);
+    assert(overload_zqf(mpq_class(-q)) == 1);
+    assert(overload_zqf(mpq_class(f)) == 1);
+    assert(overload_zqf(mpq_class(-f)) == 1);
+    assert(overload_zqf(mpf_class(z)) == 2);
+    assert(overload_zqf(mpf_class(-z)) == 2);
+    assert(overload_zqf(mpf_class(q)) == 2);
+    assert(overload_zqf(mpf_class(-q)) == 2);
+    assert(overload_zqf(mpf_class(f)) == 2);
+    assert(overload_zqf(mpf_class(-f)) == 2);
+}
+
 }  // namespace
 
 int main() {
@@ -543,5 +607,6 @@ int main() {
     test_mpz_scalar_conversions_and_fit_queries();
     test_mpq_scalar_conversion();
     test_explicit_bool_conversion();
+    test_legacy_mixed_wrapper_expression_conversions();
     return 0;
 }
