@@ -126,13 +126,13 @@ void test_sqrt() {
     assert_mpf_equal(result, expected);
 
     mpf_class zero("0.0", static_cast<mp_bitcnt_t>(192));
-    result = gmpxx::sqrt(zero);
+    mpf_class zero_result = gmpxx::sqrt(zero);
 
     mpf_class zero_expected(0.0, zero.get_prec());
     mpf_sqrt(zero_expected.get_mpf_t(), zero.get_mpf_t());
 
-    assert(result.get_prec() == zero.get_prec());
-    assert_mpf_equal(result, zero_expected);
+    assert(zero_result.get_prec() == zero.get_prec());
+    assert_mpf_equal(zero_result, zero_expected);
 }
 
 void test_abs() {
@@ -146,13 +146,13 @@ void test_abs() {
     assert_mpf_equal(result, expected);
 
     mpf_class positive("2.25", static_cast<mp_bitcnt_t>(128));
-    result = gmpxx::abs(positive);
+    mpf_class positive_result = gmpxx::abs(positive);
 
     mpf_class positive_expected(positive.get_prec());
     mpf_abs(positive_expected.get_mpf_t(), positive.get_mpf_t());
 
-    assert(result.get_prec() == positive.get_prec());
-    assert_mpf_equal(result, positive_expected);
+    assert(positive_result.get_prec() == positive.get_prec());
+    assert_mpf_equal(positive_result, positive_expected);
 }
 
 void test_neg() {
@@ -166,13 +166,13 @@ void test_neg() {
     assert_mpf_equal(result, expected);
 
     mpf_class positive("2.25", static_cast<mp_bitcnt_t>(160));
-    result = gmpxx::neg(positive);
+    mpf_class positive_result = gmpxx::neg(positive);
 
     mpf_class positive_expected(positive.get_prec());
     mpf_neg(positive_expected.get_mpf_t(), positive.get_mpf_t());
 
-    assert(result.get_prec() == positive.get_prec());
-    assert_mpf_equal(result, positive_expected);
+    assert(positive_result.get_prec() == positive.get_prec());
+    assert_mpf_equal(positive_result, positive_expected);
 }
 
 void test_rounding_functions() {

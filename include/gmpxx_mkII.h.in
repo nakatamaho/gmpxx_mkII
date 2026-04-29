@@ -3503,8 +3503,11 @@ namespace gmpxx_transcendent_detail {
 
 using precision_type = mp_bitcnt_t;
 
+inline constexpr precision_type minimum_target_precision = 32;
+inline constexpr precision_type log_cancellation_probe_guard_bits = 32;
+
 inline precision_type normalize_target_precision(precision_type target_precision) {
-    return std::max<precision_type>(target_precision, 32);
+    return std::max(target_precision, minimum_target_precision);
 }
 
 inline unsigned long ceil_log2_precision(precision_type value) {
@@ -3572,16 +3575,22 @@ inline mpf_class mul_ui(mpf_class const& a, unsigned long value,
 }
 
 struct sincos_result {
-    mpf_class sin_value = make_ui(0, 32);
-    mpf_class cos_value = make_ui(1, 32);
+    sincos_result() : sin_value(), cos_value(1) {}
+
+    explicit sincos_result(precision_type precision)
+        : sin_value(make_ui(0, precision)),
+          cos_value(make_ui(1, precision)) {}
+
+    mpf_class sin_value;
+    mpf_class cos_value;
 };
 
 struct trig_constant_cache_state {
     std::mutex mutex;
     precision_type cached_precision = 0;
-    mpf_class pi_value = make_ui(0, 32);
-    mpf_class pi_over_two_value = make_ui(0, 32);
-    mpf_class two_over_pi_value = make_ui(0, 32);
+    mpf_class pi_value;
+    mpf_class pi_over_two_value;
+    mpf_class two_over_pi_value;
     bool initialized = false;
 };
 
@@ -3670,7 +3679,7 @@ inline mpf_class compute_pi_gauss_legendre(precision_type target_precision) {
 struct pi_cache_state {
     std::mutex mutex;
     precision_type cached_precision = 0;
-    mpf_class cached_value = make_ui(0, 32);
+    mpf_class cached_value;
     bool initialized = false;
 };
 
@@ -3684,7 +3693,8 @@ inline mpf_class pi(precision_type target_precision) {
     pi_cache_state& cache = pi_cache();
     std::lock_guard<std::mutex> lock(cache.mutex);
     if (!cache.initialized || cache.cached_precision < target) {
-        cache.cached_value = compute_pi_gauss_legendre(target);
+        mpf_class computed = compute_pi_gauss_legendre(target);
+        cache.cached_value.swap(computed);
         cache.cached_precision = target;
         cache.initialized = true;
     }
@@ -3782,7 +3792,7 @@ inline mpf_class compute_log_two_theta_agm(precision_type target_precision) {
 struct log_two_cache_state {
     std::mutex mutex;
     precision_type cached_precision = 0;
-    mpf_class cached_value = make_ui(0, 32);
+    mpf_class cached_value;
     bool initialized = false;
 };
 
@@ -3796,7 +3806,8 @@ inline mpf_class log_two(precision_type target_precision) {
     log_two_cache_state& cache = log_two_cache();
     std::lock_guard<std::mutex> lock(cache.mutex);
     if (!cache.initialized || cache.cached_precision < target) {
-        cache.cached_value = compute_log_two_theta_agm(target);
+        mpf_class computed = compute_log_two_theta_agm(target);
+        cache.cached_value.swap(computed);
         cache.cached_precision = target;
         cache.initialized = true;
     }
@@ -3898,7 +3909,8 @@ inline precision_type guard_bits_for_log(precision_type) {
 inline precision_type log_cancellation_bits(mpf_class const& x_input,
                                             precision_type target_precision) {
     const precision_type target = normalize_target_precision(target_precision);
-    const precision_type probe_precision = target + 32;
+    const precision_type probe_precision =
+        target + log_cancellation_probe_guard_bits;
     const mpf_class one = make_ui(1, probe_precision);
     const mpf_class x = set_prec_copy(x_input, probe_precision);
     const mpf_class delta = abs_prec(sub(x, one, probe_precision),
@@ -4132,7 +4144,7 @@ inline sincos_result sincos_taylor_small(mpf_class const& x,
     mpf_class epsilon = make_ui(1, precision);
     mpf_div_2exp(epsilon.get_mpf_t(), epsilon.get_mpf_t(), precision);
 
-    sincos_result result;
+    sincos_result result(precision);
     result.sin_value = set_prec_copy(x, precision);
     result.cos_value = make_ui(1, precision);
 
@@ -4168,12 +4180,17 @@ inline void ensure_trig_constants(precision_type target_precision) {
     trig_constant_cache_state& cache = trig_constant_cache();
     std::lock_guard<std::mutex> lock(cache.mutex);
     if (!cache.initialized || cache.cached_precision < cache_precision) {
-        cache.pi_value = compute_pi_gauss_legendre(cache_precision);
-        cache.pi_over_two_value = set_prec_copy(cache.pi_value, cache_precision);
-        mpf_div_2exp(cache.pi_over_two_value.get_mpf_t(),
-                     cache.pi_over_two_value.get_mpf_t(), 1);
-        cache.two_over_pi_value =
+        mpf_class pi_value = compute_pi_gauss_legendre(cache_precision);
+        cache.pi_value.swap(pi_value);
+
+        mpf_class pi_over_two_value = set_prec_copy(cache.pi_value, cache_precision);
+        mpf_div_2exp(pi_over_two_value.get_mpf_t(),
+                     pi_over_two_value.get_mpf_t(), 1);
+        cache.pi_over_two_value.swap(pi_over_two_value);
+
+        mpf_class two_over_pi_value =
             div(make_ui(2, cache_precision), cache.pi_value, cache_precision);
+        cache.two_over_pi_value.swap(two_over_pi_value);
         cache.cached_precision = cache_precision;
         cache.initialized = true;
     }
@@ -4240,7 +4257,7 @@ inline sincos_result compute_sincos(mpf_class const& x_input,
     const sincos_result base = sincos_taylor_small(reduced_argument, work);
 
     const unsigned long quadrant = mpz_fdiv_ui(k.get_mpz_t(), 4ul);
-    sincos_result result;
+    sincos_result result(work);
     switch (quadrant) {
     case 0:
         result.sin_value = set_prec_copy(base.sin_value, work);
@@ -4260,8 +4277,10 @@ inline sincos_result compute_sincos(mpf_class const& x_input,
         break;
     }
 
-    result.sin_value = set_prec_copy(result.sin_value, target);
-    result.cos_value = set_prec_copy(result.cos_value, target);
+    mpf_class sin_value = set_prec_copy(result.sin_value, target);
+    mpf_class cos_value = set_prec_copy(result.cos_value, target);
+    result.sin_value.swap(sin_value);
+    result.cos_value.swap(cos_value);
     return result;
 }
 
