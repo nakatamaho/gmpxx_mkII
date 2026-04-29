@@ -4366,11 +4366,18 @@ template<phase2_operand L, phase2_operand R>
 
 namespace gmpxx_detail {
 
+template<class X, bool IsExpr = is_gmpxx_expr_v<std::remove_cvref_t<X>>>
+struct expr_or_self_result {
+    using type = std::remove_cvref_t<X>;
+};
+
 template<class X>
-using expr_or_self_result_t = std::conditional_t<
-    is_gmpxx_expr_v<std::remove_cvref_t<X>>,
-    typename std::remove_cvref_t<X>::result_type,
-    std::remove_cvref_t<X>>;
+struct expr_or_self_result<X, true> {
+    using type = typename std::remove_cvref_t<X>::result_type;
+};
+
+template<class X>
+using expr_or_self_result_t = typename expr_or_self_result<X>::type;
 
 template<class X>
 inline expr_or_self_result_t<X> eval_or_copy(X const& x) {

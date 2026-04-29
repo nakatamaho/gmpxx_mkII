@@ -32,6 +32,7 @@
 #include <cassert>
 #include <cfloat>
 #include <cstdint>
+#include <limits>
 #include <type_traits>
 
 namespace {
@@ -160,6 +161,25 @@ int main() {
     }
 
     {
+        mp_bitcnt_t denorm_prec =
+            static_cast<mp_bitcnt_t>(DBL_MANT_DIG - DBL_MIN_EXP + 42);
+        double denorm = std::numeric_limits<double>::denorm_min();
+
+        mpf_class one(1, denorm_prec);
+        assert(one + DBL_MAX > mpf_class(2, denorm_prec));
+        assert(one + DBL_MIN > one);
+        assert(one + DBL_MIN < mpf_class("1.001", denorm_prec));
+        assert(one + denorm > one);
+        assert(one + denorm < mpf_class("1.001", denorm_prec));
+
+        assert(mpq_class(1) + DBL_MAX > 2);
+        assert(mpq_class(1) + DBL_MIN > 1);
+        assert(mpq_class(1) + DBL_MIN < mpq_class("1001/1000"));
+        assert(mpq_class(1) + denorm > 1);
+        assert(mpq_class(1) + denorm < mpq_class("1001/1000"));
+    }
+
+    {
         mpf_class r("0", 128);
         mp_bitcnt_t old_prec = r.get_prec();
         r = f + z + q;
@@ -174,6 +194,15 @@ int main() {
         mpf_div_2exp(ref, ref, 2);
         assert_mpf_equal(shifted, ref);
         mpf_clear(ref);
+
+        assert((mpf_class(6) << 2) == mpf_class(24));
+        assert((mpf_class(6) >> 2) == mpf_class("1.5"));
+        assert((mpq_class(6) << 2) == mpq_class(24));
+        assert((mpq_class(6) >> 2) == mpq_class("3/2"));
+        assert((mpf_class(-13) << 2) == mpf_class(-52));
+        assert((mpf_class(-13) >> 2) == mpf_class("-3.25"));
+        assert((mpq_class(-13) << 2) == mpq_class(-52));
+        assert((mpq_class(-13) >> 2) == mpq_class("-13/4"));
     }
 
     return 0;

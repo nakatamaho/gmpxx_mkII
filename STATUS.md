@@ -84,7 +84,7 @@ of the v2.0.0 header.
 | Binary `-` | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar combinations except scalar/scalar |
 | Binary `*` | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar combinations except scalar/scalar; integer power-of-two mpf scaling uses `mpf_mul_2exp` |
 | Binary `/` | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar combinations except scalar/scalar; `mpz/mpz` remains integer division |
-| Binary shifts | Done after Phase 6 | `value << integer` and `value >> integer` are implemented for `mpz_class`, `mpq_class`, `mpf_class`, and expression operands. `mpz_class` also supports `<<=` and `>>=`. `mpz >> n` uses floor division by `2^n`, matching GMP legacy wrapper behavior for negative values. |
+| Binary shifts | Done after Phase 6 | `value << integer` and `value >> integer` are implemented for `mpz_class`, `mpq_class`, `mpf_class`, direct wrapper operands, and expression operands. `mpz_class` also supports `<<=` and `>>=`. `mpz >> n` uses floor division by `2^n`, matching GMP legacy wrapper behavior for negative values. |
 | Binary bitwise | Done after Phase 6 | `&`, `|`, `^`, and unary `~` are implemented for `mpz_class` and mpz-result expression operands with mpz/scalar right operands where applicable. |
 | Unary `-` | Done through Phase 5 | `-mpf_class`, `-mpz_class`, `-mpq_class`, `-expression`, and `-(-x)` simplification |
 | Unary `+` | Done through Phase 5 | `+mpf_class`, `+mpz_class`, `+mpq_class`, and `+expression` |
@@ -170,7 +170,7 @@ Source: GMP 6.3.0 manual
 | `test_power_of_two_fusion` | Present | Integer power-of-two multiplication/division, negative signed scalars including `INT64_MIN`, generic non-power cases, scalar-left division, and compound `*=`, `/=` precision preservation. |
 | `test_mpz_arithmetic` | Present | mpz arithmetic, scalar mixing, truncating integer division, `%=` modulo, shift and compound-shift operators, bitwise and complement operators, ET composition, self-alias, compound assignment, and unary operators. |
 | `test_mpq_arithmetic` | Present | mpq arithmetic, scalar mixing, shift operators, canonicalization, ET composition, mpz-expression promotion inside mixed mpq expressions, compound assignment, and unary operators. |
-| `test_mixed_type_arithmetic` | Present | mpf×mpz, mpf×mpq including `t-ops2f` mpf/mpq arithmetic cases, mpz×mpq, legacy-compatible mpz/mpq plus double result typing, result type checks, mpf shift operators, and mixed precision policy. |
+| `test_mixed_type_arithmetic` | Present | mpf×mpz, mpf×mpq including `t-ops2f` mpf/mpq arithmetic cases, mpz×mpq, legacy-compatible mpz/mpq plus double result typing, `t-ops2qf` direct mpf/mpq shift and high-precision double-minimum cases, result type checks, mpf shift operators, and mixed precision policy. |
 | `test_mpz_mpq_alloc_count` | Present | Test-only wrapper constructor counters for mpz/mpq/mpf temporaries in mixed-expression paths, including legacy-compatible mpz/mpq plus double paths that avoid mpf temporaries. |
 | `test_mpz_addmul_fusion` | Present | Compile-time fusable-shape checks, fused-path counters, runtime GMP-equivalence checks, scalar sign and `INT64_MIN` cases, alias cases, and non-fused expression checks. |
 | `test_mpz_addmul_alloc_count` | Present | Wrapper temporary and fused-counter checks for direct mpz addmul/submul and integral-scalar fast paths. |
