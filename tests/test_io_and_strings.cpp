@@ -278,6 +278,92 @@ void test_stream_output() {
     assert(f.get_prec() == old_prec);
 }
 
+void test_legacy_ostream_table_cases() {
+    {
+        mpq_t q;
+        mpq_init(q);
+        assert(mpq_set_str(q, "0", 0) == 0);
+
+        std::ostringstream hex_showbase;
+        hex_showbase << std::showbase << std::hex << q;
+        assert(hex_showbase.str() == "0x0");
+
+        std::ostringstream upper_hex_showbase;
+        upper_hex_showbase << std::showbase << std::uppercase << std::hex << q;
+        assert(upper_hex_showbase.str() == "0X0");
+
+        mpq_clear(q);
+    }
+
+    {
+        mpq_t q;
+        mpq_init(q);
+        assert(mpq_set_str(q, "0/0", 0) == 0);
+
+        std::ostringstream hex_showbase;
+        hex_showbase << std::showbase << std::hex << std::setw(10) << q;
+        assert(hex_showbase.str() == "   0x0/0x0");
+
+        mpq_clear(q);
+    }
+
+    {
+        mpq_t q;
+        mpq_init(q);
+        assert(mpq_set_str(q, "5/8", 0) == 0);
+
+        std::ostringstream upper_hex_showbase;
+        upper_hex_showbase << std::showbase << std::uppercase << std::hex << q;
+        assert(upper_hex_showbase.str() == "0X5/0X8");
+
+        mpq_clear(q);
+    }
+
+    {
+        mpf_class zero("0", static_cast<mp_bitcnt_t>(128));
+
+        std::ostringstream showpoint_default;
+        showpoint_default.precision(0);
+        showpoint_default << std::showpoint << zero;
+        assert(showpoint_default.str() == "0.00000");
+
+        std::ostringstream fixed_showpoint;
+        fixed_showpoint.precision(0);
+        fixed_showpoint << std::fixed << std::showpoint << zero;
+        assert(fixed_showpoint.str() == "0.");
+
+        std::ostringstream scientific_default;
+        scientific_default.precision(0);
+        scientific_default << std::scientific << zero;
+        assert(scientific_default.str() == "0.000000e+00");
+
+        std::ostringstream hex_default;
+        hex_default.precision(0);
+        hex_default << std::hex << zero;
+        assert(hex_default.str() == "0");
+
+        std::ostringstream hex_showbase;
+        hex_showbase.precision(0);
+        hex_showbase << std::showbase << std::hex << zero;
+        assert(hex_showbase.str() == "0x0");
+    }
+
+    {
+        mpf_class one_eighth(".125", static_cast<mp_bitcnt_t>(128));
+        std::ostringstream oct_showbase;
+        oct_showbase.precision(1);
+        oct_showbase << std::showbase << std::fixed << std::oct << one_eighth;
+        assert(oct_showbase.str() == "00.1");
+
+        mpf_class one_sixty_fourth(".015625", static_cast<mp_bitcnt_t>(128));
+        std::ostringstream rounded_zero;
+        rounded_zero.precision(1);
+        rounded_zero << std::showbase << std::fixed << std::oct
+                     << one_sixty_fourth;
+        assert(rounded_zero.str() == "0.0");
+    }
+}
+
 void test_stream_input() {
     mpz_class z;
     std::istringstream z_in("12345");
@@ -820,6 +906,7 @@ int main() {
     test_mpq_strings();
     test_mpf_strings();
     test_stream_output();
+    test_legacy_ostream_table_cases();
     test_stream_input();
     test_legacy_iostream_basic_syntax();
     test_legacy_istream_tables();

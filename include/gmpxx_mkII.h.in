@@ -2290,7 +2290,8 @@ inline std::string mpf_format_string(std::ios_base const& os) {
         conv = static_cast<char>(conv - 'a' + 'A');
     }
 
-    std::string fmt = "%.*F";
+    std::string fmt = (os.flags() & std::ios_base::showpoint) ? "%#.*F"
+                                                               : "%.*F";
     fmt.push_back(conv);
     return fmt;
 }
@@ -2298,6 +2299,10 @@ inline std::string mpf_format_string(std::ios_base const& os) {
 inline std::string format_mpf(mpf_class const& value, std::ios_base const& os) {
     std::streamsize stream_prec = os.precision();
     if (stream_prec < 0) {
+        stream_prec = 6;
+    }
+    if (stream_prec == 0 &&
+        (os.flags() & std::ios_base::floatfield) != std::ios_base::fixed) {
         stream_prec = 6;
     }
     if (stream_prec > static_cast<std::streamsize>(std::numeric_limits<int>::max())) {
@@ -2410,31 +2415,14 @@ inline std::string mpz_stream_string(mpz_srcptr value, std::ios_base const& os) 
 }
 
 inline std::string mpq_stream_string(mpq_srcptr value, std::ios_base const& os) {
-    const auto flags = os.flags();
-    const bool is_hex = (flags & std::ios_base::basefield) == std::ios_base::hex;
-    const bool is_oct = (flags & std::ios_base::basefield) == std::ios_base::oct;
-    const bool show_base = flags & std::ios_base::showbase;
-    const bool uppercase = flags & std::ios_base::uppercase;
-
-    std::string s;
-    if (is_oct) {
-        s = gmp_formatted_string(show_base ? "%#Qo" : "%Qo", value);
-    } else if (is_hex) {
-        if (show_base && uppercase) {
-            s = gmp_formatted_string("%#QX", value);
-        } else if (show_base) {
-            s = gmp_formatted_string("%#Qx", value);
-        } else if (uppercase) {
-            s = gmp_formatted_string("%QX", value);
-        } else {
-            s = gmp_formatted_string("%Qx", value);
+    std::string s = mpz_stream_string(mpq_numref(value), os);
+    if (mpz_cmp_ui(mpq_denref(value), 1) != 0) {
+        std::string den = mpz_stream_string(mpq_denref(value), os);
+        if (!den.empty() && den.front() == '+') {
+            den.erase(0, 1);
         }
-    } else {
-        s = gmp_formatted_string("%Qd", value);
-    }
-
-    if ((flags & std::ios_base::showpos) && mpq_sgn(value) > 0) {
-        s.insert(0, "+");
+        s += "/";
+        s += den;
     }
     return s;
 }
@@ -2472,6 +2460,12 @@ inline void add_mpf_base_prefix(std::string& s, mpf_srcptr value, int base,
     }
 }
 
+inline bool mpf_formatted_has_nonzero_digit(std::string const& s) {
+    return std::any_of(s.begin(), s.end(), [](unsigned char c) {
+        return std::isdigit(c) && c != '0';
+    });
+}
+
 inline void add_mpf_sign(std::string& s, mpf_srcptr value) {
     if (mpf_sgn(value) < 0) {
         s.insert(0, "-");
@@ -2506,6 +2500,13 @@ inline mp_exp_t integral_digits_in_base(mpf_srcptr value, int base) {
 inline std::string mpf_to_base_string_default(mpf_srcptr value, int base,
                                               std::ios_base::fmtflags flags,
                                               std::streamsize precision) {
+    if (mpf_sgn(value) == 0) {
+        std::string s = (flags & std::ios_base::showpoint) ? "0." : "0";
+        add_mpf_base_prefix(s, value, base, flags);
+        uppercase_if_requested(s, flags);
+        return s;
+    }
+
     const std::size_t effective_prec =
         static_cast<std::size_t>(precision == 0 ? 6 : precision);
     mp_exp_t exp = 0;
@@ -2549,7 +2550,10 @@ inline std::string mpf_to_base_string_default(mpf_srcptr value, int base,
     if (!(flags & std::ios_base::showpoint) && !s.empty() && s.back() == '.') {
         s.pop_back();
     }
-    add_mpf_base_prefix(s, value, base, flags);
+    if (base != 8 || !(flags & std::ios_base::showbase) ||
+        mpf_formatted_has_nonzero_digit(s)) {
+        add_mpf_base_prefix(s, value, base, flags);
+    }
     add_mpf_sign(s, value);
     uppercase_if_requested(s, flags);
     return s;
@@ -2597,7 +2601,10 @@ inline std::string mpf_to_base_string_fixed(mpf_srcptr value, int base,
         }
     }
 
-    add_mpf_base_prefix(s, value, base, flags);
+    if (base != 8 || !(flags & std::ios_base::showbase) ||
+        mpf_formatted_has_nonzero_digit(s)) {
+        add_mpf_base_prefix(s, value, base, flags);
+    }
     add_mpf_sign(s, value);
     uppercase_if_requested(s, flags);
     return s;
