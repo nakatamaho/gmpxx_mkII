@@ -99,6 +99,23 @@ int main() {
     }
 
     {
+        mpf_class lhs("1.5", 128);
+        mpq_class rhs("9/4");
+        assert(mpf_class(lhs + rhs) == mpf_class("3.75", 128));
+        assert(mpf_class(lhs - rhs) == mpf_class("-0.75", 128));
+        assert(mpf_class(lhs * -rhs) == mpf_class("-3.375", 128));
+        assert(mpf_class(lhs / mpq_class(-2)) == mpf_class("-0.75", 128));
+
+        mpf_class lhs2("-5.5", 128);
+        mpq_class rhs2("-9/4");
+        assert(mpf_class(lhs2 + rhs2) == mpf_class("-7.75", 128));
+        assert(mpf_class(lhs2 - rhs2) == mpf_class("-3.25", 128));
+        assert(mpf_class(lhs2 * rhs2) == mpf_class("12.375", 128));
+        assert(mpf_class(mpf_class("-5.25", 128) / mpq_class("-1/2")) ==
+               mpf_class("10.5", 128));
+    }
+
+    {
         mpq_class got = z + q;
         mpq_t ref;
         mpq_t tmp;

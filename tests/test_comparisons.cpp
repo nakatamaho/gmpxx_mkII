@@ -127,6 +127,24 @@ void test_mpf_comparisons() {
     assert(f < z2);
     assert(f == q);
 
+    mpf_class five(5.0);
+    mpq_class minus_two(-2);
+    assert(!(five < minus_two));
+    assert(five > minus_two);
+    assert(!(five <= minus_two));
+    assert(five >= minus_two);
+    assert(!(five == minus_two));
+    assert(five != minus_two);
+
+    mpf_class zero(0.0);
+    mpq_class qzero(0);
+    assert(!(zero < qzero));
+    assert(!(zero > qzero));
+    assert(zero <= qzero);
+    assert(zero >= qzero);
+    assert(zero == qzero);
+    assert(!(zero != qzero));
+
     check_consistency(f0, f1);
     check_consistency(f, z1);
     check_consistency(z1, f);

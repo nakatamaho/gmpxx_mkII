@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <concepts>
 #include <cstdint>
 #include <stdexcept>
@@ -189,6 +190,14 @@ void test_rounding_functions() {
     assert(ceil(positive).get_prec() == positive.get_prec());
     assert(floor(negative).get_prec() == negative.get_prec());
     assert(trunc(negative).get_prec() == negative.get_prec());
+
+    char const* values[] = {"1.9", "4.3", "-7.1", "-2.8", "-1.5", "2.5"};
+    for (char const* value : values) {
+        mpf_class x(value, static_cast<mp_bitcnt_t>(256));
+        assert_mpf_equal(trunc(x), mpf_class(std::trunc(x.get_d()), x.get_prec()));
+        assert_mpf_equal(floor(x), mpf_class(std::floor(x.get_d()), x.get_prec()));
+        assert_mpf_equal(ceil(x), mpf_class(std::ceil(x.get_d()), x.get_prec()));
+    }
 }
 
 void test_hypot_and_scaling() {
@@ -204,6 +213,13 @@ void test_hypot_and_scaling() {
     assert_mpf_equal(value, mpf_class("1.0", value.get_prec()));
     value.mul_2exp(1);
     assert_mpf_equal(value, mpf_class("2.0", value.get_prec()));
+
+    assert(hypot(mpf_class(-3), 4.0) > mpf_class("4.9"));
+    assert(hypot(-3.0, mpf_class(4)) < mpf_class("5.1"));
+    assert(hypot(mpf_class(-3), 4L) > mpf_class("4.9"));
+    assert(hypot(-3L, mpf_class(4)) < mpf_class("5.1"));
+    assert(hypot(mpf_class(-3), 4UL) > mpf_class("4.9"));
+    assert(hypot(3UL, mpf_class(4)) < mpf_class("5.1"));
 }
 
 void test_epsilon_and_remainder() {
