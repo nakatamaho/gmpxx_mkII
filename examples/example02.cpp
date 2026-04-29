@@ -28,6 +28,16 @@
 
 #include "gmpxx_mkII.h"
 
+#include <iomanip>
+#include <iostream>
+
 int main() {
+    constexpr mp_bitcnt_t precision = 256;
+
+    gmpxx::mpf_class two("2.0", precision);
+    gmpxx::mpf_class result = gmpxx::sqrt(two);
+
+    std::cout << std::setprecision(50)
+              << "sqrt(2) = " << result << '\n';
     return 0;
 }

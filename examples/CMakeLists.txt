@@ -1,0 +1,9 @@
+function(add_gmpxx_mkii_example name)
+    add_executable(gmpxx_mkii_${name} ${name}.cpp)
+    target_link_libraries(gmpxx_mkii_${name} PRIVATE gmpxx_mkII::gmpxx_mkII)
+endfunction()
+
+add_gmpxx_mkii_example(example01)
+add_gmpxx_mkii_example(example02)
+add_gmpxx_mkii_example(example03)
+add_gmpxx_mkii_example(example04)

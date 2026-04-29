@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(GMPXX_MKII_BUILD_TESTS "Build tests" ON)
+option(GMPXX_MKII_BUILD_EXAMPLES "Build examples" ON)
 option(GMPXX_MKII_NOPRECCHANGE
        "Use thread-local default_prec only (P3) instead of operand max (P2)" OFF)
 option(GMPXX_MKII_INSTRUMENT_WRAPPERS
@@ -80,4 +81,8 @@ include(CTest)
 if(GMPXX_MKII_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
+endif()
+
+if(GMPXX_MKII_BUILD_EXAMPLES)
+    add_subdirectory(examples)
 endif()

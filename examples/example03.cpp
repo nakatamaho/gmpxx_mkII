@@ -28,6 +28,44 @@
 
 #include "gmpxx_mkII.h"
 
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+
+namespace {
+
+mp_bitcnt_t bits_for_decimal_digits(int digits, int guard_bits) {
+    double raw_bits = std::ceil(static_cast<double>(digits) * std::log2(10.0));
+    return static_cast<mp_bitcnt_t>(raw_bits) +
+           static_cast<mp_bitcnt_t>(guard_bits);
+}
+
+}  // namespace
+
 int main() {
+    constexpr int decimal_digits = 50;
+    const mp_bitcnt_t precision = bits_for_decimal_digits(decimal_digits, 32);
+
+    gmpxx::gmpxx_defaults::set_initial_default_prec(precision);
+
+    gmpxx::mpf_class x("1.0", precision);
+    gmpxx::mpf_class previous("0.0", precision);
+    gmpxx::mpf_class two("2.0", precision);
+    gmpxx::mpf_class tolerance("1e-50", precision);
+
+    std::cout << std::fixed << std::setprecision(decimal_digits);
+    std::cout << "Newton iteration for sqrt(2)\n";
+
+    int iteration = 0;
+    do {
+        previous = x;
+        x = (x + two / x) / two;
+        ++iteration;
+        std::cout << "iteration " << std::setw(2) << iteration
+                  << ": " << x << '\n';
+    } while (gmpxx::abs(x - previous) > tolerance);
+
+    gmpxx::mpf_class reference = gmpxx::sqrt(two);
+    std::cout << "sqrt() result: " << reference << '\n';
     return 0;
 }

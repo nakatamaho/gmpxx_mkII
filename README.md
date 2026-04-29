@@ -101,6 +101,13 @@ cmake --build build -j
 ctest --test-dir build --output-on-failure
 ```
 
+The default build also compiles the small programs under `examples/`.
+Disable them with:
+
+```bash
+cmake -S . -B build -DGMPXX_MKII_BUILD_EXAMPLES=OFF
+```
+
 Install the generated header, exported CMake target, and package config files:
 
 ```bash
