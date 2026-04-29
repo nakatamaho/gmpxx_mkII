@@ -701,7 +701,7 @@ public:
     }
 
     // Rule of 5: move constructor.
-    mpf_class(mpf_class&& other) noexcept {
+    mpf_class(mpf_class&& other) {
         note_constructed();
         mpf_init2(value, other.get_prec());
         mpf_swap(value, other.value);
@@ -933,6 +933,10 @@ public:
         return this == p;
     }
 
+    [[nodiscard]] explicit operator bool() const noexcept {
+        return mpf_sgn(value) != 0;
+    }
+
     void swap(mpf_class& other) noexcept {
         mpf_swap(value, other.value);
     }
@@ -963,7 +967,7 @@ class mpz_class {
 public:
     using result_type = mpz_class;
 
-    mpz_class() {
+    mpz_class() noexcept {
         note_constructed();
         mpz_init(value);
     }
@@ -1219,6 +1223,10 @@ public:
         return this == p;
     }
 
+    [[nodiscard]] explicit operator bool() const noexcept {
+        return mpz_sgn(value) != 0;
+    }
+
     void swap(mpz_class& other) noexcept {
         mpz_swap(value, other.value);
     }
@@ -1321,7 +1329,7 @@ public:
     }
 
     // Rule of 5: move constructor.
-    mpq_class(mpq_class&& other) noexcept {
+    mpq_class(mpq_class&& other) {
         note_constructed();
         mpq_init(value);
         mpq_swap(value, other.value);
@@ -1430,7 +1438,7 @@ public:
         return *this;
     }
 
-    mpq_class& operator=(mpz_class const& rhs) {
+    mpq_class& operator=(mpz_class const& rhs) noexcept {
         mpq_set_z(value, rhs.get_mpz_t());
         return *this;
     }
@@ -1589,6 +1597,10 @@ public:
 
     [[nodiscard]] bool contains_address(mpq_class const* p) const {
         return this == p;
+    }
+
+    [[nodiscard]] explicit operator bool() const noexcept {
+        return mpq_sgn(value) != 0;
     }
 
     void swap(mpq_class& other) noexcept {
@@ -5890,6 +5902,47 @@ inline void swap(mpq_class& lhs, mpq_class& rhs) noexcept {
     lhs.swap(rhs);
 }
 
+namespace gmpxx_detail {
+
+template<class T>
+inline constexpr bool is_gmpxx_object_v =
+    std::same_as<std::remove_cvref_t<T>, mpf_class> ||
+    std::same_as<std::remove_cvref_t<T>, mpz_class> ||
+    std::same_as<std::remove_cvref_t<T>, mpq_class> ||
+    is_gmpxx_expr_v<std::remove_cvref_t<T>>;
+
+template<class T>
+inline constexpr bool common_type_operand_v =
+    is_gmpxx_object_v<T> || scalar_operand<T>;
+
+template<class T>
+using common_type_unary_t = result_or_self_t<std::remove_cvref_t<T>>;
+
+template<class T, class U>
+using common_type_binary_t =
+    result_type_t<common_type_unary_t<T>, common_type_unary_t<U>>;
+
+}  // namespace gmpxx_detail
+
+namespace std {
+
+template<class T>
+    requires gmpxx_detail::is_gmpxx_object_v<T>
+struct common_type<T> {
+    using type = gmpxx_detail::common_type_unary_t<T>;
+};
+
+template<class T, class U>
+    requires (gmpxx_detail::common_type_operand_v<T> &&
+              gmpxx_detail::common_type_operand_v<U> &&
+              (gmpxx_detail::is_gmpxx_object_v<T> ||
+               gmpxx_detail::is_gmpxx_object_v<U>))
+struct common_type<T, U> {
+    using type = gmpxx_detail::common_type_binary_t<T, U>;
+};
+
+}  // namespace std
+
 namespace gmpxx {
 
 using ::binary_expr;
@@ -5960,24 +6013,16 @@ using ::unary_expr;
 
 namespace literals {
 
-inline mpz_class operator""_mpz(unsigned long long value) {
-    return mpz_class(static_cast<std::uint64_t>(value));
-}
-
 inline mpz_class operator""_mpz(char const* text) {
-    return mpz_class(text, 10);
+    return mpz_class(text);
 }
 
 inline mpz_class operator""_mpz(char const* text, std::size_t) {
     return mpz_class(text);
 }
 
-inline mpq_class operator""_mpq(unsigned long long value) {
-    return mpq_class(mpz_class(static_cast<std::uint64_t>(value)));
-}
-
 inline mpq_class operator""_mpq(char const* text) {
-    return mpq_class(text, 10);
+    return mpq_class(text);
 }
 
 inline mpq_class operator""_mpq(char const* text, std::size_t) {
@@ -5986,8 +6031,7 @@ inline mpq_class operator""_mpq(char const* text, std::size_t) {
 
 inline mpf_class operator""_mpf(char const* text) {
     return mpf_class(text, gmpxx_detail::checked_mp_bitcnt(
-                               gmpxx_detail::thread_default_prec()),
-                     10);
+                               gmpxx_detail::thread_default_prec()));
 }
 
 inline mpf_class operator""_mpf(char const* text, std::size_t) {
@@ -5997,3 +6041,7 @@ inline mpf_class operator""_mpf(char const* text, std::size_t) {
 }  // namespace literals
 
 }  // namespace gmpxx
+
+using gmpxx::literals::operator""_mpf;
+using gmpxx::literals::operator""_mpq;
+using gmpxx::literals::operator""_mpz;

@@ -45,8 +45,11 @@ void test_compile_time_surface() {
     static_assert(std::is_default_constructible_v<mpf_class>);
     static_assert(std::is_copy_constructible_v<mpf_class>);
     static_assert(std::is_move_constructible_v<mpf_class>);
+    static_assert(!std::is_nothrow_move_constructible_v<mpf_class>);
     static_assert(std::is_copy_assignable_v<mpf_class>);
     static_assert(std::is_move_assignable_v<mpf_class>);
+    static_assert(noexcept(std::declval<mpf_class&>() =
+                           std::declval<mpf_class&&>()));
     static_assert(std::is_constructible_v<mpf_class, int, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, long, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, long long, mp_bitcnt_t>);
@@ -60,20 +63,30 @@ void test_compile_time_surface() {
                                           mp_bitcnt_t>);
 
     static_assert(std::is_default_constructible_v<mpz_class>);
+    static_assert(std::is_nothrow_default_constructible_v<mpz_class>);
     static_assert(std::is_copy_constructible_v<mpz_class>);
     static_assert(std::is_move_constructible_v<mpz_class>);
+    static_assert(std::is_nothrow_move_constructible_v<mpz_class>);
     static_assert(std::is_copy_assignable_v<mpz_class>);
     static_assert(std::is_move_assignable_v<mpz_class>);
+    static_assert(noexcept(std::declval<mpz_class&>() =
+                           std::declval<mpz_class&&>()));
     static_assert(std::is_constructible_v<mpz_class, int>);
     static_assert(std::is_constructible_v<mpz_class, bool>);
     static_assert(std::is_constructible_v<mpz_class, std::int32_t>);
     static_assert(std::is_constructible_v<mpz_class, std::uint32_t>);
 
     static_assert(std::is_default_constructible_v<mpq_class>);
+    static_assert(!std::is_nothrow_default_constructible_v<mpq_class>);
     static_assert(std::is_copy_constructible_v<mpq_class>);
     static_assert(std::is_move_constructible_v<mpq_class>);
+    static_assert(!std::is_nothrow_move_constructible_v<mpq_class>);
     static_assert(std::is_copy_assignable_v<mpq_class>);
     static_assert(std::is_move_assignable_v<mpq_class>);
+    static_assert(noexcept(std::declval<mpq_class&>() =
+                           std::declval<mpq_class&&>()));
+    static_assert(noexcept(std::declval<mpq_class&>() =
+                           std::declval<mpz_class&&>()));
     static_assert(std::is_constructible_v<mpq_class, bool>);
 }
 

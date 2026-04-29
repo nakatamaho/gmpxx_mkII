@@ -42,9 +42,11 @@ void test_mpz_literals() {
 
     mpz_class a = 42_mpz;
     mpz_class b = "123456789012345678901234567890"_mpz;
+    mpz_class c = 0x123456789abcdef0123456789abcdef0123_mpz;
 
     assert(a == mpz_class(std::int64_t{42}));
     assert(b == mpz_class("123456789012345678901234567890", 10));
+    assert(c == mpz_class("123456789abcdef0123456789abcdef0123", 16));
 }
 
 void test_mpq_literals() {
@@ -52,9 +54,11 @@ void test_mpq_literals() {
 
     mpq_class a = 42_mpq;
     mpq_class b = "2/4"_mpq;
+    mpq_class c = 0x10_mpq;
 
     assert(a == mpq_class(std::int64_t{42}));
     assert(b == mpq_class("1/2", 10));
+    assert(c == mpq_class(std::int64_t{16}));
 }
 
 void test_mpf_literals() {
@@ -64,10 +68,12 @@ void test_mpf_literals() {
     mpf_class b = "1.25"_mpf;
     mpf_class c = 0.5_mpf;
     mpf_class d = "3.75"_mpf;
+    mpf_class e = 112.5e-1_mpf;
 
     assert_mpf_equal(a, b);
     assert_mpf_equal(c, mpf_class(0.5, c.get_prec()));
     assert_mpf_equal(d, mpf_class(3.75, d.get_prec()));
+    assert_mpf_equal(e, mpf_class(11.25, e.get_prec()));
 }
 
 void test_string_literals_use_auto_base() {

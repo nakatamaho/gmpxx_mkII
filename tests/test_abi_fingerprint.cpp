@@ -95,6 +95,15 @@ static_assert(gmpxx_detail::kind_of_v<
               binary_expr<add_op, mpf_class, mpz_class>> ==
               gmpxx_detail::value_kind::mpf);
 
+static_assert(std::same_as<std::common_type_t<mpz_class, mpq_class>,
+                           mpq_class>);
+static_assert(std::same_as<std::common_type_t<mpz_class, mpf_class>,
+                           mpf_class>);
+static_assert(std::same_as<std::common_type_t<mpf_class, mpq_class>,
+                           mpf_class>);
+static_assert(std::same_as<std::common_type_t<mpz_class, double>, mpz_class>);
+static_assert(std::same_as<std::common_type_t<double, mpq_class>, mpq_class>);
+
 static_assert(gmpxx_expr<binary_expr<add_op, mpf_class, mpf_class>>);
 static_assert(gmpxx_expr<unary_expr<neg_op, mpf_class>>);
 static_assert(!gmpxx_expr<mpf_class>);
@@ -116,6 +125,20 @@ static_assert(std::is_same_v<decltype(5u * std::declval<mpf_class const&>()),
                              binary_expr<mul_op, std::uint64_t, mpf_class>>);
 static_assert(std::is_same_v<decltype(std::declval<mpf_class const&>() / 0.5f),
                              binary_expr<div_op, mpf_class, double>>);
+static_assert(std::same_as<std::common_type_t<
+                               decltype(-std::declval<mpz_class const&>()),
+                               decltype(std::declval<mpz_class const&>() +
+                                        std::declval<mpz_class const&>())>,
+                           mpz_class>);
+static_assert(std::same_as<std::common_type_t<
+                               decltype(-std::declval<mpq_class const&>()),
+                               mpz_class>,
+                           mpq_class>);
+static_assert(std::same_as<std::common_type_t<
+                               decltype(-std::declval<mpf_class const&>()),
+                               decltype(std::declval<mpq_class const&>() +
+                                        std::declval<mpq_class const&>())>,
+                           mpf_class>);
 
 int main() {
     mpf_class a, b;

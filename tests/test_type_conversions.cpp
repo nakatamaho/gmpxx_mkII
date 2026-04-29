@@ -492,6 +492,36 @@ void test_mpq_scalar_conversion() {
     assert(negative.get_d() == -0.75);
 }
 
+[[maybe_unused]] void implicit_bool(bool) {}
+[[maybe_unused]] int implicit_bool(...) {
+    return 0;
+}
+
+void test_explicit_bool_conversion() {
+    static_assert(!std::is_convertible_v<mpz_class, bool>);
+    static_assert(!std::is_convertible_v<mpq_class, bool>);
+    static_assert(!std::is_convertible_v<mpf_class, bool>);
+
+    const mpz_class zn = -2;
+    const mpq_class qn = -2;
+    const mpf_class fn = -2;
+    const mpz_class z0 = 0;
+    const mpq_class q0 = 0;
+    const mpf_class f0 = 0;
+    const mpz_class zp = 2;
+    const mpq_class qp = 2;
+    const mpf_class fp = 2;
+
+    assert(zn && qn && fn && zp && qp && fp && !z0 && !q0 && !f0);
+
+    decltype(implicit_bool(zn)) zi = 1;
+    decltype(implicit_bool(qn)) qi = 1;
+    decltype(implicit_bool(fn)) fi = 1;
+    static_assert(std::same_as<decltype(zi), int>);
+    static_assert(std::same_as<decltype(qi), int>);
+    static_assert(std::same_as<decltype(fi), int>);
+}
+
 }  // namespace
 
 int main() {
@@ -512,5 +542,6 @@ int main() {
     test_mpf_scalar_conversions_and_fit_queries();
     test_mpz_scalar_conversions_and_fit_queries();
     test_mpq_scalar_conversion();
+    test_explicit_bool_conversion();
     return 0;
 }
