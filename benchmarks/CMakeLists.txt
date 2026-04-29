@@ -23,28 +23,97 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 
-function(add_gmpxx_mkii_benchmark name)
-    add_executable(gmpxx_mkii_benchmark_${name} ${name}.cpp)
-    target_link_libraries(gmpxx_mkii_benchmark_${name}
-        PRIVATE gmpxx_mkII::gmpxx_mkII)
+find_package(OpenMP)
 
-    add_executable(gmpxx_benchmark_${name} ${name}.cpp)
-    target_compile_definitions(gmpxx_benchmark_${name}
-        PRIVATE USE_ORIGINAL_GMPXX)
-    target_link_libraries(gmpxx_benchmark_${name} PRIVATE GMP::GMPXX GMP::GMP)
+function(configure_eager_benchmark target subdir)
+    target_include_directories(${target} PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}")
+    set_target_properties(${target} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${subdir}")
+    if(target MATCHES "openmp" AND OpenMP_CXX_FOUND)
+        target_link_libraries(${target} PRIVATE OpenMP::OpenMP_CXX)
+    endif()
 endfunction()
 
-function(add_gmp_native_benchmark name)
-    add_executable(gmp_native_benchmark_${name} ${name}_native.cpp)
-    target_link_libraries(gmp_native_benchmark_${name} PRIVATE GMP::GMP)
+function(add_mkii_variant subdir source base suffix)
+    set(target "${base}_${suffix}")
+    add_executable(${target} "${subdir}/${source}")
+    configure_eager_benchmark(${target} ${subdir})
+    target_link_libraries(${target} PRIVATE gmpxx_mkII::gmpxx_mkII)
+    if(suffix STREQUAL "mkII_NOPRECCHANGE")
+        target_compile_definitions(${target} PRIVATE GMPXX_MKII_NOPRECCHANGE)
+    endif()
 endfunction()
 
-add_gmpxx_mkii_benchmark(00_Rdot)
-add_gmpxx_mkii_benchmark(01_Raxpy)
-add_gmpxx_mkii_benchmark(02_Rgemv)
-add_gmpxx_mkii_benchmark(03_Rgemm)
+function(add_gmpxx_variant subdir source base)
+    set(target "${base}_orig")
+    add_executable(${target} "${subdir}/${source}")
+    configure_eager_benchmark(${target} ${subdir})
+    target_compile_definitions(${target} PRIVATE USE_ORIGINAL_GMPXX)
+    target_link_libraries(${target} PRIVATE GMP::GMPXX GMP::GMP)
+endfunction()
 
-add_gmp_native_benchmark(00_Rdot)
-add_gmp_native_benchmark(01_Raxpy)
-add_gmp_native_benchmark(02_Rgemv)
-add_gmp_native_benchmark(03_Rgemm)
+function(add_kernel_variants subdir source base)
+    add_gmpxx_variant(${subdir} ${source} ${base})
+    add_mkii_variant(${subdir} ${source} ${base} mkII)
+    add_mkii_variant(${subdir} ${source} ${base} mkII_NOPRECCHANGE)
+endfunction()
+
+function(add_native_benchmark subdir source target)
+    add_executable(${target} "${subdir}/${source}")
+    configure_eager_benchmark(${target} ${subdir})
+    target_link_libraries(${target} PRIVATE gmpxx_mkII::gmpxx_mkII GMP::GMP)
+endfunction()
+
+add_native_benchmark(00_Rdot Rdot_gmp_C_native_01.cpp
+    Rdot_gmp_C_native_01)
+add_native_benchmark(00_Rdot Rdot_gmp_C_native_openmp_01.cpp
+    Rdot_gmp_C_native_openmp_01)
+add_kernel_variants(00_Rdot Rdot_gmp_kernel_01.cpp Rdot_gmp_kernel_01)
+add_kernel_variants(00_Rdot Rdot_gmp_kernel_02.cpp Rdot_gmp_kernel_02)
+add_kernel_variants(00_Rdot Rdot_gmp_kernel_03.cpp Rdot_gmp_kernel_03)
+add_kernel_variants(00_Rdot Rdot_gmp_kernel_04.cpp Rdot_gmp_kernel_04)
+add_kernel_variants(00_Rdot Rdot_gmp_kernel_openmp_01.cpp
+    Rdot_gmp_kernel_openmp_01)
+add_kernel_variants(00_Rdot Rdot_gmp_kernel_openmp_02.cpp
+    Rdot_gmp_kernel_openmp_02)
+
+add_native_benchmark(01_Raxpy Raxpy_gmp_C_native_01.cpp
+    Raxpy_gmp_C_native_01)
+add_native_benchmark(01_Raxpy Raxpy_gmp_C_native_openmp_01.cpp
+    Raxpy_gmp_C_native_openmp_01)
+add_kernel_variants(01_Raxpy Raxpy_gmp_kernel_01.cpp Raxpy_gmp_kernel_01)
+add_kernel_variants(01_Raxpy Raxpy_gmp_kernel_02.cpp Raxpy_gmp_kernel_02)
+add_kernel_variants(01_Raxpy Raxpy_gmp_kernel_openmp_01.cpp
+    Raxpy_gmp_kernel_openmp_01)
+add_kernel_variants(01_Raxpy Raxpy_gmp_kernel_openmp_02.cpp
+    Raxpy_gmp_kernel_openmp_02)
+
+add_native_benchmark(02_Rgemv Rgemv_gmp_C_native_01.cpp
+    Rgemv_gmp_C_native_01)
+add_native_benchmark(02_Rgemv Rgemv_gmp_C_native_openmp_01.cpp
+    Rgemv_gmp_C_native_openmp_01)
+add_kernel_variants(02_Rgemv Rgemv_gmp_kernel_01.cpp Rgemv_gmp_kernel_01)
+add_kernel_variants(02_Rgemv Rgemv_gmp_kernel_02.cpp Rgemv_gmp_kernel_02)
+add_kernel_variants(02_Rgemv Rgemv_gmp_kernel_openmp_01.cpp
+    Rgemv_gmp_kernel_openmp_01)
+add_kernel_variants(02_Rgemv Rgemv_gmp_kernel_openmp_02.cpp
+    Rgemv_gmp_kernel_openmp_02)
+
+add_native_benchmark(03_Rgemm Rgemm_gmp_C_native_01.cpp
+    Rgemm_gmp_C_native_01)
+add_native_benchmark(03_Rgemm Rgemm_gmp_C_native_02.cpp
+    Rgemm_gmp_C_native_02)
+add_native_benchmark(03_Rgemm Rgemm_gmp_C_native_openmp_01.cpp
+    Rgemm_gmp_C_native_openmp_01)
+add_native_benchmark(03_Rgemm Rgemm_gmp_C_native_openmp_02.cpp
+    Rgemm_gmp_C_native_openmp_02)
+add_kernel_variants(03_Rgemm Rgemm_gmp_kernel_01.cpp Rgemm_gmp_kernel_01)
+add_kernel_variants(03_Rgemm Rgemm_gmp_kernel_02.cpp Rgemm_gmp_kernel_02)
+add_kernel_variants(03_Rgemm Rgemm_gmp_kernel_03.cpp Rgemm_gmp_kernel_03)
+add_kernel_variants(03_Rgemm Rgemm_gmp_kernel_openmp_01.cpp
+    Rgemm_gmp_kernel_openmp_01)
+add_kernel_variants(03_Rgemm Rgemm_gmp_kernel_openmp_02.cpp
+    Rgemm_gmp_kernel_openmp_02)
+add_kernel_variants(03_Rgemm Rgemm_gmp_kernel_openmp_03.cpp
+    Rgemm_gmp_kernel_openmp_03)

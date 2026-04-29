@@ -28,6 +28,7 @@
 import argparse
 import pathlib
 import re
+import sys
 
 import matplotlib
 
@@ -85,12 +86,18 @@ def parse_log(path):
 
 
 def variant_color(variant):
-    if variant == "native":
+    if "C_native_openmp" in variant:
+        return "dimgray"
+    if "C_native" in variant:
         return "gray"
-    if variant == "gmpxx":
+    if variant.endswith("_orig"):
         return "blue"
-    if variant == "gmpxx_mkII":
+    if variant.endswith("_mkII"):
         return "green"
+    if variant.endswith("_mkII_NOPRECCHANGE"):
+        return "red"
+    if "openmp" in variant:
+        return "orange"
     return "black"
 
 
@@ -103,7 +110,7 @@ def plot_kernel(rows, kernel, title_suffix, output_base):
     values = [row["mflops"] for row in kernel_rows]
     colors = [variant_color(row["variant"]) for row in kernel_rows]
 
-    plt.figure(figsize=(9, 6))
+    plt.figure(figsize=(max(9, 0.72 * len(labels)), 6))
     bars = plt.bar(labels, values, color=colors)
     plt.ylabel("MFLOPS", fontsize=13, fontweight="bold")
     plt.title(f"{kernel} benchmark {title_suffix}", fontsize=13, fontweight="bold")
@@ -129,35 +136,29 @@ def plot_kernel(rows, kernel, title_suffix, output_base):
 
 
 def plot_summary(rows, title_suffix, output_base):
-    kernels = []
-    for row in rows:
-        if row["kernel"] not in kernels:
-            kernels.append(row["kernel"])
-    variants = ["native", "gmpxx", "gmpxx_mkII"]
+    labels = [f"{row['kernel']}\n{row['variant']}" for row in rows]
+    values = [row["mflops"] for row in rows]
+    colors = [variant_color(row["variant"]) for row in rows]
 
-    x_positions = list(range(len(kernels)))
-    width = 0.24
-
-    plt.figure(figsize=(11, 6))
-    for offset, variant in enumerate(variants):
-        values = []
-        for kernel in kernels:
-            match = next(
-                (row for row in rows
-                 if row["kernel"] == kernel and row["variant"] == variant),
-                None,
-            )
-            values.append(match["mflops"] if match else 0.0)
-        positions = [x + (offset - 1) * width for x in x_positions]
-        plt.bar(positions, values, width=width, label=variant,
-                color=variant_color(variant))
+    plt.figure(figsize=(max(12, 0.58 * len(labels)), 7))
+    bars = plt.bar(labels, values, color=colors)
 
     plt.ylabel("MFLOPS", fontsize=13, fontweight="bold")
     plt.title(f"GMP benchmark summary {title_suffix}", fontsize=13,
               fontweight="bold")
-    plt.xticks(x_positions, kernels, fontsize=11, fontweight="bold")
+    plt.xticks(rotation=65, ha="right", fontsize=8, fontweight="bold")
     plt.yticks(fontsize=11, fontweight="bold")
-    plt.legend(frameon=False)
+    plt.ylim(0, max(values) * 1.15 if max(values) > 0 else 1)
+    for bar, value in zip(bars, values):
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height(),
+            f"{value:.1f}",
+            ha="center",
+            va="bottom",
+            fontsize=7,
+            rotation=90,
+        )
     plt.tight_layout()
     plt.savefig(f"{output_base}_summary.png", dpi=150)
     plt.savefig(f"{output_base}_summary.pdf")

@@ -32,13 +32,13 @@ repo_dir="$(cd "${script_dir}/.." && pwd)"
 
 build_dir="${1:-${repo_dir}/build_phase5}"
 precision="${2:-512}"
-rdot_n="${3:-100000}"
+rdot_n="${3:-100000000}"
 raxpy_n="${4:-${rdot_n}}"
-rgemv_m="${5:-400}"
-rgemv_n="${6:-400}"
-rgemm_m="${7:-120}"
-rgemm_k="${8:-120}"
-rgemm_n="${9:-120}"
+rgemv_m="${5:-4000}"
+rgemv_n="${6:-4000}"
+rgemm_m="${7:-500}"
+rgemm_k="${8:-500}"
+rgemm_n="${9:-500}"
 output_dir="${10:-${script_dir}/results}"
 
 mkdir -p "${output_dir}"
@@ -54,7 +54,9 @@ fi
 run_one() {
     local label="$1"
     shift
-    local exe="${benchmark_dir}/$1"
+    local subdir="$1"
+    shift
+    local exe="${benchmark_dir}/${subdir}/$1"
     shift
 
     if [[ ! -x "${exe}" ]]; then
@@ -67,6 +69,107 @@ run_one() {
     echo
 }
 
+run_variants() {
+    local kernel="$1"
+    local subdir="$2"
+    shift 2
+    local args=("$@")
+    local executables=()
+
+    case "${kernel}" in
+    Rdot)
+        executables=(
+            "Rdot_gmp_C_native_01"
+            "Rdot_gmp_C_native_openmp_01"
+            "Rdot_gmp_kernel_01_orig"
+            "Rdot_gmp_kernel_01_mkII"
+            "Rdot_gmp_kernel_01_mkII_NOPRECCHANGE"
+            "Rdot_gmp_kernel_02_orig"
+            "Rdot_gmp_kernel_02_mkII"
+            "Rdot_gmp_kernel_02_mkII_NOPRECCHANGE"
+            "Rdot_gmp_kernel_03_orig"
+            "Rdot_gmp_kernel_03_mkII"
+            "Rdot_gmp_kernel_03_mkII_NOPRECCHANGE"
+            "Rdot_gmp_kernel_04_orig"
+            "Rdot_gmp_kernel_04_mkII"
+            "Rdot_gmp_kernel_04_mkII_NOPRECCHANGE"
+            "Rdot_gmp_kernel_openmp_01_orig"
+            "Rdot_gmp_kernel_openmp_01_mkII"
+            "Rdot_gmp_kernel_openmp_01_mkII_NOPRECCHANGE"
+            "Rdot_gmp_kernel_openmp_02_orig"
+            "Rdot_gmp_kernel_openmp_02_mkII"
+            "Rdot_gmp_kernel_openmp_02_mkII_NOPRECCHANGE"
+        )
+        ;;
+    Raxpy)
+        executables=(
+            "Raxpy_gmp_C_native_01"
+            "Raxpy_gmp_C_native_openmp_01"
+            "Raxpy_gmp_kernel_01_orig"
+            "Raxpy_gmp_kernel_01_mkII"
+            "Raxpy_gmp_kernel_01_mkII_NOPRECCHANGE"
+            "Raxpy_gmp_kernel_02_orig"
+            "Raxpy_gmp_kernel_02_mkII"
+            "Raxpy_gmp_kernel_02_mkII_NOPRECCHANGE"
+            "Raxpy_gmp_kernel_openmp_01_orig"
+            "Raxpy_gmp_kernel_openmp_01_mkII"
+            "Raxpy_gmp_kernel_openmp_01_mkII_NOPRECCHANGE"
+            "Raxpy_gmp_kernel_openmp_02_orig"
+            "Raxpy_gmp_kernel_openmp_02_mkII"
+            "Raxpy_gmp_kernel_openmp_02_mkII_NOPRECCHANGE"
+        )
+        ;;
+    Rgemv)
+        executables=(
+            "Rgemv_gmp_C_native_01"
+            "Rgemv_gmp_C_native_openmp_01"
+            "Rgemv_gmp_kernel_01_orig"
+            "Rgemv_gmp_kernel_01_mkII"
+            "Rgemv_gmp_kernel_01_mkII_NOPRECCHANGE"
+            "Rgemv_gmp_kernel_openmp_01_orig"
+            "Rgemv_gmp_kernel_openmp_01_mkII"
+            "Rgemv_gmp_kernel_openmp_01_mkII_NOPRECCHANGE"
+            "Rgemv_gmp_kernel_02_orig"
+            "Rgemv_gmp_kernel_02_mkII"
+            "Rgemv_gmp_kernel_02_mkII_NOPRECCHANGE"
+            "Rgemv_gmp_kernel_openmp_02_orig"
+            "Rgemv_gmp_kernel_openmp_02_mkII"
+            "Rgemv_gmp_kernel_openmp_02_mkII_NOPRECCHANGE"
+        )
+        ;;
+    Rgemm)
+        executables=(
+            "Rgemm_gmp_C_native_01"
+            "Rgemm_gmp_C_native_02"
+            "Rgemm_gmp_C_native_openmp_01"
+            "Rgemm_gmp_C_native_openmp_02"
+            "Rgemm_gmp_kernel_01_orig"
+            "Rgemm_gmp_kernel_01_mkII"
+            "Rgemm_gmp_kernel_01_mkII_NOPRECCHANGE"
+            "Rgemm_gmp_kernel_02_orig"
+            "Rgemm_gmp_kernel_02_mkII"
+            "Rgemm_gmp_kernel_02_mkII_NOPRECCHANGE"
+            "Rgemm_gmp_kernel_03_orig"
+            "Rgemm_gmp_kernel_03_mkII"
+            "Rgemm_gmp_kernel_03_mkII_NOPRECCHANGE"
+            "Rgemm_gmp_kernel_openmp_01_orig"
+            "Rgemm_gmp_kernel_openmp_01_mkII"
+            "Rgemm_gmp_kernel_openmp_01_mkII_NOPRECCHANGE"
+            "Rgemm_gmp_kernel_openmp_02_orig"
+            "Rgemm_gmp_kernel_openmp_02_mkII"
+            "Rgemm_gmp_kernel_openmp_02_mkII_NOPRECCHANGE"
+            "Rgemm_gmp_kernel_openmp_03_orig"
+            "Rgemm_gmp_kernel_openmp_03_mkII"
+            "Rgemm_gmp_kernel_openmp_03_mkII_NOPRECCHANGE"
+        )
+        ;;
+    esac
+
+    for exe in "${executables[@]}"; do
+        run_one "${kernel} ${exe#${kernel}_gmp_}" "${subdir}" "${exe}" "${args[@]}"
+    done
+}
+
 {
     uname -a
     if [[ -r /proc/cpuinfo ]]; then
@@ -77,21 +180,10 @@ run_one() {
     echo "BENCHMARK_PARAMS precision=${precision} rdot_n=${rdot_n} raxpy_n=${raxpy_n} rgemv_m=${rgemv_m} rgemv_n=${rgemv_n} rgemm_m=${rgemm_m} rgemm_k=${rgemm_k} rgemm_n=${rgemm_n}"
     echo
 
-    run_one "Rdot native" gmp_native_benchmark_00_Rdot "${rdot_n}" "${precision}"
-    run_one "Rdot gmpxx" gmpxx_benchmark_00_Rdot "${rdot_n}" "${precision}"
-    run_one "Rdot gmpxx_mkII" gmpxx_mkii_benchmark_00_Rdot "${rdot_n}" "${precision}"
-
-    run_one "Raxpy native" gmp_native_benchmark_01_Raxpy "${raxpy_n}" "${precision}"
-    run_one "Raxpy gmpxx" gmpxx_benchmark_01_Raxpy "${raxpy_n}" "${precision}"
-    run_one "Raxpy gmpxx_mkII" gmpxx_mkii_benchmark_01_Raxpy "${raxpy_n}" "${precision}"
-
-    run_one "Rgemv native" gmp_native_benchmark_02_Rgemv "${rgemv_m}" "${rgemv_n}" "${precision}"
-    run_one "Rgemv gmpxx" gmpxx_benchmark_02_Rgemv "${rgemv_m}" "${rgemv_n}" "${precision}"
-    run_one "Rgemv gmpxx_mkII" gmpxx_mkii_benchmark_02_Rgemv "${rgemv_m}" "${rgemv_n}" "${precision}"
-
-    run_one "Rgemm native" gmp_native_benchmark_03_Rgemm "${rgemm_m}" "${rgemm_k}" "${rgemm_n}" "${precision}"
-    run_one "Rgemm gmpxx" gmpxx_benchmark_03_Rgemm "${rgemm_m}" "${rgemm_k}" "${rgemm_n}" "${precision}"
-    run_one "Rgemm gmpxx_mkII" gmpxx_mkii_benchmark_03_Rgemm "${rgemm_m}" "${rgemm_k}" "${rgemm_n}" "${precision}"
+    run_variants Rdot 00_Rdot "${rdot_n}" "${precision}"
+    run_variants Raxpy 01_Raxpy "${raxpy_n}" "${precision}"
+    run_variants Rgemv 02_Rgemv "${rgemv_m}" "${rgemv_n}" "${precision}"
+    run_variants Rgemm 03_Rgemm "${rgemm_m}" "${rgemm_k}" "${rgemm_n}" "${precision}"
 } 2>&1 | tee "${log_file}"
 
 python3 "${script_dir}/plot.py" "${log_file}" --output-dir "${output_dir}"

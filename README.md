@@ -70,7 +70,6 @@ Deferred to later phases:
 
 - Remaining expression-aware math overloads and special functions beyond the
   current concrete GMP-only math surface.
-- Benchmarks beyond the focused allocation tests.
 
 Fortran bridge support is intentionally not planned for v2.0.0.
 
@@ -102,9 +101,9 @@ ctest --test-dir build --output-on-failure
 ```
 
 The default build also compiles the small programs under `examples/` and the
-comparison drivers under `benchmarks/`.  The benchmark build emits
-`gmpxx_mkII`, original `gmpxx.h`, and hand-written `mpf_t` variants for each
-ported kernel.  Disable them with:
+eager benchmark source layout under `benchmarks/`.  The benchmark build emits
+native `mpf_t`, original `gmpxx.h`, `mkII`, `mkII_NOPRECCHANGE`, and OpenMP target
+variants where the eager benchmark set provides them. Disable them with:
 
 ```bash
 cmake -S . -B build -DGMPXX_MKII_BUILD_EXAMPLES=OFF
@@ -116,6 +115,66 @@ Run the ported benchmark set and generate plots with:
 ```bash
 benchmarks/run_benchmarks.sh build 512
 ```
+
+The benchmark runner defaults to the eager benchmark dimensions:
+`Rdot/Raxpy n=100000000`, `Rgemv 4000x4000`, and `Rgemm 500x500x500`.
+Pass smaller dimensions explicitly for smoke runs.
+
+The full argument order is:
+
+```bash
+benchmarks/run_benchmarks.sh BUILD_DIR PRECISION \
+    RDOT_N RAXPY_N RGEMV_M RGEMV_N RGEMM_M RGEMM_K RGEMM_N OUTPUT_DIR
+```
+
+For example, a quick correctness and plotting smoke run is:
+
+```bash
+cmake -S . -B build_bench_release -DCMAKE_BUILD_TYPE=Release
+cmake --build build_bench_release -j
+benchmarks/run_benchmarks.sh build_bench_release 128 1000 1000 32 32 16 16 16 \
+    benchmarks/results-smoke
+```
+
+Use release builds for timing.  Debug builds are useful only for checking that
+the benchmark programs compile and complete.
+
+Benchmark directories:
+
+- `benchmarks/00_Rdot`: dot product, `sum_i x_i * y_i`.
+- `benchmarks/01_Raxpy`: AXPY, `y_i = y_i + alpha * x_i`.
+- `benchmarks/02_Rgemv`: dense matrix-vector multiply.
+- `benchmarks/03_Rgemm`: dense matrix-matrix multiply.
+
+Each directory keeps the eager benchmark layout.  `*_gmp_C_native_*` programs
+use raw `mpf_t`; `*_kernel_*_orig` uses upstream `gmpxx.h`; `*_kernel_*_mkII`
+uses this header; `*_kernel_*_mkII_NOPRECCHANGE` builds this header with
+`GMPXX_MKII_NOPRECCHANGE`; `*_openmp_*` variants use OpenMP where the eager
+benchmark provided one.
+
+The runner writes a timestamped log and calls `benchmarks/plot.py` through
+matplotlib.  The log records one `COMMAND` block per executable, followed by
+`Elapsed time`, `MFLOPS`, and the benchmark's result check.  The generated
+`*_summary.{png,pdf}` compares all variants together, and
+`*_{Rdot,Raxpy,Rgemv,Rgemm}.{png,pdf}` gives per-kernel comparisons.  Higher
+MFLOPS is better; compare variants within the same kernel, precision, matrix
+size, compiler flags, and machine.
+
+A committed run using the eager `go.sh` sample dimensions is stored under
+`benchmarks/results-go-sh-sample/`.  It was generated with:
+
+```bash
+benchmarks/run_benchmarks.sh build_bench_release 512 \
+    100000000 100000000 4000 4000 500 500 500 \
+    benchmarks/results-go-sh-sample
+```
+
+The generated files include the raw log
+`benchmark_20260430_081331.log`, the summary plot, and one plot per benchmark
+kernel.  In this run, `Rdot`, `Raxpy`, and `Rgemm` report `Result OK` for all
+variants.  `Rgemv kernel_openmp_02` reports `Result NG` for `orig`, `mkII`, and
+`mkII_NOPRECCHANGE`; the same failure across all three variants points to that
+ported OpenMP benchmark variant rather than a `gmpxx_mkII`-only difference.
 
 Install the generated header, exported CMake target, and package config files:
 

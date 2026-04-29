@@ -1,0 +1,474 @@
+Linux 7c430536ccee 6.8.0-94-generic #96-Ubuntu SMP PREEMPT_DYNAMIC Fri Jan  9 20:36:55 UTC 2026 x86_64 GNU/Linux
+model name	: AMD Ryzen Threadripper 3970X 32-Core Processor
+BENCHMARK_PARAMS precision=512 rdot_n=100000000 raxpy_n=100000000 rgemv_m=4000 rgemv_n=4000 rgemm_m=500 rgemm_k=500 rgemm_n=500
+
+COMMAND Rdot C_native_01 build_bench_release/benchmarks/00_Rdot/Rdot_gmp_C_native_01 100000000 512
+Elapsed time: 6.14381 s
+MFLOPS: 32.5531
+DIFF: 2.397e-147 OK
+WALL_SECONDS 60.25
+
+COMMAND Rdot C_native_openmp_01 build_bench_release/benchmarks/00_Rdot/Rdot_gmp_C_native_openmp_01 100000000 512
+Elapsed time: 0.352019 s
+MFLOPS: 568.151
+DIFF: 2.397e-147 OK
+WALL_SECONDS 52.80
+
+COMMAND Rdot kernel_01_orig build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_01_orig 100000000 512
+Elapsed time: 7.22092 s
+MFLOPS: 27.6973
+DIFF: 2.397e-147 OK
+WALL_SECONDS 59.26
+
+COMMAND Rdot kernel_01_mkII build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_01_mkII 100000000 512
+Elapsed time: 8.06353 s
+MFLOPS: 24.803
+DIFF: 2.397e-147 OK
+WALL_SECONDS 62.09
+
+COMMAND Rdot kernel_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_01_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 7.34488 s
+MFLOPS: 27.2299
+DIFF: 2.397e-147 OK
+WALL_SECONDS 60.47
+
+COMMAND Rdot kernel_02_orig build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_02_orig 100000000 512
+Elapsed time: 7.38462 s
+MFLOPS: 27.0833
+DIFF: 2.397e-147 OK
+WALL_SECONDS 60.13
+
+COMMAND Rdot kernel_02_mkII build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_02_mkII 100000000 512
+Elapsed time: 8.14131 s
+MFLOPS: 24.5661
+DIFF: 2.397e-147 OK
+WALL_SECONDS 61.76
+
+COMMAND Rdot kernel_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_02_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 7.84865 s
+MFLOPS: 25.4821
+DIFF: 2.397e-147 OK
+WALL_SECONDS 61.77
+
+COMMAND Rdot kernel_03_orig build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_03_orig 100000000 512
+Elapsed time: 6.12913 s
+MFLOPS: 32.631
+DIFF: 2.397e-147 OK
+WALL_SECONDS 58.21
+
+COMMAND Rdot kernel_03_mkII build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_03_mkII 100000000 512
+Elapsed time: 6.11777 s
+MFLOPS: 32.6916
+DIFF: 2.397e-147 OK
+WALL_SECONDS 59.36
+
+COMMAND Rdot kernel_03_mkII_NOPRECCHANGE build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_03_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 6.08627 s
+MFLOPS: 32.8609
+DIFF: 2.397e-147 OK
+WALL_SECONDS 58.92
+
+COMMAND Rdot kernel_04_orig build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_04_orig 100000000 512
+Elapsed time: 6.42373 s
+MFLOPS: 31.1346
+DIFF: 2.397e-147 OK
+WALL_SECONDS 58.85
+
+COMMAND Rdot kernel_04_mkII build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_04_mkII 100000000 512
+Elapsed time: 6.66053 s
+MFLOPS: 30.0277
+DIFF: 2.397e-147 OK
+WALL_SECONDS 60.19
+
+COMMAND Rdot kernel_04_mkII_NOPRECCHANGE build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_04_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 6.68514 s
+MFLOPS: 29.9171
+DIFF: 2.397e-147 OK
+WALL_SECONDS 59.71
+
+COMMAND Rdot kernel_openmp_01_orig build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_openmp_01_orig 100000000 512
+Elapsed time: 0.347457 s
+MFLOPS: 575.61
+DIFF: 2.397e-147 OK
+WALL_SECONDS 50.60
+
+COMMAND Rdot kernel_openmp_01_mkII build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_openmp_01_mkII 100000000 512
+Elapsed time: 0.369803 s
+MFLOPS: 540.828
+DIFF: 2.397e-147 OK
+WALL_SECONDS 54.72
+
+COMMAND Rdot kernel_openmp_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_openmp_01_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 0.379831 s
+MFLOPS: 526.55
+DIFF: 2.397e-147 OK
+WALL_SECONDS 59.85
+
+COMMAND Rdot kernel_openmp_02_orig build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_openmp_02_orig 100000000 512
+Elapsed time: 0.370737 s
+MFLOPS: 539.467
+DIFF: 2.397e-147 OK
+WALL_SECONDS 52.73
+
+COMMAND Rdot kernel_openmp_02_mkII build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_openmp_02_mkII 100000000 512
+Elapsed time: 0.37971 s
+MFLOPS: 526.718
+DIFF: 2.397e-147 OK
+WALL_SECONDS 53.36
+
+COMMAND Rdot kernel_openmp_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/00_Rdot/Rdot_gmp_kernel_openmp_02_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 0.36916 s
+MFLOPS: 541.771
+DIFF: 2.397e-147 OK
+WALL_SECONDS 53.25
+
+COMMAND Raxpy C_native_01 build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_C_native_01 100000000 512
+Elapsed time: 5.9339 s
+MFLOPS: 33.7047
+L1 Norm of difference: 0.0000e+00
+Result OK
+WALL_SECONDS 65.51
+
+COMMAND Raxpy C_native_openmp_01 build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_C_native_openmp_01 100000000 512
+Elapsed time: 0.533587 s
+MFLOPS: 374.822
+L1 Norm of difference: 0.0000e+00
+Result OK
+WALL_SECONDS 62.91
+
+COMMAND Raxpy kernel_01_orig build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_01_orig 100000000 512
+Elapsed time: 6.86304 s
+MFLOPS: 29.1416
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 49.00
+
+COMMAND Raxpy kernel_01_mkII build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_01_mkII 100000000 512
+Elapsed time: 7.07071 s
+MFLOPS: 28.2857
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 53.69
+
+COMMAND Raxpy kernel_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_01_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 6.98725 s
+MFLOPS: 28.6235
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 54.57
+
+COMMAND Raxpy kernel_02_orig build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_02_orig 100000000 512
+Elapsed time: 6.26891 s
+MFLOPS: 31.9035
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 48.94
+
+COMMAND Raxpy kernel_02_mkII build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_02_mkII 100000000 512
+Elapsed time: 6.3837 s
+MFLOPS: 31.3298
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 54.02
+
+COMMAND Raxpy kernel_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_02_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 6.5415 s
+MFLOPS: 30.574
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 54.49
+
+COMMAND Raxpy kernel_openmp_01_orig build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_openmp_01_orig 100000000 512
+Elapsed time: 0.547804 s
+MFLOPS: 365.094
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 43.59
+
+COMMAND Raxpy kernel_openmp_01_mkII build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_openmp_01_mkII 100000000 512
+Elapsed time: 0.522614 s
+MFLOPS: 382.691
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 48.52
+
+COMMAND Raxpy kernel_openmp_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_openmp_01_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 0.517788 s
+MFLOPS: 386.259
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 47.81
+
+COMMAND Raxpy kernel_openmp_02_orig build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_openmp_02_orig 100000000 512
+Elapsed time: 0.546411 s
+MFLOPS: 366.025
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 43.12
+
+COMMAND Raxpy kernel_openmp_02_mkII build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_openmp_02_mkII 100000000 512
+Elapsed time: 0.554233 s
+MFLOPS: 360.859
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 48.39
+
+COMMAND Raxpy kernel_openmp_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/01_Raxpy/Raxpy_gmp_kernel_openmp_02_mkII_NOPRECCHANGE 100000000 512
+Elapsed time: 0.529261 s
+MFLOPS: 377.885
+L1 Norm of difference: 00
+Result OK
+WALL_SECONDS 48.21
+
+COMMAND Rgemv C_native_01 build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_C_native_01 4000 4000 512
+Elapsed time: 1.73904 s
+MFLOPS: 18.401
+L1 Norm of difference: 0.0000e+00
+Result OK
+WALL_SECONDS 6.91
+
+COMMAND Rgemv C_native_openmp_01 build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_C_native_openmp_01 4000 4000 512
+Elapsed time: 0.122914 s
+MFLOPS: 260.345
+L1 Norm of difference: 4.5107e-148
+Result OK
+WALL_SECONDS 5.26
+
+COMMAND Rgemv kernel_01_orig build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_01_orig 4000 4000 512
+Elapsed time: 2.71229 s
+MFLOPS: 11.7982
+L1 Norm of difference: 4.51e-148
+Result OK
+WALL_SECONDS 7.29
+
+COMMAND Rgemv kernel_01_mkII build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_01_mkII 4000 4000 512
+Elapsed time: 2.98806 s
+MFLOPS: 10.7093
+L1 Norm of difference: 4.51e-148
+Result OK
+WALL_SECONDS 8.34
+
+COMMAND Rgemv kernel_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_01_mkII_NOPRECCHANGE 4000 4000 512
+Elapsed time: 2.73947 s
+MFLOPS: 11.6811
+L1 Norm of difference: 4.51e-148
+Result OK
+WALL_SECONDS 8.06
+
+COMMAND Rgemv kernel_openmp_01_orig build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_openmp_01_orig 4000 4000 512
+Elapsed time: 0.12714 s
+MFLOPS: 251.692
+L1 Norm of difference: 4.51e-148
+Result OK
+WALL_SECONDS 4.61
+
+COMMAND Rgemv kernel_openmp_01_mkII build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_openmp_01_mkII 4000 4000 512
+Elapsed time: 0.12974 s
+MFLOPS: 246.647
+L1 Norm of difference: 4.51e-148
+Result OK
+WALL_SECONDS 5.17
+
+COMMAND Rgemv kernel_openmp_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_openmp_01_mkII_NOPRECCHANGE 4000 4000 512
+Elapsed time: 0.122894 s
+MFLOPS: 260.388
+L1 Norm of difference: 4.51e-148
+Result OK
+WALL_SECONDS 5.17
+
+COMMAND Rgemv kernel_02_orig build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_02_orig 4000 4000 512
+Elapsed time: 1.07793 s
+MFLOPS: 29.6866
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 5.66
+
+COMMAND Rgemv kernel_02_mkII build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_02_mkII 4000 4000 512
+Elapsed time: 1.10658 s
+MFLOPS: 28.9178
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 6.40
+
+COMMAND Rgemv kernel_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_02_mkII_NOPRECCHANGE 4000 4000 512
+Elapsed time: 1.10453 s
+MFLOPS: 28.9717
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 6.41
+
+COMMAND Rgemv kernel_openmp_02_orig build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_openmp_02_orig 4000 4000 512
+Elapsed time: 0.10604 s
+MFLOPS: 301.773
+L1 Norm of difference: 8.247e+18
+Result NG
+WALL_SECONDS 4.55
+
+COMMAND Rgemv kernel_openmp_02_mkII build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_openmp_02_mkII 4000 4000 512
+Elapsed time: 0.119294 s
+MFLOPS: 268.246
+L1 Norm of difference: 2.817e+18
+Result NG
+WALL_SECONDS 5.14
+
+COMMAND Rgemv kernel_openmp_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/02_Rgemv/Rgemv_gmp_kernel_openmp_02_mkII_NOPRECCHANGE 4000 4000 512
+Elapsed time: 0.114183 s
+MFLOPS: 280.251
+L1 Norm of difference: 2.234e+18
+Result NG
+WALL_SECONDS 5.19
+
+COMMAND Rgemm C_native_01 build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_C_native_01 500 500 500 512
+Elapsed time: 8.16238 s
+MFLOPS: 30.6896
+L1 Norm of difference: 3.4018e-147
+Result OK
+WALL_SECONDS 17.81
+
+COMMAND Rgemm C_native_02 build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_C_native_02 500 500 500 512
+Elapsed time: 8.06252 s
+MFLOPS: 31.0697
+L1 Norm of difference: 0.0000e+00
+Result OK
+WALL_SECONDS 17.81
+
+COMMAND Rgemm C_native_openmp_01 build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_C_native_openmp_01 500 500 500 512
+Elapsed time: 0.342765 s
+MFLOPS: 730.821
+L1 Norm of difference: 3.4018e-147
+Result OK
+WALL_SECONDS 11.43
+
+COMMAND Rgemm C_native_openmp_02 build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_C_native_openmp_02 500 500 500 512
+Elapsed time: 0.315909 s
+MFLOPS: 792.95
+L1 Norm of difference: 5.0606e-150
+Result OK
+WALL_SECONDS 11.67
+
+COMMAND Rgemm kernel_01_orig build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_01_orig 500 500 500 512
+Elapsed time: 9.56333 s
+MFLOPS: 26.1938
+L1 Norm of difference: 3.401e-147
+Result OK
+WALL_SECONDS 19.06
+
+COMMAND Rgemm kernel_01_mkII build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_01_mkII 500 500 500 512
+Elapsed time: 9.65339 s
+MFLOPS: 25.9494
+L1 Norm of difference: 3.401e-147
+Result OK
+WALL_SECONDS 20.23
+
+COMMAND Rgemm kernel_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_01_mkII_NOPRECCHANGE 500 500 500 512
+Elapsed time: 9.59177 s
+MFLOPS: 26.1162
+L1 Norm of difference: 3.401e-147
+Result OK
+WALL_SECONDS 20.82
+
+COMMAND Rgemm kernel_02_orig build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_02_orig 500 500 500 512
+Elapsed time: 9.29207 s
+MFLOPS: 26.9585
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 18.83
+
+COMMAND Rgemm kernel_02_mkII build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_02_mkII 500 500 500 512
+Elapsed time: 9.53355 s
+MFLOPS: 26.2756
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 19.94
+
+COMMAND Rgemm kernel_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_02_mkII_NOPRECCHANGE 500 500 500 512
+Elapsed time: 9.65088 s
+MFLOPS: 25.9562
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 19.32
+
+COMMAND Rgemm kernel_03_orig build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_03_orig 500 500 500 512
+Elapsed time: 8.48498 s
+MFLOPS: 29.5227
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 17.89
+
+COMMAND Rgemm kernel_03_mkII build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_03_mkII 500 500 500 512
+Elapsed time: 8.53782 s
+MFLOPS: 29.34
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 18.07
+
+COMMAND Rgemm kernel_03_mkII_NOPRECCHANGE build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_03_mkII_NOPRECCHANGE 500 500 500 512
+Elapsed time: 9.7239 s
+MFLOPS: 25.7613
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 19.38
+
+COMMAND Rgemm kernel_openmp_01_orig build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_01_orig 500 500 500 512
+Elapsed time: 0.312972 s
+MFLOPS: 800.391
+L1 Norm of difference: 3.401e-147
+Result OK
+WALL_SECONDS 9.83
+
+COMMAND Rgemm kernel_openmp_01_mkII build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_01_mkII 500 500 500 512
+Elapsed time: 0.32115 s
+MFLOPS: 780.01
+L1 Norm of difference: 3.401e-147
+Result OK
+WALL_SECONDS 10.24
+
+COMMAND Rgemm kernel_openmp_01_mkII_NOPRECCHANGE build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_01_mkII_NOPRECCHANGE 500 500 500 512
+Elapsed time: 0.315377 s
+MFLOPS: 794.286
+L1 Norm of difference: 3.401e-147
+Result OK
+WALL_SECONDS 10.72
+
+COMMAND Rgemm kernel_openmp_02_orig build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_02_orig 500 500 500 512
+Elapsed time: 0.327609 s
+MFLOPS: 764.632
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 9.77
+
+COMMAND Rgemm kernel_openmp_02_mkII build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_02_mkII 500 500 500 512
+Elapsed time: 0.383975 s
+MFLOPS: 652.386
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 10.20
+
+COMMAND Rgemm kernel_openmp_02_mkII_NOPRECCHANGE build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_02_mkII_NOPRECCHANGE 500 500 500 512
+Elapsed time: 0.379286 s
+MFLOPS: 660.451
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 9.99
+
+COMMAND Rgemm kernel_openmp_03_orig build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_03_orig 500 500 500 512
+Elapsed time: 0.330223 s
+MFLOPS: 758.577 29.8839
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 18.19
+
+COMMAND Rgemm kernel_openmp_03_mkII build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_03_mkII 500 500 500 512
+Elapsed time: 0.321435 s
+MFLOPS: 779.318 29.2391
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 18.59
+
+COMMAND Rgemm kernel_openmp_03_mkII_NOPRECCHANGE build_bench_release/benchmarks/03_Rgemm/Rgemm_gmp_kernel_openmp_03_mkII_NOPRECCHANGE 500 500 500 512
+Elapsed time: 0.339487 s
+MFLOPS: 737.879 29.3441
+L1 Norm of difference: 0
+Result OK
+WALL_SECONDS 18.68
+

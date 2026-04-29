@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2026
+#      Nakata, Maho
+#      All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+
+uname -a
+cat /proc/cpuinfo | grep 'model name' | head -1
+echo
+executables=(
+    "Rgemv_gmp_C_native_01"
+    "Rgemv_gmp_C_native_openmp_01"
+    "Rgemv_gmp_kernel_01_orig"
+    "Rgemv_gmp_kernel_01_mkII"
+    "Rgemv_gmp_kernel_01_mkII_NOPRECCHANGE"
+    "Rgemv_gmp_kernel_openmp_01_orig"
+    "Rgemv_gmp_kernel_openmp_01_mkII"
+    "Rgemv_gmp_kernel_openmp_01_mkII_NOPRECCHANGE"
+    "Rgemv_gmp_kernel_02_orig"
+    "Rgemv_gmp_kernel_02_mkII"
+    "Rgemv_gmp_kernel_02_mkII_NOPRECCHANGE"
+    "Rgemv_gmp_kernel_openmp_02_orig"
+    "Rgemv_gmp_kernel_openmp_02_mkII"
+    "Rgemv_gmp_kernel_openmp_02_mkII_NOPRECCHANGE"
+)
+for exe in "${executables[@]}"; do
+    COMMAND_LINE="/usr/bin/time ./$exe 4000 4000 512"
+    echo $COMMAND_LINE
+    $COMMAND_LINE
+    if [ -f gmon.out ]; then
+        mv gmon.out "gmon_${exe}.out"
+        gprof ./$exe "gmon_${exe}.out" > "gprof_${exe}.txt"
+    fi
+    echo
+done
