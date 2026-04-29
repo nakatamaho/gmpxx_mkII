@@ -55,6 +55,11 @@ static_assert(requires(mpf_class f, mpz_class z) {
 static_assert(!comparison_pair<int, int>);
 static_assert(comparison_pair<mpz_class, int>);
 static_assert(comparison_pair<int, mpz_class>);
+#if defined(__SIZEOF_INT128__)
+static_assert(comparison_pair<mpz_class, __int128_t>);
+static_assert(comparison_pair<__uint128_t, mpq_class>);
+static_assert(!phase2_operand<__int128_t>);
+#endif
 
 template<class L, class R>
 void check_consistency(L const& lhs, R const& rhs) {
@@ -195,6 +200,25 @@ void test_scalar_comparisons() {
     check_consistency(2.5, q);
     check_consistency(f, 5.5);
     check_consistency(5.5, f);
+
+#if defined(__SIZEOF_INT128__)
+    __int128_t wide =
+        static_cast<__int128_t>(0x0123456789ABCDEFULL) *
+        static_cast<__int128_t>(0x0FEDCBA987654321ULL);
+    __uint128_t unsigned_wide =
+        static_cast<__uint128_t>(0xFEDCBA9876543210ULL) *
+        static_cast<__uint128_t>(0xFFFFFFFFFFFFFFFFULL);
+    mpz_class wide_z(wide);
+    mpq_class unsigned_wide_q{mpz_class(unsigned_wide)};
+    assert(wide_z == wide);
+    assert(wide == wide_z);
+    assert(unsigned_wide_q == unsigned_wide);
+    assert(unsigned_wide == unsigned_wide_q);
+    check_consistency(wide_z, wide);
+    check_consistency(wide, wide_z);
+    check_consistency(unsigned_wide_q, unsigned_wide);
+    check_consistency(unsigned_wide, unsigned_wide_q);
+#endif
 }
 
 void test_division_semantics() {

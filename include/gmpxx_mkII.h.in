@@ -305,12 +305,22 @@ concept mpz_operand = std::same_as<std::remove_cvref_t<T>, mpz_class>;
 template<class T>
 concept mpq_operand = std::same_as<std::remove_cvref_t<T>, mpq_class>;
 
+#if defined(__SIZEOF_INT128__)
+template<class T>
+concept wide_integer_operand =
+    std::same_as<std::remove_cvref_t<T>, gmpxx_detail::int128_type> ||
+    std::same_as<std::remove_cvref_t<T>, gmpxx_detail::uint128_type>;
+#else
+template<class T>
+concept wide_integer_operand = false;
+#endif
+
 template<class T>
 concept phase2_operand =
     phase1_operand<T> || mpz_operand<T> || mpq_operand<T>;
 
 template<class T>
-concept comparison_operand = phase2_operand<T>;
+concept comparison_operand = phase2_operand<T> || wide_integer_operand<T>;
 
 template<class L, class R>
 concept comparison_pair =
@@ -1390,6 +1400,44 @@ public:
         canonicalize();
         return *this;
     }
+
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    mpq_class& operator=(T rhs) {
+        *this = mpz_class(rhs);
+        return *this;
+    }
+
+    mpq_class& operator=(double rhs) {
+        mpq_set_d(value, rhs);
+        canonicalize();
+        return *this;
+    }
+
+    mpq_class& operator=(char const* rhs) {
+        if (set_str(rhs) != 0) {
+            throw std::invalid_argument("gmpxx_mkII: invalid mpq string");
+        }
+        return *this;
+    }
+
+    mpq_class& operator=(std::string const& rhs) {
+        return *this = rhs.c_str();
+    }
+
+#if defined(__SIZEOF_INT128__)
+    mpq_class& operator=(gmpxx_detail::int128_type rhs) {
+        *this = mpz_class(rhs);
+        return *this;
+    }
+
+    mpq_class& operator=(gmpxx_detail::uint128_type rhs) {
+        *this = mpz_class(rhs);
+        return *this;
+    }
+#endif
 
     template<gmpxx_expr Expr>
         requires (std::same_as<typename Expr::result_type, mpq_class>)
@@ -3621,6 +3669,16 @@ inline mpq_class to_mpq_for_cmp(double value) {
     mpf_class tmp(value, static_cast<mp_bitcnt_t>(DBL_MANT_DIG));
     return to_mpq_for_cmp(tmp);
 }
+
+#if defined(__SIZEOF_INT128__)
+inline mpq_class to_mpq_for_cmp(gmpxx_detail::int128_type value) {
+    return mpq_class(mpz_class(value));
+}
+
+inline mpq_class to_mpq_for_cmp(gmpxx_detail::uint128_type value) {
+    return mpq_class(mpz_class(value));
+}
+#endif
 
 template<class T>
 auto materialize_for_cmp(T const& value) {

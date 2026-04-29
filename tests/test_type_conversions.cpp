@@ -122,7 +122,18 @@ void test_compile_time_surface() {
     static_assert(std::is_constructible_v<mpz_class, uint128_type>);
     static_assert(std::is_assignable_v<mpz_class&, int128_type>);
     static_assert(std::is_assignable_v<mpz_class&, uint128_type>);
+    static_assert(std::is_assignable_v<mpq_class&, int128_type>);
+    static_assert(std::is_assignable_v<mpq_class&, uint128_type>);
 #endif
+    static_assert(std::is_assignable_v<mpq_class&, signed char>);
+    static_assert(std::is_assignable_v<mpq_class&, unsigned char>);
+    static_assert(std::is_assignable_v<mpq_class&, int>);
+    static_assert(std::is_assignable_v<mpq_class&, unsigned int>);
+    static_assert(std::is_assignable_v<mpq_class&, long>);
+    static_assert(std::is_assignable_v<mpq_class&, unsigned long>);
+    static_assert(std::is_assignable_v<mpq_class&, double>);
+    static_assert(std::is_assignable_v<mpq_class&, char const*>);
+    static_assert(std::is_assignable_v<mpq_class&, std::string const&>);
 }
 
 void test_mpz_integer_and_double_construction() {
@@ -197,6 +208,62 @@ void test_mpz_string_assignment() {
     }
     assert(threw);
     assert(unchanged == mpz_class("123"));
+}
+
+void test_mpq_scalar_and_string_assignment() {
+    mpq_class q;
+    q = static_cast<signed char>(-127);
+    assert(q == mpq_class(std::int64_t{-127}));
+    q = static_cast<unsigned char>(255);
+    assert(q == mpq_class(std::int64_t{255}));
+    q = 'A';
+    assert(q == mpq_class(std::int64_t{65}));
+    q = -12345;
+    assert(q == mpq_class(std::int64_t{-12345}));
+    q = 54321u;
+    assert(q == mpq_class(std::int64_t{54321}));
+    q = -1234567890L;
+    assert(q == mpq_class(std::int64_t{-1234567890}));
+    q = 3456789012UL;
+    assert(q == mpq_class(mpz_class(std::uint64_t{3456789012UL})));
+    q = -12.375;
+    assert(q == mpq_class("-99/8"));
+    q = "1234567890";
+    assert(q == mpq_class(std::int64_t{1234567890}));
+
+    std::string text("6/8");
+    q = text;
+    assert(q == mpq_class("3/4"));
+
+    mpq_class unchanged("5/7");
+    bool threw = false;
+    try {
+        unchanged = "not-a-rational";
+    } catch (std::invalid_argument const&) {
+        threw = true;
+    }
+    assert(threw);
+    assert(unchanged == mpq_class("5/7"));
+}
+
+void test_mpq_int128_assignment() {
+#if defined(__SIZEOF_INT128__)
+    int128_type signed_value =
+        static_cast<int128_type>(0x0123456789ABCDEFULL) *
+        static_cast<int128_type>(0x0FEDCBA987654321ULL);
+    int128_type signed_negative = -signed_value;
+    uint128_type unsigned_value =
+        static_cast<uint128_type>(0xFEDCBA9876543210ULL) *
+        static_cast<uint128_type>(0xFFFFFFFFFFFFFFFFULL);
+
+    mpq_class q;
+    q = signed_value;
+    assert(q == mpq_class(mpz_class(signed_value)));
+    q = signed_negative;
+    assert(q == mpq_class(mpz_class(signed_negative)));
+    q = unsigned_value;
+    assert(q == mpq_class(mpz_class(unsigned_value)));
+#endif
 }
 
 void test_raw_gmp_construction() {
@@ -432,6 +499,8 @@ int main() {
     test_mpz_integer_and_double_construction();
     test_mpz_int128_construction_and_assignment();
     test_mpz_string_assignment();
+    test_mpq_scalar_and_string_assignment();
+    test_mpq_int128_assignment();
     test_raw_gmp_construction();
     test_string_and_base_construction();
     test_mpz_to_mpf_and_mpq_construction();
