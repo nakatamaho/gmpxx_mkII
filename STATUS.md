@@ -84,8 +84,8 @@ of the v2.0.0 header.
 | Binary `-` | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar combinations except scalar/scalar |
 | Binary `*` | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar combinations except scalar/scalar; integer power-of-two mpf scaling uses `mpf_mul_2exp` |
 | Binary `/` | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar combinations except scalar/scalar; `mpz/mpz` remains integer division |
-| Binary shifts | Done after Phase 6 | `value << integer` and `value >> integer` are implemented for `mpz_class`, `mpq_class`, `mpf_class`, and expression operands. `mpz >> n` uses floor division by `2^n`, matching GMP legacy wrapper behavior for negative values. |
-| Binary bitwise | Done after Phase 6 | `&`, `|`, and `^` are implemented for `mpz_class` and mpz-result expression operands with mpz/scalar right operands. |
+| Binary shifts | Done after Phase 6 | `value << integer` and `value >> integer` are implemented for `mpz_class`, `mpq_class`, `mpf_class`, and expression operands. `mpz_class` also supports `<<=` and `>>=`. `mpz >> n` uses floor division by `2^n`, matching GMP legacy wrapper behavior for negative values. |
+| Binary bitwise | Done after Phase 6 | `&`, `|`, `^`, and unary `~` are implemented for `mpz_class` and mpz-result expression operands with mpz/scalar right operands where applicable. |
 | Unary `-` | Done through Phase 5 | `-mpf_class`, `-mpz_class`, `-mpq_class`, `-expression`, and `-(-x)` simplification |
 | Unary `+` | Done through Phase 5 | `+mpf_class`, `+mpz_class`, `+mpq_class`, and `+expression` |
 | Scalar arithmetic | Done through Phase 5 | Signed integer, unsigned integer, `float`, and `double` operands normalize to `int64_t`, `uint64_t`, and `double`. |
@@ -168,7 +168,7 @@ Source: GMP 6.3.0 manual
 | `test_precision_policy` | Present | Construction and `.eval()` use expression precision; existing-object assignment and compound assignment preserve destination precision; `mpf_class::set_prec()` and `set_prec_raw()` follow GMP precision mutation semantics. |
 | `test_unary_minus_simplification` | Present | `-(-mpf)` and `-(-(expression))` produce identity values while preserving assignment precision. |
 | `test_power_of_two_fusion` | Present | Integer power-of-two multiplication/division, negative signed scalars including `INT64_MIN`, generic non-power cases, scalar-left division, and compound `*=`, `/=` precision preservation. |
-| `test_mpz_arithmetic` | Present | mpz arithmetic, scalar mixing, truncating integer division, `%=` modulo, shift and bitwise operators, ET composition, self-alias, compound assignment, and unary operators. |
+| `test_mpz_arithmetic` | Present | mpz arithmetic, scalar mixing, truncating integer division, `%=` modulo, shift and compound-shift operators, bitwise and complement operators, ET composition, self-alias, compound assignment, and unary operators. |
 | `test_mpq_arithmetic` | Present | mpq arithmetic, scalar mixing, shift operators, canonicalization, ET composition, mpz-expression promotion inside mixed mpq expressions, compound assignment, and unary operators. |
 | `test_mixed_type_arithmetic` | Present | mpf×mpz, mpf×mpq, mpz×mpq, legacy-compatible mpz/mpq plus double result typing, result type checks, mpf shift operators, and mixed precision policy. |
 | `test_mpz_mpq_alloc_count` | Present | Test-only wrapper constructor counters for mpz/mpq/mpf temporaries in mixed-expression paths, including legacy-compatible mpz/mpq plus double paths that avoid mpf temporaries. |

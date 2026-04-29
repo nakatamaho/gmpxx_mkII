@@ -108,10 +108,20 @@ void check_shift_and_bitwise() {
     assert(c == mpz_class(-0x3401));
     c = a ^ 48879.0;
     assert(c == mpz_class(0x7411));
+    c = ~mpz_class(3);
+    assert(c == mpz_class(-4));
+    c = ~(a & b);
+    assert(c == mpz_class(-0x8aef));
 
     mpz_class shifted = (-mpz_class(5)) << 2u;
     assert(shifted == mpz_class(-20));
     shifted = (mpz_class(5) * mpz_class(-4)) >> 3u;
+    assert(shifted == mpz_class(-3));
+    shifted = mpz_class(3);
+    shifted <<= 4u;
+    assert(shifted == mpz_class(48));
+    shifted = mpz_class(-20);
+    shifted >>= 3u;
     assert(shifted == mpz_class(-3));
 }
 

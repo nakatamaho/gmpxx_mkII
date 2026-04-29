@@ -1183,6 +1183,14 @@ public:
     template<scalar_operand T>
     mpz_class& operator/=(T const& rhs);
 
+    template<scalar_operand S>
+        requires (!std::same_as<scalar_normalize_t<S>, double>)
+    mpz_class& operator<<=(S const& shift);
+
+    template<scalar_operand S>
+        requires (!std::same_as<scalar_normalize_t<S>, double>)
+    mpz_class& operator>>=(S const& shift);
+
     mpz_class& operator++() {
         mpz_add_ui(value, value, 1ul);
         return *this;
@@ -4406,6 +4414,22 @@ inline mpz_class eval_as_mpz_value(X const& x) {
 
 }  // namespace gmpxx_detail
 
+template<scalar_operand S>
+    requires (!std::same_as<scalar_normalize_t<S>, double>)
+inline mpz_class& mpz_class::operator<<=(S const& shift) {
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    mpz_mul_2exp(value, value, count);
+    return *this;
+}
+
+template<scalar_operand S>
+    requires (!std::same_as<scalar_normalize_t<S>, double>)
+inline mpz_class& mpz_class::operator>>=(S const& shift) {
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    mpz_fdiv_q_2exp(value, value, count);
+    return *this;
+}
+
 template<phase2_operand X, scalar_operand S>
     requires (!scalar_operand<X> &&
               !std::same_as<scalar_normalize_t<S>, double>)
@@ -4476,6 +4500,17 @@ template<class L, class R>
     mpz_class rhs = gmpxx_detail::eval_as_mpz_value(r);
     mpz_class result;
     mpz_xor(result.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
+    return result;
+}
+
+template<class X>
+    requires (mpz_operand<X> ||
+              (gmpxx_expr<X> &&
+               std::same_as<typename std::remove_cvref_t<X>::result_type,
+                            mpz_class>))
+[[nodiscard]] inline mpz_class operator~(X const& x) {
+    mpz_class result = gmpxx_detail::eval_as_mpz_value(x);
+    mpz_com(result.get_mpz_t(), result.get_mpz_t());
     return result;
 }
 
