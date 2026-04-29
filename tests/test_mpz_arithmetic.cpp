@@ -92,6 +92,29 @@ void check_scalar(mpz_class const& a) {
     mpz_clear(ref);
 }
 
+void check_shift_and_bitwise() {
+    mpz_class a(0xcafe);
+    mpz_class b(0xbeef);
+    mpz_class c;
+    c = a & b;
+    assert(c == mpz_class(0x8aee));
+    c = a | b;
+    assert(c == mpz_class(0xfeff));
+    c = a ^ b;
+    assert(c == mpz_class(0x7411));
+    c = a & -0xbeef;
+    assert(c == mpz_class(0x4010));
+    c = a | -0xbeef;
+    assert(c == mpz_class(-0x3401));
+    c = a ^ 48879.0;
+    assert(c == mpz_class(0x7411));
+
+    mpz_class shifted = (-mpz_class(5)) << 2u;
+    assert(shifted == mpz_class(-20));
+    shifted = (mpz_class(5) * mpz_class(-4)) >> 3u;
+    assert(shifted == mpz_class(-3));
+}
+
 }  // namespace
 
 int main() {
@@ -113,6 +136,7 @@ int main() {
 
     check_scalar(huge);
     check_scalar(neg_huge);
+    check_shift_and_bitwise();
 
     {
         mpz_class a("100");

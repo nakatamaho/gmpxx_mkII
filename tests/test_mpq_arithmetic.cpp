@@ -87,6 +87,22 @@ void check_scalar(mpq_class const& a) {
     mpq_clear(ref);
 }
 
+void check_shift_and_mixed_expression_promotion() {
+    mpq_class a("3/8");
+    mpq_class shifted = (-a) << 4u;
+    assert(shifted == mpq_class(-6));
+    shifted = shifted >> 2u;
+    assert(shifted == mpq_class("-3/2"));
+
+    mpz_class b(1);
+    mpz_class c(4);
+    mpq_class d;
+    d = (b - c) * mpq_class("2/3");
+    assert(d == mpq_class(-2));
+    d = (mpq_class("1/2") * d) / -d.get_num();
+    assert(d == mpq_class("-1/2"));
+}
+
 }  // namespace
 
 int main() {
@@ -107,6 +123,7 @@ int main() {
 
     check_scalar(third);
     check_scalar(neg_large);
+    check_shift_and_mixed_expression_promotion();
 
     {
         mpq_class x("3/6");

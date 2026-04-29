@@ -362,14 +362,10 @@ void testInitializationAndAssignmentString() {
     assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
     std::cout << "Assignment initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
 
-    gmpxx_defaults::set_default_base(16);
-    // Testing initialization with a hexadecimal number using a constructor
-    mpf_class f;
-    e = inputHexValue;
-    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12,
-                               gmpxx_defaults::get_default_base()));
+    // Testing hexadecimal assignment with an explicit base.
+    assert(e.set_str(inputHexValue, 16) == 0);
+    assert(Is_mpf_class_Equals(e, expectedHexValue, false, 12, 16));
     std::cout << "Constructor initialization with hexadecimal '" << expectedHexValue << "' test passed." << std::endl;
-    gmpxx_defaults::set_default_base(10);
     std::cout << "testInitializationAndAssignmentString passed" << std::endl;
 }
 void testAddition() {

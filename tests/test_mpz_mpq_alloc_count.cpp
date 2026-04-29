@@ -87,8 +87,13 @@ int main() {
     assert(mpf_count() == 1);
 
     reset();
-    fdst = za + 0.5;
-    assert(mpf_count() == 2);
+    fdst = fa + 0.5;
+    assert(mpf_count() == 1);
+
+    reset();
+    zdst = za + 0.5;
+    assert(zdst == za);
+    assert(mpf_count() == 0);
 
     mpq_class qb("2/5");
     mpq_class qdst;
@@ -96,6 +101,11 @@ int main() {
     qdst = qa * qb;
     assert(mpq_count() == 0);
     assert(mpz_count() == 0);
+    assert(mpf_count() == 0);
+
+    reset();
+    qdst = qa + 0.5;
+    assert(qdst == mpq_class("5/6"));
     assert(mpf_count() == 0);
 
     reset();

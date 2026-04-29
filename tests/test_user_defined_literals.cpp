@@ -70,18 +70,18 @@ void test_mpf_literals() {
     assert_mpf_equal(d, mpf_class(3.75, d.get_prec()));
 }
 
-void test_string_literals_use_default_base() {
+void test_string_literals_use_auto_base() {
     using namespace gmpxx::literals;
 
     gmpxx_defaults::set_default_base(16);
 
-    mpz_class z = "ff"_mpz;
+    mpz_class z = "0xff"_mpz;
     assert(z == mpz_class(std::int64_t{255}));
 
-    mpq_class q = "10/20"_mpq;
+    mpq_class q = "0x10/0x20"_mpq;
     assert(q == mpq_class("1/2", 10));
 
-    mpf_class f = "1.8"_mpf;
+    mpf_class f = "1.5"_mpf;
     assert(f == mpf_class("1.5", f.get_prec(), 10));
 
     mpz_class raw = 123_mpz;
@@ -96,6 +96,6 @@ int main() {
     test_mpz_literals();
     test_mpq_literals();
     test_mpf_literals();
-    test_string_literals_use_default_base();
+    test_string_literals_use_auto_base();
     return 0;
 }

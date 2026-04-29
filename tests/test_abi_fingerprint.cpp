@@ -89,8 +89,8 @@ static_assert(std::same_as<result_type_t<mpz_class, mpq_class>, mpq_class>);
 static_assert(std::same_as<result_type_t<mpq_class, mpz_class>, mpq_class>);
 static_assert(std::same_as<result_type_t<mpz_class, int>, mpz_class>);
 static_assert(std::same_as<result_type_t<int, mpq_class>, mpq_class>);
-static_assert(std::same_as<result_type_t<mpz_class, double>, mpf_class>);
-static_assert(std::same_as<result_type_t<double, mpq_class>, mpf_class>);
+static_assert(std::same_as<result_type_t<mpz_class, double>, mpz_class>);
+static_assert(std::same_as<result_type_t<double, mpq_class>, mpq_class>);
 static_assert(gmpxx_detail::kind_of_v<
               binary_expr<add_op, mpf_class, mpz_class>> ==
               gmpxx_detail::value_kind::mpf);

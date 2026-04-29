@@ -55,7 +55,10 @@ int main() {
                                  mpq_class>);
     static_assert(std::is_same_v<decltype((std::declval<mpz_class const&>() +
                                            0.5).eval()),
-                                 mpf_class>);
+                                 mpz_class>);
+    static_assert(std::is_same_v<decltype((std::declval<mpq_class const&>() +
+                                           0.5).eval()),
+                                 mpq_class>);
 
     mpf_class f("1.25", 64);
     mpz_class z("123456789012345678901234567890");
@@ -128,10 +131,32 @@ int main() {
     }
 
     {
+        mpz_class got = z + 0.75;
+        mpz_class ref = z;
+        assert(got == ref);
+    }
+
+    {
+        mpq_class got = q + 0.5;
+        mpq_class ref("51/14");
+        assert(got == ref);
+    }
+
+    {
         mpf_class r("0", 128);
         mp_bitcnt_t old_prec = r.get_prec();
         r = f + z + q;
         assert(r.get_prec() == old_prec);
+    }
+
+    {
+        mpf_class shifted = (-mpf_class(3)) >> 2u;
+        mpf_t ref;
+        mpf_init2(ref, shifted.get_prec());
+        mpf_set_si(ref, -3);
+        mpf_div_2exp(ref, ref, 2);
+        assert_mpf_equal(shifted, ref);
+        mpf_clear(ref);
     }
 
     return 0;

@@ -98,17 +98,25 @@ void test_default_base() {
     gmpxx_defaults::set_default_base(16);
     assert(gmpxx_defaults::get_default_base() == 16);
 
-    mpz_class z("ff");
+    mpz_class z("0xff");
     assert(z == mpz_class(std::int64_t{255}));
-    assert(z.get_str() == "ff");
+    assert(z.get_str(16) == "ff");
 
-    mpq_class q("10/20");
+    mpq_class q("0x10/0x20");
     assert(q == mpq_class("1/2", 10));
     assert(q.get_str() == "1/2");
 
     mpz_class assigned;
-    assert(assigned.set_str("100") == 0);
+    assert(assigned.set_str("0x100") == 0);
     assert(assigned == mpz_class(std::int64_t{256}));
+
+    bool bare_hex_failed = false;
+    try {
+        (void)mpz_class("ff");
+    } catch (std::invalid_argument const&) {
+        bare_hex_failed = true;
+    }
+    assert(bare_hex_failed);
 
     std::ostringstream dec;
     dec << std::dec << z;

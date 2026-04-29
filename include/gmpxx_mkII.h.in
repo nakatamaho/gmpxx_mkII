@@ -139,7 +139,7 @@ inline int thread_default_base() noexcept {
 }
 
 inline int normalize_base_arg(int base) noexcept {
-    return base == use_default_base ? thread_default_base() : base;
+    return base == use_default_base ? 0 : base;
 }
 
 class gmp_string {
@@ -366,7 +366,7 @@ enum class value_kind {
 };
 
 // Phase 2 operand/result dispatch table:
-// - Any operation with mpf, or exact GMP value mixed with double, yields mpf.
+// - Any operation with mpf yields mpf.
 // - Otherwise any operation with mpq yields mpq.
 // - Otherwise any operation with mpz yields mpz.
 // - scalar/scalar is rejected by operator constraints before reaching ET.
@@ -375,7 +375,9 @@ enum class value_kind {
 //   mpf_set_z/mpf_set_q because GMP has no mpf_*_z or mpf_*_q APIs.
 // - mpz/mpz uses mpz_* and division uses mpz_tdiv_q.
 // - mpq/mpq uses mpq_*; mpz/scalar exact operands are promoted to mpq by tmp.
-// - double mixed with mpz/mpq promotes to mpf and uses mpf_set_d plus exact tmp.
+// - double mixed with mpz/mpq follows GMP's legacy C++ result family:
+//   mpz/double yields mpz through truncating conversion, while mpq/double
+//   yields mpq through exact binary floating rationalization.
 
 template<class T>
 struct value_kind_of;
@@ -431,18 +433,15 @@ template<value_kind LK, value_kind RK>
 struct result_kind_impl {
     static constexpr bool has_mpf =
         LK == value_kind::mpf || RK == value_kind::mpf;
-    static constexpr bool has_double =
-        LK == value_kind::scalar_double || RK == value_kind::scalar_double;
-    static constexpr bool has_mp_object =
-        LK == value_kind::mpz || LK == value_kind::mpq ||
-        RK == value_kind::mpz || RK == value_kind::mpq;
     static constexpr bool has_mpq =
         LK == value_kind::mpq || RK == value_kind::mpq;
     static constexpr bool has_mpz =
         LK == value_kind::mpz || RK == value_kind::mpz;
+    static constexpr bool has_double =
+        LK == value_kind::scalar_double || RK == value_kind::scalar_double;
 
     static constexpr value_kind value =
-        (has_mpf || (has_double && has_mp_object)) ? value_kind::mpf :
+        has_mpf ? value_kind::mpf :
         has_mpq ? value_kind::mpq :
         has_mpz ? value_kind::mpz :
         has_double ? value_kind::mpf :
@@ -1329,6 +1328,14 @@ public:
         mpq_set_num(value, n.get_mpz_t());
         mpq_set_den(value, d.get_mpz_t());
         canonicalize();
+    }
+
+    template<class T>
+        requires (std::is_integral_v<std::remove_cvref_t<T>> &&
+                  !std::same_as<std::remove_cvref_t<T>, bool> &&
+                  (sizeof(std::remove_cvref_t<T>) <= sizeof(std::uint64_t)))
+    mpq_class(T num) : mpq_class() {
+        *this = num;
     }
 
     mpq_class(mpz_class const& num) : mpq_class() {
@@ -2526,8 +2533,11 @@ inline mpz_class as_mpz(T const& v) {
         return v;
     } else {
         using N = scalar_normalize_t<T>;
-        static_assert(!std::same_as<N, double>);
-        return mpz_class(static_cast<N>(v));
+        if constexpr (std::same_as<N, double>) {
+            return mpz_class(static_cast<double>(v));
+        } else {
+            return mpz_class(static_cast<N>(v));
+        }
     }
 }
 
@@ -3217,6 +3227,24 @@ inline std::uint64_t prec_of(mpf_class const& x) {
     return static_cast<std::uint64_t>(x.get_prec());
 }
 
+template<class T>
+inline void eval_as_mpq(mpq_class& dst, T const& value) {
+    using clean = std::remove_cvref_t<T>;
+    if constexpr (std::same_as<clean, mpq_class>) {
+        dst = value;
+    } else if constexpr (std::same_as<clean, mpz_class>) {
+        dst = value;
+    } else if constexpr (scalar_operand<clean>) {
+        dst = as_mpq(value);
+    } else if constexpr (std::same_as<typename clean::result_type, mpq_class>) {
+        value.eval_to_mpq(dst);
+    } else {
+        mpz_class tmp;
+        value.eval_to_mpz(tmp);
+        dst = tmp;
+    }
+}
+
 template<class Op, class X>
 inline std::uint64_t prec_of(unary_expr<Op, X> const& e) {
     return e.suggested_prec();
@@ -3290,6 +3318,10 @@ struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
         (void)final_prec;
         if constexpr (std::same_as<X, mpf_class>) {
             Op::apply(dst, x);
+        } else if constexpr (std::same_as<X, mpz_class> ||
+                             std::same_as<X, mpq_class>) {
+            gmpxx_detail::set_mpf_from_value(dst, x);
+            Op::apply(dst, dst);
         } else {
             x.eval_to_prec(dst, final_prec);
             Op::apply(dst, dst);
@@ -3310,6 +3342,14 @@ struct [[nodiscard]] unary_expr : expr_base<unary_expr<Op, X>> {
         requires (std::same_as<result_type, mpq_class>) {
         if constexpr (std::same_as<X, mpq_class>) {
             Op::apply(dst, x);
+        } else if constexpr (std::same_as<X, mpz_class>) {
+            dst = x;
+            Op::apply(dst, dst);
+        } else if constexpr (std::same_as<typename X::result_type, mpz_class>) {
+            mpz_class tmp;
+            x.eval_to_mpz(tmp);
+            dst = tmp;
+            Op::apply(dst, dst);
         } else {
             x.eval_to_mpq(dst);
             Op::apply(dst, dst);
@@ -3487,15 +3527,15 @@ struct [[nodiscard]] binary_expr : expr_base<binary_expr<Op, L, R>> {
         if constexpr (l_value && r_value) {
             Op::apply(dst, lhs, rhs);
         } else if constexpr (!l_value && r_value) {
-            lhs.eval_to_mpq(dst);
+            gmpxx_detail::eval_as_mpq(dst, lhs);
             Op::apply(dst, dst, rhs);
         } else if constexpr (l_value && !r_value) {
-            rhs.eval_to_mpq(dst);
+            gmpxx_detail::eval_as_mpq(dst, rhs);
             Op::apply(dst, lhs, dst);
         } else {
             mpq_class tmp;
-            rhs.eval_to_mpq(tmp);
-            lhs.eval_to_mpq(dst);
+            gmpxx_detail::eval_as_mpq(tmp, rhs);
+            gmpxx_detail::eval_as_mpq(dst, lhs);
             Op::apply(dst, dst, tmp);
         }
     }
@@ -4127,6 +4167,129 @@ template<phase2_operand L, phase2_operand R>
         return binary_expr<div_op, std::remove_cvref_t<L>, std::remove_cvref_t<R>>{
             l, r};
     }
+}
+
+namespace gmpxx_detail {
+
+template<class X>
+using expr_or_self_result_t = std::conditional_t<
+    is_gmpxx_expr_v<std::remove_cvref_t<X>>,
+    typename std::remove_cvref_t<X>::result_type,
+    std::remove_cvref_t<X>>;
+
+template<class X>
+inline expr_or_self_result_t<X> eval_or_copy(X const& x) {
+    if constexpr (is_gmpxx_expr_v<std::remove_cvref_t<X>>) {
+        return x.eval();
+    } else {
+        return x;
+    }
+}
+
+template<class S>
+inline mp_bitcnt_t shift_count(S const& shift) {
+    using N = scalar_normalize_t<S>;
+    static_assert(!std::same_as<N, double>);
+    if constexpr (std::same_as<N, std::int64_t>) {
+        if (shift < 0) {
+            throw std::invalid_argument("gmpxx_mkII: negative shift count");
+        }
+        return checked_mp_bitcnt(static_cast<std::uint64_t>(shift));
+    } else {
+        return checked_mp_bitcnt(static_cast<std::uint64_t>(shift));
+    }
+}
+
+template<class X>
+inline mpz_class eval_as_mpz_value(X const& x) {
+    if constexpr (is_gmpxx_expr_v<std::remove_cvref_t<X>>) {
+        mpz_class result;
+        x.eval_to_mpz(result);
+        return result;
+    } else if constexpr (scalar_operand<X>) {
+        if constexpr (std::same_as<scalar_normalize_t<X>, double>) {
+            return mpz_class(static_cast<double>(x));
+        } else {
+            return as_mpz(x);
+        }
+    } else {
+        return as_mpz(x);
+    }
+}
+
+}  // namespace gmpxx_detail
+
+template<phase2_operand X, scalar_operand S>
+    requires (!scalar_operand<X> &&
+              !std::same_as<scalar_normalize_t<S>, double>)
+[[nodiscard]] inline auto operator<<(X const& x, S const& shift) {
+    using result_type = gmpxx_detail::expr_or_self_result_t<X>;
+    result_type result = gmpxx_detail::eval_or_copy(x);
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    if constexpr (std::same_as<result_type, mpz_class>) {
+        mpz_mul_2exp(result.get_mpz_t(), result.get_mpz_t(), count);
+    } else if constexpr (std::same_as<result_type, mpq_class>) {
+        mpq_mul_2exp(result.get_mpq_t(), result.get_mpq_t(), count);
+    } else {
+        mpf_mul_2exp(result.get_mpf_t(), result.get_mpf_t(), count);
+    }
+    return result;
+}
+
+template<phase2_operand X, scalar_operand S>
+    requires (!scalar_operand<X> &&
+              !std::same_as<scalar_normalize_t<S>, double>)
+[[nodiscard]] inline auto operator>>(X const& x, S const& shift) {
+    using result_type = gmpxx_detail::expr_or_self_result_t<X>;
+    result_type result = gmpxx_detail::eval_or_copy(x);
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    if constexpr (std::same_as<result_type, mpz_class>) {
+        mpz_fdiv_q_2exp(result.get_mpz_t(), result.get_mpz_t(), count);
+    } else if constexpr (std::same_as<result_type, mpq_class>) {
+        mpq_div_2exp(result.get_mpq_t(), result.get_mpq_t(), count);
+    } else {
+        mpf_div_2exp(result.get_mpf_t(), result.get_mpf_t(), count);
+    }
+    return result;
+}
+
+template<class L, class R>
+concept mpz_bitwise_pair =
+    (mpz_operand<L> ||
+     (gmpxx_expr<L> &&
+      std::same_as<typename std::remove_cvref_t<L>::result_type, mpz_class>)) &&
+    (mpz_operand<R> || scalar_operand<R> ||
+     (gmpxx_expr<R> &&
+      std::same_as<typename std::remove_cvref_t<R>::result_type, mpz_class>));
+
+template<class L, class R>
+    requires mpz_bitwise_pair<L, R>
+[[nodiscard]] inline mpz_class operator&(L const& l, R const& r) {
+    mpz_class lhs = gmpxx_detail::eval_as_mpz_value(l);
+    mpz_class rhs = gmpxx_detail::eval_as_mpz_value(r);
+    mpz_class result;
+    mpz_and(result.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
+    return result;
+}
+
+template<class L, class R>
+    requires mpz_bitwise_pair<L, R>
+[[nodiscard]] inline mpz_class operator|(L const& l, R const& r) {
+    mpz_class lhs = gmpxx_detail::eval_as_mpz_value(l);
+    mpz_class rhs = gmpxx_detail::eval_as_mpz_value(r);
+    mpz_class result;
+    mpz_ior(result.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
+    return result;
+}
+
+template<class L, class R>
+    requires mpz_bitwise_pair<L, R>
+[[nodiscard]] inline mpz_class operator^(L const& l, R const& r) {
+    mpz_class lhs = gmpxx_detail::eval_as_mpz_value(l);
+    mpz_class rhs = gmpxx_detail::eval_as_mpz_value(r);
+    mpz_class result;
+    mpz_xor(result.get_mpz_t(), lhs.get_mpz_t(), rhs.get_mpz_t());
+    return result;
 }
 
 [[nodiscard]] inline mpz_class operator%(mpz_class const& l,
