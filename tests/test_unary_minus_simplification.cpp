@@ -37,6 +37,62 @@ void assert_equal(mpf_class const& lhs, mpf_class const& rhs) {
     assert(mpf_cmp(lhs.get_mpf_t(), rhs.get_mpf_t()) == 0);
 }
 
+void check_legacy_unary_mpz() {
+    mpz_class a(1);
+    mpz_class b(+a);
+    assert(b == mpz_class(1));
+
+    mpz_class c(2);
+    mpz_class d;
+    d = -c;
+    assert(d == mpz_class(-2));
+
+    mpz_class e(3);
+    mpz_class f;
+    f = ~e;
+    assert(f == mpz_class(-4));
+
+    mpz_class g(-(-a));
+    assert(g == mpz_class(1));
+
+    d = -(-(-c));
+    assert(d == mpz_class(-2));
+}
+
+void check_legacy_unary_mpq() {
+    mpq_class a(1);
+    mpq_class b(+a);
+    assert(b == mpq_class(1));
+
+    mpq_class c(2);
+    mpq_class d;
+    d = -c;
+    assert(d == mpq_class(-2));
+
+    mpq_class e(-(-a));
+    assert(e == mpq_class(1));
+
+    d = -(-(-c));
+    assert(d == mpq_class(-2));
+}
+
+void check_legacy_unary_mpf() {
+    mpf_class a(1);
+    mpf_class b(+a);
+    assert_equal(b, mpf_class(1, b.get_prec()));
+
+    mpf_class c(2);
+    mpf_class d;
+    d = -c;
+    assert_equal(d, mpf_class(-2, d.get_prec()));
+
+    mpf_class e(-(-a));
+    assert_equal(e, mpf_class(1, e.get_prec()));
+
+    d = -(-(-c));
+    assert_equal(d, mpf_class(-2, d.get_prec()));
+}
+
 }  // namespace
 
 int main() {
@@ -44,6 +100,10 @@ int main() {
     static_assert(std::is_same_v<
                   decltype(-(-std::declval<mpf_class const&>())),
                   unary_expr<pos_op, mpf_class>>);
+
+    check_legacy_unary_mpz();
+    check_legacy_unary_mpq();
+    check_legacy_unary_mpf();
 
     mpf_class a("1.25", 256);
     mpf_class b("2.5", 512);
