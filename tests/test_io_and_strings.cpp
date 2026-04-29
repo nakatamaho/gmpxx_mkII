@@ -73,17 +73,38 @@ void assert_mpf_equal(mpf_class const& lhs, mpf_class const& rhs) {
 static_assert(requires(std::ostream& os, mpz_class const& z) {
     { os << z } -> std::same_as<std::ostream&>;
 });
+static_assert(requires(std::ostream& os, mpz_srcptr z) {
+    { print_mpz(os, z) };
+    { os << z } -> std::same_as<std::ostream&>;
+});
+static_assert(requires(std::istream& is, mpz_ptr z) {
+    { is >> z } -> std::same_as<std::istream&>;
+});
 static_assert(requires(std::istream& is, mpz_class& z) {
     { is >> z } -> std::same_as<std::istream&>;
 });
 static_assert(requires(std::ostream& os, mpq_class const& q) {
     { os << q } -> std::same_as<std::ostream&>;
 });
+static_assert(requires(std::ostream& os, mpq_srcptr q) {
+    { print_mpq(os, q) };
+    { os << q } -> std::same_as<std::ostream&>;
+});
+static_assert(requires(std::istream& is, mpq_ptr q) {
+    { is >> q } -> std::same_as<std::istream&>;
+});
 static_assert(requires(std::istream& is, mpq_class& q) {
     { is >> q } -> std::same_as<std::istream&>;
 });
 static_assert(requires(std::ostream& os, mpf_class const& f) {
     { os << f } -> std::same_as<std::ostream&>;
+});
+static_assert(requires(std::ostream& os, mpf_srcptr f) {
+    { print_mpf(os, f) };
+    { os << f } -> std::same_as<std::ostream&>;
+});
+static_assert(requires(std::istream& is, mpf_ptr f) {
+    { is >> f } -> std::same_as<std::istream&>;
 });
 static_assert(requires(std::istream& is, mpf_class& f) {
     { is >> f } -> std::same_as<std::istream&>;
@@ -172,6 +193,19 @@ void test_stream_output() {
     upper_hex << std::uppercase << std::hex << z;
     assert(upper_hex.str() == "FF");
 
+    std::ostringstream hex_showbase;
+    hex_showbase << std::showbase << std::hex << z;
+    assert(hex_showbase.str() == "0xff");
+
+    std::ostringstream hex_internal;
+    hex_internal << std::showbase << std::internal << std::setfill('_')
+                 << std::setw(8) << std::hex << z;
+    assert(hex_internal.str() == "0x____ff");
+
+    std::ostringstream raw_z;
+    print_mpz(raw_z, z.get_mpz_t());
+    assert(raw_z.str() == "255");
+
     std::ostringstream oct;
     oct << std::oct << z;
     assert(oct.str() == "377");
@@ -180,6 +214,14 @@ void test_stream_output() {
     std::ostringstream q_os;
     q_os << q;
     assert(q_os.str() == "1/2");
+
+    std::ostringstream q_hex;
+    q_hex << std::showbase << std::hex << q;
+    assert(q_hex.str() == "0x1/0x2");
+
+    std::ostringstream raw_q;
+    print_mpq(raw_q, q.get_mpq_t());
+    assert(raw_q.str() == "1/2");
 
     mpf_class f(1.25, static_cast<mp_bitcnt_t>(128));
     mp_bitcnt_t old_prec = f.get_prec();
@@ -202,6 +244,21 @@ void test_stream_output() {
     f_upper << std::uppercase << std::scientific << std::setprecision(3) << f;
     assert(!f_upper.str().empty());
     assert(f_upper.str().find('E') != std::string::npos);
+
+    std::ostringstream f_hex;
+    f_hex << std::showbase << std::hex << std::setprecision(4) << f;
+    assert(f_hex.str().starts_with("0x"));
+
+    std::ostringstream f_hex_sci;
+    f_hex_sci << std::showbase << std::hex << std::scientific
+              << std::setprecision(4) << f;
+    assert(f_hex_sci.str().starts_with("0x"));
+    assert(f_hex_sci.str().find('@') != std::string::npos);
+
+    std::ostringstream f_showpos;
+    print_mpf(f_showpos << std::showpos, f.get_mpf_t());
+    assert(!f_showpos.str().empty());
+    assert(f_showpos.str().front() == '+');
 
     assert(f.get_prec() == old_prec);
 }
@@ -250,6 +307,117 @@ void test_stream_input() {
     assert(f_bad.fail());
     assert(f_fail.get_prec() == old_prec);
     assert_mpf_equal(f_fail, mpf_class(2.5, old_prec));
+}
+
+void test_legacy_stream_input_prefixes() {
+    {
+        mpz_class z(std::int64_t{99});
+        std::istringstream input("1f");
+        input >> std::dec >> z;
+        assert(!input.fail());
+        assert(z == mpz_class(std::int64_t{1}));
+        assert(input.tellg() == std::streampos(1));
+    }
+    {
+        mpz_class z(std::int64_t{99});
+        std::istringstream input(" 123");
+        input >> std::noskipws >> z;
+        assert(input.fail());
+        assert(z == mpz_class(std::int64_t{99}));
+        input.clear();
+        assert(input.tellg() == std::streampos(0));
+    }
+    {
+        mpz_class z;
+        std::istringstream input("-0x123");
+        input.flags(std::ios::fmtflags(0));
+        input >> z;
+        assert(!input.fail());
+        assert(z == mpz_class(std::int64_t{-291}));
+        assert(input.eof());
+    }
+
+    {
+        mpq_class q("7/9");
+        std::istringstream input("123 /456");
+        input >> q;
+        assert(!input.fail());
+        assert(q == mpq_class(std::int64_t{123}));
+        assert(input.tellg() == std::streampos(3));
+    }
+    {
+        mpq_class q("7/9");
+        std::istringstream input("123/ 456");
+        input >> q;
+        assert(input.fail());
+        assert(q == mpq_class("7/9"));
+        input.clear();
+        assert(input.tellg() == std::streampos(4));
+    }
+    {
+        mpq_class q;
+        std::istringstream input("0x5/0x8");
+        input.flags(std::ios::fmtflags(0));
+        input >> q;
+        assert(!input.fail());
+        assert(q == mpq_class("5/8"));
+        assert(input.eof());
+    }
+
+    {
+        mpf_class f(9.0, static_cast<mp_bitcnt_t>(128));
+        std::istringstream input(".e123");
+        input >> f;
+        assert(input.fail());
+        assert_mpf_equal(f, mpf_class(9.0, f.get_prec()));
+        input.clear();
+        assert(input.tellg() == std::streampos(1));
+    }
+    {
+        mpf_class f(9.0, static_cast<mp_bitcnt_t>(128));
+        std::istringstream input("123e+");
+        input >> f;
+        assert(input.fail());
+        assert_mpf_equal(f, mpf_class(9.0, f.get_prec()));
+        input.clear();
+        assert(input.tellg() == std::streampos(5));
+    }
+    {
+        mpf_class f(static_cast<mp_bitcnt_t>(128));
+        std::istringstream input("1.25tail");
+        input >> f;
+        assert(!input.fail());
+        assert_mpf_equal(f, mpf_class(1.25, f.get_prec()));
+        assert(input.tellg() == std::streampos(4));
+    }
+
+    {
+        mpz_class z;
+        std::istringstream input("+123");
+        input.flags(std::ios::fmtflags(0));
+        input >> z.get_mpz_t();
+        assert(!input.fail());
+        assert(z == mpz_class(std::int64_t{123}));
+        assert(input.eof());
+    }
+    {
+        mpq_class q;
+        std::istringstream input("0/0");
+        input.flags(std::ios::fmtflags(0));
+        input >> q.get_mpq_t();
+        assert(!input.fail());
+        assert(mpz_sgn(q.get_num_mpz_t()) == 0);
+        assert(mpz_sgn(q.get_den_mpz_t()) == 0);
+        mpq_set_ui(q.get_mpq_t(), 0, 1);
+    }
+    {
+        mpf_class f(static_cast<mp_bitcnt_t>(128));
+        std::istringstream input("+1.25");
+        input >> f.get_mpf_t();
+        assert(!input.fail());
+        assert_mpf_equal(f, mpf_class(1.25, f.get_prec()));
+        assert(input.eof());
+    }
 }
 
 void test_expression_output() {
@@ -323,6 +491,7 @@ int main() {
     test_mpf_strings();
     test_stream_output();
     test_stream_input();
+    test_legacy_stream_input_prefixes();
     test_expression_output();
     test_gmp_string_frees();
     return 0;
