@@ -189,6 +189,79 @@ void check_integer_helpers() {
     assert(threw_bad_alloc);
 }
 
+void check_legacy_ternary_expression_shapes() {
+    {
+        mpz_class a(1), b(2), c(3);
+        mpz_class d;
+        d = a + b * c;
+        assert(d == mpz_class(7));
+        d = a - b * c;
+        assert(d == mpz_class(-5));
+    }
+    {
+        mpz_class a(1), b(2), c(3);
+        double d = 4.0;
+        mpz_class e;
+        e = a + b * (c + d);
+        assert(e == mpz_class(15));
+        e = a - b * (c + d);
+        assert(e == mpz_class(-13));
+    }
+    {
+        mpz_class a(1), b(2);
+        unsigned int c = 3, d = 4;
+        mpz_class e;
+        e = a + (b + c) * d;
+        assert(e == mpz_class(21));
+        e = a - (b + c) * d;
+        assert(e == mpz_class(-19));
+    }
+    {
+        mpz_class a(1), b(2), c(3);
+        signed int d = 4, e = 5;
+        mpz_class f;
+        f = a + (b - d) * (c + e);
+        assert(f == mpz_class(-15));
+        f = a - (b - d) * (c + e);
+        assert(f == mpz_class(17));
+    }
+    {
+        mpz_class a(2), b(3), c(4);
+        mpz_class d;
+        d = a * b + c;
+        assert(d == mpz_class(10));
+        d = a * b - c;
+        assert(d == mpz_class(2));
+    }
+    {
+        mpz_class a(2), b(3);
+        double c = 4.0, d = 5.0;
+        mpz_class e;
+        e = c * (a + d) + b;
+        assert(e == mpz_class(31));
+        e = c * (a + d) - b;
+        assert(e == mpz_class(25));
+    }
+    {
+        mpz_class a(2), b(3), c(4);
+        unsigned int d = 5, e = 6;
+        mpz_class f;
+        f = a * (b - d) + (c + e);
+        assert(f == mpz_class(6));
+        f = a * (b - d) - (c + e);
+        assert(f == mpz_class(-14));
+    }
+    {
+        mpz_class a(2), b(3), c(4);
+        double d = 5.0, e = 6.0, f = 7.0;
+        mpz_class g;
+        g = (a + d) * (b - e) + (c + f);
+        assert(g == mpz_class(-10));
+        g = (a + d) * (b - e) - (c + f);
+        assert(g == mpz_class(-32));
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -212,6 +285,7 @@ int main() {
     check_scalar(neg_huge);
     check_shift_and_bitwise();
     check_integer_helpers();
+    check_legacy_ternary_expression_shapes();
 
     {
         mpz_class a("100");
