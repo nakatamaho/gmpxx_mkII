@@ -220,6 +220,56 @@ void check_expression_rhs() {
     }
 }
 
+void check_legacy_ops3_compound_surface() {
+    {
+        mpq_class q("7/2");
+        mpq_class original = q;
+        assert((q <<= 5) == (original << 5));
+        assert((q >>= 5) == original);
+    }
+    {
+        mpf_class f("3.375", 256);
+        mpf_class original = f;
+        assert((f <<= 5) == (original << 5));
+        assert((f >>= 5) == original);
+        assert(f.get_prec() == original.get_prec());
+    }
+    {
+        mpz_class z = 18;
+        mpz_class original = z;
+        assert((z &= 33.0) == (original & 33.0));
+        z = original;
+        assert((z |= -22) == (original | -22));
+        z = original;
+        assert((z ^= mpz_class(33)) == (original ^ mpz_class(33)));
+        z = original;
+        assert((z %= -22) == (original % -22));
+    }
+    {
+        mpz_class z = 18;
+        assert((z += -mpq_class(13)) == mpz_class(5));
+        assert((z -= -mpq_class(13)) == mpz_class(18));
+        assert((z *= -mpf_class(13)) == mpz_class(-234));
+        assert((z /= -mpq_class(13)) == mpz_class(18));
+    }
+    {
+        mpq_class q(7, 2);
+        assert((q += -mpf_class(13)) == mpq_class("-19/2"));
+        assert((q -= -mpf_class(13)) == mpq_class("7/2"));
+        assert((q *= -mpf_class(13)) == mpq_class("-91/2"));
+        assert((q /= -mpf_class(13)) == mpq_class("7/2"));
+    }
+    {
+        mpf_class f("3.375", 256);
+        mp_bitcnt_t before = f.get_prec();
+        assert((f += -mpq_class(13)) == mpf_class("-9.625", before));
+        assert((f -= -mpq_class(13)) == mpf_class("3.375", before));
+        assert((f *= -mpz_class(13)) == mpf_class("-43.875", before));
+        assert((f /= -mpz_class(13)) == mpf_class("3.375", before));
+        assert(f.get_prec() == before);
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -236,5 +286,6 @@ int main() {
     check_scalar('*', 0);
     check_self_alias();
     check_expression_rhs();
+    check_legacy_ops3_compound_surface();
     return 0;
 }

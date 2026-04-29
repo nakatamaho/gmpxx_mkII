@@ -828,6 +828,19 @@ public:
         requires (std::same_as<typename Expr::result_type, mpf_class>)
     mpf_class& operator/=(Expr const& expr);
 
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpf_class>)
+    mpf_class& operator+=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpf_class>)
+    mpf_class& operator-=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpf_class>)
+    mpf_class& operator*=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpf_class>)
+    mpf_class& operator/=(Expr const& expr);
+
     template<scalar_operand T>
     mpf_class& operator+=(T const& rhs);
 
@@ -839,6 +852,14 @@ public:
 
     template<scalar_operand T>
     mpf_class& operator/=(T const& rhs);
+
+    template<scalar_operand S>
+        requires (!std::same_as<scalar_normalize_t<S>, double>)
+    mpf_class& operator<<=(S const& shift);
+
+    template<scalar_operand S>
+        requires (!std::same_as<scalar_normalize_t<S>, double>)
+    mpf_class& operator>>=(S const& shift);
 
     mpf_class& operator++() {
         mpf_add_ui(value, value, 1ul);
@@ -1175,6 +1196,19 @@ public:
         requires (std::same_as<typename Expr::result_type, mpz_class>)
     mpz_class& operator/=(Expr const& expr);
 
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpz_class>)
+    mpz_class& operator+=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpz_class>)
+    mpz_class& operator-=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpz_class>)
+    mpz_class& operator*=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpz_class>)
+    mpz_class& operator/=(Expr const& expr);
+
     template<scalar_operand T>
     mpz_class& operator+=(T const& rhs);
     template<scalar_operand T>
@@ -1183,6 +1217,34 @@ public:
     mpz_class& operator*=(T const& rhs);
     template<scalar_operand T>
     mpz_class& operator/=(T const& rhs);
+
+    template<class R>
+        requires (mpz_operand<R> || scalar_operand<R> ||
+                  (gmpxx_expr<R> &&
+                   std::same_as<typename std::remove_cvref_t<R>::result_type,
+                                mpz_class>))
+    mpz_class& operator%=(R const& rhs);
+
+    template<class R>
+        requires (mpz_operand<R> || scalar_operand<R> ||
+                  (gmpxx_expr<R> &&
+                   std::same_as<typename std::remove_cvref_t<R>::result_type,
+                                mpz_class>))
+    mpz_class& operator&=(R const& rhs);
+
+    template<class R>
+        requires (mpz_operand<R> || scalar_operand<R> ||
+                  (gmpxx_expr<R> &&
+                   std::same_as<typename std::remove_cvref_t<R>::result_type,
+                                mpz_class>))
+    mpz_class& operator|=(R const& rhs);
+
+    template<class R>
+        requires (mpz_operand<R> || scalar_operand<R> ||
+                  (gmpxx_expr<R> &&
+                   std::same_as<typename std::remove_cvref_t<R>::result_type,
+                                mpz_class>))
+    mpz_class& operator^=(R const& rhs);
 
     template<scalar_operand S>
         requires (!std::same_as<scalar_normalize_t<S>, double>)
@@ -1596,6 +1658,19 @@ public:
         requires (std::same_as<typename Expr::result_type, mpq_class>)
     mpq_class& operator/=(Expr const& expr);
 
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpq_class>)
+    mpq_class& operator+=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpq_class>)
+    mpq_class& operator-=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpq_class>)
+    mpq_class& operator*=(Expr const& expr);
+    template<gmpxx_expr Expr>
+        requires (!std::same_as<typename Expr::result_type, mpq_class>)
+    mpq_class& operator/=(Expr const& expr);
+
     template<scalar_operand T>
     mpq_class& operator+=(T const& rhs);
     template<scalar_operand T>
@@ -1604,6 +1679,14 @@ public:
     mpq_class& operator*=(T const& rhs);
     template<scalar_operand T>
     mpq_class& operator/=(T const& rhs);
+
+    template<scalar_operand S>
+        requires (!std::same_as<scalar_normalize_t<S>, double>)
+    mpq_class& operator<<=(S const& shift);
+
+    template<scalar_operand S>
+        requires (!std::same_as<scalar_normalize_t<S>, double>)
+    mpq_class& operator>>=(S const& shift);
 
     mpq_class& operator++() {
         *this += 1;
@@ -3212,6 +3295,34 @@ inline mpf_class& mpf_class::operator/=(Expr const& expr) {
     return *this;
 }
 
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpf_class>)
+inline mpf_class& mpf_class::operator+=(Expr const& expr) {
+    mpf_class tmp(expr, this->get_prec());
+    return *this += tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpf_class>)
+inline mpf_class& mpf_class::operator-=(Expr const& expr) {
+    mpf_class tmp(expr, this->get_prec());
+    return *this -= tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpf_class>)
+inline mpf_class& mpf_class::operator*=(Expr const& expr) {
+    mpf_class tmp(expr, this->get_prec());
+    return *this *= tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpf_class>)
+inline mpf_class& mpf_class::operator/=(Expr const& expr) {
+    mpf_class tmp(expr, this->get_prec());
+    return *this /= tmp;
+}
+
 template<scalar_operand T>
 inline mpf_class& mpf_class::operator+=(T const& rhs) {
     using N = scalar_normalize_t<T>;
@@ -3309,6 +3420,34 @@ inline mpz_class& mpz_class::operator/=(Expr const& expr) {
     return *this;
 }
 
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpz_class>)
+inline mpz_class& mpz_class::operator+=(Expr const& expr) {
+    mpz_class tmp(expr);
+    return *this += tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpz_class>)
+inline mpz_class& mpz_class::operator-=(Expr const& expr) {
+    mpz_class tmp(expr);
+    return *this -= tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpz_class>)
+inline mpz_class& mpz_class::operator*=(Expr const& expr) {
+    mpz_class tmp(expr);
+    return *this *= tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpz_class>)
+inline mpz_class& mpz_class::operator/=(Expr const& expr) {
+    mpz_class tmp(expr);
+    return *this /= tmp;
+}
+
 template<scalar_operand T>
 inline mpz_class& mpz_class::operator+=(T const& rhs) {
     using N = scalar_normalize_t<T>;
@@ -3391,6 +3530,34 @@ inline mpq_class& mpq_class::operator/=(Expr const& expr) {
     expr.eval_to(tmp);
     div_op::apply(*this, *this, tmp);
     return *this;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpq_class>)
+inline mpq_class& mpq_class::operator+=(Expr const& expr) {
+    mpq_class tmp(expr);
+    return *this += tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpq_class>)
+inline mpq_class& mpq_class::operator-=(Expr const& expr) {
+    mpq_class tmp(expr);
+    return *this -= tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpq_class>)
+inline mpq_class& mpq_class::operator*=(Expr const& expr) {
+    mpq_class tmp(expr);
+    return *this *= tmp;
+}
+
+template<gmpxx_expr Expr>
+    requires (!std::same_as<typename Expr::result_type, mpq_class>)
+inline mpq_class& mpq_class::operator/=(Expr const& expr) {
+    mpq_class tmp(expr);
+    return *this /= tmp;
 }
 
 template<scalar_operand T>
@@ -4442,6 +4609,38 @@ inline mpz_class& mpz_class::operator>>=(S const& shift) {
     return *this;
 }
 
+template<scalar_operand S>
+    requires (!std::same_as<scalar_normalize_t<S>, double>)
+inline mpq_class& mpq_class::operator<<=(S const& shift) {
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    mpq_mul_2exp(value, value, count);
+    return *this;
+}
+
+template<scalar_operand S>
+    requires (!std::same_as<scalar_normalize_t<S>, double>)
+inline mpq_class& mpq_class::operator>>=(S const& shift) {
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    mpq_div_2exp(value, value, count);
+    return *this;
+}
+
+template<scalar_operand S>
+    requires (!std::same_as<scalar_normalize_t<S>, double>)
+inline mpf_class& mpf_class::operator<<=(S const& shift) {
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    mpf_mul_2exp(value, value, count);
+    return *this;
+}
+
+template<scalar_operand S>
+    requires (!std::same_as<scalar_normalize_t<S>, double>)
+inline mpf_class& mpf_class::operator>>=(S const& shift) {
+    mp_bitcnt_t count = gmpxx_detail::shift_count(shift);
+    mpf_div_2exp(value, value, count);
+    return *this;
+}
+
 template<phase2_operand X, scalar_operand S>
     requires (!scalar_operand<X> &&
               !std::same_as<scalar_normalize_t<S>, double>)
@@ -4535,17 +4734,59 @@ template<class X>
 }
 
 template<scalar_operand R>
-    requires (!std::same_as<scalar_normalize_t<R>, double>)
 [[nodiscard]] inline mpz_class operator%(mpz_class const& l, R const& r) {
     using NR = scalar_normalize_t<R>;
     return l % mpz_class(static_cast<NR>(r));
 }
 
 template<scalar_operand L>
-    requires (!std::same_as<scalar_normalize_t<L>, double>)
 [[nodiscard]] inline mpz_class operator%(L const& l, mpz_class const& r) {
     using NL = scalar_normalize_t<L>;
     return mpz_class(static_cast<NL>(l)) % r;
+}
+
+template<class R>
+    requires (mpz_operand<R> || scalar_operand<R> ||
+              (gmpxx_expr<R> &&
+               std::same_as<typename std::remove_cvref_t<R>::result_type,
+                            mpz_class>))
+inline mpz_class& mpz_class::operator%=(R const& rhs) {
+    mpz_class rhs_value = gmpxx_detail::eval_as_mpz_value(rhs);
+    mpz_tdiv_r(value, value, rhs_value.get_mpz_t());
+    return *this;
+}
+
+template<class R>
+    requires (mpz_operand<R> || scalar_operand<R> ||
+              (gmpxx_expr<R> &&
+               std::same_as<typename std::remove_cvref_t<R>::result_type,
+                            mpz_class>))
+inline mpz_class& mpz_class::operator&=(R const& rhs) {
+    mpz_class rhs_value = gmpxx_detail::eval_as_mpz_value(rhs);
+    mpz_and(value, value, rhs_value.get_mpz_t());
+    return *this;
+}
+
+template<class R>
+    requires (mpz_operand<R> || scalar_operand<R> ||
+              (gmpxx_expr<R> &&
+               std::same_as<typename std::remove_cvref_t<R>::result_type,
+                            mpz_class>))
+inline mpz_class& mpz_class::operator|=(R const& rhs) {
+    mpz_class rhs_value = gmpxx_detail::eval_as_mpz_value(rhs);
+    mpz_ior(value, value, rhs_value.get_mpz_t());
+    return *this;
+}
+
+template<class R>
+    requires (mpz_operand<R> || scalar_operand<R> ||
+              (gmpxx_expr<R> &&
+               std::same_as<typename std::remove_cvref_t<R>::result_type,
+                            mpz_class>))
+inline mpz_class& mpz_class::operator^=(R const& rhs) {
+    mpz_class rhs_value = gmpxx_detail::eval_as_mpz_value(rhs);
+    mpz_xor(value, value, rhs_value.get_mpz_t());
+    return *this;
 }
 
 template<phase0_operand X>

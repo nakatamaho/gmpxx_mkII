@@ -28,7 +28,7 @@ of the v2.0.0 header.
 | Binary expression templates | Done through Phase 5 | `binary_expr<Op, L, R>` implements lazy `+`, `-`, `*`, and `/` for `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar operands; legacy-compatible immediate shift and mpz bitwise operators cover `t-binary` forms. |
 | Unary expression templates | Done through Phase 5 | `unary_expr<Op, X>` implements lazy unary `+` and unary `-` for mpf/mpz/mpq expressions. |
 | Scalar expression leaves | Done through Phase 5 | Signed integers, unsigned integers, `float`, and `double` participate in mpf/mpz/mpq expressions after ABI-normalizing to `int64_t`, `uint64_t`, or `double`. |
-| Compound assignment | Done through Phase 5 | `+=`, `-=`, `*=`, and `/=` accept wrapper values, expression nodes, and scalar operands for `mpf_class`, `mpz_class`, and `mpq_class` where supported. |
+| Compound assignment | Done through Phase 5 | `+=`, `-=`, `*=`, `/=`, and supported shift/bitwise compound forms accept wrapper values, expression nodes, and scalar operands for `mpf_class`, `mpz_class`, and `mpq_class` where applicable. Cross-wrapper expression RHS forms follow the same conversion policy as wrapper construction. |
 | Long-width dispatch | Done through Phase 5 | `uint64_t` paths dispatch through `unsigned long` fast paths where valid and through temporary conversion when simulating or running on LLP64. |
 | Unary double-negation simplification | Done through Phase 5 | `-(-x)` returns a positive identity expression node instead of nesting two runtime negations. |
 | Power-of-two integer scaling fusion | Done through Phase 5 | `mpf * 2^k`, `2^k * mpf`, and `mpf / 2^k` dispatch through `mpf_mul_2exp` or `mpf_div_2exp` for integer scalar leaves. |
@@ -90,7 +90,7 @@ of the v2.0.0 header.
 | Unary `+` | Done through Phase 5 | `+mpf_class`, `+mpz_class`, `+mpq_class`, and `+expression` |
 | Scalar arithmetic | Done through Phase 5 | Signed integer, unsigned integer, `float`, and `double` operands normalize to `int64_t`, `uint64_t`, and `double`. |
 | `mpz_class` / `mpq_class` operands | Done through Phase 5 | mpz/mpq leaves participate in ET arithmetic and mixed mpf/mpz/mpq expressions. |
-| Compound assignment | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar RHS forms preserve left-hand side object state. |
+| Compound assignment | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, cross-wrapper expression, and scalar RHS forms preserve left-hand side object state where applicable. `mpz_class` supports `%=` and bitwise compound assignment; all wrapper types support integer shift compound assignment. |
 | Native mpz addmul fusion | Done for Phase 3 | Direct `mpz_class += mpz*mpz`, `mpz_class -= mpz*mpz`, and integral-scalar variants use `mpz_addmul`, `mpz_submul`, `mpz_addmul_ui`, or `mpz_submul_ui` where valid. |
 | Comparisons | Done for Phase 4A | `cmp()`, `==`, `!=`, `<`, `<=`, `>`, and `>=`; `operator<=>` remains out of scope. |
 | Stream output | Done for Phase 4B | Concrete wrappers and expression nodes support `operator<<`; expression output evaluates once and then streams the concrete result. |
@@ -161,7 +161,7 @@ Source: GMP 6.3.0 manual
 | `test_thread_safety` | Present | Thread-local default precision lazy snapshots, isolation from GMP global default precision, `set_initial_default_prec()` before thread spawn, and snapshot immutability after first thread-local touch. |
 | `test_scalar_arithmetic` | Present | Scalar arithmetic for signed integers, unsigned integers, `float`, and `double` in both operand orders, increment/decrement operators for mpz/mpq/mpf wrappers, including `INT64_MIN`, `UINT64_MAX`, precision 8, and expression/scalar composition. |
 | `test_scalar_alloc_count` | Present | Allocation counts for scalar fast paths and double slow paths: `a + 5LL`, `a + 5.0`, `a + b + 5LL`, and `dst += 5LL`. |
-| `test_compound_assign` | Present | `+=`, `-=`, `*=`, and `/=` with `mpf_class`, expression, scalar, self-alias, mixed-alias, and precision-preservation cases. |
+| `test_compound_assign` | Present | `+=`, `-=`, `*=`, and `/=` with `mpf_class`, expression, scalar, self-alias, mixed-alias, precision-preservation cases, plus `t-ops3` coverage for wrapper shift compounds, mpz `%=`/bitwise compounds, and cross-wrapper expression RHS forms. |
 | `test_long_width_dispatch` | Present | Normal LP64 and simulated LLP64 `uint64_t` dispatch, including large integers and `INT64_MIN`. |
 | `test_long_width_dispatch_llp64` | Present | Same source compiled with `GMPXX_MKII_TEST_LLP64_PATH` to force the slow branch in the normal test suite. |
 | `test_precision_policy` | Present | Construction and `.eval()` use expression precision; existing-object assignment and compound assignment preserve destination precision; `mpf_class::set_prec()` and `set_prec_raw()` follow GMP precision mutation semantics. |
