@@ -191,9 +191,54 @@ void check_expression_scalar(mpf_class const& a, mpf_class const& b, S scalar) {
     assert_matches(got2, sum, scalar, '+', true);
 }
 
+void test_increment_decrement() {
+    {
+        mpz_class value = 3;
+        mpz_class old = value++;
+        assert(old == 3);
+        assert(value == 4);
+        assert(++value == 5);
+        old = value--;
+        assert(old == 5);
+        assert(value == 4);
+        assert(--value == 3);
+    }
+    {
+        mpq_class value(3, 2);
+        mpq_class old = value++;
+        assert(old == mpq_class(3, 2));
+        assert(value == mpq_class(5, 2));
+        assert(++value == mpq_class(7, 2));
+        old = value--;
+        assert(old == mpq_class(7, 2));
+        assert(value == mpq_class(5, 2));
+        assert(--value == mpq_class(3, 2));
+    }
+    {
+        mpf_class value(3.5, static_cast<mp_bitcnt_t>(128));
+        mp_bitcnt_t prec = value.get_prec();
+        mpf_class old = value++;
+        assert(old.get_prec() == prec);
+        assert(value.get_prec() == prec);
+        assert(mpf_cmp_d(old.get_mpf_t(), 3.5) == 0);
+        assert(mpf_cmp_d(value.get_mpf_t(), 4.5) == 0);
+        assert((++value).get_prec() == prec);
+        assert(mpf_cmp_d(value.get_mpf_t(), 5.5) == 0);
+        old = value--;
+        assert(old.get_prec() == prec);
+        assert(value.get_prec() == prec);
+        assert(mpf_cmp_d(old.get_mpf_t(), 5.5) == 0);
+        assert(mpf_cmp_d(value.get_mpf_t(), 4.5) == 0);
+        assert((--value).get_prec() == prec);
+        assert(mpf_cmp_d(value.get_mpf_t(), 3.5) == 0);
+    }
+}
+
 }  // namespace
 
 int main() {
+    test_increment_decrement();
+
     std::vector<mp_bitcnt_t> precs{8, 64, 256, 1024};
     for (mp_bitcnt_t prec : precs) {
         mpf_class a("1.75", prec);

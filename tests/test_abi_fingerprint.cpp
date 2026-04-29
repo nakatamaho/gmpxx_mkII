@@ -104,6 +104,18 @@ static_assert(std::same_as<std::common_type_t<mpf_class, mpq_class>,
 static_assert(std::same_as<std::common_type_t<mpz_class, double>, mpz_class>);
 static_assert(std::same_as<std::common_type_t<double, mpq_class>, mpq_class>);
 
+static_assert(std::numeric_limits<mpz_class>::is_specialized);
+static_assert(std::numeric_limits<mpz_class>::is_integer);
+static_assert(std::numeric_limits<mpz_class>::is_exact);
+static_assert(std::numeric_limits<mpq_class>::is_specialized);
+static_assert(!std::numeric_limits<mpq_class>::is_integer);
+static_assert(std::numeric_limits<mpq_class>::is_exact);
+static_assert(std::numeric_limits<mpf_class>::is_specialized);
+static_assert(!std::numeric_limits<mpf_class>::is_integer);
+static_assert(!std::numeric_limits<mpf_class>::is_exact);
+static_assert(&std::numeric_limits<mpz_class>::is_integer !=
+              &std::numeric_limits<mpq_class>::is_integer);
+
 static_assert(gmpxx_expr<binary_expr<add_op, mpf_class, mpf_class>>);
 static_assert(gmpxx_expr<unary_expr<neg_op, mpf_class>>);
 static_assert(!gmpxx_expr<mpf_class>);

@@ -51,7 +51,7 @@ of the v2.0.0 header.
 | Package config | Done for Phase 5 | Installed packages provide `gmpxx_mkIIConfig.cmake`, a version config, and an exported `gmpxx_mkII::gmpxx_mkII` target usable through `find_package`. |
 | Random support | Done after Phase 5 | `gmp_randclass` owns `gmp_randstate_t`, supports default/MT/LC initialization, seeding, random `mpz_class` generation, and random `mpf_class` generation. Bare `get_f()` returns a random floating expression/proxy so assignment into an existing `mpf_class` preserves destination precision. |
 | Fortran bridge | Not planned for v2.0.0 | Fortran bridge APIs are intentionally dropped from the v2.0.0 roadmap. |
-| Test coverage | Present through Phase 6 | Thirty-four maintained CTest targets cover ABI traits, exception support, standalone header inclusion, construction/copy/swap semantics, legacy compatibility coverage, type conversions, basic mpf math functions, mpf transcendental functions, extended constants/transcendentals, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
+| Test coverage | Present through Phase 6 | Thirty-four maintained CTest targets cover ABI traits, exception support, standalone header inclusion, construction/copy/swap semantics, legacy compatibility coverage, type conversions, basic mpf math functions, mpf transcendental functions, extended constants/transcendentals, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, increment/decrement, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
 
 ## Implementation Summary
 
@@ -148,7 +148,7 @@ Source: GMP 6.3.0 manual
 
 | Test Target | Status | Coverage |
 |---|---:|---|
-| `test_abi_fingerprint` | Present | `scalar_normalize_t` ABI categories, `gmpxx_expr`, `phase0_operand`, `std::common_type` compatibility decay for wrappers and expression nodes, operator constraints rejecting scalar/scalar ET operands, and diagnostic-only expression type names. |
+| `test_abi_fingerprint` | Present | `scalar_normalize_t` ABI categories, `gmpxx_expr`, `phase0_operand`, `std::common_type` compatibility decay for wrappers and expression nodes, `std::numeric_limits` surface for GMP wrapper types, operator constraints rejecting scalar/scalar ET operands, and diagnostic-only expression type names. |
 | `test_exception_support` | Present | Compiler `try`/`throw`/`catch` support and wrapper exception propagation for invalid string construction. |
 | `test_headers` | Present | Standalone compilation of the public `gmpxx_mkII.h` header without relying on prior standard-library includes. |
 | `test_construction_copy` | Present | `mpf_class`, `mpz_class`, and `mpq_class` default construction, bool construction, raw `mpf_t` construction, copy/move construction, C++11 noexcept compatibility surface, mpf copy-with-explicit-precision construction, copy/move assignment, mpf move-assignment precision-match and precision-mismatch behavior, member/free `swap`, unambiguous mpz integral construction/assignment, and mpf precision-preserving integral/double/string construction and assignment cases. |
@@ -160,7 +160,7 @@ Source: GMP 6.3.0 manual
 | `test_alloc_count` | Present | Registers GMP memory hooks before object construction and verifies allocation counts for `dst = a + b`, `dst = a + b + c`, `dst = a + b + c + d`, and `dst = (a+b) * (c+d)` as `0, 0, 0, 1`. |
 | `test_alias_safety` | Present | Self-alias and mixed-alias expression assignment cases compare against independent raw GMP references. |
 | `test_thread_safety` | Present | Thread-local default precision lazy snapshots, isolation from GMP global default precision, `set_initial_default_prec()` before thread spawn, and snapshot immutability after first thread-local touch. |
-| `test_scalar_arithmetic` | Present | Scalar arithmetic for signed integers, unsigned integers, `float`, and `double` in both operand orders, including `INT64_MIN`, `UINT64_MAX`, precision 8, and expression/scalar composition. |
+| `test_scalar_arithmetic` | Present | Scalar arithmetic for signed integers, unsigned integers, `float`, and `double` in both operand orders, increment/decrement operators for mpz/mpq/mpf wrappers, including `INT64_MIN`, `UINT64_MAX`, precision 8, and expression/scalar composition. |
 | `test_scalar_alloc_count` | Present | Allocation counts for scalar fast paths and double slow paths: `a + 5LL`, `a + 5.0`, `a + b + 5LL`, and `dst += 5LL`. |
 | `test_compound_assign` | Present | `+=`, `-=`, `*=`, and `/=` with `mpf_class`, expression, scalar, self-alias, mixed-alias, and precision-preservation cases. |
 | `test_long_width_dispatch` | Present | Normal LP64 and simulated LLP64 `uint64_t` dispatch, including large integers and `INT64_MIN`. |

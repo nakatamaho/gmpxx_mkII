@@ -831,6 +831,28 @@ public:
     template<scalar_operand T>
     mpf_class& operator/=(T const& rhs);
 
+    mpf_class& operator++() {
+        mpf_add_ui(value, value, 1ul);
+        return *this;
+    }
+
+    mpf_class operator++(int) {
+        mpf_class old(*this);
+        ++(*this);
+        return old;
+    }
+
+    mpf_class& operator--() {
+        mpf_sub_ui(value, value, 1ul);
+        return *this;
+    }
+
+    mpf_class operator--(int) {
+        mpf_class old(*this);
+        --(*this);
+        return old;
+    }
+
     [[nodiscard]] mpf_ptr get_mpf_t() {
         return value;
     }
@@ -1148,6 +1170,28 @@ public:
     mpz_class& operator*=(T const& rhs);
     template<scalar_operand T>
     mpz_class& operator/=(T const& rhs);
+
+    mpz_class& operator++() {
+        mpz_add_ui(value, value, 1ul);
+        return *this;
+    }
+
+    mpz_class operator++(int) {
+        mpz_class old(*this);
+        ++(*this);
+        return old;
+    }
+
+    mpz_class& operator--() {
+        mpz_sub_ui(value, value, 1ul);
+        return *this;
+    }
+
+    mpz_class operator--(int) {
+        mpz_class old(*this);
+        --(*this);
+        return old;
+    }
 
     [[nodiscard]] mpz_ptr get_mpz_t() {
         return value;
@@ -1527,6 +1571,28 @@ public:
     mpq_class& operator*=(T const& rhs);
     template<scalar_operand T>
     mpq_class& operator/=(T const& rhs);
+
+    mpq_class& operator++() {
+        *this += 1;
+        return *this;
+    }
+
+    mpq_class operator++(int) {
+        mpq_class old(*this);
+        ++(*this);
+        return old;
+    }
+
+    mpq_class& operator--() {
+        *this -= 1;
+        return *this;
+    }
+
+    mpq_class operator--(int) {
+        mpq_class old(*this);
+        --(*this);
+        return old;
+    }
 
     [[nodiscard]] mpq_ptr get_mpq_t() {
         return value;
@@ -5954,6 +6020,120 @@ template<class T, class U>
                gmpxx_detail::is_gmpxx_object_v<U>))
 struct common_type<T, U> {
     using type = gmpxx_detail::common_type_binary_t<T, U>;
+};
+
+template<>
+class numeric_limits<mpz_class> {
+public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = true;
+    static constexpr bool is_exact = true;
+    static constexpr bool has_infinity = false;
+    static constexpr bool has_quiet_NaN = false;
+    static constexpr bool has_signaling_NaN = false;
+    static constexpr float_denorm_style has_denorm = denorm_absent;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr std::float_round_style round_style = round_toward_zero;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = false;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr int radix = 2;
+    static constexpr int min_exponent = 0;
+    static constexpr int min_exponent10 = 0;
+    static constexpr int max_exponent = 0;
+    static constexpr int max_exponent10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+
+    static mpz_class min() { return mpz_class(0); }
+    static mpz_class lowest() { return mpz_class(0); }
+    static mpz_class max() { return mpz_class(0); }
+    static mpz_class epsilon() { return mpz_class(0); }
+    static mpz_class round_error() { return mpz_class(0); }
+    static mpz_class infinity() { return mpz_class(0); }
+    static mpz_class quiet_NaN() { return mpz_class(0); }
+    static mpz_class signaling_NaN() { return mpz_class(0); }
+    static mpz_class denorm_min() { return mpz_class(0); }
+};
+
+template<>
+class numeric_limits<mpq_class> {
+public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = false;
+    static constexpr bool is_exact = true;
+    static constexpr bool has_infinity = false;
+    static constexpr bool has_quiet_NaN = false;
+    static constexpr bool has_signaling_NaN = false;
+    static constexpr float_denorm_style has_denorm = denorm_absent;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr std::float_round_style round_style = round_toward_zero;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = false;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr int radix = 2;
+    static constexpr int min_exponent = 0;
+    static constexpr int min_exponent10 = 0;
+    static constexpr int max_exponent = 0;
+    static constexpr int max_exponent10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+
+    static mpq_class min() { return mpq_class(0); }
+    static mpq_class lowest() { return mpq_class(0); }
+    static mpq_class max() { return mpq_class(0); }
+    static mpq_class epsilon() { return mpq_class(0); }
+    static mpq_class round_error() { return mpq_class(0); }
+    static mpq_class infinity() { return mpq_class(0); }
+    static mpq_class quiet_NaN() { return mpq_class(0); }
+    static mpq_class signaling_NaN() { return mpq_class(0); }
+    static mpq_class denorm_min() { return mpq_class(0); }
+};
+
+template<>
+class numeric_limits<mpf_class> {
+public:
+    static constexpr bool is_specialized = true;
+    static constexpr bool is_signed = true;
+    static constexpr bool is_integer = false;
+    static constexpr bool is_exact = false;
+    static constexpr bool has_infinity = false;
+    static constexpr bool has_quiet_NaN = false;
+    static constexpr bool has_signaling_NaN = false;
+    static constexpr float_denorm_style has_denorm = denorm_absent;
+    static constexpr bool has_denorm_loss = false;
+    static constexpr std::float_round_style round_style = round_indeterminate;
+    static constexpr bool is_iec559 = false;
+    static constexpr bool is_bounded = false;
+    static constexpr bool is_modulo = false;
+    static constexpr int digits = 0;
+    static constexpr int digits10 = 0;
+    static constexpr int max_digits10 = 0;
+    static constexpr int radix = 2;
+    static constexpr int min_exponent = 0;
+    static constexpr int min_exponent10 = 0;
+    static constexpr int max_exponent = 0;
+    static constexpr int max_exponent10 = 0;
+    static constexpr bool traps = false;
+    static constexpr bool tinyness_before = false;
+
+    static mpf_class min() { return mpf_class(0); }
+    static mpf_class lowest() { return mpf_class(0); }
+    static mpf_class max() { return mpf_class(0); }
+    static mpf_class epsilon() { return mpf_class(0); }
+    static mpf_class round_error() { return mpf_class(0); }
+    static mpf_class infinity() { return mpf_class(0); }
+    static mpf_class quiet_NaN() { return mpf_class(0); }
+    static mpf_class signaling_NaN() { return mpf_class(0); }
+    static mpf_class denorm_min() { return mpf_class(0); }
 };
 
 }  // namespace std
