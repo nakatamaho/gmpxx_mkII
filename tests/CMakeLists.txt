@@ -15,6 +15,7 @@ endfunction()
 
 add_gmpxx_mkii_test(test_abi_fingerprint test_abi_fingerprint.cpp)
 add_gmpxx_mkii_test(test_exception_support test_exception_support.cpp)
+add_gmpxx_mkii_test(test_headers test_headers.cpp)
 add_gmpxx_mkii_test(test_construction_copy test_construction_copy.cpp)
 add_gmpxx_mkii_test(test_mpf_math_functions test_mpf_math_functions.cpp)
 add_gmpxx_mkii_test(test_mpf_transcendent_functions
