@@ -101,11 +101,20 @@ cmake --build build -j
 ctest --test-dir build --output-on-failure
 ```
 
-The default build also compiles the small programs under `examples/`.
-Disable them with:
+The default build also compiles the small programs under `examples/` and the
+comparison drivers under `benchmarks/`.  The benchmark build emits
+`gmpxx_mkII`, original `gmpxx.h`, and hand-written `mpf_t` variants for each
+ported kernel.  Disable them with:
 
 ```bash
 cmake -S . -B build -DGMPXX_MKII_BUILD_EXAMPLES=OFF
+cmake -S . -B build -DGMPXX_MKII_BUILD_BENCHMARKS=OFF
+```
+
+Run the ported benchmark set and generate plots with:
+
+```bash
+benchmarks/run_benchmarks.sh build 512
 ```
 
 Install the generated header, exported CMake target, and package config files:

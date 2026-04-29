@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(GMPXX_MKII_BUILD_TESTS "Build tests" ON)
 option(GMPXX_MKII_BUILD_EXAMPLES "Build examples" ON)
+option(GMPXX_MKII_BUILD_BENCHMARKS "Build benchmarks" ON)
 option(GMPXX_MKII_NOPRECCHANGE
        "Use thread-local default_prec only (P3) instead of operand max (P2)" OFF)
 option(GMPXX_MKII_INSTRUMENT_WRAPPERS
@@ -85,4 +86,15 @@ endif()
 
 if(GMPXX_MKII_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if(GMPXX_MKII_BUILD_BENCHMARKS)
+    find_library(GMPXX_LIBRARY NAMES gmpxx libgmpxx REQUIRED HINTS ${GMP_ROOT})
+    if(NOT TARGET GMP::GMPXX)
+        add_library(GMP::GMPXX UNKNOWN IMPORTED)
+        set_target_properties(GMP::GMPXX PROPERTIES
+            IMPORTED_LOCATION "${GMPXX_LIBRARY}"
+            INTERFACE_INCLUDE_DIRECTORIES "${GMP_INCLUDE_DIR}")
+    endif()
+    add_subdirectory(benchmarks)
 endif()
