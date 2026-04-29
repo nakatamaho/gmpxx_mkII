@@ -35,11 +35,26 @@
 #include <ios>
 #include <iostream>
 #include <limits>
+#include <locale>
 #include <sstream>
 #include <string>
 #include <type_traits>
 
 namespace {
+
+class test_numpunct : public std::numpunct<char> {
+public:
+    explicit test_numpunct(char decimal_point)
+        : decimal_point_(decimal_point) {}
+
+protected:
+    char do_decimal_point() const override {
+        return decimal_point_;
+    }
+
+private:
+    char decimal_point_;
+};
 
 std::size_t gmp_alloc_count = 0;
 std::size_t gmp_free_count = 0;
@@ -565,6 +580,65 @@ void test_legacy_istream_tables() {
     }
 }
 
+void test_mpf_stream_locale_decimal_point() {
+    struct input_case {
+        char const* lhs;
+        char const* rhs;
+        double value;
+    };
+    input_case const inputs[] = {
+        {"1", "", 1.0},
+        {"1", "0", 1.0},
+        {"1", "00", 1.0},
+        {"", "5", 0.5},
+        {"0", "5", 0.5},
+        {"00", "5", 0.5},
+        {"00", "50", 0.5},
+        {"1", "5", 1.5},
+        {"1", "5e1", 15.0},
+    };
+    char const points[] = {'.', ',', 'x',
+                           static_cast<char>(static_cast<unsigned char>(0xFF))};
+
+    for (char point : points) {
+        std::locale loc(std::locale::classic(), new test_numpunct(point));
+
+        for (bool negative : {false, true}) {
+            for (input_case const& c : inputs) {
+                std::string text = std::string(c.lhs) + point + c.rhs;
+                if (negative) {
+                    text.insert(text.begin(), '-');
+                }
+
+                std::istringstream input(text);
+                input.imbue(loc);
+                mpf_class got(0.0, static_cast<mp_bitcnt_t>(128));
+                mpf_set_ui(got.get_mpf_t(), 123);
+                input >> got.get_mpf_t();
+                assert(!input.fail());
+
+                double expected = negative ? -c.value : c.value;
+                assert_mpf_equal(got, mpf_class(expected, got.get_prec()));
+            }
+        }
+
+        {
+            std::ostringstream output;
+            output.imbue(loc);
+            mpf_class value(1.5, static_cast<mp_bitcnt_t>(128));
+            output << value.get_mpf_t();
+            assert(output.str() == std::string("1") + point + "5");
+        }
+        {
+            std::ostringstream output;
+            output.imbue(loc);
+            mpf_class value(1.5, static_cast<mp_bitcnt_t>(128));
+            output << value;
+            assert(output.str() == std::string("1") + point + "5");
+        }
+    }
+}
+
 void test_legacy_stream_input_prefixes() {
     {
         mpz_class z(std::int64_t{99});
@@ -749,6 +823,7 @@ int main() {
     test_stream_input();
     test_legacy_iostream_basic_syntax();
     test_legacy_istream_tables();
+    test_mpf_stream_locale_decimal_point();
     test_legacy_stream_input_prefixes();
     test_expression_output();
     test_gmp_string_frees();

@@ -46,6 +46,7 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 #include <ios>
 #include <istream>
 #include <limits>
+#include <locale>
 #include <mutex>
 #include <ostream>
 #include <stdexcept>
@@ -2005,16 +2006,22 @@ inline bool read_rational_token(std::istream& is, std::string& token, int base) 
     return true;
 }
 
+inline char stream_decimal_point(std::ios_base const& ios) {
+    return std::use_facet<std::numpunct<char>>(ios.getloc()).decimal_point();
+}
+
 inline bool read_float_token(std::istream& is, std::string& token, int base) {
     token.clear();
     read_optional_sign(is, token);
+    char const decimal_point = stream_decimal_point(is);
 
     bool saw_mantissa_digit = false;
     saw_mantissa_digit |= read_digits_for_base(is, token, base);
 
     char c = '\0';
-    if (stream_peek_char(is, c) && c == '.') {
-        stream_get_char(is, token);
+    if (stream_peek_char(is, c) && c == decimal_point) {
+        is.rdbuf()->sbumpc();
+        token.push_back('.');
         saw_mantissa_digit |= read_digits_for_base(is, token, base);
     }
 
@@ -2087,7 +2094,15 @@ inline std::string format_mpf(mpf_class const& value, std::ios_base const& os) {
     if (count < 0 || !formatted) {
         return {};
     }
-    return std::string(formatted.c_str());
+    std::string result(formatted.c_str());
+    char const decimal_point = stream_decimal_point(os);
+    if (decimal_point != '.') {
+        std::size_t pos = result.find('.');
+        if (pos != std::string::npos) {
+            result[pos] = decimal_point;
+        }
+    }
+    return result;
 }
 
 inline void apply_stream_padding(std::string& s,
