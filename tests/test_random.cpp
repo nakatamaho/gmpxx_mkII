@@ -148,9 +148,28 @@ void test_f_precision_forms() {
 
     assert(assigned.get_prec() == expected.get_prec());
     assert_mpf_equal(assigned, expected);
+
+    gmp_randclass r5;
+    r5.seed(29ul);
+    mpf_class assigned_from_prec;
+    mp_bitcnt_t assigned_old_prec = assigned_from_prec.get_prec();
+    assigned_from_prec = r5.get_f(static_cast<mp_bitcnt_t>(198));
+    assert(assigned_from_prec.get_prec() == assigned_old_prec);
+
+    mpf_class constructed_from_prec(r5.get_f(static_cast<mp_bitcnt_t>(198)));
+    assert(constructed_from_prec.get_prec() ==
+           gmpxx_detail::effective_mpf_prec(198));
 }
 
 void test_lc_constructors() {
+    gmp_randclass by_default_function(gmp_randinit_default);
+    by_default_function.seed(3ul);
+    assert(by_default_function.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+
+    gmp_randclass by_mt(gmp_randinit_mt);
+    by_mt.seed(3ul);
+    assert(by_mt.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+
     gmp_randclass by_size(gmp_randinit_lc_2exp_size,
                           static_cast<mp_bitcnt_t>(32));
     by_size.seed(3ul);
@@ -165,6 +184,16 @@ void test_lc_constructors() {
     gmp_randclass obsolete(GMP_RAND_ALG_LC, static_cast<mp_bitcnt_t>(32));
     obsolete.seed(3ul);
     assert(obsolete.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+
+    gmp_randclass obsolete_default(GMP_RAND_ALG_DEFAULT,
+                                   static_cast<mp_bitcnt_t>(32));
+    obsolete_default.seed(3ul);
+    assert(obsolete_default.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+
+    gmp_randclass obsolete_zero(static_cast<gmp_randalg_t>(0),
+                                static_cast<mp_bitcnt_t>(32));
+    obsolete_zero.seed(3ul);
+    assert(obsolete_zero.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
 
     bool threw = false;
     try {
