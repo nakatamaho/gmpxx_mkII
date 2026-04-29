@@ -189,76 +189,76 @@ void check_integer_helpers() {
     assert(threw_bad_alloc);
 }
 
-void check_legacy_ternary_expression_shapes() {
+void check_nested_product_expression_shapes() {
     {
-        mpz_class a(1), b(2), c(3);
+        mpz_class a(17), b(-5), c(9);
         mpz_class d;
         d = a + b * c;
-        assert(d == mpz_class(7));
+        assert(d == mpz_class(-28));
         d = a - b * c;
-        assert(d == mpz_class(-5));
+        assert(d == mpz_class(62));
     }
     {
-        mpz_class a(1), b(2), c(3);
-        double d = 4.0;
+        mpz_class a(-14), b(6), c(-8);
+        double d = 2.0;
         mpz_class e;
         e = a + b * (c + d);
-        assert(e == mpz_class(15));
+        assert(e == mpz_class(-50));
         e = a - b * (c + d);
-        assert(e == mpz_class(-13));
+        assert(e == mpz_class(22));
     }
     {
-        mpz_class a(1), b(2);
-        unsigned int c = 3, d = 4;
+        mpz_class a(23), b(-11);
+        unsigned int c = 4, d = 7;
         mpz_class e;
         e = a + (b + c) * d;
-        assert(e == mpz_class(21));
+        assert(e == mpz_class(-26));
         e = a - (b + c) * d;
-        assert(e == mpz_class(-19));
+        assert(e == mpz_class(72));
     }
     {
-        mpz_class a(1), b(2), c(3);
-        signed int d = 4, e = 5;
+        mpz_class a(-31), b(12), c(-6);
+        signed int d = -3, e = 10;
         mpz_class f;
         f = a + (b - d) * (c + e);
-        assert(f == mpz_class(-15));
+        assert(f == mpz_class(29));
         f = a - (b - d) * (c + e);
-        assert(f == mpz_class(17));
+        assert(f == mpz_class(-91));
     }
     {
-        mpz_class a(2), b(3), c(4);
+        mpz_class a(-7), b(-13), c(29);
         mpz_class d;
         d = a * b + c;
-        assert(d == mpz_class(10));
+        assert(d == mpz_class(120));
         d = a * b - c;
-        assert(d == mpz_class(2));
+        assert(d == mpz_class(62));
     }
     {
-        mpz_class a(2), b(3);
-        double c = 4.0, d = 5.0;
+        mpz_class a(19), b(-17);
+        double c = -3.0, d = 4.0;
         mpz_class e;
         e = c * (a + d) + b;
-        assert(e == mpz_class(31));
+        assert(e == mpz_class(-86));
         e = c * (a + d) - b;
-        assert(e == mpz_class(25));
+        assert(e == mpz_class(-52));
     }
     {
-        mpz_class a(2), b(3), c(4);
-        unsigned int d = 5, e = 6;
+        mpz_class a(-4), b(15), c(-9);
+        unsigned int d = 6, e = 20;
         mpz_class f;
         f = a * (b - d) + (c + e);
-        assert(f == mpz_class(6));
+        assert(f == mpz_class(-25));
         f = a * (b - d) - (c + e);
-        assert(f == mpz_class(-14));
+        assert(f == mpz_class(-47));
     }
     {
-        mpz_class a(2), b(3), c(4);
-        double d = 5.0, e = 6.0, f = 7.0;
+        mpz_class a(8), b(-12), c(5);
+        double d = -15.0, e = 3.0, f = -21.0;
         mpz_class g;
         g = (a + d) * (b - e) + (c + f);
-        assert(g == mpz_class(-10));
+        assert(g == mpz_class(89));
         g = (a + d) * (b - e) - (c + f);
-        assert(g == mpz_class(-32));
+        assert(g == mpz_class(121));
     }
 }
 
@@ -285,7 +285,7 @@ int main() {
     check_scalar(neg_huge);
     check_shift_and_bitwise();
     check_integer_helpers();
-    check_legacy_ternary_expression_shapes();
+    check_nested_product_expression_shapes();
 
     {
         mpz_class a("100");

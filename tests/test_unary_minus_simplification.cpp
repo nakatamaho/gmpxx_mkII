@@ -37,60 +37,60 @@ void assert_equal(mpf_class const& lhs, mpf_class const& rhs) {
     assert(mpf_cmp(lhs.get_mpf_t(), rhs.get_mpf_t()) == 0);
 }
 
-void check_legacy_unary_mpz() {
-    mpz_class a(1);
+void check_unary_mpz_forms() {
+    mpz_class a(-17);
     mpz_class b(+a);
-    assert(b == mpz_class(1));
+    assert(b == mpz_class(-17));
 
-    mpz_class c(2);
+    mpz_class c(42);
     mpz_class d;
     d = -c;
-    assert(d == mpz_class(-2));
+    assert(d == mpz_class(-42));
 
-    mpz_class e(3);
+    mpz_class e(-9);
     mpz_class f;
     f = ~e;
-    assert(f == mpz_class(-4));
+    assert(f == mpz_class(8));
 
     mpz_class g(-(-a));
-    assert(g == mpz_class(1));
+    assert(g == mpz_class(-17));
 
     d = -(-(-c));
-    assert(d == mpz_class(-2));
+    assert(d == mpz_class(-42));
 }
 
-void check_legacy_unary_mpq() {
-    mpq_class a(1);
+void check_unary_mpq_forms() {
+    mpq_class a("-7/11");
     mpq_class b(+a);
-    assert(b == mpq_class(1));
+    assert(b == mpq_class("-7/11"));
 
-    mpq_class c(2);
+    mpq_class c("13/5");
     mpq_class d;
     d = -c;
-    assert(d == mpq_class(-2));
+    assert(d == mpq_class("-13/5"));
 
     mpq_class e(-(-a));
-    assert(e == mpq_class(1));
+    assert(e == mpq_class("-7/11"));
 
     d = -(-(-c));
-    assert(d == mpq_class(-2));
+    assert(d == mpq_class("-13/5"));
 }
 
-void check_legacy_unary_mpf() {
-    mpf_class a(1);
+void check_unary_mpf_forms() {
+    mpf_class a("-19.25", static_cast<mp_bitcnt_t>(192));
     mpf_class b(+a);
-    assert_equal(b, mpf_class(1, b.get_prec()));
+    assert_equal(b, mpf_class("-19.25", b.get_prec()));
 
-    mpf_class c(2);
+    mpf_class c("6.5", static_cast<mp_bitcnt_t>(256));
     mpf_class d;
     d = -c;
-    assert_equal(d, mpf_class(-2, d.get_prec()));
+    assert_equal(d, mpf_class("-6.5", d.get_prec()));
 
     mpf_class e(-(-a));
-    assert_equal(e, mpf_class(1, e.get_prec()));
+    assert_equal(e, mpf_class("-19.25", e.get_prec()));
 
     d = -(-(-c));
-    assert_equal(d, mpf_class(-2, d.get_prec()));
+    assert_equal(d, mpf_class("-6.5", d.get_prec()));
 }
 
 }  // namespace
@@ -101,9 +101,9 @@ int main() {
                   decltype(-(-std::declval<mpf_class const&>())),
                   unary_expr<pos_op, mpf_class>>);
 
-    check_legacy_unary_mpz();
-    check_legacy_unary_mpq();
-    check_legacy_unary_mpf();
+    check_unary_mpz_forms();
+    check_unary_mpq_forms();
+    check_unary_mpf_forms();
 
     mpf_class a("1.25", 256);
     mpf_class b("2.5", 512);

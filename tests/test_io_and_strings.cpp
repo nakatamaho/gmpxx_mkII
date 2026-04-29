@@ -278,7 +278,7 @@ void test_stream_output() {
     assert(f.get_prec() == old_prec);
 }
 
-void test_legacy_ostream_table_cases() {
+void test_stream_formatting_regressions() {
     {
         mpq_t q;
         mpq_init(q);
@@ -301,8 +301,8 @@ void test_legacy_ostream_table_cases() {
         assert(mpq_set_str(q, "0/0", 0) == 0);
 
         std::ostringstream hex_showbase;
-        hex_showbase << std::showbase << std::hex << std::setw(10) << q;
-        assert(hex_showbase.str() == "   0x0/0x0");
+        hex_showbase << std::showbase << std::hex << std::setw(12) << q;
+        assert(hex_showbase.str() == "     0x0/0x0");
 
         mpq_clear(q);
     }
@@ -310,11 +310,11 @@ void test_legacy_ostream_table_cases() {
     {
         mpq_t q;
         mpq_init(q);
-        assert(mpq_set_str(q, "5/8", 0) == 0);
+        assert(mpq_set_str(q, "11/13", 0) == 0);
 
         std::ostringstream upper_hex_showbase;
         upper_hex_showbase << std::showbase << std::uppercase << std::hex << q;
-        assert(upper_hex_showbase.str() == "0X5/0X8");
+        assert(upper_hex_showbase.str() == "0XB/0XD");
 
         mpq_clear(q);
     }
@@ -349,18 +349,20 @@ void test_legacy_ostream_table_cases() {
     }
 
     {
-        mpf_class one_eighth(".125", static_cast<mp_bitcnt_t>(128));
+        mpf_class one_thirty_second(".03125", static_cast<mp_bitcnt_t>(128));
         std::ostringstream oct_showbase;
-        oct_showbase.precision(1);
-        oct_showbase << std::showbase << std::fixed << std::oct << one_eighth;
-        assert(oct_showbase.str() == "00.1");
+        oct_showbase.precision(2);
+        oct_showbase << std::showbase << std::fixed << std::oct
+                     << one_thirty_second;
+        assert(oct_showbase.str() == "00.02");
 
-        mpf_class one_sixty_fourth(".015625", static_cast<mp_bitcnt_t>(128));
+        mpf_class one_five_hundred_twelfth(".001953125",
+                                           static_cast<mp_bitcnt_t>(128));
         std::ostringstream rounded_zero;
-        rounded_zero.precision(1);
+        rounded_zero.precision(2);
         rounded_zero << std::showbase << std::fixed << std::oct
-                     << one_sixty_fourth;
-        assert(rounded_zero.str() == "0.0");
+                     << one_five_hundred_twelfth;
+        assert(rounded_zero.str() == "0.00");
     }
 }
 
@@ -906,7 +908,7 @@ int main() {
     test_mpq_strings();
     test_mpf_strings();
     test_stream_output();
-    test_legacy_ostream_table_cases();
+    test_stream_formatting_regressions();
     test_stream_input();
     test_legacy_iostream_basic_syntax();
     test_legacy_istream_tables();

@@ -150,50 +150,50 @@ void test_f_precision_forms() {
     assert_mpf_equal(assigned, expected);
 
     gmp_randclass r5;
-    r5.seed(29ul);
+    r5.seed(431ul);
     mpf_class assigned_from_prec;
     mp_bitcnt_t assigned_old_prec = assigned_from_prec.get_prec();
-    assigned_from_prec = r5.get_f(static_cast<mp_bitcnt_t>(198));
+    assigned_from_prec = r5.get_f(static_cast<mp_bitcnt_t>(211));
     assert(assigned_from_prec.get_prec() == assigned_old_prec);
 
-    mpf_class constructed_from_prec(r5.get_f(static_cast<mp_bitcnt_t>(198)));
+    mpf_class constructed_from_prec(r5.get_f(static_cast<mp_bitcnt_t>(211)));
     assert(constructed_from_prec.get_prec() ==
-           gmpxx_detail::effective_mpf_prec(198));
+           gmpxx_detail::effective_mpf_prec(211));
 }
 
 void test_lc_constructors() {
     gmp_randclass by_default_function(gmp_randinit_default);
-    by_default_function.seed(3ul);
-    assert(by_default_function.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+    by_default_function.seed(37ul);
+    assert(by_default_function.get_z_bits(static_cast<mp_bitcnt_t>(43)) >= z(0));
 
     gmp_randclass by_mt(gmp_randinit_mt);
-    by_mt.seed(3ul);
-    assert(by_mt.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+    by_mt.seed(41ul);
+    assert(by_mt.get_z_bits(static_cast<mp_bitcnt_t>(47)) >= z(0));
 
     gmp_randclass by_size(gmp_randinit_lc_2exp_size,
-                          static_cast<mp_bitcnt_t>(32));
-    by_size.seed(3ul);
-    assert(by_size.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+                          static_cast<mp_bitcnt_t>(48));
+    by_size.seed(43ul);
+    assert(by_size.get_z_bits(static_cast<mp_bitcnt_t>(29)) >= z(0));
 
-    mpz_class a = z(5);
-    gmp_randclass by_params(gmp_randinit_lc_2exp, a, 1ul,
-                            static_cast<mp_bitcnt_t>(32));
-    by_params.seed(3ul);
-    assert(by_params.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+    mpz_class a = z(9);
+    gmp_randclass by_params(gmp_randinit_lc_2exp, a, 7ul,
+                            static_cast<mp_bitcnt_t>(40));
+    by_params.seed(47ul);
+    assert(by_params.get_z_bits(static_cast<mp_bitcnt_t>(31)) >= z(0));
 
-    gmp_randclass obsolete(GMP_RAND_ALG_LC, static_cast<mp_bitcnt_t>(32));
-    obsolete.seed(3ul);
-    assert(obsolete.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+    gmp_randclass obsolete(GMP_RAND_ALG_LC, static_cast<mp_bitcnt_t>(56));
+    obsolete.seed(53ul);
+    assert(obsolete.get_z_bits(static_cast<mp_bitcnt_t>(37)) >= z(0));
 
     gmp_randclass obsolete_default(GMP_RAND_ALG_DEFAULT,
-                                   static_cast<mp_bitcnt_t>(32));
-    obsolete_default.seed(3ul);
-    assert(obsolete_default.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+                                   static_cast<mp_bitcnt_t>(64));
+    obsolete_default.seed(59ul);
+    assert(obsolete_default.get_z_bits(static_cast<mp_bitcnt_t>(41)) >= z(0));
 
     gmp_randclass obsolete_zero(static_cast<gmp_randalg_t>(0),
-                                static_cast<mp_bitcnt_t>(32));
-    obsolete_zero.seed(3ul);
-    assert(obsolete_zero.get_z_bits(static_cast<mp_bitcnt_t>(32)) >= z(0));
+                                static_cast<mp_bitcnt_t>(72));
+    obsolete_zero.seed(61ul);
+    assert(obsolete_zero.get_z_bits(static_cast<mp_bitcnt_t>(19)) >= z(0));
 
     bool threw = false;
     try {
