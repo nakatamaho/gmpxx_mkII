@@ -370,6 +370,201 @@ void test_legacy_iostream_basic_syntax() {
     }
 }
 
+std::streampos consumed_position(std::istringstream& input) {
+    input.clear();
+    return input.tellg();
+}
+
+void test_legacy_istream_tables() {
+    {
+        struct case_type {
+            char const* input;
+            int want_pos;
+            char const* want;
+            std::ios::fmtflags flags;
+        };
+        case_type const cases[] = {
+            {"0", -1, "0", std::ios::fmtflags(0)},
+            {"123", -1, "123", std::ios::fmtflags(0)},
+            {"0123", -1, "83", std::ios::fmtflags(0)},
+            {"0x123", -1, "291", std::ios::fmtflags(0)},
+            {"-123", -1, "-123", std::ios::fmtflags(0)},
+            {"-0123", -1, "-83", std::ios::fmtflags(0)},
+            {"-0x123", -1, "-291", std::ios::fmtflags(0)},
+            {"+123", -1, "123", std::ios::fmtflags(0)},
+            {"+0123", -1, "83", std::ios::fmtflags(0)},
+            {"+0x123", -1, "291", std::ios::fmtflags(0)},
+            {"1f", 1, "1", std::ios::dec},
+            {"011f", 3, "11", std::ios::dec},
+            {"-1f", 2, "-1", std::ios::dec},
+            {"+011f", 4, "11", std::ios::dec},
+            {"123", -1, "83", std::ios::oct},
+            {"-123", -1, "-83", std::ios::oct},
+            {"ff", -1, "255", std::ios::hex},
+            {"FF", -1, "255", std::ios::hex},
+            {"-FF", -1, "-255", std::ios::hex},
+            {"+ab", -1, "171", std::ios::hex},
+            {" 123", 0, nullptr, std::ios::fmtflags(0)},
+            {" 123", -1, "123", std::ios::skipws},
+        };
+
+        for (case_type const& c : cases) {
+            std::istringstream input(c.input);
+            input.flags(c.flags);
+            mpz_class got(std::int64_t{0xDEAD});
+
+            input >> got.get_mpz_t();
+            bool got_ok = !input.fail();
+            bool got_eof = input.eof();
+            bool want_ok = c.want != nullptr;
+            assert(got_ok == want_ok);
+
+            std::streampos want_pos =
+                c.want_pos == -1 ?
+                    std::streampos(std::char_traits<char>::length(c.input)) :
+                    std::streampos(c.want_pos);
+            assert(consumed_position(input) == want_pos);
+            if (want_ok) {
+                assert(got_eof ==
+                       (want_pos ==
+                        std::streampos(
+                            std::char_traits<char>::length(c.input))));
+                assert(got == mpz_class(c.want));
+            }
+        }
+    }
+
+    {
+        struct case_type {
+            char const* input;
+            int want_pos;
+            char const* want_num;
+            char const* want_den;
+            std::ios::fmtflags flags;
+        };
+        case_type const cases[] = {
+            {"0", -1, "0", "1", std::ios::fmtflags(0)},
+            {"00", -1, "0", "1", std::ios::fmtflags(0)},
+            {"0x0", -1, "0", "1", std::ios::fmtflags(0)},
+            {"123/456", -1, "123", "456", std::ios::dec},
+            {"0123/0456", -1, "123", "456", std::ios::dec},
+            {"123/456", -1, "83", "302", std::ios::oct},
+            {"0123/0456", -1, "83", "302", std::ios::oct},
+            {"ab", -1, "171", "1", std::ios::hex},
+            {"ef", -1, "239", "1", std::ios::hex},
+            {"0/0", -1, "0", "0", std::ios::fmtflags(0)},
+            {"0x5/0x8", -1, "5", "8", std::ios::fmtflags(0)},
+            {"123/0x456", -1, "123", "1110", std::ios::fmtflags(0)},
+            {"0123/0x123", -1, "83", "291", std::ios::fmtflags(0)},
+            {"0x123/0123", -1, "291", "83", std::ios::fmtflags(0)},
+            {" 123", 0, nullptr, nullptr, std::ios::fmtflags(0)},
+            {" 123", -1, "123", "1", std::ios::skipws},
+            {"123 /456", 3, "123", "1", std::ios::fmtflags(0)},
+            {"123/ 456", 4, nullptr, nullptr, std::ios::fmtflags(0)},
+            {"123/", -1, nullptr, nullptr, std::ios::fmtflags(0)},
+            {"123 /456", 3, "123", "1", std::ios::skipws},
+            {"123/ 456", 4, nullptr, nullptr, std::ios::skipws},
+        };
+
+        for (case_type const& c : cases) {
+            std::istringstream input(c.input);
+            input.flags(c.flags);
+            mpq_t got;
+            mpq_init(got);
+            mpq_set_si(got, 0xDEAD, 0xBEEF);
+
+            input >> got;
+            bool got_ok = !input.fail();
+            bool got_eof = input.eof();
+            bool want_ok = c.want_num != nullptr;
+            assert(got_ok == want_ok);
+
+            std::streampos want_pos =
+                c.want_pos == -1 ?
+                    std::streampos(std::char_traits<char>::length(c.input)) :
+                    std::streampos(c.want_pos);
+            assert(consumed_position(input) == want_pos);
+            if (want_ok) {
+                mpz_class want_num(c.want_num);
+                mpz_class want_den(c.want_den);
+                assert(got_eof ==
+                       (want_pos ==
+                        std::streampos(
+                            std::char_traits<char>::length(c.input))));
+                assert(mpz_cmp(mpq_numref(got), want_num.get_mpz_t()) == 0);
+                assert(mpz_cmp(mpq_denref(got), want_den.get_mpz_t()) == 0);
+            }
+            mpq_clear(got);
+        }
+    }
+
+    {
+        struct case_type {
+            char const* input;
+            int want_pos;
+            char const* want;
+            std::ios::fmtflags flags;
+        };
+        case_type const cases[] = {
+            {"0", -1, "0", std::ios::fmtflags(0)},
+            {"+0", -1, "0", std::ios::fmtflags(0)},
+            {"-0", -1, "0", std::ios::fmtflags(0)},
+            {"0.0", -1, "0", std::ios::fmtflags(0)},
+            {"0.", -1, "0", std::ios::fmtflags(0)},
+            {".0", -1, "0", std::ios::fmtflags(0)},
+            {"+.0", -1, "0", std::ios::fmtflags(0)},
+            {"-.0", -1, "0", std::ios::fmtflags(0)},
+            {"0.0e+0", -1, "0", std::ios::fmtflags(0)},
+            {".0e-0", -1, "0", std::ios::fmtflags(0)},
+            {"1", -1, "1", std::ios::fmtflags(0)},
+            {"+1", -1, "1", std::ios::fmtflags(0)},
+            {"-1", -1, "-1", std::ios::fmtflags(0)},
+            {" 0", 0, nullptr, std::ios::fmtflags(0)},
+            {" 0", -1, "0", std::ios::skipws},
+            {" +0", -1, "0", std::ios::skipws},
+            {" -0", -1, "0", std::ios::skipws},
+            {"+-123", 1, nullptr, std::ios::fmtflags(0)},
+            {"-+123", 1, nullptr, std::ios::fmtflags(0)},
+            {"1e+-123", 3, nullptr, std::ios::fmtflags(0)},
+            {"1e-+123", 3, nullptr, std::ios::fmtflags(0)},
+            {"e123", 0, nullptr, std::ios::fmtflags(0)},
+            {".e123", 1, nullptr, std::ios::fmtflags(0)},
+            {"+.e123", 2, nullptr, std::ios::fmtflags(0)},
+            {"-.e123", 2, nullptr, std::ios::fmtflags(0)},
+            {"123e", 4, nullptr, std::ios::fmtflags(0)},
+            {"123e-", 5, nullptr, std::ios::fmtflags(0)},
+            {"123e+", 5, nullptr, std::ios::fmtflags(0)},
+        };
+
+        for (case_type const& c : cases) {
+            std::istringstream input(c.input);
+            input.flags(c.flags);
+            mpf_class got(0.0, static_cast<mp_bitcnt_t>(128));
+            mpf_set_ui(got.get_mpf_t(), 0xDEAD);
+
+            input >> got.get_mpf_t();
+            bool got_ok = !input.fail();
+            bool got_eof = input.eof();
+            bool want_ok = c.want != nullptr;
+            assert(got_ok == want_ok);
+
+            std::streampos want_pos =
+                c.want_pos == -1 ?
+                    std::streampos(std::char_traits<char>::length(c.input)) :
+                    std::streampos(c.want_pos);
+            assert(consumed_position(input) == want_pos);
+            if (want_ok) {
+                mpf_class want(c.want, got.get_prec());
+                assert(got_eof ==
+                       (want_pos ==
+                        std::streampos(
+                            std::char_traits<char>::length(c.input))));
+                assert_mpf_equal(got, want);
+            }
+        }
+    }
+}
+
 void test_legacy_stream_input_prefixes() {
     {
         mpz_class z(std::int64_t{99});
@@ -553,6 +748,7 @@ int main() {
     test_stream_output();
     test_stream_input();
     test_legacy_iostream_basic_syntax();
+    test_legacy_istream_tables();
     test_legacy_stream_input_prefixes();
     test_expression_output();
     test_gmp_string_frees();
