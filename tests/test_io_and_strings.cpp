@@ -309,6 +309,67 @@ void test_stream_input() {
     assert_mpf_equal(f_fail, mpf_class(2.5, old_prec));
 }
 
+void test_legacy_iostream_basic_syntax() {
+    {
+        std::istringstream input("123");
+        mpz_class value;
+        input >> value;
+        assert(!input.fail());
+        assert(value == mpz_class(std::int64_t{123}));
+    }
+    {
+        std::istringstream input("3/4");
+        mpq_class value;
+        input >> value;
+        assert(!input.fail());
+        assert(value == mpq_class(3, 4));
+    }
+    {
+        std::istringstream input("1.5");
+        mpf_class value;
+        input >> value;
+        assert(!input.fail());
+        assert_mpf_equal(value, mpf_class(1.5, value.get_prec()));
+    }
+
+    {
+        std::ostringstream output;
+        mpz_class value = 123;
+        output << value;
+        assert(output.str() == "123");
+    }
+    {
+        std::ostringstream output;
+        mpz_class value = 123;
+        output << (value + 1);
+        assert(output.str() == "124");
+    }
+    {
+        std::ostringstream output;
+        mpq_class value(3, 4);
+        output << value;
+        assert(output.str() == "3/4");
+    }
+    {
+        std::ostringstream output;
+        mpq_class value(3, 4);
+        output << (value + 1);
+        assert(output.str() == "7/4");
+    }
+    {
+        std::ostringstream output;
+        mpf_class value = 1.5;
+        output << value;
+        assert(output.str() == "1.5");
+    }
+    {
+        std::ostringstream output;
+        mpf_class value = 1.5;
+        output << (value + 1);
+        assert(output.str() == "2.5");
+    }
+}
+
 void test_legacy_stream_input_prefixes() {
     {
         mpz_class z(std::int64_t{99});
@@ -491,6 +552,7 @@ int main() {
     test_mpf_strings();
     test_stream_output();
     test_stream_input();
+    test_legacy_iostream_basic_syntax();
     test_legacy_stream_input_prefixes();
     test_expression_output();
     test_gmp_string_frees();
