@@ -48,6 +48,7 @@ static_assert(__cplusplus >= 202002L, "gmpxx_mkII v2.0.0 requires C++20");
 #include <limits>
 #include <locale>
 #include <mutex>
+#include <new>
 #include <ostream>
 #include <stdexcept>
 #include <string>
@@ -1299,6 +1300,10 @@ public:
     [[nodiscard]] int sgn() const {
         return mpz_sgn(value);
     }
+
+    [[nodiscard]] static mpz_class factorial(mpz_class const& n);
+    [[nodiscard]] static mpz_class primorial(mpz_class const& n);
+    [[nodiscard]] static mpz_class fibonacci(mpz_class const& n);
 
 private:
     static void note_constructed() noexcept {
@@ -4473,12 +4478,13 @@ template<phase2_operand X, scalar_operand S>
 
 template<class L, class R>
 concept mpz_bitwise_pair =
-    (mpz_operand<L> ||
+    (mpz_operand<L> || scalar_operand<L> ||
      (gmpxx_expr<L> &&
       std::same_as<typename std::remove_cvref_t<L>::result_type, mpz_class>)) &&
     (mpz_operand<R> || scalar_operand<R> ||
      (gmpxx_expr<R> &&
-      std::same_as<typename std::remove_cvref_t<R>::result_type, mpz_class>));
+      std::same_as<typename std::remove_cvref_t<R>::result_type, mpz_class>)) &&
+    !(scalar_operand<L> && scalar_operand<R>);
 
 template<class L, class R>
     requires mpz_bitwise_pair<L, R>
@@ -5711,8 +5717,11 @@ inline mpf_class compute_pow(mpf_class const& x_input,
 }
 
 [[nodiscard]] inline mpz_class factorial(mpz_class const& n) {
-    if (n.sgn() < 0 || !n.fits_ulong_p()) {
+    if (n.sgn() < 0) {
         throw std::domain_error("gmpxx_mkII: factorial argument out of range");
+    }
+    if (!n.fits_ulong_p()) {
+        throw std::bad_alloc();
     }
     mpz_class result;
     mpz_fac_ui(result.get_mpz_t(), n.get_ui());
@@ -5720,8 +5729,11 @@ inline mpf_class compute_pow(mpf_class const& x_input,
 }
 
 [[nodiscard]] inline mpz_class primorial(mpz_class const& n) {
-    if (n.sgn() < 0 || !n.fits_ulong_p()) {
+    if (n.sgn() < 0) {
         throw std::domain_error("gmpxx_mkII: primorial argument out of range");
+    }
+    if (!n.fits_ulong_p()) {
+        throw std::bad_alloc();
     }
     mpz_class result;
     mpz_primorial_ui(result.get_mpz_t(), n.get_ui());
@@ -5729,12 +5741,28 @@ inline mpf_class compute_pow(mpf_class const& x_input,
 }
 
 [[nodiscard]] inline mpz_class fibonacci(mpz_class const& n) {
-    if (n.sgn() < 0 || !n.fits_ulong_p()) {
-        throw std::domain_error("gmpxx_mkII: fibonacci argument out of range");
+    mpz_class magnitude = abs(n);
+    if (!magnitude.fits_ulong_p()) {
+        throw std::bad_alloc();
     }
     mpz_class result;
-    mpz_fib_ui(result.get_mpz_t(), n.get_ui());
+    mpz_fib_ui(result.get_mpz_t(), magnitude.get_ui());
+    if (n.sgn() < 0 && mpz_even_p(magnitude.get_mpz_t()) != 0) {
+        mpz_neg(result.get_mpz_t(), result.get_mpz_t());
+    }
     return result;
+}
+
+inline mpz_class mpz_class::factorial(mpz_class const& n) {
+    return ::factorial(n);
+}
+
+inline mpz_class mpz_class::primorial(mpz_class const& n) {
+    return ::primorial(n);
+}
+
+inline mpz_class mpz_class::fibonacci(mpz_class const& n) {
+    return ::fibonacci(n);
 }
 
 [[nodiscard]] inline mpf_class pi(mp_bitcnt_t target_precision) {

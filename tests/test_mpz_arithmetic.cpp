@@ -31,6 +31,8 @@
 #include <cassert>
 #include <cstdint>
 #include <limits>
+#include <new>
+#include <stdexcept>
 
 namespace {
 
@@ -108,6 +110,12 @@ void check_shift_and_bitwise() {
     assert(c == mpz_class(-0x3401));
     c = a ^ 48879.0;
     assert(c == mpz_class(0x7411));
+    c = 0xcafeL & b;
+    assert(c == mpz_class(0x8aee));
+    c = 0xcafeL | b;
+    assert(c == mpz_class(0xfeff));
+    c = 0xcafeL ^ b;
+    assert(c == mpz_class(0x7411));
     c = ~mpz_class(3);
     assert(c == mpz_class(-4));
     c = ~(a & b);
@@ -123,6 +131,62 @@ void check_shift_and_bitwise() {
     shifted = mpz_class(-20);
     shifted >>= 3u;
     assert(shifted == mpz_class(-3));
+}
+
+void check_integer_helpers() {
+    assert(gcd(mpz_class(6), mpz_class(8)) == mpz_class(2));
+    assert(gcd(-mpz_class(6), mpz_class(8)) == mpz_class(2));
+    assert(gcd(static_cast<long>(-6), mpz_class(5) + 3) == mpz_class(2));
+    assert(lcm(mpz_class(6), mpz_class(8)) == mpz_class(24));
+    assert(lcm(-mpz_class(6), -mpz_class(8)) == mpz_class(24));
+    assert(lcm(-6.0, mpz_class(5) + 3) == mpz_class(24));
+
+    assert(factorial(mpz_class(3)) == mpz_class(6));
+    assert(factorial(mpz_class(5) - 1) == mpz_class(24));
+    assert(mpz_class::factorial(mpz_class(3)) == mpz_class(6));
+    assert(mpz_class::factorial(3.0f) == mpz_class(6));
+
+    assert(primorial(mpz_class(5)) == mpz_class(30));
+    assert(mpz_class::primorial(mpz_class(2) * 2) == mpz_class(6));
+    assert(mpz_class::primorial(3UL) == mpz_class(6));
+
+    assert(fibonacci(mpz_class(6)) == mpz_class(8));
+    assert(mpz_class::fibonacci(mpz_class(2) * 2) == mpz_class(3));
+    assert(mpz_class::fibonacci(3.0f) == mpz_class(2));
+    assert(fibonacci(-mpz_class(6)) == mpz_class(-8));
+    assert(mpz_class::fibonacci(-3) == mpz_class(2));
+
+    bool threw_domain = false;
+    try {
+        (void)factorial(-mpz_class(3));
+    } catch (std::domain_error const&) {
+        threw_domain = true;
+    }
+    assert(threw_domain);
+
+    threw_domain = false;
+    try {
+        (void)mpz_class::primorial(-5);
+    } catch (std::domain_error const&) {
+        threw_domain = true;
+    }
+    assert(threw_domain);
+
+    bool threw_bad_alloc = false;
+    try {
+        (void)factorial(mpz_class(1) << 300);
+    } catch (std::bad_alloc const&) {
+        threw_bad_alloc = true;
+    }
+    assert(threw_bad_alloc);
+
+    threw_bad_alloc = false;
+    try {
+        (void)fibonacci(mpz_class(1) << 300);
+    } catch (std::bad_alloc const&) {
+        threw_bad_alloc = true;
+    }
+    assert(threw_bad_alloc);
 }
 
 }  // namespace
@@ -147,6 +211,7 @@ int main() {
     check_scalar(huge);
     check_scalar(neg_huge);
     check_shift_and_bitwise();
+    check_integer_helpers();
 
     {
         mpz_class a("100");
