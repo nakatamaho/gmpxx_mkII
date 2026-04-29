@@ -642,8 +642,15 @@ public:
         mpf_set(value, v);
     }
 
-    mpf_class(bool) = delete;
-    mpf_class(bool, mp_bitcnt_t) = delete;
+    mpf_class(bool v) : mpf_class() {
+        mpf_set_ui(value, v ? 1u : 0u);
+    }
+
+    mpf_class(bool v, mp_bitcnt_t prec) {
+        note_constructed();
+        mpf_init2(value, prec);
+        mpf_set_ui(value, v ? 1u : 0u);
+    }
 
     template<class T>
         requires (std::is_integral_v<std::remove_cvref_t<T>> &&
@@ -667,6 +674,7 @@ public:
     mpf_class(mpz_class const& v, mp_bitcnt_t prec);
     mpf_class(mpq_class const& v);
     mpf_class(mpq_class const& v, mp_bitcnt_t prec);
+    mpf_class(mpf_class const& v, mp_bitcnt_t prec);
 
     explicit mpf_class(char const* s) : mpf_class() {
         set_from_string(s, gmpxx_detail::use_default_base);
@@ -984,6 +992,10 @@ public:
 
     mpz_class(std::uint64_t v) : mpz_class() {
         set_u64(v);
+    }
+
+    mpz_class(bool v) : mpz_class() {
+        mpz_set_ui(value, v ? 1u : 0u);
     }
 
 #if defined(__SIZEOF_INT128__)
@@ -1330,6 +1342,27 @@ public:
         canonicalize();
     }
 
+    template<class Num, class Den>
+        requires (std::is_integral_v<std::remove_cvref_t<Num>> &&
+                  std::is_integral_v<std::remove_cvref_t<Den>> &&
+                  !std::same_as<std::remove_cvref_t<Num>, bool> &&
+                  !std::same_as<std::remove_cvref_t<Den>, bool> &&
+                  (sizeof(std::remove_cvref_t<Num>) <= sizeof(std::uint64_t)) &&
+                  (sizeof(std::remove_cvref_t<Den>) <= sizeof(std::uint64_t)) &&
+                  !(std::same_as<std::remove_cvref_t<Num>, std::int64_t> &&
+                    std::same_as<std::remove_cvref_t<Den>, std::int64_t>))
+    mpq_class(Num num, Den den) : mpq_class() {
+        mpz_class n(num);
+        mpz_class d(den);
+        mpq_set_num(value, n.get_mpz_t());
+        mpq_set_den(value, d.get_mpz_t());
+        canonicalize();
+    }
+
+    mpq_class(bool num) : mpq_class() {
+        mpq_set_ui(value, num ? 1u : 0u, 1u);
+    }
+
     template<class T>
         requires (std::is_integral_v<std::remove_cvref_t<T>> &&
                   !std::same_as<std::remove_cvref_t<T>, bool> &&
@@ -1587,6 +1620,11 @@ inline mpf_class::mpf_class(mpq_class const& v) : mpf_class() {
 inline mpf_class::mpf_class(mpq_class const& v, mp_bitcnt_t prec)
     : mpf_class(0.0, prec) {
     mpf_set_q(value, v.get_mpq_t());
+}
+
+inline mpf_class::mpf_class(mpf_class const& v, mp_bitcnt_t prec)
+    : mpf_class(0.0, prec) {
+    mpf_set(value, v.get_mpf_t());
 }
 
 inline mpf_class& mpf_class::operator=(mpz_class const& rhs) {

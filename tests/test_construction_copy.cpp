@@ -54,7 +54,10 @@ void test_compile_time_surface() {
     static_assert(std::is_constructible_v<mpf_class, std::uint64_t, mp_bitcnt_t>);
     static_assert(std::is_constructible_v<mpf_class, mpf_srcptr>);
     static_assert(std::is_constructible_v<mpf_class, mpf_srcptr, mp_bitcnt_t>);
-    static_assert(!std::is_constructible_v<mpf_class, bool, mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, bool>);
+    static_assert(std::is_constructible_v<mpf_class, bool, mp_bitcnt_t>);
+    static_assert(std::is_constructible_v<mpf_class, mpf_class const&,
+                                          mp_bitcnt_t>);
 
     static_assert(std::is_default_constructible_v<mpz_class>);
     static_assert(std::is_copy_constructible_v<mpz_class>);
@@ -62,6 +65,7 @@ void test_compile_time_surface() {
     static_assert(std::is_copy_assignable_v<mpz_class>);
     static_assert(std::is_move_assignable_v<mpz_class>);
     static_assert(std::is_constructible_v<mpz_class, int>);
+    static_assert(std::is_constructible_v<mpz_class, bool>);
     static_assert(std::is_constructible_v<mpz_class, std::int32_t>);
     static_assert(std::is_constructible_v<mpz_class, std::uint32_t>);
 
@@ -70,6 +74,7 @@ void test_compile_time_surface() {
     static_assert(std::is_move_constructible_v<mpq_class>);
     static_assert(std::is_copy_assignable_v<mpq_class>);
     static_assert(std::is_move_assignable_v<mpq_class>);
+    static_assert(std::is_constructible_v<mpq_class, bool>);
 }
 
 void test_default_constructor_value_zero() {
@@ -158,6 +163,38 @@ void test_copy_constructor_preserves_value_and_precision() {
 
     assert(copy.get_prec() == original.get_prec());
     assert_mpf_equal(copy, original);
+}
+
+void test_mpf_copy_constructor_with_explicit_precision() {
+    mpf_class original("3.1415926535", static_cast<mp_bitcnt_t>(384));
+    mp_bitcnt_t requested_prec = static_cast<mp_bitcnt_t>(128);
+
+    mpf_class copy(original, requested_prec);
+    mpf_class expected(0.0, requested_prec);
+    mpf_set(expected.get_mpf_t(), original.get_mpf_t());
+
+    assert(copy.get_prec() ==
+           gmpxx_detail::effective_mpf_prec(requested_prec));
+    assert_mpf_equal(copy, expected);
+}
+
+void test_bool_constructors() {
+    mpf_class f_true(true);
+    mpf_class f_false(false, static_cast<mp_bitcnt_t>(128));
+    assert_mpf_equal(f_true, mpf_class(1, f_true.get_prec()));
+    assert(f_false.get_prec() ==
+           gmpxx_detail::effective_mpf_prec(128));
+    assert_mpf_equal(f_false, mpf_class(0, f_false.get_prec()));
+
+    mpz_class z_true(true);
+    mpz_class z_false(false);
+    assert(z_true == mpz_class(1));
+    assert(z_false == mpz_class(0));
+
+    mpq_class q_true(true);
+    mpq_class q_false(false);
+    assert(q_true == mpq_class(1));
+    assert(q_false == mpq_class(0));
 }
 
 void test_copy_assignment_preserves_value_and_source_precision() {
@@ -352,6 +389,9 @@ void test_mpq_construction_copy_move_assignment_and_swap() {
     mpq_class zero;
     assert(zero == mpq_class(std::int64_t{0}));
 
+    mpq_class from_int_pair(0, 1);
+    assert(from_int_pair == zero);
+
     mpq_class original("355/113");
     mpq_class copied(original);
     assert(copied == original);
@@ -389,6 +429,8 @@ int main() {
     test_expression_constructor_with_explicit_precision();
     test_raw_mpf_t_constructor();
     test_copy_constructor_preserves_value_and_precision();
+    test_mpf_copy_constructor_with_explicit_precision();
+    test_bool_constructors();
     test_copy_assignment_preserves_value_and_source_precision();
     test_move_constructor_preserves_value();
     test_move_assignment_preserves_value();
