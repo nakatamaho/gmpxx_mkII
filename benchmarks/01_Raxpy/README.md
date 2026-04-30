@@ -80,7 +80,13 @@ N = 100000000, precision = 512
 Results are stored in `../results-go-sh-sample/`:
 
 - Raw log: `../results-go-sh-sample/benchmark_20260430_081331.log`
-- Plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Raxpy.png`
-- PDF plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Raxpy.pdf`
+- Serial plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.png`
+- Serial PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.pdf`
+- OpenMP plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.png`
+- OpenMP PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.pdf`
 
 All Raxpy variants in that run report `Result OK`.
+
+The OpenMP variants improve the timed AXPY body by about 11-14x in the
+recorded run.  As with Rdot, total wall time is dominated by allocation,
+random initialization, and verification for the 100000000-element vectors.

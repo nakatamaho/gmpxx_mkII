@@ -155,10 +155,12 @@ benchmark provided one.
 The runner writes a timestamped log and calls `benchmarks/plot.py` through
 matplotlib.  The log records one `COMMAND` block per executable, followed by
 `Elapsed time`, `MFLOPS`, and the benchmark's result check.  The generated
-`*_summary.{png,pdf}` compares all variants together, and
-`*_{Rdot,Raxpy,Rgemv,Rgemm}.{png,pdf}` gives per-kernel comparisons.  Higher
-MFLOPS is better; compare variants within the same kernel, precision, matrix
-size, compiler flags, and machine.
+plots separate serial and OpenMP variants: `*_serial_summary.{png,pdf}` and
+`*_openmp_summary.{png,pdf}` compare all kernels, while
+`*_serial_{Rdot,Raxpy,Rgemv,Rgemm}.{png,pdf}` and
+`*_openmp_{Rdot,Raxpy,Rgemv,Rgemm}.{png,pdf}` give per-kernel comparisons.
+Higher MFLOPS is better; compare variants within the same kernel, precision,
+matrix size, compiler flags, and machine.
 
 A committed run using the eager `go.sh` sample dimensions is stored under
 `benchmarks/results-go-sh-sample/`.  It was generated with:
@@ -169,12 +171,19 @@ benchmarks/run_benchmarks.sh build_bench_release 512 \
     benchmarks/results-go-sh-sample
 ```
 
-The generated files include the raw log
-`benchmark_20260430_081331.log`, the summary plot, and one plot per benchmark
-kernel.  In this run, `Rdot`, `Raxpy`, and `Rgemm` report `Result OK` for all
-variants.  `Rgemv kernel_openmp_02` reports `Result NG` for `orig`, `mkII`, and
-`mkII_NOPRECCHANGE`; the same failure across all three variants points to that
-ported OpenMP benchmark variant rather than a `gmpxx_mkII`-only difference.
+The generated files include the raw log `benchmark_20260430_081331.log`,
+serial plots, and OpenMP plots.  In this run, `Rdot`, `Raxpy`, and `Rgemm`
+report `Result OK` for all variants.  `Rgemv kernel_openmp_02` reports
+`Result NG` for `orig`, `mkII`, and `mkII_NOPRECCHANGE`; the same failure
+across all three variants points to that ported OpenMP benchmark variant
+rather than a `gmpxx_mkII`-only difference.
+
+For this 32-core Threadripper run, OpenMP improves the timed kernel-body
+MFLOPS substantially: roughly 17-22x for Rdot, 11-14x for Raxpy, 9-23x for
+Rgemv, and 24-31x for Rgemm, depending on the native/orig/mkII variant.  These
+ratios use `Elapsed time`/`MFLOPS`, not `WALL_SECONDS`; vector initialization
+and result checking dominate wall time for Rdot and Raxpy, so end-to-end
+speedup is much smaller than the plotted kernel-body speedup.
 
 Install the generated header, exported CMake target, and package config files:
 

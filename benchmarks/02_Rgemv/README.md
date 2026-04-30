@@ -81,10 +81,18 @@ M = 4000, N = 4000, precision = 512
 Results are stored in `../results-go-sh-sample/`:
 
 - Raw log: `../results-go-sh-sample/benchmark_20260430_081331.log`
-- Plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Rgemv.png`
-- PDF plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Rgemv.pdf`
+- Serial plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemv.png`
+- Serial PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemv.pdf`
+- OpenMP plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemv.png`
+- OpenMP PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemv.pdf`
 
 `kernel_openmp_02` reports `Result NG` for `orig`, `mkII`, and
 `mkII_NOPRECCHANGE` in that run.  The same failure across all three variants
 indicates a benchmark-variant issue in this ported OpenMP case, not a
 `gmpxx_mkII`-specific difference.
+
+Ignoring the `kernel_openmp_02` correctness failure for performance
+interpretation, OpenMP improves the timed Rgemv body by about 14x for native
+`mpf_t` and about 21-23x for the `kernel_01` wrapper variants.  The
+`kernel_02` OpenMP variants show about 9-10x speedup but are not currently
+valid correctness data because they report `Result NG`.

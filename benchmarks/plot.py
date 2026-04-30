@@ -101,7 +101,15 @@ def variant_color(variant):
     return "black"
 
 
-def plot_kernel(rows, kernel, title_suffix, output_base):
+def is_openmp_variant(row):
+    return "openmp" in row["variant"]
+
+
+def select_rows(rows, openmp):
+    return [row for row in rows if is_openmp_variant(row) == openmp]
+
+
+def plot_kernel(rows, kernel, title_suffix, output_base, group_label):
     kernel_rows = [row for row in rows if row["kernel"] == kernel]
     if not kernel_rows:
         return
@@ -113,7 +121,8 @@ def plot_kernel(rows, kernel, title_suffix, output_base):
     plt.figure(figsize=(max(9, 0.72 * len(labels)), 6))
     bars = plt.bar(labels, values, color=colors)
     plt.ylabel("MFLOPS", fontsize=13, fontweight="bold")
-    plt.title(f"{kernel} benchmark {title_suffix}", fontsize=13, fontweight="bold")
+    plt.title(f"{kernel} {group_label} benchmark {title_suffix}",
+              fontsize=13, fontweight="bold")
     plt.xticks(rotation=20, ha="right", fontsize=11, fontweight="bold")
     plt.yticks(fontsize=11, fontweight="bold")
     plt.ylim(0, max(values) * 1.15 if max(values) > 0 else 1)
@@ -135,7 +144,10 @@ def plot_kernel(rows, kernel, title_suffix, output_base):
     plt.close()
 
 
-def plot_summary(rows, title_suffix, output_base):
+def plot_summary(rows, title_suffix, output_base, group_label):
+    if not rows:
+        return
+
     labels = [f"{row['kernel']}\n{row['variant']}" for row in rows]
     values = [row["mflops"] for row in rows]
     colors = [variant_color(row["variant"]) for row in rows]
@@ -144,7 +156,7 @@ def plot_summary(rows, title_suffix, output_base):
     bars = plt.bar(labels, values, color=colors)
 
     plt.ylabel("MFLOPS", fontsize=13, fontweight="bold")
-    plt.title(f"GMP benchmark summary {title_suffix}", fontsize=13,
+    plt.title(f"GMP {group_label} benchmark summary {title_suffix}", fontsize=13,
               fontweight="bold")
     plt.xticks(rotation=65, ha="right", fontsize=8, fontweight="bold")
     plt.yticks(fontsize=11, fontweight="bold")
@@ -184,9 +196,16 @@ def main():
             f"{log.stem}_{filename_token(os_name)}_{filename_token(cpu_name)}"
         )
 
-        plot_summary(rows, title_suffix, output_base)
-        for kernel in ["Rdot", "Raxpy", "Rgemv", "Rgemm"]:
-            plot_kernel(rows, kernel, title_suffix, output_base)
+        for openmp, group_label, suffix in [
+            (False, "serial", "serial"),
+            (True, "OpenMP", "openmp"),
+        ]:
+            group_rows = select_rows(rows, openmp)
+            group_base = pathlib.Path(f"{output_base}_{suffix}")
+            plot_summary(group_rows, title_suffix, group_base, group_label)
+            for kernel in ["Rdot", "Raxpy", "Rgemv", "Rgemm"]:
+                plot_kernel(group_rows, kernel, title_suffix, group_base,
+                            group_label)
 
 
 if __name__ == "__main__":

@@ -80,7 +80,14 @@ N = 100000000, precision = 512
 Results are stored in `../results-go-sh-sample/`:
 
 - Raw log: `../results-go-sh-sample/benchmark_20260430_081331.log`
-- Plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Rdot.png`
-- PDF plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Rdot.pdf`
+- Serial plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rdot.png`
+- Serial PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rdot.pdf`
+- OpenMP plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rdot.png`
+- OpenMP PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rdot.pdf`
 
 All Rdot variants in that run report `Result OK`.
+
+The OpenMP variants improve the timed dot-product body by about 17-22x in the
+recorded run.  The full executable wall time improves much less, because the
+benchmark allocates and initializes two 100000000-element vectors before the
+timed kernel.

@@ -81,7 +81,14 @@ M = 500, K = 500, N = 500, precision = 512
 Results are stored in `../results-go-sh-sample/`:
 
 - Raw log: `../results-go-sh-sample/benchmark_20260430_081331.log`
-- Plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Rgemm.png`
-- PDF plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_Rgemm.pdf`
+- Serial plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemm.png`
+- Serial PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemm.pdf`
+- OpenMP plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemm.png`
+- OpenMP PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemm.pdf`
 
 All Rgemm variants in that run report `Result OK`.
+
+OpenMP has the strongest effect here: the timed matrix-matrix body improves by
+about 24-31x in the recorded run.  Rgemm has much higher arithmetic intensity
+than the vector kernels, so the OpenMP speedup is closer to what one expects
+from the available cores.
