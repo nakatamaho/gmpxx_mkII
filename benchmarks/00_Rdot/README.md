@@ -71,6 +71,10 @@ Variant names:
 
 ## Recorded go.sh Sample
 
+![Rdot serial benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rdot.png)
+
+![Rdot OpenMP benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rdot.png)
+
 The committed sample run uses the original `go.sh` dimensions:
 
 ```text
@@ -90,4 +94,6 @@ All Rdot variants in that run report `Result OK`.
 The OpenMP variants improve the timed dot-product body by about 17-22x in the
 recorded run.  The full executable wall time improves much less, because the
 benchmark allocates and initializes two 100000000-element vectors before the
-timed kernel.
+timed kernel.  For non-OpenMP comparison, `kernel_03` is the strongest serial
+wrapper family in this run, and `mkII` is essentially tied with upstream
+`gmpxx.h` there.

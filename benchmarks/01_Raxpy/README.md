@@ -71,6 +71,10 @@ Variant names:
 
 ## Recorded go.sh Sample
 
+![Raxpy serial benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.png)
+
+![Raxpy OpenMP benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.png)
+
 The committed sample run uses the original `go.sh` dimensions:
 
 ```text
@@ -90,3 +94,6 @@ All Raxpy variants in that run report `Result OK`.
 The OpenMP variants improve the timed AXPY body by about 11-14x in the
 recorded run.  As with Rdot, total wall time is dominated by allocation,
 random initialization, and verification for the 100000000-element vectors.
+The serial `kernel_02` family is faster than `kernel_01` in this run, and the
+`mkII`/`mkII_NOPRECCHANGE` results stay close to the upstream `gmpxx.h`
+variants.

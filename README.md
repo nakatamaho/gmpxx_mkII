@@ -178,6 +178,10 @@ report `Result OK` for all variants.  `Rgemv kernel_openmp_02` reports
 across all three variants points to that ported OpenMP benchmark variant
 rather than a `gmpxx_mkII`-only difference.
 
+![Serial benchmark summary](benchmarks/results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_summary.png)
+
+![OpenMP benchmark summary](benchmarks/results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_summary.png)
+
 For this 32-core Threadripper run, OpenMP improves the timed kernel-body
 MFLOPS substantially: roughly 17-22x for Rdot, 11-14x for Raxpy, 9-23x for
 Rgemv, and 24-31x for Rgemm, depending on the native/orig/mkII variant.  These

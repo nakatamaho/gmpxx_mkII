@@ -72,6 +72,10 @@ Variant names:
 
 ## Recorded go.sh Sample
 
+![Rgemv serial benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemv.png)
+
+![Rgemv OpenMP benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemv.png)
+
 The committed sample run uses the original `go.sh` dimensions:
 
 ```text
@@ -95,4 +99,7 @@ Ignoring the `kernel_openmp_02` correctness failure for performance
 interpretation, OpenMP improves the timed Rgemv body by about 14x for native
 `mpf_t` and about 21-23x for the `kernel_01` wrapper variants.  The
 `kernel_02` OpenMP variants show about 9-10x speedup but are not currently
-valid correctness data because they report `Result NG`.
+valid correctness data because they report `Result NG`.  In serial mode,
+`kernel_02` is faster than `kernel_01`, so fixing the OpenMP `kernel_02`
+correctness issue is the important next step before drawing conclusions about
+that parallel variant.

@@ -72,6 +72,10 @@ Variant names:
 
 ## Recorded go.sh Sample
 
+![Rgemm serial benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemm.png)
+
+![Rgemm OpenMP benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemm.png)
+
 The committed sample run uses the original `go.sh` dimensions:
 
 ```text
@@ -91,4 +95,6 @@ All Rgemm variants in that run report `Result OK`.
 OpenMP has the strongest effect here: the timed matrix-matrix body improves by
 about 24-31x in the recorded run.  Rgemm has much higher arithmetic intensity
 than the vector kernels, so the OpenMP speedup is closer to what one expects
-from the available cores.
+from the available cores.  In serial mode, `kernel_03` is the fastest wrapper
+family in this run, while OpenMP makes the differences between wrapper
+variants smaller than the difference between serial and parallel execution.
