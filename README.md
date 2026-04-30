@@ -450,7 +450,9 @@ The [examples](examples/) directory contains small standalone programs,
 including two DKA/Aberth root finder examples: `example05` keeps the
 pre-`mpfc_class` real-pair implementation, while `example06` uses
 `gmpxx::mpfc_class`. `example07` renders a dependency-free Mandelbrot
-boundary-zoom PPM image using `mpfc_class` complex iteration.
+boundary-zoom PPM image using `mpfc_class` complex iteration. `example08`
+solves the Wilkinson polynomial and a slightly perturbed variant to show
+root sensitivity in an ill-conditioned polynomial.
 
 ## License
 
