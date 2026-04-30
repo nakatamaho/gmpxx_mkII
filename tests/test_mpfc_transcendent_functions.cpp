@@ -97,11 +97,41 @@ void test_real_axis_and_expression_inputs() {
     assert(principal_root.imag() == 2);
 }
 
+void test_pow_against_std_complex() {
+    using namespace gmpxx;
+
+    complex_ref ref(0.75, -0.5);
+    mpfc_class z = make_mpfc(ref.real(), ref.imag());
+
+    check_close("pow unsigned", std::pow(ref, 5), pow(z, 5U));
+    check_close("pow signed", std::pow(ref, 5), pow(z, 5));
+    check_close("pow zero", complex_ref(1.0, 0.0), pow(z, 0));
+    check_close("pow negative", std::pow(ref, -3), pow(z, -3));
+
+    mpf_class real_exponent("1.75", 256);
+    check_close("pow real exponent", std::pow(ref, 1.75),
+                pow(z, real_exponent));
+
+    complex_ref exponent_ref(-0.25, 0.5);
+    mpfc_class exponent =
+        make_mpfc(exponent_ref.real(), exponent_ref.imag());
+    check_close("pow complex exponent", std::pow(ref, exponent_ref),
+                pow(z, exponent));
+
+    mpfc_class w = make_mpfc(0.125, 0.25);
+    check_close("pow expression base", std::pow(ref + complex_ref(0.125, 0.25), 3),
+                pow(z + w, 3));
+    check_close("pow expression exponent",
+                std::pow(ref, exponent_ref + complex_ref(0.125, 0.25)),
+                pow(z, exponent + w));
+}
+
 }  // namespace
 
 int main() {
     test_primary_functions_against_std_complex();
     test_inverse_functions_against_std_complex();
     test_real_axis_and_expression_inputs();
+    test_pow_against_std_complex();
     return 0;
 }

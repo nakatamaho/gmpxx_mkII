@@ -35,7 +35,7 @@ The main points are:
   `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and `expm1`.
 - `gmpxx::mpfc_class`, a GMP-only complex floating type backed by two
   `mpf_class` values, with expression-template arithmetic, `conj`, `norm`,
-  `abs`, complex elementary/transcendental functions, and
+  `abs`, complex elementary/transcendental functions, complex `pow`, and
   `std::complex`-style `(real,imag)` stream I/O.
 - RAII ownership of `mpf_t`, `mpz_t`, and `mpq_t`; exact `mpz_class` and
   `mpq_class` arithmetic remains native where exact behavior is part of the

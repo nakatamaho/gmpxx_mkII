@@ -7210,6 +7210,70 @@ inline std::istream& operator>>(std::istream& is, mpfc_class& value) {
                       difference.imag() * half);
 }
 
+[[nodiscard]] inline mpfc_class pow(mpfc_class const& base,
+                                    std::uint64_t exponent) {
+    mp_bitcnt_t precision = base.get_prec();
+    mpfc_class result(mpf_class(1, precision), mpf_class(0, precision));
+    mpfc_class factor = base;
+
+    while (exponent != 0) {
+        if ((exponent & 1U) != 0) {
+            result *= factor;
+        }
+        exponent >>= 1U;
+        if (exponent != 0) {
+            factor *= factor;
+        }
+    }
+
+    return result;
+}
+
+[[nodiscard]] inline mpfc_class pow(mpfc_class const& base,
+                                    std::int64_t exponent) {
+    if (exponent >= 0) {
+        return pow(base, static_cast<std::uint64_t>(exponent));
+    }
+
+    std::uint64_t magnitude =
+        static_cast<std::uint64_t>(-(exponent + 1)) + 1U;
+    mp_bitcnt_t precision = base.get_prec();
+    mpfc_class one(mpf_class(1, precision), mpf_class(0, precision));
+    return one / pow(base, magnitude);
+}
+
+template<class I>
+    requires (std::is_integral_v<std::remove_cvref_t<I>> &&
+              std::is_unsigned_v<std::remove_cvref_t<I>> &&
+              !std::same_as<std::remove_cvref_t<I>, bool> &&
+              !std::same_as<std::remove_cvref_t<I>, std::uint64_t>)
+[[nodiscard]] inline mpfc_class pow(mpfc_class const& base, I exponent) {
+    return pow(base, static_cast<std::uint64_t>(exponent));
+}
+
+template<class I>
+    requires (std::is_integral_v<std::remove_cvref_t<I>> &&
+              std::is_signed_v<std::remove_cvref_t<I>> &&
+              !std::same_as<std::remove_cvref_t<I>, bool> &&
+              !std::same_as<std::remove_cvref_t<I>, std::int64_t>)
+[[nodiscard]] inline mpfc_class pow(mpfc_class const& base, I exponent) {
+    return pow(base, static_cast<std::int64_t>(exponent));
+}
+
+[[nodiscard]] inline mpfc_class pow(mpfc_class const& base,
+                                    mpf_class const& exponent) {
+    mp_bitcnt_t precision =
+        mpfc_detail::max_prec(base.get_prec(), exponent.get_prec());
+    mpfc_class exponent_value(mpf_class(exponent, precision),
+                              mpf_class(0, precision));
+    return exp(exponent_value * log(base));
+}
+
+[[nodiscard]] inline mpfc_class pow(mpfc_class const& base,
+                                    mpfc_class const& exponent) {
+    return exp(exponent * log(base));
+}
+
 template<mpfc_detail::expression Expr>
 [[nodiscard]] inline mpfc_class conj(Expr const& expr) {
     return conj(mpfc_class(expr));
@@ -7328,6 +7392,43 @@ template<mpfc_detail::expression Expr>
     requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
 [[nodiscard]] inline mpfc_class atanh(Expr const& expr) {
     return atanh(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr, class I>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class> &&
+              std::is_integral_v<std::remove_cvref_t<I>> &&
+              !std::same_as<std::remove_cvref_t<I>, bool>)
+[[nodiscard]] inline mpfc_class pow(Expr const& base, I exponent) {
+    return pow(mpfc_class(base), exponent);
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class pow(Expr const& base,
+                                    mpf_class const& exponent) {
+    return pow(mpfc_class(base), exponent);
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class pow(Expr const& base,
+                                    mpfc_class const& exponent) {
+    return pow(mpfc_class(base), exponent);
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class pow(mpfc_class const& base,
+                                    Expr const& exponent) {
+    return pow(base, mpfc_class(exponent));
+}
+
+template<mpfc_detail::expression Base, mpfc_detail::expression Exponent>
+    requires (!std::same_as<std::remove_cvref_t<Base>, mpfc_class> &&
+              !std::same_as<std::remove_cvref_t<Exponent>, mpfc_class>)
+[[nodiscard]] inline mpfc_class pow(Base const& base,
+                                    Exponent const& exponent) {
+    return pow(mpfc_class(base), mpfc_class(exponent));
 }
 
 namespace literals {
