@@ -286,6 +286,10 @@ ss >> parsed;
 std::cout << parsed;  // (1.25,-2.5)
 ```
 
+Unlike `std::complex`, extraction intentionally accepts only the full
+`(real,imag)` pair form; bare `real` and parenthesized `(real)` inputs fail
+without changing the destination.
+
 ## Expression Lifetime
 
 Expression-template nodes follow the storage policy documented in
