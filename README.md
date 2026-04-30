@@ -1,68 +1,48 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, single-header wrapper around GNU GMP numeric
-types.  It is intended for code that likes the public names and general usage
-style of GMP's existing `gmpxx.h`, but wants a wrapper whose ownership,
-precision policy, expression evaluation, and build integration are explicit in
-this repository.
+types.  It is designed to be highly source-level compatible with GMP's
+existing `gmpxx.h`, while keeping the implementation, precision policy,
+extended API, and build integration in this repository.
 
 The project is GMP-only.  It does not use MPFR or MPC for implementation,
 normal tests, parsing, formatting, or reference calculations.
 
 ## Overview
 
-Compared with the upstream GMP C++ wrapper, `gmpxx_mkII` differs in these
-main ways:
+The main points are:
 
-- The public API is one project-owned header,
-  [gmpxx_mkII.h](gmpxx_mkII.h), with CMake package support; consumers do not
-  link to `libgmpxx`.
-- The public type names and ordinary expression style are close to
-  `gmpxx.h`: `mpf_class`, `mpz_class`, `mpq_class`, and `gmp_randclass` are
-  provided.  The main visible namespace difference is that the enhanced API
-  lives under `gmpxx`; compatibility details are tracked in
-  [STATUS.md](STATUS.md).
-- Scalar dispatch covers fixed-width integer paths such as `int64_t` and
-  `uint64_t`, avoiding the `long`/`long long` ambiguity that matters across
-  LP64 and LLP64 platforms.
-- The wrapper default precision is thread-local after first use and is
-  initialized from `GMPXX_MKII_DEFAULT_PREC` or from
-  `gmpxx_defaults::set_initial_default_prec()`.  This avoids changing GMP's
-  process-global `mpf_set_default_prec()` state as a library side effect.
-- GMP-only special functions are provided for `mpf_class`, including `log`,
-  `exp`, `cos`, `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and
-  `expm1`.
-- Mixed exact/floating expressions and scalar promotion rules are tested and
-  documented here, including the project policy that `mpz`/`mpq` mixed with
-  floating scalars produce floating results where a floating result is defined.
-- Floating expression precision is defined by this project: default builds use
-  the maximum precision of `mpf_class` leaves, while assignment into an
-  existing `mpf_class` preserves the destination precision.
+- High source-level compatibility with `gmpxx.h`: familiar public names such
+  as `mpf_class`, `mpz_class`, `mpq_class`, and `gmp_randclass` are provided,
+  and ordinary arithmetic expression style is preserved.  The main visible
+  difference is that the enhanced API lives under `gmpxx`.
+- Expression-template arithmetic for `+`, `-`, `*`, `/`, unary operators, and
+  compound assignment.  The original `gmpxx.h` also uses expression
+  templates; this project keeps that performance-oriented model while making
+  ownership and precision policy explicit in the implementation.
+- Single-header public API:
+  [gmpxx_mkII.h](gmpxx_mkII.h).  Consumers link GMP, but do not link
+  `libgmpxx`; CMake package files are provided for install-tree use.
+- Fixed-width scalar dispatch for paths such as `int64_t` and `uint64_t`,
+  avoiding the `long`/`long long` ambiguity that matters across LP64 and LLP64
+  platforms.
+- Thread-local wrapper default precision after first use, initialized from
+  `GMPXX_MKII_DEFAULT_PREC` or
+  `gmpxx_defaults::set_initial_default_prec()`.  The library does not change
+  GMP's process-global `mpf_set_default_prec()` state as a side effect.
+- GMP-only special functions for `mpf_class`, including `log`, `exp`, `cos`,
+  `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and `expm1`.
+- RAII ownership of `mpf_t`, `mpz_t`, and `mpq_t`; exact `mpz_class` and
+  `mpq_class` arithmetic remains native where exact behavior is part of the
+  public API.
+- Project-defined mixed exact/floating promotion rules and floating precision
+  policy, including destination-precision-preserving assignment for existing
+  `mpf_class` objects.
+- Stream I/O, base-aware parsing, user-defined literals, examples, and ported
+  eager benchmark programs for Rdot, Raxpy, Rgemv, and Rgemm.
 
 This is not a drop-in ABI replacement for `libgmpxx`; existing programs must
-be recompiled and should check [STATUS.md](STATUS.md) for known compatibility
-differences.  The target is source-level convenience close to `gmpxx.h`.
-
-## Features
-
-- BSD-2-Clause licensed, header-only public API.
-- Public type names compatible with GMP's C++ wrapper:
-  `mpf_class`, `mpz_class`, `mpq_class`, and `gmp_randclass`.
-- RAII ownership of `mpf_t`, `mpz_t`, and `mpq_t`.
-- Expression templates for `+`, `-`, `*`, `/`, unary operators, and compound
-  assignment.
-- Mixed arithmetic across GMP floating, integer, rational, and supported
-  scalar operands.
-- Assignment into an existing `mpf_class` preserves the destination precision.
-- Default precision is wrapper-controlled and thread-local after first use.
-- Exact `mpz_class` and `mpq_class` arithmetic stays native where the public
-  API defines exact behavior.
-- `mpq_class` values are canonicalized at public boundaries.
-- String conversion, base-aware parsing, stream I/O, and user-defined
-  literals.
-- GMP-only `mpf_class` math surface: `sqrt`, `abs`, `pi`, `log_two`, `log`,
-  `log1p`, `exp`, `expm1`, `sin`, `cos`, `atan`, `atan2`, and `pow`.
-- Ported eager benchmark programs for Rdot, Raxpy, Rgemv, and Rgemm.
+be recompiled.  The target is source-level convenience close to `gmpxx.h`.
 
 See [STATUS.md](STATUS.md) for the detailed implementation matrix and known
 compatibility differences.
