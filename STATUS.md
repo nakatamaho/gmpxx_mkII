@@ -55,7 +55,6 @@ of the v2.0.0 header.
 | Random support | Done after Phase 5 | `gmp_randclass` owns `gmp_randstate_t`, supports default/MT/LC initialization, seeding, random `mpz_class` generation, and random `mpf_class` generation. Bare `get_f()` returns a random floating expression/proxy so assignment into an existing `mpf_class` preserves destination precision. |
 | Examples | Present | Eight CMake-built examples demonstrate basic mpf arithmetic, `sqrt`, Newton iteration for `sqrt(2)`, Gauss-Legendre iteration for `pi`, an Aberth root finder for a degree-10 integer-coefficient polynomial implemented with real-valued complex pairs, the same Aberth example implemented with `gmpxx::mpfc_class`, a dependency-free Mandelbrot boundary-zoom PPM renderer using `mpfc_class` complex iteration, and a Wilkinson polynomial sensitivity solve for an ill-conditioned degree-20 polynomial. |
 | Benchmarks | Present | CMake builds the eager benchmark source layout for `00_Rdot`, `01_Raxpy`, `02_Rgemv`, and `03_Rgemm`, including native `mpf_t`, original `gmpxx.h`, `mkII`, `mkII_NOPRECCHANGE`, and OpenMP target variants where present. `benchmarks/run_benchmarks.sh` records logs and `benchmarks/plot.py` generates separate serial/OpenMP summary and per-kernel plots. |
-| Fortran bridge | Not planned for v2.0.0 | Fortran bridge APIs are intentionally dropped from the v2.0.0 roadmap. |
 | Test coverage | Present through Phase 6 | Thirty-seven maintained CTest targets cover ABI traits, exception support, standalone header inclusion, construction/copy/swap semantics, legacy compatibility coverage, type conversions, basic mpf math functions, mpf transcendental functions, extended constants/transcendentals, numeric equivalence, allocation counts, alias safety, thread-local default precision, scalar arithmetic, increment/decrement, scalar allocation counts, compound assignment, long-width dispatch, precision policy, unary simplification, power-of-two fusion, mpz arithmetic, mpq arithmetic, mixed-type arithmetic, mpfc arithmetic, I/O, and transcendental functions, wrapper temporary counts, mpz addmul fusion, comparisons, I/O/string conversion, UDLs, defaults/base policy, package config, and random support. |
 
 ## Implementation Summary
@@ -149,8 +148,6 @@ Source: GMP 6.3.0 manual
 | `long double` scalar expressions | `long double` is not a scalar expression leaf. | Upstream has broader machine scalar conversion surfaces in some contexts. | Deliberate exclusion until a precise GMP-only policy is specified. |
 | Compiler 128-bit integers | `__int128` and `unsigned __int128` are accepted for direct `mpz_class` construction/assignment and compatibility comparisons where available, but not as expression scalar leaves. | Upstream does not define an ABI-stable expression policy for compiler extension integer widths. | Deliberate direct-conversion-only extension. |
 | `gmp_randclass` constructors and `get_f()` precision | Random state ownership, seeding, `get_z_bits()`, `get_z_range()`, default/MT/LC initialization forms, and `get_f()` are implemented. Bare `get_f()` returns an expression/proxy so assignment can preserve destination precision. `get_f(prec)` and `get_f(mpf)` return immediate `mpf_class` values at the requested precision. | Upstream includes a fuller `gmp_randclass(gmp_randalg_t, ...)` varargs constructor surface. Its random floating expression forms are tied to GMP's global default precision and expression assignment behavior, so upstream default-precision checks expect `mpf_get_default_prec()` for some default and `get_f(prec)` assignment cases. | Partial compatibility; varargs constructor mirroring remains open, and wrapper default precision remains deliberately independent of GMP's global default. |
-| Dropped v1 bridge surface | Fortran bridge APIs from the eager v1.0.0 header are not part of v2.0.0. | Not an upstream `gmpxx.h` surface, but a compatibility difference from this project's earlier header. | Not planned for v2.0.0. |
-
 ## Test Summary
 
 | Test Target | Status | Coverage |
@@ -221,7 +218,6 @@ Source: GMP 6.3.0 manual
 | Remaining math functions | Special functions beyond the current GMP-only surface, such as gamma/erf/Bessel families | Future GMP-only work; no MPFR/MPC fallback. Basic concrete GMP math helpers, real `mpf_class` transcendental functions with expression operands, inverse trig/hyperbolic helpers, complex `mpfc_class` functions, `mpf_remainder`, and exact integer helpers are implemented. |
 | Remaining GMP C++ binding compatibility | Member/static integer helper forms and full upstream `gmp_randclass(gmp_randalg_t, ...)` constructor compatibility | Tracked in the GMP C++ binding checklist above. These are compatibility surface gaps, not expression-template core gaps. |
 | Extended literal parsing | Additional literal forms beyond `_mpz`, `_mpq`, and `_mpf` | The Phase 5 UDL surface is intentionally limited to supported integer, rational, and floating text/machine literal forms. |
-| Fortran bridge | v1.0.0 compatibility bridge APIs | Not planned for v2.0.0. Fortran bridge support was intentionally dropped from the roadmap. |
 | Benchmarks | Allocation/performance microbenchmarks beyond `test_alloc_count` | Separate benchmark work. |
 
 ## Important Current Semantics
@@ -304,7 +300,6 @@ by `test_alloc_count`.
 The current v2.0.0 header is not a drop-in replacement for the v1.0.0 eager public
 surface. It intentionally removes or defers:
 
-- Fortran bridge APIs, which are not planned for v2.0.0.
 - Legacy global initializers such as `mpf_class_initializer`.
 - Strict GMP C++ compatibility switches.
 
