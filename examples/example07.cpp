@@ -21,15 +21,15 @@ struct rgb {
 };
 
 struct render_config {
-    int width = 160;
-    int height = 120;
+    int width = 320;
+    int height = 240;
     int max_iterations = 160;
     mp_bitcnt_t precision = 192;
     char const* center_real =
         "-0.7436438870371510000000000000000000000000000000000000000000";
     char const* center_imag =
         "0.1318259042053300000000000000000000000000000000000000000000";
-    char const* scale = "0.0000000000000025";
+    char const* scale = "0.0001";
 };
 
 mpfc_class make_complex(mpf_class const& real_value,
@@ -57,10 +57,11 @@ rgb color_for(int iterations, int max_iterations) {
     }
 
     int t = (255 * iterations) / max_iterations;
+    int inv = 255 - t;
     return {
-        (9 * t * (255 - t)) / 255,
-        (7 * t * t) / 255,
-        255 - t,
+        (9 * t * inv) / 1024,
+        (7 * t * t) / 2048,
+        inv,
     };
 }
 

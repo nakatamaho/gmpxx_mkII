@@ -449,8 +449,8 @@ regression triage cheap.
 The [examples](examples/) directory contains small standalone programs,
 including two DKA/Aberth root finder examples: `example05` keeps the
 pre-`mpfc_class` real-pair implementation, while `example06` uses
-`gmpxx::mpfc_class`. `example07` renders a dependency-free Mandelbrot deep
-zoom PPM image using `mpfc_class` complex iteration.
+`gmpxx::mpfc_class`. `example07` renders a dependency-free Mandelbrot
+boundary-zoom PPM image using `mpfc_class` complex iteration.
 
 ## License
 
