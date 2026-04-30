@@ -115,10 +115,14 @@ the benchmark programs compile and complete.
 
 Benchmark directories:
 
-- `benchmarks/00_Rdot`: dot product, `sum_i x_i * y_i`.
-- `benchmarks/01_Raxpy`: AXPY, `y_i = y_i + alpha * x_i`.
-- `benchmarks/02_Rgemv`: dense matrix-vector multiply.
-- `benchmarks/03_Rgemm`: dense matrix-matrix multiply.
+- [benchmarks/00_Rdot](benchmarks/00_Rdot/README.md): dot product,
+  `sum_i x_i * y_i`.
+- [benchmarks/01_Raxpy](benchmarks/01_Raxpy/README.md): AXPY,
+  `y_i = y_i + alpha * x_i`.
+- [benchmarks/02_Rgemv](benchmarks/02_Rgemv/README.md): dense matrix-vector
+  multiply.
+- [benchmarks/03_Rgemm](benchmarks/03_Rgemm/README.md): dense matrix-matrix
+  multiply.
 
 Each directory keeps the eager benchmark layout.  `*_gmp_C_native_*` programs
 use raw `mpf_t`; `*_kernel_*_orig` uses upstream `gmpxx.h`; `*_kernel_*_mkII`
@@ -295,10 +299,12 @@ Default build:
 GMP rounds `mpf_t` precision to implementation-dependent limb boundaries.
 `mpf_class::get_prec()` returns the effective GMP precision.
 
-## Default Precision
+## Default Precision And Thread Safety
 
-The wrapper does not call GMP's global `mpf_set_default_prec()` or
-`mpf_get_default_prec()`.
+Calling GMP's global `mpf_set_default_prec()` or `mpf_get_default_prec()` is
+not an error, but `gmpxx_mkII` does not use those global defaults for
+default-constructed `mpf_class` values.  Those GMP APIs still affect raw
+`mpf_t` objects initialized through GMP itself.
 
 Default construction uses a wrapper-controlled requested precision:
 
@@ -416,26 +422,7 @@ The [examples](examples/) directory contains small standalone programs,
 including a DKA/Aberth root finder example implemented without
 `std::complex`.
 
-## Reference Material
-
-Local GMP reference material is kept under:
-
-```text
-docs/reference/upstream/gmp-6.3.0/
-```
-
-The v1.0.0 eager header is retained for later compatibility work under:
-
-```text
-eager/gmpxx_mkII.h.in
-```
-
-The v2.0.0 header does not include or depend on the eager header.
-
 ## License
 
 `gmpxx_mkII` source code is distributed under the BSD-2-Clause license. See
 [LICENSE](LICENSE).
-
-The upstream GMP reference documentation under `docs/reference/upstream/` is
-reference material and may carry different upstream documentation licenses.
