@@ -7071,6 +7071,123 @@ inline std::istream& operator>>(std::istream& is, mpfc_class& value) {
     return sqrt(norm(value));
 }
 
+[[nodiscard]] inline mpfc_class sqrt(mpfc_class const& value) {
+    mp_bitcnt_t precision = value.get_prec();
+    mpf_class zero(0, precision);
+
+    if (value.imag() == zero) {
+        if (value.real() < zero) {
+            return mpfc_class(zero, sqrt(-value.real()));
+        }
+        return mpfc_class(sqrt(value.real()), zero);
+    }
+
+    mpf_class half("0.5", precision);
+    mpf_class magnitude = abs(value);
+    mpf_class real_part = sqrt((magnitude + value.real()) * half);
+    mpf_class imag_part = sqrt((magnitude - value.real()) * half);
+    if (value.imag() < zero) {
+        imag_part = -imag_part;
+    }
+    return mpfc_class(real_part, imag_part);
+}
+
+[[nodiscard]] inline mpfc_class exp(mpfc_class const& value) {
+    mpf_class real_exp = exp(value.real());
+    return mpfc_class(real_exp * cos(value.imag()),
+                      real_exp * sin(value.imag()));
+}
+
+[[nodiscard]] inline mpfc_class log(mpfc_class const& value) {
+    return mpfc_class(log(abs(value)),
+                      atan2(value.imag(), value.real()));
+}
+
+[[nodiscard]] inline mpfc_class sin(mpfc_class const& value) {
+    return mpfc_class(sin(value.real()) * cosh(value.imag()),
+                      cos(value.real()) * sinh(value.imag()));
+}
+
+[[nodiscard]] inline mpfc_class cos(mpfc_class const& value) {
+    return mpfc_class(cos(value.real()) * cosh(value.imag()),
+                      -sin(value.real()) * sinh(value.imag()));
+}
+
+[[nodiscard]] inline mpfc_class tan(mpfc_class const& value) {
+    return sin(value) / cos(value);
+}
+
+[[nodiscard]] inline mpfc_class sinh(mpfc_class const& value) {
+    return mpfc_class(sinh(value.real()) * cos(value.imag()),
+                      cosh(value.real()) * sin(value.imag()));
+}
+
+[[nodiscard]] inline mpfc_class cosh(mpfc_class const& value) {
+    return mpfc_class(cosh(value.real()) * cos(value.imag()),
+                      sinh(value.real()) * sin(value.imag()));
+}
+
+[[nodiscard]] inline mpfc_class tanh(mpfc_class const& value) {
+    return sinh(value) / cosh(value);
+}
+
+[[nodiscard]] inline mpfc_class asin(mpfc_class const& value) {
+    mp_bitcnt_t precision = value.get_prec();
+    mpfc_class i_value(-value.imag(), value.real());
+    mpfc_class value_squared = value * value;
+    mpfc_class radicand = mpf_class(1, precision) - value_squared;
+    mpfc_class argument = i_value + sqrt(radicand);
+    mpfc_class logged = log(argument);
+    return mpfc_class(logged.imag(), -logged.real());
+}
+
+[[nodiscard]] inline mpfc_class acos(mpfc_class const& value) {
+    mp_bitcnt_t precision = value.get_prec();
+    mpfc_class asin_value = asin(value);
+    return pi_over_two(precision) - asin_value;
+}
+
+[[nodiscard]] inline mpfc_class atan(mpfc_class const& value) {
+    mp_bitcnt_t precision = value.get_prec();
+    mpfc_class i_value(-value.imag(), value.real());
+    mpfc_class one(mpf_class(1, precision), mpf_class(0, precision));
+    mpfc_class plus = one + i_value;
+    mpfc_class minus = one - i_value;
+    mpfc_class difference = log(plus) - log(minus);
+    mpf_class half("0.5", precision);
+    return mpfc_class(difference.imag() * half,
+                      -difference.real() * half);
+}
+
+[[nodiscard]] inline mpfc_class asinh(mpfc_class const& value) {
+    mp_bitcnt_t precision = value.get_prec();
+    mpfc_class value_squared = value * value;
+    mpfc_class radicand = value_squared + mpf_class(1, precision);
+    mpfc_class argument = value + sqrt(radicand);
+    return log(argument);
+}
+
+[[nodiscard]] inline mpfc_class acosh(mpfc_class const& value) {
+    mp_bitcnt_t precision = value.get_prec();
+    mpfc_class one(mpf_class(1, precision), mpf_class(0, precision));
+    mpfc_class plus = value + one;
+    mpfc_class minus = value - one;
+    mpfc_class root_product = sqrt(plus) * sqrt(minus);
+    mpfc_class argument = value + root_product;
+    return log(argument);
+}
+
+[[nodiscard]] inline mpfc_class atanh(mpfc_class const& value) {
+    mp_bitcnt_t precision = value.get_prec();
+    mpfc_class one(mpf_class(1, precision), mpf_class(0, precision));
+    mpfc_class plus = one + value;
+    mpfc_class minus = one - value;
+    mpfc_class difference = log(plus) - log(minus);
+    mpf_class half("0.5", precision);
+    return mpfc_class(difference.real() * half,
+                      difference.imag() * half);
+}
+
 template<mpfc_detail::expression Expr>
 [[nodiscard]] inline mpfc_class conj(Expr const& expr) {
     return conj(mpfc_class(expr));
@@ -7084,6 +7201,96 @@ template<mpfc_detail::expression Expr>
 template<mpfc_detail::expression Expr>
 [[nodiscard]] inline mpf_class abs(Expr const& expr) {
     return abs(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class sqrt(Expr const& expr) {
+    return sqrt(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class exp(Expr const& expr) {
+    return exp(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class log(Expr const& expr) {
+    return log(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class sin(Expr const& expr) {
+    return sin(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class cos(Expr const& expr) {
+    return cos(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class tan(Expr const& expr) {
+    return tan(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class asin(Expr const& expr) {
+    return asin(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class acos(Expr const& expr) {
+    return acos(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class atan(Expr const& expr) {
+    return atan(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class sinh(Expr const& expr) {
+    return sinh(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class cosh(Expr const& expr) {
+    return cosh(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class tanh(Expr const& expr) {
+    return tanh(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class asinh(Expr const& expr) {
+    return asinh(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class acosh(Expr const& expr) {
+    return acosh(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class atanh(Expr const& expr) {
+    return atanh(mpfc_class(expr));
 }
 
 namespace literals {

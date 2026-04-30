@@ -63,6 +63,8 @@ add_gmpxx_mkii_test(test_mpq_arithmetic test_mpq_arithmetic.cpp)
 add_gmpxx_mkii_test(test_mixed_type_arithmetic test_mixed_type_arithmetic.cpp)
 add_gmpxx_mkii_test(test_mpfc_arithmetic test_mpfc_arithmetic.cpp)
 add_gmpxx_mkii_test(test_mpfc_io test_mpfc_io.cpp)
+add_gmpxx_mkii_test(test_mpfc_transcendent_functions
+    test_mpfc_transcendent_functions.cpp)
 add_gmpxx_mkii_test(test_mpz_mpq_alloc_count test_mpz_mpq_alloc_count.cpp)
 add_gmpxx_mkii_test(test_mpz_addmul_fusion test_mpz_addmul_fusion.cpp)
 add_gmpxx_mkii_test(test_mpz_addmul_alloc_count test_mpz_addmul_alloc_count.cpp)
