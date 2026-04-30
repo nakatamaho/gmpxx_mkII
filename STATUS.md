@@ -5,14 +5,15 @@ This document summarizes the current implementation state of
 
 ## Overview
 
-The project is currently at Phase 5 of the v2.0.0 rewrite. The implemented
+The project is currently past Phase 6 of the v2.0.0 rewrite. The implemented
 surface is a clean, header-only C++20 expression-template core for lazy
 arithmetic over GMP `mpf_t`, `mpz_t`, and `mpq_t`, including mixed scalar,
 integer, rational, floating-point, and `mpf_class`-backed complex expressions
 plus native mpz
 multiply-add fusion, immediate comparisons, string conversion, stream I/O,
-user-defined literals, runtime defaults/base policy, and install-tree package
-config support.
+user-defined literals, runtime defaults/base policy, GMP-only real and complex
+transcendental functions, examples, benchmarks, and install-tree package config
+support.
 
 The v1.0.0 eager implementation is retained only as reference material in
 `eager/gmpxx_mkII.h.in`. It is not included by, copied into, or built as part
@@ -28,7 +29,7 @@ of the v2.0.0 header.
 | `mpq_class` RAII | Done through Phase 5 | Owns `mpq_t`; supports integer, bool, `mpz_class`, `mpf_class`, double, and string construction, copy/move, scalar/string/expression/wrapper assignment, compound assignment, explicit bool conversion, string conversion, stream I/O, raw GMP access, numerator/denominator extraction, swap, sign query, and canonicalization. |
 | Binary expression templates | Done through Phase 5 | `binary_expr<Op, L, R>` implements lazy `+`, `-`, `*`, and `/` for `mpf_class`, `mpz_class`, `mpq_class`, expression, and scalar operands; legacy-compatible immediate shift and mpz bitwise operators cover `t-binary` forms. |
 | Unary expression templates | Done through Phase 5 | `unary_expr<Op, X>` implements lazy unary `+` and unary `-` for mpf/mpz/mpq expressions. |
-| `gmpxx::mpfc_class` | Initial implementation | Provides a GMP-only complex floating type backed by two `mpf_class` values, with expression-template `+`, `-`, `*`, `/`, unary `-`, real-operand promotion, destination-precision-preserving assignment, equality comparison, `real`, `imag`, `conj`, `norm`, `abs`, `arg`, and `polar`. It is not a GNU MPC wrapper and does not depend on MPC. |
+| `gmpxx::mpfc_class` | Done after Phase 6 | Provides a GMP-only complex floating type backed by two `mpf_class` values, with expression-template `+`, `-`, `*`, `/`, unary `-`, real-operand promotion, destination-precision-preserving assignment, equality comparison, `real`, `imag`, `conj`, `norm`, `abs`, `arg`, `polar`, stream I/O, complex transcendental functions, and complex `pow`. It is not a GNU MPC wrapper and does not depend on MPC. |
 | Scalar expression leaves | Done through Phase 5 | Signed integers, unsigned integers, `float`, and `double` participate in mpf/mpz/mpq expressions after ABI-normalizing to `int64_t`, `uint64_t`, or `double`. |
 | Compound assignment | Done through Phase 5 | `+=`, `-=`, `*=`, `/=`, and supported shift/bitwise compound forms accept wrapper values, expression nodes, and scalar operands for `mpf_class`, `mpz_class`, and `mpq_class` where applicable. Cross-wrapper expression RHS forms follow the same conversion policy as wrapper construction. |
 | Long-width dispatch | Done through Phase 5 | `uint64_t` paths dispatch through `unsigned long` fast paths where valid and through temporary conversion when simulating or running on LLP64. |
@@ -68,7 +69,7 @@ of the v2.0.0 header.
 | `gmpxx_defaults` | `set_initial_default_prec(uint64_t)`, `get_initial_default_prec()`, `get_default_prec()`, `set_default_base(int)`, and `get_default_base()` | `set_initial_default_prec(0)` is a no-op. The stored precision is requested precision. Threads that have already snapshotted the default precision are not affected by later stores. The default base is thread-local, defaults to 10, and accepts bases 2 through 62. |
 | Precision helpers | `effective_mpf_prec()`, `normalize_mpf_prec()`, `checked_mp_bitcnt()`, `parse_default_prec_env()`, `process_initial_prec()`, `thread_default_prec()` | `effective_mpf_prec()` models GMP limb-boundary precision rounding for expected-value checks. Header code narrows precision through `checked_mp_bitcnt()`. |
 | Default precision initialization | `GMPXX_MKII_DEFAULT_PREC` environment parsing | Empty, negative, zero, trailing-garbage, and exception cases fall back to 512 bits. GMP's global default precision APIs are not used by the wrapper. |
-| `scalar_normalize_t<T>` | Integral signed types to `int64_t`, unsigned integral types including `bool` to `uint64_t`, `float`/`double` to `double` | Used by scalar leaves and scalar operator overloads through Phase 5. `long double` and compiler `__int128` types are intentionally not scalar operands. |
+| `scalar_normalize_t<T>` | Integral signed types to `int64_t`, unsigned integral types including `bool` to `uint64_t`, `float`/`double` to `double` | Used by scalar leaves and scalar operator overloads. `long double` and compiler `__int128` types are intentionally not scalar operands. |
 | `expr_base<Derived>` | `suggested_prec()`, `.eval()`, `eval_to(mpz_class&)`, and `eval_to(mpq_class&)` | `.eval()` returns the expression `result_type`. `suggested_prec()` switches between operand-max and `GMPXX_MKII_NOPRECCHANGE` policies for floating results. |
 | `unary_expr<Op, X>` | Stores operand by `const&`, implements `result_type`, `operand()`, `suggested_prec_impl()`, `contains_address()`, `eval_to_prec()`, `eval_to_mpz()`, and `eval_to_mpq()` | Uses the L1 lifetime policy. `-(-x)` is represented as a `pos_op` expression node. |
 | `binary_expr<Op, L, R>` | Stores mpf/mpz/mpq/expression operands by `const&`, stores scalar leaves by normalized value, implements `result_type`, `suggested_prec_impl()`, floating-result `get_prec()`, `contains_address()`, `eval_to_prec()`, `eval_to_mpz()`, and `eval_to_mpq()` | Scalar, mpz, and mpq leaves do not contribute to operand-max mpf precision. Mixed mpf/mpz/mpq floating results convert exact operands through required wrapper temporaries. `get_prec()` is a legacy-compatible alias for `suggested_prec()` on floating-result expression nodes. |
@@ -93,7 +94,7 @@ of the v2.0.0 header.
 | Binary bitwise | Done after Phase 6 | `&`, `|`, `^`, and unary `~` are implemented for `mpz_class`, scalar-mixed mpz operands, and mpz-result expression operands where applicable. Scalar/scalar bitwise expressions remain native C++. |
 | Unary `-` | Done through Phase 5 | `-mpf_class`, `-mpz_class`, `-mpq_class`, `-expression`, and `-(-x)` simplification |
 | Unary `+` | Done through Phase 5 | `+mpf_class`, `+mpz_class`, `+mpq_class`, and `+expression` |
-| Complex arithmetic | Initial implementation | `gmpxx::mpfc_class` supports expression-template `+`, `-`, `*`, `/`, unary `-`, compound assignment, and real-operand promotion for `mpf_class` and supported scalar operands. |
+| Complex arithmetic | Done after Phase 6 | `gmpxx::mpfc_class` supports expression-template `+`, `-`, `*`, `/`, unary `-`, compound assignment, real-operand promotion for `mpf_class` and supported scalar operands, stream I/O, real/imag helpers, elementary functions, transcendental functions, and `pow`. |
 | Scalar arithmetic | Done through Phase 5 | Signed integer, unsigned integer, `float`, and `double` operands normalize to `int64_t`, `uint64_t`, and `double`. |
 | `mpz_class` / `mpq_class` operands | Done through Phase 5 | mpz/mpq leaves participate in ET arithmetic and mixed mpf/mpz/mpq expressions. |
 | Compound assignment | Done through Phase 5 | `mpf_class`, `mpz_class`, `mpq_class`, expression, cross-wrapper expression, and scalar RHS forms preserve left-hand side object state where applicable. `mpz_class` supports `%=` and bitwise compound assignment; all wrapper types support integer shift compound assignment. |
@@ -105,8 +106,8 @@ of the v2.0.0 header.
 | Defaults/base policy | Done for Phase 5 | `gmpxx_defaults` exposes precision queries and retains thread-local default-base get/set helpers; no-base string parsing itself follows GMP base-0 autodetection. |
 | Package config | Done for Phase 5 | Install-tree package config supports `find_package(gmpxx_mkII CONFIG REQUIRED)`. |
 | Random support | Done after Phase 5 | `gmp_randclass` is a non-copyable owner for GMP random state and exposes the GMP C++ random generation surface for mpz/mpf values. Bare `get_f()` is expression/proxy based for destination-precision-preserving assignment. |
-| Basic mpf math functions | Done after Phase 5 | `sqrt(mpf_class)`, `abs(mpf_class)`, legacy `neg(mpf_class)`, `mpf_class::set_epsilon()`, and GMP-only `mpf_remainder()` are available. Remaining special functions are deferred. |
-| GMP-only transcendental functions | Done for Phase 6 | `pi`, `const_pi`, `e`, `const_e`, `log_two`, `const_log2`, `inv_log_two`, `log_ten`, `const_log10`, `pi_over_two`, `pi_over_four`, `two_pi`, `log`, `log2`, `log10`, `log1p`, `exp`, `exp2`, `exp10`, `expm1`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, and `pow` are available for concrete `mpf_class` values. |
+| Basic mpf math functions | Done after Phase 5 | `sqrt(mpf_class)`, `abs(mpf_class)`, legacy `neg(mpf_class)`, `mpf_class::set_epsilon()`, and GMP-only `mpf_remainder()` are available. |
+| GMP-only transcendental functions | Done for Phase 6 | `pi`, `const_pi`, `e`, `const_e`, `log_two`, `const_log2`, `inv_log_two`, `log_ten`, `const_log10`, `pi_over_two`, `pi_over_four`, `two_pi`, `log`, `log2`, `log10`, `log1p`, `exp`, `exp2`, `exp10`, `expm1`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, and `pow` are available for concrete `mpf_class` values and `mpf_class`-result expression operands. |
 
 ## GMP C++ Binding Checklist
 
@@ -191,23 +192,23 @@ Source: GMP 6.3.0 manual
 | `test_random` | Present | `gmp_randclass` construction modes, deleted copy/move semantics, deterministic seeding, `get_z_bits`, `get_z_range`, immediate `get_f(prec)`/`get_f(mpf)` generation, construction from `get_f(prec)`, existing-object assignment precision preservation, bare `get_f()` expression/proxy assignment preserving destination precision, documented default-precision divergence from upstream random floating checks, and LC initialization failure handling. |
 | `test_gmpxx_mkII` | Present | Ported legacy compatibility coverage for constructors, assignment, arithmetic, comparisons, string/base handling, precision behavior, conversion helpers, math functions including `mpf_remainder`, random examples, and stream output. Blocks that depend on still-unsupported legacy APIs are temporarily disabled in-source with TODO comments. |
 | `test_package_config` | Present | Installs the project into a temporary prefix, configures an external consumer with `find_package(gmpxx_mkII CONFIG REQUIRED)`, builds it, and runs it. |
-| `GMPXX_MKII_NOPRECCHANGE` build | Present | The new extended transcendental target and the existing transcendental target pass when expression construction precision is the thread-local default instead of max operand precision; run the full maintained suite before release. |
+| `GMPXX_MKII_NOPRECCHANGE` build | Present | The real transcendental targets pass when expression construction precision is the thread-local default instead of max operand precision; run the full maintained suite before release. |
 | Environment override check | Present manually | `GMPXX_MKII_DEFAULT_PREC=1024 ctest --test-dir build --output-on-failure` passes. |
-| Clang coverage | Present | Clang passes both default and `GMPXX_MKII_NOPRECCHANGE=ON` Phase 5 builds. |
-| TSan coverage | Present for T4 | ThreadSanitizer build passes `test_thread_safety`. |
-| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passes all thirty Phase 6 tests before the extended transcendental split; rerun for the new target before release. |
+| Clang coverage | Historical pass | Clang passed both default and `GMPXX_MKII_NOPRECCHANGE=ON` builds before the later complex/transcendental additions; rerun before release. |
+| TSan coverage | Present | ThreadSanitizer build passes `test_thread_safety`. |
+| ASan/UBSan coverage | Present | GCC 15.2.0 AddressSanitizer/UndefinedBehaviorSanitizer build passed the maintained suite before the later complex/transcendental additions; rerun before release. |
 
 ## Verified Build Matrix
 
 | Compiler / Build | Result | Notes |
 |---|---:|---|
-| GCC 15.2.0, default | Partial rerun | The new `test_mpf_extended_transcendent_functions` target and existing `test_mpf_transcendent_functions` target pass. |
-| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Partial rerun | The new `test_mpf_extended_transcendent_functions` target and existing `test_mpf_transcendent_functions` target pass. |
-| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Pass | All thirty tests pass with the slow path forced before the extended transcendental split. |
-| Clang, default | Pass | All thirty tests pass before the extended transcendental split. |
-| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Pass | All thirty tests pass before the extended transcendental split. |
+| GCC 15.2.0, default | Pass | All 37 maintained CTest targets pass. |
+| GCC 15.2.0, `GMPXX_MKII_NOPRECCHANGE=ON` | Partial rerun | The real transcendental targets pass when expression precision uses the thread-local default; run the full maintained suite before release. |
+| GCC 15.2.0, `GMPXX_MKII_TEST_LLP64_PATH` | Historical pass | The maintained suite passed with the slow path forced before the later complex/transcendental additions; rerun before release. |
+| Clang, default | Historical pass | The maintained suite passed before the later complex/transcendental additions; rerun before release. |
+| Clang, `GMPXX_MKII_NOPRECCHANGE=ON` | Historical pass | The maintained suite passed before the later complex/transcendental additions; rerun before release. |
 | GCC 15.2.0, TSan | Pass | `test_thread_safety` passes. |
-| GCC 15.2.0, ASan/UBSan | Pass | All thirty tests pass before the extended transcendental split. |
+| GCC 15.2.0, ASan/UBSan | Historical pass | The maintained suite passed before the later complex/transcendental additions; rerun before release. |
 | C++17 direct include | Fails as intended | Header `static_assert(__cplusplus >= 202002L, ...)` fires. |
 
 ## Missing Feature Summary
@@ -215,8 +216,9 @@ Source: GMP 6.3.0 manual
 | Category | Missing Items | Planned Phase / Notes |
 |---|---|---|
 | Scalar arithmetic | Additional scalar types beyond the Phase 1 normalized set | Phase 1 supports `int64_t`, `uint64_t`, and `double` leaves only. |
+| Boolean scalar policy | `scalar_normalize_t<bool>` currently normalizes to `uint64_t`, while the intended scalar-arithmetic policy has been to keep `bool` out of arithmetic leaves | Audit and either exclude `bool` at the `scalar_operand` concept or document the legacy-compatible acceptance explicitly. |
 | Extended native integer fusion | Unary-minus addmul/submul normalization, multiplication-chain fusion, and distributive expansion such as `(b+c)*d` | Deferred beyond Phase 3. Direct `mpz_addmul`/`mpz_submul` compound-assignment fusion is implemented. |
-| Remaining math functions | Expression-aware math overloads and special functions beyond the current concrete GMP-only surface, such as gamma/erf/Bessel families | Future GMP-only work; no MPFR/MPC fallback. Basic concrete GMP math helpers, concrete `mpf_class` transcendental functions, inverse trig/hyperbolic helpers, `mpf_remainder`, and exact integer helpers are implemented. |
+| Remaining math functions | Special functions beyond the current GMP-only surface, such as gamma/erf/Bessel families | Future GMP-only work; no MPFR/MPC fallback. Basic concrete GMP math helpers, real `mpf_class` transcendental functions with expression operands, inverse trig/hyperbolic helpers, complex `mpfc_class` functions, `mpf_remainder`, and exact integer helpers are implemented. |
 | Remaining GMP C++ binding compatibility | Member/static integer helper forms and full upstream `gmp_randclass(gmp_randalg_t, ...)` constructor compatibility | Tracked in the GMP C++ binding checklist above. These are compatibility surface gaps, not expression-template core gaps. |
 | Extended literal parsing | Additional literal forms beyond `_mpz`, `_mpq`, and `_mpf` | The Phase 5 UDL surface is intentionally limited to supported integer, rational, and floating text/machine literal forms. |
 | Fortran bridge | v1.0.0 compatibility bridge APIs | Not planned for v2.0.0. Fortran bridge support was intentionally dropped from the roadmap. |

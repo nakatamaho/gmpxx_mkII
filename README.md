@@ -420,7 +420,9 @@ Key compatibility choices:
   this project defines a floating result.
 - `mpq_class` values are canonicalized before public comparison, formatting,
   and serialization.
-- `bool` is intentionally not accepted as a scalar arithmetic type.
+- `bool` construction and explicit conversion follow legacy behavior; scalar
+  arithmetic treatment for `bool` is tracked as a policy-audit item in
+  [STATUS.md](STATUS.md).
 
 `GMPXX_MKII_NOPRECCHANGE` is a compatibility build mode selected at CMake
 configure time:
@@ -443,6 +445,7 @@ coverage from GMP's legacy C++ wrapper tests.  The normal CTest build covers:
 - construction, assignment, move safety, and aliasing;
 - arithmetic and mixed scalar operations;
 - precision/default-policy behavior;
+- real and complex GMP-only transcendental functions;
 - comparisons, strings, stream I/O, and literals;
 - random-number wrappers;
 - GMP integer/rational behavior and canonicalization;
