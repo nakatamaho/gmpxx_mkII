@@ -32,6 +32,9 @@ The main points are:
   GMP's process-global `mpf_set_default_prec()` state as a side effect.
 - GMP-only special functions for `mpf_class`, including `log`, `exp`, `cos`,
   `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and `expm1`.
+- `gmpxx::mpfc_class`, a GMP-only complex floating type backed by two
+  `mpf_class` values, with expression-template arithmetic for basic complex
+  operations.
 - RAII ownership of `mpf_t`, `mpz_t`, and `mpq_t`; exact `mpz_class` and
   `mpq_class` arithmetic remains native where exact behavior is part of the
   public API.
@@ -256,6 +259,29 @@ int main() {
 }
 ```
 
+Complex floating values use `gmpxx::mpfc_class`; this is an `mpf_class`-based
+complex wrapper, not GNU MPC. Numeric constructor arguments are values, so
+`mpfc_class(128)` means `128 + 0i`, not 128-bit precision:
+
+```cpp
+using namespace gmpxx;
+
+mpfc_class z(mpf_class(1, 256), mpf_class(2, 256));
+mpfc_class w(mpf_class(3, 256), mpf_class(-4, 256));
+
+mpfc_class r = z + w * z;
+mpf_class magnitude = abs(r);
+```
+
+`mpfc_class` stream I/O uses the `std::complex` pair format:
+
+```cpp
+std::stringstream ss("(1.25,-2.5)");
+mpfc_class parsed;
+ss >> parsed;
+std::cout << parsed;  // (1.25,-2.5)
+```
+
 ## Expression Lifetime
 
 Expression-template nodes follow the storage policy documented in
@@ -419,8 +445,9 @@ regression triage cheap.
 ## Examples
 
 The [examples](examples/) directory contains small standalone programs,
-including a DKA/Aberth root finder example implemented without
-`std::complex`.
+including two DKA/Aberth root finder examples: `example05` keeps the
+pre-`mpfc_class` real-pair implementation, while `example06` uses
+`gmpxx::mpfc_class`.
 
 ## License
 

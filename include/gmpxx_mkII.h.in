@@ -6580,6 +6580,512 @@ using ::primorial;
 using ::trunc;
 using ::unary_expr;
 
+class mpfc_class;
+
+struct mpfc_prec_tag {};
+
+inline constexpr mpfc_prec_tag mpfc_prec{};
+
+namespace mpfc_detail {
+
+template<class T>
+concept expression =
+    requires(T const& expr, mpfc_class& dst) {
+        typename std::remove_cvref_t<T>::mpfc_expression_tag;
+        { expr.get_prec() } -> std::convertible_to<mp_bitcnt_t>;
+        expr.eval_to(dst);
+    };
+
+template<class T>
+concept real_operand =
+    std::same_as<std::remove_cvref_t<T>, mpf_class> ||
+    scalar_operand<std::remove_cvref_t<T>>;
+
+template<class T>
+concept operand = expression<std::remove_cvref_t<T>> || real_operand<T>;
+
+inline mp_bitcnt_t suggested_prec(mp_bitcnt_t precision) {
+#if defined(GMPXX_MKII_NOPRECCHANGE)
+    (void)precision;
+    return gmpxx_detail::checked_mp_bitcnt(gmpxx_detail::thread_default_prec());
+#else
+    return precision;
+#endif
+}
+
+inline mp_bitcnt_t max_prec(mp_bitcnt_t lhs, mp_bitcnt_t rhs) {
+    return suggested_prec(std::max(lhs, rhs));
+}
+
+struct value_ref {
+    using mpfc_expression_tag = void;
+
+    mpfc_class const& value;
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const;
+    void eval_to(mpfc_class& dst) const;
+};
+
+struct real_ref {
+    using mpfc_expression_tag = void;
+
+    mpf_class const& value;
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const {
+        return suggested_prec(value.get_prec());
+    }
+
+    void eval_to(mpfc_class& dst) const;
+};
+
+template<class T>
+struct scalar_value {
+    using mpfc_expression_tag = void;
+
+    scalar_normalize_t<T> value;
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const {
+        return suggested_prec(
+            gmpxx_detail::checked_mp_bitcnt(gmpxx_detail::thread_default_prec()));
+    }
+
+    void eval_to(mpfc_class& dst) const;
+};
+
+struct add_op {
+    static void apply(mpfc_class& dst, mpfc_class const& lhs,
+                      mpfc_class const& rhs);
+};
+
+struct sub_op {
+    static void apply(mpfc_class& dst, mpfc_class const& lhs,
+                      mpfc_class const& rhs);
+};
+
+struct mul_op {
+    static void apply(mpfc_class& dst, mpfc_class const& lhs,
+                      mpfc_class const& rhs);
+};
+
+struct div_op {
+    static void apply(mpfc_class& dst, mpfc_class const& lhs,
+                      mpfc_class const& rhs);
+};
+
+template<class Op, expression L, expression R>
+class binary_expr {
+public:
+    using mpfc_expression_tag = void;
+
+    binary_expr(L const& lhs, R const& rhs) : lhs_(lhs), rhs_(rhs) {}
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const {
+        return max_prec(lhs_.get_prec(), rhs_.get_prec());
+    }
+
+    void eval_to(mpfc_class& dst) const {
+        mp_bitcnt_t precision = get_prec();
+        mpfc_class lhs_value(mpfc_prec, precision);
+        mpfc_class rhs_value(mpfc_prec, precision);
+        lhs_.eval_to(lhs_value);
+        rhs_.eval_to(rhs_value);
+        Op::apply(dst, lhs_value, rhs_value);
+    }
+
+private:
+    L lhs_;
+    R rhs_;
+};
+
+template<expression X>
+class neg_expr {
+public:
+    using mpfc_expression_tag = void;
+
+    explicit neg_expr(X const& value) : value_(value) {}
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const {
+        return value_.get_prec();
+    }
+
+    void eval_to(mpfc_class& dst) const;
+
+private:
+    X value_;
+};
+
+inline value_ref make_operand(mpfc_class const& value) {
+    return value_ref{value};
+}
+
+inline real_ref make_operand(mpf_class const& value) {
+    return real_ref{value};
+}
+
+template<expression Expr>
+inline Expr make_operand(Expr const& expr) {
+    return expr;
+}
+
+template<class T>
+    requires (scalar_operand<std::remove_cvref_t<T>>)
+inline scalar_value<std::remove_cvref_t<T>> make_operand(T const& value) {
+    return scalar_value<std::remove_cvref_t<T>>{value};
+}
+
+}  // namespace mpfc_detail
+
+class mpfc_class {
+public:
+    using mpfc_expression_tag = void;
+
+    mpfc_class() : real_(0), imag_(0) {}
+
+    mpfc_class(mpfc_prec_tag, mp_bitcnt_t precision)
+        : real_(0, precision), imag_(0, precision) {}
+
+    mpfc_class(mpfc_prec_tag, mp_bitcnt_t real_precision,
+               mp_bitcnt_t imag_precision)
+        : real_(0, real_precision), imag_(0, imag_precision) {}
+
+    mpfc_class(mpf_class const& real_value, mpf_class const& imag_value)
+        : real_(real_value), imag_(imag_value) {}
+
+    explicit mpfc_class(mpf_class const& real_value)
+        : real_(real_value), imag_(0, real_value.get_prec()) {}
+
+    template<class T>
+        requires (scalar_operand<std::remove_cvref_t<T>>)
+    explicit mpfc_class(T real_value) : real_(real_value), imag_(0) {}
+
+    template<class T, class U>
+        requires (scalar_operand<std::remove_cvref_t<T>> &&
+                  scalar_operand<std::remove_cvref_t<U>>)
+    mpfc_class(T real_value, U imag_value)
+        : real_(real_value), imag_(imag_value) {}
+
+    mpfc_class(mpfc_class const&) = default;
+    mpfc_class(mpfc_class&&) = default;
+
+    template<mpfc_detail::expression Expr>
+        requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+    mpfc_class(Expr const& expr) : mpfc_class(mpfc_prec, expr.get_prec()) {
+        expr.eval_to(*this);
+    }
+
+    mpfc_class& operator=(mpfc_class const& rhs) {
+        rhs.eval_to(*this);
+        return *this;
+    }
+
+    mpfc_class& operator=(mpfc_class&& rhs) {
+        rhs.eval_to(*this);
+        return *this;
+    }
+
+    template<mpfc_detail::expression Expr>
+        requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+    mpfc_class& operator=(Expr const& expr) {
+        mpfc_class tmp(mpfc_prec, real_.get_prec(), imag_.get_prec());
+        expr.eval_to(tmp);
+        tmp.eval_to(*this);
+        return *this;
+    }
+
+    mpfc_class& operator=(mpf_class const& real_value) {
+        mpf_set(real_.get_mpf_t(), real_value.get_mpf_t());
+        imag_ = 0;
+        return *this;
+    }
+
+    template<class T>
+        requires (scalar_operand<std::remove_cvref_t<T>>)
+    mpfc_class& operator=(T real_value) {
+        real_ = real_value;
+        imag_ = 0;
+        return *this;
+    }
+
+    template<mpfc_detail::operand T>
+    mpfc_class& operator+=(T const& rhs);
+
+    template<mpfc_detail::operand T>
+    mpfc_class& operator-=(T const& rhs);
+
+    template<mpfc_detail::operand T>
+    mpfc_class& operator*=(T const& rhs);
+
+    template<mpfc_detail::operand T>
+    mpfc_class& operator/=(T const& rhs);
+
+    [[nodiscard]] mpf_class& real() noexcept { return real_; }
+    [[nodiscard]] mpf_class const& real() const noexcept { return real_; }
+
+    [[nodiscard]] mpf_class& imag() noexcept { return imag_; }
+    [[nodiscard]] mpf_class const& imag() const noexcept { return imag_; }
+
+    void real(mpf_class const& value) { real_ = value; }
+    void imag(mpf_class const& value) { imag_ = value; }
+
+    [[nodiscard]] mp_bitcnt_t get_prec() const {
+        return mpfc_detail::max_prec(real_.get_prec(), imag_.get_prec());
+    }
+
+    void eval_to(mpfc_class& dst) const {
+        mpf_set(dst.real_.get_mpf_t(), real_.get_mpf_t());
+        mpf_set(dst.imag_.get_mpf_t(), imag_.get_mpf_t());
+    }
+
+private:
+    mpf_class real_;
+    mpf_class imag_;
+};
+
+namespace mpfc_detail {
+
+inline mp_bitcnt_t value_ref::get_prec() const {
+    return value.get_prec();
+}
+
+inline void value_ref::eval_to(mpfc_class& dst) const {
+    value.eval_to(dst);
+}
+
+inline void real_ref::eval_to(mpfc_class& dst) const {
+    mpf_set(dst.real().get_mpf_t(), value.get_mpf_t());
+    dst.imag() = 0;
+}
+
+template<class T>
+inline void scalar_value<T>::eval_to(mpfc_class& dst) const {
+    dst.real() = value;
+    dst.imag() = 0;
+}
+
+inline void add_op::apply(mpfc_class& dst, mpfc_class const& lhs,
+                          mpfc_class const& rhs) {
+    dst.real() = lhs.real() + rhs.real();
+    dst.imag() = lhs.imag() + rhs.imag();
+}
+
+inline void sub_op::apply(mpfc_class& dst, mpfc_class const& lhs,
+                          mpfc_class const& rhs) {
+    dst.real() = lhs.real() - rhs.real();
+    dst.imag() = lhs.imag() - rhs.imag();
+}
+
+inline void mul_op::apply(mpfc_class& dst, mpfc_class const& lhs,
+                          mpfc_class const& rhs) {
+    dst.real() = lhs.real() * rhs.real() - lhs.imag() * rhs.imag();
+    dst.imag() = lhs.real() * rhs.imag() + lhs.imag() * rhs.real();
+}
+
+inline void div_op::apply(mpfc_class& dst, mpfc_class const& lhs,
+                          mpfc_class const& rhs) {
+    mpf_class denominator(0, dst.real().get_prec());
+    denominator = rhs.real() * rhs.real() + rhs.imag() * rhs.imag();
+    dst.real() = (lhs.real() * rhs.real() + lhs.imag() * rhs.imag()) /
+                 denominator;
+    dst.imag() = (lhs.imag() * rhs.real() - lhs.real() * rhs.imag()) /
+                 denominator;
+}
+
+template<expression X>
+inline void neg_expr<X>::eval_to(mpfc_class& dst) const {
+    mpfc_class value(mpfc_prec, get_prec());
+    value_.eval_to(value);
+    dst.real() = -value.real();
+    dst.imag() = -value.imag();
+}
+
+}  // namespace mpfc_detail
+
+template<class L, class R>
+concept mpfc_operation =
+    mpfc_detail::operand<L> &&
+    mpfc_detail::operand<R> &&
+    (mpfc_detail::expression<std::remove_cvref_t<L>> ||
+     mpfc_detail::expression<std::remove_cvref_t<R>>);
+
+template<class L, class R>
+    requires mpfc_operation<L, R>
+[[nodiscard]] inline auto operator+(L const& lhs, R const& rhs) {
+    return mpfc_detail::binary_expr<
+        mpfc_detail::add_op,
+        decltype(mpfc_detail::make_operand(lhs)),
+        decltype(mpfc_detail::make_operand(rhs))>(
+            mpfc_detail::make_operand(lhs), mpfc_detail::make_operand(rhs));
+}
+
+template<class L, class R>
+    requires mpfc_operation<L, R>
+[[nodiscard]] inline auto operator-(L const& lhs, R const& rhs) {
+    return mpfc_detail::binary_expr<
+        mpfc_detail::sub_op,
+        decltype(mpfc_detail::make_operand(lhs)),
+        decltype(mpfc_detail::make_operand(rhs))>(
+            mpfc_detail::make_operand(lhs), mpfc_detail::make_operand(rhs));
+}
+
+template<class L, class R>
+    requires mpfc_operation<L, R>
+[[nodiscard]] inline auto operator*(L const& lhs, R const& rhs) {
+    return mpfc_detail::binary_expr<
+        mpfc_detail::mul_op,
+        decltype(mpfc_detail::make_operand(lhs)),
+        decltype(mpfc_detail::make_operand(rhs))>(
+            mpfc_detail::make_operand(lhs), mpfc_detail::make_operand(rhs));
+}
+
+template<class L, class R>
+    requires mpfc_operation<L, R>
+[[nodiscard]] inline auto operator/(L const& lhs, R const& rhs) {
+    return mpfc_detail::binary_expr<
+        mpfc_detail::div_op,
+        decltype(mpfc_detail::make_operand(lhs)),
+        decltype(mpfc_detail::make_operand(rhs))>(
+            mpfc_detail::make_operand(lhs), mpfc_detail::make_operand(rhs));
+}
+
+template<mpfc_detail::operand T>
+inline mpfc_class& mpfc_class::operator+=(T const& rhs) {
+    *this = *this + rhs;
+    return *this;
+}
+
+template<mpfc_detail::operand T>
+inline mpfc_class& mpfc_class::operator-=(T const& rhs) {
+    *this = *this - rhs;
+    return *this;
+}
+
+template<mpfc_detail::operand T>
+inline mpfc_class& mpfc_class::operator*=(T const& rhs) {
+    *this = *this * rhs;
+    return *this;
+}
+
+template<mpfc_detail::operand T>
+inline mpfc_class& mpfc_class::operator/=(T const& rhs) {
+    *this = *this / rhs;
+    return *this;
+}
+
+template<mpfc_detail::expression Expr>
+[[nodiscard]] inline auto operator-(Expr const& value) {
+    return mpfc_detail::neg_expr<decltype(mpfc_detail::make_operand(value))>(
+        mpfc_detail::make_operand(value));
+}
+
+[[nodiscard]] inline mpfc_class operator+(mpfc_class const& value) {
+    return value;
+}
+
+[[nodiscard]] inline bool operator==(mpfc_class const& lhs,
+                                     mpfc_class const& rhs) {
+    return lhs.real() == rhs.real() && lhs.imag() == rhs.imag();
+}
+
+[[nodiscard]] inline bool operator!=(mpfc_class const& lhs,
+                                     mpfc_class const& rhs) {
+    return !(lhs == rhs);
+}
+
+[[nodiscard]] inline bool operator==(mpfc_class const& lhs,
+                                     mpf_class const& rhs) {
+    return lhs.real() == rhs && lhs.imag() == 0;
+}
+
+[[nodiscard]] inline bool operator==(mpf_class const& lhs,
+                                     mpfc_class const& rhs) {
+    return rhs == lhs;
+}
+
+[[nodiscard]] inline bool operator!=(mpfc_class const& lhs,
+                                     mpf_class const& rhs) {
+    return !(lhs == rhs);
+}
+
+[[nodiscard]] inline bool operator!=(mpf_class const& lhs,
+                                     mpfc_class const& rhs) {
+    return !(lhs == rhs);
+}
+
+inline std::ostream& operator<<(std::ostream& os, mpfc_class const& value) {
+    os.width(0);
+    os << '(' << value.real() << ',' << value.imag() << ')';
+    return os;
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+inline std::ostream& operator<<(std::ostream& os, Expr const& expr) {
+    mpfc_class value(expr);
+    os << value;
+    return os;
+}
+
+inline std::istream& operator>>(std::istream& is, mpfc_class& value) {
+    std::istream::sentry sentry(is);
+    if (!sentry) {
+        return is;
+    }
+
+    char c = '\0';
+    mpfc_class tmp(mpfc_prec, value.real().get_prec(), value.imag().get_prec());
+
+    if (!(is >> c) || c != '(') {
+        is.setstate(std::ios_base::failbit);
+        return is;
+    }
+    if (!(is >> tmp.real())) {
+        return is;
+    }
+    if (!(is >> c) || c != ',') {
+        is.setstate(std::ios_base::failbit);
+        return is;
+    }
+    if (!(is >> tmp.imag())) {
+        return is;
+    }
+    if (!(is >> c) || c != ')') {
+        is.setstate(std::ios_base::failbit);
+        return is;
+    }
+
+    tmp.eval_to(value);
+    return is;
+}
+
+[[nodiscard]] inline mpfc_class conj(mpfc_class const& value) {
+    return mpfc_class(value.real(), -value.imag());
+}
+
+[[nodiscard]] inline mpf_class norm(mpfc_class const& value) {
+    mpf_class result(0, value.get_prec());
+    result = value.real() * value.real() + value.imag() * value.imag();
+    return result;
+}
+
+[[nodiscard]] inline mpf_class abs(mpfc_class const& value) {
+    return sqrt(norm(value));
+}
+
+template<mpfc_detail::expression Expr>
+[[nodiscard]] inline mpfc_class conj(Expr const& expr) {
+    return conj(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+[[nodiscard]] inline mpf_class norm(Expr const& expr) {
+    return norm(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+[[nodiscard]] inline mpf_class abs(Expr const& expr) {
+    return abs(mpfc_class(expr));
+}
+
 namespace literals {
 
 inline mpz_class operator""_mpz(char const* text) {
