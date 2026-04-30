@@ -163,12 +163,12 @@ Higher MFLOPS is better; compare variants within the same kernel, precision,
 matrix size, compiler flags, and machine.
 
 A committed run using the eager `go.sh` sample dimensions is stored under
-`benchmarks/results-go-sh-sample/`.  It was generated with:
+`benchmarks/results_raw/Linux_Ryzen_3970X_32-Core/`.  It was generated with:
 
 ```bash
 benchmarks/run_benchmarks.sh build_bench_release 512 \
     100000000 100000000 4000 4000 500 500 500 \
-    benchmarks/results-go-sh-sample
+    benchmarks/results_raw/Linux_Ryzen_3970X_32-Core
 ```
 
 The generated files include the raw log `benchmark_20260430_081331.log`,
@@ -178,9 +178,9 @@ report `Result OK` for all variants.  `Rgemv kernel_openmp_02` reports
 across all three variants points to that ported OpenMP benchmark variant
 rather than a `gmpxx_mkII`-only difference.
 
-![Serial benchmark summary](benchmarks/results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_summary.png)
+![Serial benchmark summary](benchmarks/results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_summary.png)
 
-![OpenMP benchmark summary](benchmarks/results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_summary.png)
+![OpenMP benchmark summary](benchmarks/results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_summary.png)
 
 For this 32-core Threadripper run, OpenMP improves the timed kernel-body
 MFLOPS substantially: roughly 17-22x for Rdot, 11-14x for Raxpy, 9-23x for

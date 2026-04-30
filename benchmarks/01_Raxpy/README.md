@@ -71,9 +71,9 @@ Variant names:
 
 ## Recorded go.sh Sample
 
-![Raxpy serial benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.png)
+![Raxpy serial benchmark](../results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.png)
 
-![Raxpy OpenMP benchmark](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.png)
+![Raxpy OpenMP benchmark](../results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.png)
 
 The committed sample run uses the original `go.sh` dimensions:
 
@@ -81,13 +81,13 @@ The committed sample run uses the original `go.sh` dimensions:
 N = 100000000, precision = 512
 ```
 
-Results are stored in [../results-go-sh-sample/](../results-go-sh-sample/):
+Results are stored in [../results_raw/Linux_Ryzen_3970X_32-Core/](../results_raw/Linux_Ryzen_3970X_32-Core/):
 
-- [Raw log](../results-go-sh-sample/benchmark_20260430_081331.log)
-- [Serial plot](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.png)
-- [Serial PDF](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.pdf)
-- [OpenMP plot](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.png)
-- [OpenMP PDF](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.pdf)
+- [Raw log](../results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331.log)
+- [Serial plot](../results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.png)
+- [Serial PDF](../results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Raxpy.pdf)
+- [OpenMP plot](../results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.png)
+- [OpenMP PDF](../results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Raxpy.pdf)
 
 All Raxpy variants in that run report `Result OK`.
 

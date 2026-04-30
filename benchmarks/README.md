@@ -19,7 +19,7 @@ Run the full sample dimensions inherited from `go.sh`:
 ```bash
 benchmarks/run_benchmarks.sh build_bench_release 512 \
     100000000 100000000 4000 4000 500 500 500 \
-    benchmarks/results-go-sh-sample
+    benchmarks/results_raw/Linux_Ryzen_3970X_32-Core
 ```
 
 The plotter writes serial and OpenMP graphs separately:
