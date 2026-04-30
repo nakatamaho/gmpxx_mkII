@@ -82,13 +82,13 @@ The committed sample run uses the original `go.sh` dimensions:
 M = 4000, N = 4000, precision = 512
 ```
 
-Results are stored in `../results-go-sh-sample/`:
+Results are stored in [../results-go-sh-sample/](../results-go-sh-sample/):
 
-- Raw log: `../results-go-sh-sample/benchmark_20260430_081331.log`
-- Serial plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemv.png`
-- Serial PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemv.pdf`
-- OpenMP plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemv.png`
-- OpenMP PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemv.pdf`
+- [Raw log](../results-go-sh-sample/benchmark_20260430_081331.log)
+- [Serial plot](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemv.png)
+- [Serial PDF](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rgemv.pdf)
+- [OpenMP plot](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemv.png)
+- [OpenMP PDF](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rgemv.pdf)
 
 `kernel_openmp_02` reports `Result NG` for `orig`, `mkII`, and
 `mkII_NOPRECCHANGE` in that run.  The same failure across all three variants

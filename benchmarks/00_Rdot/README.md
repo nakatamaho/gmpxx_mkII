@@ -81,13 +81,13 @@ The committed sample run uses the original `go.sh` dimensions:
 N = 100000000, precision = 512
 ```
 
-Results are stored in `../results-go-sh-sample/`:
+Results are stored in [../results-go-sh-sample/](../results-go-sh-sample/):
 
-- Raw log: `../results-go-sh-sample/benchmark_20260430_081331.log`
-- Serial plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rdot.png`
-- Serial PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rdot.pdf`
-- OpenMP plot: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rdot.png`
-- OpenMP PDF: `../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rdot.pdf`
+- [Raw log](../results-go-sh-sample/benchmark_20260430_081331.log)
+- [Serial plot](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rdot.png)
+- [Serial PDF](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_Rdot.pdf)
+- [OpenMP plot](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rdot.png)
+- [OpenMP PDF](../results-go-sh-sample/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_Rdot.pdf)
 
 All Rdot variants in that run report `Result OK`.
 
