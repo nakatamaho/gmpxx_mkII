@@ -39,9 +39,9 @@ main ways:
   the maximum precision of `mpf_class` leaves, while assignment into an
   existing `mpf_class` preserves the destination precision.
 
-The target is source-level convenience close to `gmpxx.h`, not a drop-in ABI
-replacement.  Existing programs must be recompiled and should check
-[STATUS.md](STATUS.md) for known compatibility differences.
+This is not a drop-in ABI replacement for `libgmpxx`; existing programs must
+be recompiled and should check [STATUS.md](STATUS.md) for known compatibility
+differences.  The target is source-level convenience close to `gmpxx.h`.
 
 ## Features
 
