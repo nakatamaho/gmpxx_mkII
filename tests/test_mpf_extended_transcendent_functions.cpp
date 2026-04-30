@@ -109,6 +109,29 @@ void test_compile_time_surface() {
                                mpf_class>);
     static_assert(std::same_as<decltype(exp10(std::declval<mpf_class const&>())),
                                mpf_class>);
+
+    using expr_type = decltype(std::declval<mpf_class const&>() +
+                               std::declval<mpf_class const&>());
+    static_assert(std::same_as<decltype(asin(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(acos(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(sinh(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(cosh(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(tanh(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(asinh(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(acosh(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(atanh(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(exp2(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(exp10(std::declval<expr_type>())),
+                               mpf_class>);
 }
 
 void test_constants() {
@@ -200,6 +223,33 @@ void test_exp_base_variants() {
     assert_close(log2(exp2(one)), one, 120);
 }
 
+void test_expression_overloads() {
+    const mp_bitcnt_t low_prec = 160;
+    const mp_bitcnt_t high_prec = 224;
+    const mpf_class a("0.25", low_prec);
+    const mpf_class b("0.5", high_prec);
+    const mpf_class c("1.25", high_prec);
+    const mpf_class offset("0.125", high_prec);
+
+    auto small_expr = a + offset;
+    auto acosh_expr = c + b;
+
+    const mpf_class small_value(small_expr);
+    const mpf_class acosh_value(acosh_expr);
+
+    assert(asin(small_expr).get_prec() == small_value.get_prec());
+    assert_close(asin(small_expr), asin(small_value), 135);
+    assert_close(acos(small_expr), acos(small_value), 135);
+    assert_close(sinh(small_expr), sinh(small_value), 135);
+    assert_close(cosh(small_expr), cosh(small_value), 135);
+    assert_close(tanh(small_expr), tanh(small_value), 135);
+    assert_close(asinh(small_expr), asinh(small_value), 135);
+    assert_close(acosh(acosh_expr), acosh(acosh_value), 135);
+    assert_close(atanh(small_expr), atanh(small_value), 135);
+    assert_close(exp2(small_expr), exp2(small_value), 135);
+    assert_close(exp10(small_expr), exp10(small_value), 135);
+}
+
 void test_precision_policy() {
     const mp_bitcnt_t prec = 224;
     const mpf_class x("0.25", prec);
@@ -226,6 +276,7 @@ int main() {
     test_hyperbolic();
     test_inverse_hyperbolic();
     test_exp_base_variants();
+    test_expression_overloads();
     test_precision_policy();
     return 0;
 }

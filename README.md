@@ -32,7 +32,8 @@ The main points are:
   `gmpxx_defaults::set_initial_default_prec()`.  The library does not change
   GMP's process-global `mpf_set_default_prec()` state as a side effect.
 - GMP-only special functions for `mpf_class`, including `log`, `exp`, `cos`,
-  `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and `expm1`.
+  `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and `expm1`, with
+  overloads for `mpf_class`-result expression operands.
 - `gmpxx::mpfc_class`, a GMP-only complex floating type backed by two
   `mpf_class` values, with expression-template arithmetic, `conj`, `norm`,
   `abs`, complex elementary/transcendental functions, complex `pow`, and

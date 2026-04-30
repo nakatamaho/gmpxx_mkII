@@ -168,6 +168,29 @@ void test_compile_time_surface() {
                   decltype(pow(std::declval<mpf_class const&>(),
                                std::declval<mpf_class const&>())),
                   mpf_class>);
+
+    using expr_type = decltype(std::declval<mpf_class const&>() +
+                               std::declval<mpf_class const&>());
+    static_assert(std::same_as<decltype(log(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(exp(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(sin(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(cos(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(tan(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<decltype(atan(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<
+                  decltype(atan2(std::declval<expr_type>(),
+                                 std::declval<expr_type>())),
+                  mpf_class>);
+    static_assert(std::same_as<
+                  decltype(pow(std::declval<expr_type>(),
+                               std::declval<expr_type>())),
+                  mpf_class>);
 }
 
 void test_constants() {
@@ -186,6 +209,45 @@ void test_constants() {
     assert_within_ulp(const_log2(static_cast<mp_bitcnt_t>(192)), l2,
                       static_cast<mp_bitcnt_t>(192), 1);
     assert(const_log2().get_prec() == gmpxx_defaults::get_default_prec());
+}
+
+void test_expression_overloads() {
+    const mp_bitcnt_t low_prec = 160;
+    const mp_bitcnt_t high_prec = 224;
+    mpf_class a("0.25", low_prec);
+    mpf_class b("0.5", high_prec);
+    mpf_class c("1.25", high_prec);
+    mpf_class offset("0.125", high_prec);
+    auto positive_expr = a + b;
+    auto small_expr = a - offset;
+    auto atan_y = a + b;
+    auto atan_x = c - a;
+
+    mpf_class positive_value(positive_expr);
+    mpf_class small_value(small_expr);
+    mpf_class atan_y_value(atan_y);
+    mpf_class atan_x_value(atan_x);
+
+    assert(log(positive_expr).get_prec() == positive_value.get_prec());
+    assert_close(log(positive_expr), log(positive_value), 150);
+    assert_close(log2(positive_expr), log2(positive_value), 145);
+    assert_close(log10(positive_expr), log10(positive_value), 145);
+    assert_close(log1p(small_expr), log1p(small_value), 145);
+
+    assert_close(exp(small_expr), exp(small_value), 145);
+    assert_close(expm1(small_expr), expm1(small_value), 145);
+    assert_close(sin(positive_expr), sin(positive_value), 145);
+    assert_close(cos(positive_expr), cos(positive_value), 145);
+    assert_close(tan(small_expr), tan(small_value), 145);
+    assert_close(atan(positive_expr), atan(positive_value), 145);
+    assert_close(atan2(atan_y, atan_x),
+                 atan2(atan_y_value, atan_x_value), 145);
+    assert_close(pow(positive_expr, small_expr),
+                 pow(positive_value, small_value), 140);
+    assert_close(pow(positive_expr, small_value),
+                 pow(positive_value, small_value), 140);
+    assert_close(pow(positive_value, small_expr),
+                 pow(positive_value, small_value), 140);
 }
 
 void test_reference_literals() {
@@ -480,6 +542,7 @@ void test_domain_errors() {
 int main() {
     test_compile_time_surface();
     test_constants();
+    test_expression_overloads();
     test_reference_literals();
     test_precision_doubling();
     test_exact_special_values();

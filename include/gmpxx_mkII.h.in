@@ -6345,6 +6345,164 @@ inline mpz_class mpz_class::fibonacci(mpz_class const& n) {
         x, y, std::max(x.get_prec(), y.get_prec()));
 }
 
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class log(Expr const& expr) {
+    return log(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class log2(Expr const& expr) {
+    return log2(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class log10(Expr const& expr) {
+    return log10(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class log1p(Expr const& expr) {
+    return log1p(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class exp(Expr const& expr) {
+    return exp(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class exp2(Expr const& expr) {
+    return exp2(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class exp10(Expr const& expr) {
+    return exp10(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class expm1(Expr const& expr) {
+    return expm1(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class sin(Expr const& expr) {
+    return sin(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class cos(Expr const& expr) {
+    return cos(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class tan(Expr const& expr) {
+    return tan(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class asin(Expr const& expr) {
+    return asin(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class acos(Expr const& expr) {
+    return acos(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class atan(Expr const& expr) {
+    return atan(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class sinh(Expr const& expr) {
+    return sinh(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class cosh(Expr const& expr) {
+    return cosh(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class tanh(Expr const& expr) {
+    return tanh(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class asinh(Expr const& expr) {
+    return asinh(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class acosh(Expr const& expr) {
+    return acosh(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class atanh(Expr const& expr) {
+    return atanh(mpf_class(expr));
+}
+
+template<gmpxx_expr Y>
+    requires (std::same_as<typename Y::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class atan2(mpf_class const& y, Y const& x) {
+    return atan2(y, mpf_class(x));
+}
+
+template<gmpxx_expr X>
+    requires (std::same_as<typename X::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class atan2(X const& y, mpf_class const& x) {
+    return atan2(mpf_class(y), x);
+}
+
+template<gmpxx_expr Y, gmpxx_expr X>
+    requires (std::same_as<typename Y::result_type, mpf_class> &&
+              std::same_as<typename X::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class atan2(Y const& y, X const& x) {
+    return atan2(mpf_class(y), mpf_class(x));
+}
+
+template<gmpxx_expr X>
+    requires (std::same_as<typename X::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class pow(X const& x, mpf_class const& y) {
+    return pow(mpf_class(x), y);
+}
+
+template<gmpxx_expr Y>
+    requires (std::same_as<typename Y::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class pow(mpf_class const& x, Y const& y) {
+    return pow(x, mpf_class(y));
+}
+
+template<gmpxx_expr X, gmpxx_expr Y>
+    requires (std::same_as<typename X::result_type, mpf_class> &&
+              std::same_as<typename Y::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class pow(X const& x, Y const& y) {
+    return pow(mpf_class(x), mpf_class(y));
+}
+
 inline void swap(mpf_class& lhs, mpf_class& rhs) noexcept {
     lhs.swap(rhs);
 }
