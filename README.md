@@ -1,9 +1,10 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, single-header wrapper around GNU GMP numeric
-types.  It is designed to be highly source-level compatible with GMP's
-existing `gmpxx.h`, while keeping the implementation, precision policy,
-extended API, and build integration in this repository.
+types, plus an `mpf_class`-backed complex floating type,
+`gmpxx::mpfc_class`.  It is designed to be highly source-level compatible
+with GMP's existing `gmpxx.h`, while keeping the implementation, precision
+policy, extended API, and build integration in this repository.
 
 The project is GMP-only.  It does not use MPFR or MPC for implementation,
 normal tests, parsing, formatting, or reference calculations.
@@ -33,8 +34,8 @@ The main points are:
 - GMP-only special functions for `mpf_class`, including `log`, `exp`, `cos`,
   `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and `expm1`.
 - `gmpxx::mpfc_class`, a GMP-only complex floating type backed by two
-  `mpf_class` values, with expression-template arithmetic for basic complex
-  operations.
+  `mpf_class` values, with expression-template arithmetic, `conj`, `norm`,
+  `abs`, and `std::complex`-style `(real,imag)` stream I/O.
 - RAII ownership of `mpf_t`, `mpz_t`, and `mpq_t`; exact `mpz_class` and
   `mpq_class` arithmetic remains native where exact behavior is part of the
   public API.
