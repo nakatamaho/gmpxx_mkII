@@ -185,6 +185,33 @@ void test_conjugate_norm_and_abs() {
     assert(abs(z) == 5);
 }
 
+void test_comparison_and_free_helpers() {
+    using namespace gmpxx;
+
+    mpfc_class z(mpf_class(3, 192), mpf_class(4, 192));
+    mpfc_class same(mpf_class(3, 256), mpf_class(4, 256));
+    mpfc_class different(mpf_class(3, 192), mpf_class(-4, 192));
+    mpfc_class real_value(mpf_class(3, 192), mpf_class(0, 192));
+
+    assert(z == same);
+    assert(z != different);
+    assert(real_value == mpf_class(3, 192));
+    assert(mpf_class(3, 192) == real_value);
+    assert(z != mpf_class(3, 192));
+
+    assert(real(z) == 3);
+    assert(imag(z) == 4);
+    assert(real(z + same) == 6);
+    assert(imag(z + same) == 8);
+
+    mpf_class angle = arg(z);
+    assert(std::abs(angle.get_d() - std::atan2(4.0, 3.0)) < 1e-12);
+
+    mpfc_class from_polar =
+        polar(mpf_class(5, 192), mpf_class(std::atan2(4.0, 3.0), 192));
+    check_close(complex_ref(3.0, 4.0), from_polar);
+}
+
 void test_arithmetic_smoke_against_std_complex() {
     using gmpxx::mpfc_class;
 
@@ -222,6 +249,7 @@ int main() {
     test_real_operands_and_division();
     test_assignment_preserves_destination_precision();
     test_conjugate_norm_and_abs();
+    test_comparison_and_free_helpers();
     test_arithmetic_smoke_against_std_complex();
     return 0;
 }

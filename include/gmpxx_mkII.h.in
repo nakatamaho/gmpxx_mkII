@@ -7061,6 +7061,14 @@ inline std::istream& operator>>(std::istream& is, mpfc_class& value) {
     return mpfc_class(value.real(), -value.imag());
 }
 
+[[nodiscard]] inline mpf_class real(mpfc_class const& value) {
+    return value.real();
+}
+
+[[nodiscard]] inline mpf_class imag(mpfc_class const& value) {
+    return value.imag();
+}
+
 [[nodiscard]] inline mpf_class norm(mpfc_class const& value) {
     mpf_class result(0, value.get_prec());
     result = value.real() * value.real() + value.imag() * value.imag();
@@ -7069,6 +7077,20 @@ inline std::istream& operator>>(std::istream& is, mpfc_class& value) {
 
 [[nodiscard]] inline mpf_class abs(mpfc_class const& value) {
     return sqrt(norm(value));
+}
+
+[[nodiscard]] inline mpf_class arg(mpfc_class const& value) {
+    return atan2(value.imag(), value.real());
+}
+
+[[nodiscard]] inline mpfc_class polar(mpf_class const& radius,
+                                      mpf_class const& angle) {
+    mp_bitcnt_t precision =
+        mpfc_detail::max_prec(radius.get_prec(), angle.get_prec());
+    mpf_class radius_value(radius, precision);
+    mpf_class angle_value(angle, precision);
+    return mpfc_class(radius_value * cos(angle_value),
+                      radius_value * sin(angle_value));
 }
 
 [[nodiscard]] inline mpfc_class sqrt(mpfc_class const& value) {
@@ -7199,8 +7221,23 @@ template<mpfc_detail::expression Expr>
 }
 
 template<mpfc_detail::expression Expr>
+[[nodiscard]] inline mpf_class real(Expr const& expr) {
+    return real(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+[[nodiscard]] inline mpf_class imag(Expr const& expr) {
+    return imag(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
 [[nodiscard]] inline mpf_class abs(Expr const& expr) {
     return abs(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+[[nodiscard]] inline mpf_class arg(Expr const& expr) {
+    return arg(mpfc_class(expr));
 }
 
 template<mpfc_detail::expression Expr>

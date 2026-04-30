@@ -273,6 +273,8 @@ mpfc_class w(mpf_class(3, 256), mpf_class(-4, 256));
 
 mpfc_class r = z + w * z;
 mpf_class magnitude = abs(r);
+mpf_class angle = arg(r);
+mpfc_class rebuilt = polar(magnitude, angle);
 ```
 
 `mpfc_class` stream I/O uses the `std::complex` pair format:
