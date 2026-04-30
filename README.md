@@ -1,79 +1,44 @@
 # gmpxx_mkII
 
-`gmpxx_mkII` is a C++20, header-only wrapper around GNU GMP numeric types.
-The current repository state is the v2.0.0 Phase 5 expression-template
-rewrite: it implements `mpf_class`, `mpz_class`, and `mpq_class` arithmetic
-cores plus mixed scalar arithmetic.
+`gmpxx_mkII` is a C++20, single-header wrapper around GNU GMP numeric
+types.  It provides `mpf_class`, `mpz_class`, and `mpq_class` with RAII
+ownership, expression-template arithmetic, GMP-only mathematical functions,
+stream I/O, random-number support, literals, CMake package support, examples,
+and ported GMP C++ wrapper compatibility tests.
 
-The v2.0.0 rewrite is being restored in phases. Phase 5 validates the new
-lazy expression machinery, precision policy, thread-local default precision,
-scalar leaf normalization, compound assignment, long-width dispatch,
-power-of-two integer scaling fusion, unary double-negation simplification,
-integer/rational GMP wrappers, mixed mpf/mpz/mpq expressions, native mpz
-multiply-add fusion, comparison operators, string conversion, stream I/O,
-user-defined literals, runtime defaults/base policy, package config support,
-and allocation behavior before restoring any remaining v1.0.0 surface.
+The project is GMP-only.  It does not use MPFR or MPC for implementation,
+normal tests, parsing, formatting, or reference calculations.
 
-## Current Scope
+## Overview
 
-Implemented now:
+The goal is source-level convenience close to GMP's `gmpxx.h`, while making
+precision policy, ownership, and expression evaluation explicit enough for
+high-precision numerical code.  The public API lives in one header:
+[gmpxx_mkII.h](gmpxx_mkII.h).
 
-- `mpf_class` RAII ownership of `mpf_t`.
-- `mpz_class` RAII ownership of `mpz_t`.
-- `mpq_class` RAII ownership of `mpq_t`.
-- Lazy expression templates for `+`, `-`, `*`, and `/`.
-- `mpz_class` integer division uses GMP truncating integer quotient semantics.
-- `mpq_class` arithmetic canonicalizes GMP rational results.
-- Mixed scalar arithmetic with signed integers, unsigned integers, `float`,
-  and `double`; scalar leaves are normalized internally to `int64_t`,
-  `uint64_t`, or `double`.
-- Unary `+` and unary `-`.
-- Direct expression construction and assignment:
-  `mpf_class r = a + b * c;`, `r = (a + b) / c;`.
-- Compound assignment (`+=`, `-=`, `*=`, `/=`) for `mpf_class`,
-  `mpz_class`, and `mpq_class` with wrapper, expression, and scalar
-  right-hand sides where supported.
-- `.eval()` for explicitly materializing an expression as its result type
-  (`mpf_class`, `mpz_class`, or `mpq_class`).
-- Operand-max precision for expression construction and `.eval()` by default.
-- `gmpxx.h`-compatible expression assignment that preserves destination
-  precision.
-- `GMPXX_MKII_NOPRECCHANGE` compatibility mode.
-- Unary `-(-x)` simplification through a positive identity expression node.
-- Integer power-of-two multiplication/division fusion through
-  `mpf_mul_2exp` and `mpf_div_2exp` where applicable.
-- Native `mpz_class` compound-assignment fusion for direct `a += b * c` and
-  `a -= b * c` forms through `mpz_addmul`, `mpz_submul`, `mpz_addmul_ui`,
-  and `mpz_submul_ui` where valid.
-- `cmp()`, `==`, `!=`, `<`, `<=`, `>`, and `>=` for wrapper values,
-  expression operands, and supported scalar operands.
-- `get_str()`, `set_str()`, and `to_string()` for concrete wrapper values.
-- `mpf_class` assignment from `double`, `char const*`, and `std::string`
-  with destination precision preserved.
-- `mpf_class` free functions `sqrt`, `abs`, and legacy `neg`, implemented
-  directly through GMP `mpf_t` APIs.
-- GMP-only `mpf_class` transcendental functions: `pi`, `log_two`, `log`,
+## Features
+
+- BSD-2-Clause licensed, header-only public API.
+- Public type names compatible with GMP's C++ wrapper:
+  `mpf_class`, `mpz_class`, `mpq_class`, and `gmp_randclass`.
+- RAII ownership of `mpf_t`, `mpz_t`, and `mpq_t`.
+- Expression templates for `+`, `-`, `*`, `/`, unary operators, and compound
+  assignment.
+- Mixed arithmetic across GMP floating, integer, rational, and supported
+  scalar operands.
+- Assignment into an existing `mpf_class` preserves the destination precision.
+- Default precision is wrapper-controlled and thread-local after first use.
+- Exact `mpz_class` and `mpq_class` arithmetic stays native where the public
+  API defines exact behavior.
+- `mpq_class` values are canonicalized at public boundaries.
+- String conversion, base-aware parsing, stream I/O, and user-defined
+  literals.
+- GMP-only `mpf_class` math surface: `sqrt`, `abs`, `pi`, `log_two`, `log`,
   `log1p`, `exp`, `expm1`, `sin`, `cos`, `atan`, `atan2`, and `pow`.
-- `operator<<` and `operator>>` for concrete wrapper values, plus
-  immediate-evaluation `operator<<` for expression operands.
-- User-defined literals in `gmpxx::literals`: `_mpz`, `_mpq`, and
-  `_mpf`.
-- `gmp_randclass` random state ownership, seeding, random `mpz_class`
-  generation, and random `mpf_class` generation.
-- Thread-local wrapper default precision initialized from
-  `GMPXX_MKII_DEFAULT_PREC`.
-- `gmpxx_defaults` default precision queries and default base policy.
-- Full CMake package config for install-tree `find_package(gmpxx_mkII)`.
-- CMake + CTest build with Phase 0 through Phase 6 regression tests.
+- Ported eager benchmark programs for Rdot, Raxpy, Rgemv, and Rgemm.
 
-Deferred to later phases:
-
-- Remaining expression-aware math overloads and special functions beyond the
-  current concrete GMP-only math surface.
-
-Fortran bridge support is intentionally not planned for v2.0.0.
-
-See [STATUS.md](STATUS.md) for the detailed implementation matrix.
+See [STATUS.md](STATUS.md) for the detailed implementation matrix and known
+compatibility differences.
 
 ## Requirements
 
@@ -109,6 +74,8 @@ variants where the eager benchmark set provides them. Disable them with:
 cmake -S . -B build -DGMPXX_MKII_BUILD_EXAMPLES=OFF
 cmake -S . -B build -DGMPXX_MKII_BUILD_BENCHMARKS=OFF
 ```
+
+## Benchmarks
 
 Run the ported benchmark set and generate plots with:
 
@@ -189,6 +156,8 @@ ratios use `Elapsed time`/`MFLOPS`, not `WALL_SECONDS`; vector initialization
 and result checking dominate wall time for Rdot and Raxpy, so end-to-end
 speedup is much smaller than the plotted kernel-body speedup.
 
+## Installation
+
 Install the generated header, exported CMake target, and package config files:
 
 ```bash
@@ -212,6 +181,8 @@ find_package(gmpxx_mkII CONFIG REQUIRED)
 add_executable(example example.cpp)
 target_link_libraries(example PRIVATE gmpxx_mkII::gmpxx_mkII)
 ```
+
+## Additional Build Modes
 
 `GMPXX_MKII_NOPRECCHANGE` build:
 
@@ -258,6 +229,8 @@ Example:
 #include <cassert>
 
 int main() {
+    using namespace gmpxx;
+
     mpf_class a("1.5", 256);
     mpf_class b("2.5", 256);
     mpf_class c("4.0", 512);
@@ -274,14 +247,12 @@ int main() {
 }
 ```
 
-## Expression Lifetime Rule
+## Expression Lifetime
 
-Phase 5 expression nodes store `mpf_class`, `mpz_class`, `mpq_class`, and
-expression subtrees by `const&`, while scalar leaves are normalized and stored
-by value. This is deliberate for the v2.0.0 performance and ABI experiment,
-but expression trees must not be saved in `auto` variables.
-
-Use immediate evaluation:
+Expression-template nodes follow the storage policy documented in
+[AGENTS.md](AGENTS.md): leaf RAII objects are stored by `const&`, while
+intermediate expression nodes are stored by value.  This supports natural
+immediate-use expressions:
 
 ```cpp
 mpf_class y = a + b + c;
@@ -289,12 +260,9 @@ y = a + b + c;
 auto value = (a + b + c).eval();
 ```
 
-Do not save the expression tree:
-
-```cpp
-auto expr = a + b + c;  // Do not do this in the current L1 storage model.
-mpf_class y = expr;     // Internal references may dangle.
-```
+Do not treat expression node types as a stable public API.  Materialize with
+`.eval()` or assign into a wrapper object when a value must outlive the full
+expression.
 
 ## Precision Policy
 
@@ -390,6 +358,58 @@ mpf_class f = 1.25_mpf;
 
 Raw numeric literal forms are parsed in base 10. String literal forms use the
 current wrapper default base.
+
+## Compatibility
+
+The v2 wrapper preserves many source-compatible names and behaviors expected
+from GMP's `gmpxx.h`, but it is not a binary-compatible replacement for
+`libgmpxx`.  Existing programs must be recompiled.
+
+Key compatibility choices:
+
+- Assignment into an existing `mpf_class` preserves destination precision.
+- No-base string construction follows GMP base-detection policy, including
+  `mpz_class("0x...")`.
+- Mixed exact GMP types with floating scalars produce floating results where
+  this project defines a floating result.
+- `mpq_class` values are canonicalized before public comparison, formatting,
+  and serialization.
+- `bool` is intentionally not accepted as a scalar arithmetic type.
+
+`GMPXX_MKII_NOPRECCHANGE` is a compatibility build mode selected at CMake
+configure time:
+
+```bash
+cmake -S . -B build_np -DGMPXX_MKII_NOPRECCHANGE=ON
+```
+
+This mode is useful for comparing against the eager no-precision-change
+benchmark style.  In benchmark target names it appears as
+`mkII_NOPRECCHANGE`.
+
+Known differences and unsupported items are tracked in [STATUS.md](STATUS.md).
+
+## Quality Assurance
+
+The test suite combines project-specific regression tests with translated
+coverage from GMP's legacy C++ wrapper tests.  The normal CTest build covers:
+
+- construction, assignment, move safety, and aliasing;
+- arithmetic and mixed scalar operations;
+- precision/default-policy behavior;
+- comparisons, strings, stream I/O, and literals;
+- random-number wrappers;
+- GMP integer/rational behavior and canonicalization;
+- package configuration.
+
+CTest target names are intentionally small and feature-oriented to make
+regression triage cheap.
+
+## Examples
+
+The [examples](examples/) directory contains small standalone programs,
+including a DKA/Aberth root finder example implemented without
+`std::complex`.
 
 ## Reference Material
 
