@@ -1,20 +1,47 @@
 # gmpxx_mkII
 
 `gmpxx_mkII` is a C++20, single-header wrapper around GNU GMP numeric
-types.  It provides `mpf_class`, `mpz_class`, and `mpq_class` with RAII
-ownership, expression-template arithmetic, GMP-only mathematical functions,
-stream I/O, random-number support, literals, CMake package support, examples,
-and ported GMP C++ wrapper compatibility tests.
+types.  It is intended for code that likes the public names and general usage
+style of GMP's existing `gmpxx.h`, but wants a wrapper whose ownership,
+precision policy, expression evaluation, and build integration are explicit in
+this repository.
 
 The project is GMP-only.  It does not use MPFR or MPC for implementation,
 normal tests, parsing, formatting, or reference calculations.
 
 ## Overview
 
-The goal is source-level convenience close to GMP's `gmpxx.h`, while making
-precision policy, ownership, and expression evaluation explicit enough for
-high-precision numerical code.  The public API lives in one header:
-[gmpxx_mkII.h](gmpxx_mkII.h).
+Compared with the upstream GMP C++ wrapper, `gmpxx_mkII` differs in these
+main ways:
+
+- The public API is one project-owned header,
+  [gmpxx_mkII.h](gmpxx_mkII.h), with CMake package support; consumers do not
+  link to `libgmpxx`.
+- The public type names and ordinary expression style are close to
+  `gmpxx.h`: `mpf_class`, `mpz_class`, `mpq_class`, and `gmp_randclass` are
+  provided.  The main visible namespace difference is that the enhanced API
+  lives under `gmpxx`; compatibility details are tracked in
+  [STATUS.md](STATUS.md).
+- Scalar dispatch covers fixed-width integer paths such as `int64_t` and
+  `uint64_t`, avoiding the `long`/`long long` ambiguity that matters across
+  LP64 and LLP64 platforms.
+- The wrapper default precision is thread-local after first use and is
+  initialized from `GMPXX_MKII_DEFAULT_PREC` or from
+  `gmpxx_defaults::set_initial_default_prec()`.  This avoids changing GMP's
+  process-global `mpf_set_default_prec()` state as a library side effect.
+- GMP-only special functions are provided for `mpf_class`, including `log`,
+  `exp`, `cos`, `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and
+  `expm1`.
+- Mixed exact/floating expressions and scalar promotion rules are tested and
+  documented here, including the project policy that `mpz`/`mpq` mixed with
+  floating scalars produce floating results where a floating result is defined.
+- Floating expression precision is defined by this project: default builds use
+  the maximum precision of `mpf_class` leaves, while assignment into an
+  existing `mpf_class` preserves the destination precision.
+
+The target is source-level convenience close to `gmpxx.h`, not a drop-in ABI
+replacement.  Existing programs must be recompiled and should check
+[STATUS.md](STATUS.md) for known compatibility differences.
 
 ## Features
 
@@ -145,16 +172,14 @@ report `Result OK` for all variants.  `Rgemv kernel_openmp_02` reports
 across all three variants points to that ported OpenMP benchmark variant
 rather than a `gmpxx_mkII`-only difference.
 
-![Serial benchmark summary](benchmarks/results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_serial_summary.png)
-
-![OpenMP benchmark summary](benchmarks/results_raw/Linux_Ryzen_3970X_32-Core/benchmark_20260430_081331_Linux_Ryzen_3970X_32-Core_openmp_summary.png)
-
 For this 32-core Threadripper run, OpenMP improves the timed kernel-body
 MFLOPS substantially: roughly 17-22x for Rdot, 11-14x for Raxpy, 9-23x for
 Rgemv, and 24-31x for Rgemm, depending on the native/orig/mkII variant.  These
 ratios use `Elapsed time`/`MFLOPS`, not `WALL_SECONDS`; vector initialization
 and result checking dominate wall time for Rdot and Raxpy, so end-to-end
-speedup is much smaller than the plotted kernel-body speedup.
+speedup is much smaller than the plotted kernel-body speedup.  The recorded
+PNG plots and per-kernel discussion are in the benchmark directories linked
+above.
 
 ## Installation
 
