@@ -482,9 +482,10 @@ evaluates the first SIAM 100-Digit Challenge integral by removing a singular,
 infinitely oscillatory endpoint through contour deformation; run it with
 `--help` to select decimal digits, reported Simpson panel counts, reference
 panel count, and shifted-ray tail cutoff. `example14` computes the NaCl
-Madelung constant through a theta-function lattice-sum transform,
-illustrating conditional convergence in Coulomb sums. `example15` samples the
-SIAM 100-Digit Challenge cubic approximation problem for `1/Gamma(z)` on the
+Madelung constant through a theta-function lattice-sum transform; run it with
+`--help` to select decimal digits, reported Simpson panel counts, reference
+panel count, and transformed-integral extent. `example15` samples the SIAM
+100-Digit Challenge cubic approximation problem for `1/Gamma(z)` on the
 complex unit disk using `mpfc_class`.
 
 ## License

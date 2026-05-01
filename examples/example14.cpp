@@ -80,12 +80,125 @@
 #include "gmpxx_mkII.h"
 
 #include <cmath>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 
 namespace {
 
 using gmpxx::mpf_class;
+
+struct options {
+    int decimal_digits = 45;
+    int first_panels = 512;
+    int max_panels = 2048;
+    int reference_panels = 4096;
+    int t_extent = 10;
+    bool reference_panels_was_set = false;
+};
+
+void print_usage(char const* program) {
+    std::cout
+        << "Usage: " << program << " [options]\n"
+        << "\n"
+        << "NaCl Madelung constant example.\n"
+        << "Computes the positive Madelung constant through a theta-function\n"
+        << "lattice-sum transform, avoiding the ambiguous conditionally\n"
+        << "convergent direct Coulomb box sum.\n"
+        << "\n"
+        << "Options:\n"
+        << "  --help                 Show this help and exit.\n"
+        << "  --digits N             Decimal digits to print/use "
+           "(default: 45).\n"
+        << "  --first-panels N       First Simpson panel count "
+           "(default: 512).\n"
+        << "  --max-panels N         Largest reported panel count "
+           "(default: 2048).\n"
+        << "                         If --reference-panels is omitted, "
+           "the reference is\n"
+        << "                         raised to at least 2*N.\n"
+        << "  --reference-panels N   Simpson panel count used as reference "
+           "(default: 4096).\n"
+        << "  --extent N             Integrate over -N <= t <= N "
+           "(default: 10).\n"
+        << "\n"
+        << "Examples:\n"
+        << "  " << program << "\n"
+        << "  " << program << " --max-panels 4096\n"
+        << "  " << program
+        << " --digits 60 --max-panels 4096 --reference-panels 8192\n";
+}
+
+int parse_positive_int(char const* option, char const* text) {
+    try {
+        std::string value(text);
+        std::size_t parsed = 0;
+        int result = std::stoi(value, &parsed);
+        if (parsed != value.size() || result <= 0) {
+            throw std::invalid_argument("not a positive integer");
+        }
+        return result;
+    } catch (std::exception const&) {
+        throw std::invalid_argument(std::string(option) +
+                                    " expects a positive integer");
+    }
+}
+
+char const* require_value(int argc, char** argv, int& index) {
+    if (index + 1 >= argc) {
+        throw std::invalid_argument(std::string(argv[index]) +
+                                    " requires a value");
+    }
+    ++index;
+    return argv[index];
+}
+
+options parse_options(int argc, char** argv) {
+    options result;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+        if (arg == "--help" || arg == "-h") {
+            print_usage(argv[0]);
+            std::exit(0);
+        } else if (arg == "--digits") {
+            result.decimal_digits =
+                parse_positive_int(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--first-panels") {
+            result.first_panels =
+                parse_positive_int(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--max-panels") {
+            result.max_panels =
+                parse_positive_int(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--reference-panels") {
+            result.reference_panels =
+                parse_positive_int(argv[i], require_value(argc, argv, i));
+            result.reference_panels_was_set = true;
+        } else if (arg == "--extent") {
+            result.t_extent =
+                parse_positive_int(argv[i], require_value(argc, argv, i));
+        } else {
+            throw std::invalid_argument("unknown option: " + arg);
+        }
+    }
+
+    if (result.first_panels > result.max_panels) {
+        throw std::invalid_argument(
+            "--first-panels must be <= --max-panels");
+    }
+    if (!result.reference_panels_was_set &&
+        result.reference_panels < result.max_panels * 2) {
+        result.reference_panels = result.max_panels * 2;
+    }
+    if (result.reference_panels < result.max_panels) {
+        throw std::invalid_argument(
+            "--reference-panels must be >= --max-panels");
+    }
+
+    return result;
+}
 
 mp_bitcnt_t bits_for_decimal_digits(int digits, int guard_bits) {
     double raw_bits = std::ceil(static_cast<double>(digits) * std::log2(10.0));
@@ -192,38 +305,63 @@ mpf_class nacl_madelung_constant(int panels, int t_extent,
     return -signed_sum + left_tail;
 }
 
-void run_case(int decimal_digits) {
-    mp_bitcnt_t precision = bits_for_decimal_digits(decimal_digits, 160);
+void run_case(options const& opts) {
+    mp_bitcnt_t precision = bits_for_decimal_digits(opts.decimal_digits, 160);
     gmpxx::gmpxx_defaults::set_initial_default_prec(precision);
 
-    mpf_class reference = nacl_madelung_constant(4096, 10, precision);
+    mpf_class reference =
+        nacl_madelung_constant(opts.reference_panels, opts.t_extent,
+                               precision);
+    int label_width = 24;
+    int value_width = opts.decimal_digits + 8;
 
-    std::cout << "\nprecision target = " << decimal_digits
+    std::cout << "\nprecision target = " << opts.decimal_digits
               << " decimal digits\n";
-    std::cout << " panels       alpha(NaCl)                         "
-                 "|delta from 4096|\n";
+    std::cout << std::setw(label_width) << "case" << "  "
+              << std::setw(value_width) << "alpha(NaCl)" << "  "
+              << "|delta from reference|\n";
 
-    for (int panels : {512, 1024, 2048}) {
-        mpf_class value = nacl_madelung_constant(panels, 10, precision);
-        std::cout << std::setw(7) << panels << "  "
-                  << std::setw(38) << value << "  "
+    for (int panels = opts.first_panels; panels <= opts.max_panels;
+         panels *= 2) {
+        mpf_class value =
+            nacl_madelung_constant(panels, opts.t_extent, precision);
+        std::cout << std::setw(label_width) << panels << "  "
+                  << std::setw(value_width) << value << "  "
                   << gmpxx::abs(value - reference) << '\n';
+        if (panels > opts.max_panels / 2) {
+            break;
+        }
     }
 
-    std::cout << " reference(4096 panels) = " << reference << '\n';
-    std::cout << " literature value       = "
-              << "1.747564594633182190636212035544397403485\n";
+    std::string reference_label =
+        "reference(" + std::to_string(opts.reference_panels) + ")";
+    std::cout << std::setw(label_width) << reference_label << "  "
+              << std::setw(value_width) << reference << '\n';
+    mpf_class literature_value(
+        "1.747564594633182190636212035544397403485", precision);
+    std::cout << std::setw(label_width) << "literature" << "  "
+              << std::setw(value_width) << literature_value << '\n';
+    std::cout << " t extent = " << opts.t_extent << '\n';
 }
 
 }  // namespace
 
-int main() {
-    std::cout << std::scientific << std::setprecision(40);
+int main(int argc, char** argv) {
+    options opts;
+    try {
+        opts = parse_options(argc, argv);
+    } catch (std::exception const& error) {
+        std::cerr << "error: " << error.what() << "\n\n";
+        print_usage(argv[0]);
+        return 1;
+    }
+
+    std::cout << std::scientific << std::setprecision(opts.decimal_digits);
     std::cout << "NaCl Madelung constant by a theta-function lattice sum\n";
     std::cout << "The direct Coulomb sum is conditionally convergent; this\n";
     std::cout << "example uses a transformed integral with theta modularity.\n";
 
-    run_case(45);
+    run_case(opts);
 
     return 0;
 }
