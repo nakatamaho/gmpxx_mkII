@@ -138,6 +138,30 @@ void test_real_axis_and_expression_inputs() {
     assert(principal_root.imag() == 2);
 }
 
+void test_gamma_functions() {
+    using namespace gmpxx;
+
+    mp_bitcnt_t precision = 256;
+    mpf_class tolerance = branch_tolerance(precision);
+    mpfc_class one(mpf_class(1, precision), mpf_class(0, precision));
+    mpfc_class zero(mpf_class(0, precision), mpf_class(0, precision));
+    mpfc_class half(mpf_class("0.5", precision), mpf_class(0, precision));
+    mpfc_class z(mpf_class("0.75", precision), mpf_class("0.5", precision));
+
+    check_close_mpfc(one, gamma(one), tolerance);
+    check_close_mpfc(mpfc_class(sqrt(pi(precision)), mpf_class(0, precision)),
+                     gamma(half), tolerance);
+    check_close_mpfc(z * gamma(z), gamma(z + one), tolerance);
+    check_close_mpfc(one, reciprocal_gamma(z) * gamma(z), tolerance);
+    assert(reciprocal_gamma(zero) == zero);
+
+    mpfc_class w(mpf_class("0.125", precision),
+                 mpf_class("-0.25", precision));
+    check_close_mpfc(gamma(z + w), gamma(mpfc_class(z + w)), tolerance);
+    check_close_mpfc(reciprocal_gamma(z + w),
+                     reciprocal_gamma(mpfc_class(z + w)), tolerance);
+}
+
 void test_pow_against_std_complex() {
     using namespace gmpxx;
 
@@ -336,6 +360,7 @@ int main() {
     test_primary_functions_against_std_complex();
     test_inverse_functions_against_std_complex();
     test_real_axis_and_expression_inputs();
+    test_gamma_functions();
     test_pow_against_std_complex();
     test_branch_cuts_against_std_complex();
     test_branch_cut_identities_with_mpf();

@@ -109,6 +109,11 @@ void test_compile_time_surface() {
                                mpf_class>);
     static_assert(std::same_as<decltype(exp10(std::declval<mpf_class const&>())),
                                mpf_class>);
+    static_assert(std::same_as<decltype(gamma(std::declval<mpf_class const&>())),
+                               mpf_class>);
+    static_assert(std::same_as<
+                  decltype(reciprocal_gamma(std::declval<mpf_class const&>())),
+                  mpf_class>);
 
     using expr_type = decltype(std::declval<mpf_class const&>() +
                                std::declval<mpf_class const&>());
@@ -132,6 +137,11 @@ void test_compile_time_surface() {
                                mpf_class>);
     static_assert(std::same_as<decltype(exp10(std::declval<expr_type>())),
                                mpf_class>);
+    static_assert(std::same_as<decltype(gamma(std::declval<expr_type>())),
+                               mpf_class>);
+    static_assert(std::same_as<
+                  decltype(reciprocal_gamma(std::declval<expr_type>())),
+                  mpf_class>);
 }
 
 void test_constants() {
@@ -223,6 +233,25 @@ void test_exp_base_variants() {
     assert_close(log2(exp2(one)), one, 120);
 }
 
+void test_gamma_functions() {
+    const mp_bitcnt_t prec = 192;
+    const mpf_class zero(0, prec);
+    const mpf_class one(1, prec);
+    const mpf_class half("0.5", prec);
+    const mpf_class five(5, prec);
+    const mpf_class twenty_four(24, prec);
+    const mpf_class x("1.25", prec);
+
+    assert_close(gamma(one), one, 110);
+    assert_close(gamma(five), twenty_four, 100);
+    assert_close(gamma(half), sqrt(pi(prec)), 100);
+    assert_close(gamma(x + one), x * gamma(x), 100);
+    assert_close(reciprocal_gamma(x) * gamma(x), one, 110);
+    assert(reciprocal_gamma(zero) == zero);
+    expect_domain_error([&] { (void)gamma(zero); });
+    expect_domain_error([&] { (void)gamma(mpf_class(-2, prec)); });
+}
+
 void test_expression_overloads() {
     const mp_bitcnt_t low_prec = 160;
     const mp_bitcnt_t high_prec = 224;
@@ -248,6 +277,9 @@ void test_expression_overloads() {
     assert_close(atanh(small_expr), atanh(small_value), 135);
     assert_close(exp2(small_expr), exp2(small_value), 135);
     assert_close(exp10(small_expr), exp10(small_value), 135);
+    assert_close(gamma(acosh_expr), gamma(acosh_value), 110);
+    assert_close(reciprocal_gamma(acosh_expr), reciprocal_gamma(acosh_value),
+                 110);
 }
 
 void test_precision_policy() {
@@ -265,6 +297,8 @@ void test_precision_policy() {
     assert(atanh(x).get_prec() == x.get_prec());
     assert(exp2(x).get_prec() == x.get_prec());
     assert(exp10(x).get_prec() == x.get_prec());
+    assert(gamma(y).get_prec() == y.get_prec());
+    assert(reciprocal_gamma(y).get_prec() == y.get_prec());
 }
 
 }  // namespace
@@ -276,6 +310,7 @@ int main() {
     test_hyperbolic();
     test_inverse_hyperbolic();
     test_exp_base_variants();
+    test_gamma_functions();
     test_expression_overloads();
     test_precision_policy();
     return 0;

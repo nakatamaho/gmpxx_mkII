@@ -32,12 +32,14 @@ The main points are:
   `gmpxx_defaults::set_initial_default_prec()`.  The library does not change
   GMP's process-global `mpf_set_default_prec()` state as a side effect.
 - GMP-only special functions for `mpf_class`, including `log`, `exp`, `cos`,
-  `sin`, `atan`, `atan2`, `pow`, `pi`, `log_two`, `log1p`, and `expm1`, with
-  overloads for `mpf_class`-result expression operands.
+  `sin`, `atan`, `atan2`, `pow`, `gamma`, `reciprocal_gamma`, `pi`,
+  `log_two`, `log1p`, and `expm1`, with overloads for `mpf_class`-result
+  expression operands.
 - `gmpxx::mpfc_class`, a GMP-only complex floating type backed by two
   `mpf_class` values, with expression-template arithmetic, `conj`, `norm`,
-  `abs`, complex elementary/transcendental functions, complex `pow`, and
-  `std::complex`-style `(real,imag)` stream I/O.
+  `abs`, complex elementary/transcendental functions, complex `pow`, complex
+  `gamma`/`reciprocal_gamma`, and `std::complex`-style `(real,imag)` stream
+  I/O.
 - RAII ownership of `mpf_t`, `mpz_t`, and `mpq_t`; exact `mpz_class` and
   `mpq_class` arithmetic remains native where exact behavior is part of the
   public API.

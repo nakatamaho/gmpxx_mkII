@@ -6345,6 +6345,100 @@ inline mpz_class mpz_class::fibonacci(mpz_class const& n) {
         x, y, std::max(x.get_prec(), y.get_prec()));
 }
 
+namespace gmpxx_transcendent_detail {
+
+[[nodiscard]] inline int gamma_spouge_terms(mp_bitcnt_t precision) {
+    int decimal_digits =
+        static_cast<int>(static_cast<double>(precision) * 0.30103) + 1;
+    int terms = decimal_digits + 16;
+    if (terms < 24) {
+        terms = 24;
+    }
+    if (terms > 128) {
+        terms = 128;
+    }
+    return terms;
+}
+
+[[nodiscard]] inline mpf_class gamma_spouge_coefficient(int k, int a,
+                                                       mp_bitcnt_t work) {
+    if (k == 0) {
+        return sqrt_prec(two_pi(work), work);
+    }
+
+    mpf_class a_minus_k(a - k, work);
+    mpf_class exponent(mpf_class(k, work) - mpf_class("0.5", work));
+    mpf_class coefficient =
+        compute_pow(a_minus_k, exponent, work) * compute_exp(a_minus_k, work);
+
+    mpf_class factorial(1, work);
+    for (int n = 2; n <= k - 1; ++n) {
+        factorial *= mpf_class(n, work);
+    }
+    coefficient /= factorial;
+    if ((k % 2) == 0) {
+        coefficient = -coefficient;
+    }
+    return coefficient;
+}
+
+[[nodiscard]] inline bool gamma_real_pole(mpf_class const& x) {
+    mpz_class integer_value;
+    if (!gmpxx_transcendent_detail::mpf_is_exact_integer(x, integer_value)) {
+        return false;
+    }
+    return integer_value <= mpz_class(std::int64_t{0});
+}
+
+[[nodiscard]] inline mpf_class gamma_spouge_positive(mpf_class const& x,
+                                                     mp_bitcnt_t target) {
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_log(target) + 32;
+    const int a = gamma_spouge_terms(target);
+    const mpf_class x_work(x, work);
+    const mpf_class half("0.5", work);
+    const mpf_class base = x_work + mpf_class(a - 1, work);
+
+    mpf_class sum = gamma_spouge_coefficient(0, a, work);
+    for (int k = 1; k < a; ++k) {
+        sum += gamma_spouge_coefficient(k, a, work) /
+               (x_work + mpf_class(k - 1, work));
+    }
+
+    mpf_class result = compute_pow(base, x_work - half, work) *
+                       compute_exp(-base, work) * sum;
+    return set_prec_copy(result, target);
+}
+
+}  // namespace gmpxx_transcendent_detail
+
+[[nodiscard]] inline mpf_class gamma(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    if (gmpxx_transcendent_detail::gamma_real_pole(x)) {
+        throw std::domain_error("gamma(x) pole at non-positive integer");
+    }
+
+    const mpf_class half("0.5", target);
+    if (x < half) {
+        mpf_class pi_value = const_pi(target);
+        mpf_class sin_factor = sin(pi_value * x);
+        if (sin_factor == mpf_class(0, target)) {
+            throw std::domain_error("gamma(x) pole at non-positive integer");
+        }
+        return pi_value / (sin_factor * gamma(mpf_class(1, target) - x));
+    }
+
+    return gmpxx_transcendent_detail::gamma_spouge_positive(x, target);
+}
+
+[[nodiscard]] inline mpf_class reciprocal_gamma(mpf_class const& x) {
+    const mp_bitcnt_t target = x.get_prec();
+    if (gmpxx_transcendent_detail::gamma_real_pole(x)) {
+        return mpf_class(0, target);
+    }
+    return mpf_class(1, target) / gamma(x);
+}
+
 template<gmpxx_expr Expr>
     requires (std::same_as<typename Expr::result_type, mpf_class>)
 [[nodiscard]] inline mpf_class log(Expr const& expr) {
@@ -6501,6 +6595,18 @@ template<gmpxx_expr X, gmpxx_expr Y>
               std::same_as<typename Y::result_type, mpf_class>)
 [[nodiscard]] inline mpf_class pow(X const& x, Y const& y) {
     return pow(mpf_class(x), mpf_class(y));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class gamma(Expr const& expr) {
+    return gamma(mpf_class(expr));
+}
+
+template<gmpxx_expr Expr>
+    requires (std::same_as<typename Expr::result_type, mpf_class>)
+[[nodiscard]] inline mpf_class reciprocal_gamma(Expr const& expr) {
+    return reciprocal_gamma(mpf_class(expr));
 }
 
 inline void swap(mpf_class& lhs, mpf_class& rhs) noexcept {
@@ -6688,6 +6794,7 @@ using ::fibonacci;
 using ::floor;
 using ::gmpxx_defaults;
 using ::gmp_randclass;
+using ::gamma;
 using ::gcd;
 using ::hypot;
 using ::atan;
@@ -6735,6 +6842,7 @@ using ::tanh;
 using ::two_pi;
 using ::pow;
 using ::primorial;
+using ::reciprocal_gamma;
 using ::trunc;
 using ::unary_expr;
 
@@ -7457,6 +7565,66 @@ template<class T>
     return pow(mpfc_class(base), exponent);
 }
 
+[[nodiscard]] inline bool gamma_complex_pole(mpfc_class const& z) {
+    if (z.imag() != mpf_class(0, z.imag().get_prec())) {
+        return false;
+    }
+    return gmpxx_transcendent_detail::gamma_real_pole(z.real());
+}
+
+[[nodiscard]] inline mpfc_class gamma_spouge_positive(mpfc_class const& z,
+                                                      mp_bitcnt_t target) {
+    const mp_bitcnt_t work = target +
+        gmpxx_transcendent_detail::guard_bits_for_log(target) + 32;
+    const int a = gmpxx_transcendent_detail::gamma_spouge_terms(target);
+
+    mpfc_class z_work(mpf_class(z.real(), work), mpf_class(z.imag(), work));
+    mpfc_class base =
+        z_work + mpf_class(static_cast<unsigned long>(a - 1), work);
+    mpfc_class exponent = z_work - mpf_class("0.5", work);
+
+    mpfc_class sum(gmpxx_transcendent_detail::gamma_spouge_coefficient(
+                       0, a, work),
+                   mpf_class(0, work));
+    for (int k = 1; k < a; ++k) {
+        mpf_class coefficient =
+            gmpxx_transcendent_detail::gamma_spouge_coefficient(k, a, work);
+        sum += coefficient /
+               (z_work + mpf_class(static_cast<unsigned long>(k - 1), work));
+    }
+
+    mpfc_class result = pow(base, exponent) * exp(-base) * sum;
+    return mpfc_class(mpf_class(result.real(), target),
+                      mpf_class(result.imag(), target));
+}
+
+[[nodiscard]] inline mpfc_class gamma(mpfc_class const& z) {
+    const mp_bitcnt_t target = z.get_prec();
+    if (gamma_complex_pole(z)) {
+        throw std::domain_error("gamma(z) pole at non-positive integer");
+    }
+
+    const mpf_class half("0.5", target);
+    if (z.real() < half) {
+        mpfc_class one(mpf_class(1, target), mpf_class(0, target));
+        mpfc_class pi_value(mpf_class(const_pi(target), target),
+                            mpf_class(0, target));
+        mpfc_class sin_factor = sin(pi_value * z);
+        return pi_value / (sin_factor * gamma(one - z));
+    }
+
+    return gamma_spouge_positive(z, target);
+}
+
+[[nodiscard]] inline mpfc_class reciprocal_gamma(mpfc_class const& z) {
+    const mp_bitcnt_t target = z.get_prec();
+    if (gamma_complex_pole(z)) {
+        return mpfc_class(mpf_class(0, target), mpf_class(0, target));
+    }
+    mpfc_class one(mpf_class(1, target), mpf_class(0, target));
+    return one / gamma(z);
+}
+
 template<mpfc_detail::expression Expr>
 [[nodiscard]] inline mpfc_class conj(Expr const& expr) {
     return conj(mpfc_class(expr));
@@ -7627,6 +7795,18 @@ template<mpfc_detail::expression Base, mpfc_detail::expression Exponent>
 [[nodiscard]] inline mpfc_class pow(Base const& base,
                                     Exponent const& exponent) {
     return pow(mpfc_class(base), mpfc_class(exponent));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class gamma(Expr const& expr) {
+    return gamma(mpfc_class(expr));
+}
+
+template<mpfc_detail::expression Expr>
+    requires (!std::same_as<std::remove_cvref_t<Expr>, mpfc_class>)
+[[nodiscard]] inline mpfc_class reciprocal_gamma(Expr const& expr) {
+    return reciprocal_gamma(mpfc_class(expr));
 }
 
 namespace literals {
