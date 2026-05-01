@@ -78,9 +78,12 @@
 
 #include <array>
 #include <cmath>
+#include <cstdlib>
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace {
@@ -97,6 +100,136 @@ struct max_error_result {
     mpf_class value;
     std::size_t index;
 };
+
+struct options {
+    int decimal_digits = 50;
+    int guard_bits = 160;
+    std::size_t sample_count = 1440;
+    std::string initial_step = "0.02";
+    std::string stop_step = "1e-16";
+    int max_sweeps = 0;
+    std::array<std::string, 4> initial_coeffs = {
+        "0.0055", "1.102", "0.625", "-0.603"};
+};
+
+void print_usage(char const* program) {
+    std::cout
+        << "Usage: " << program << " [options]\n"
+        << "\n"
+        << "SIAM 100-Digit Challenge Problem 5 sampled experiment.\n"
+        << "Approximates 1/Gamma(z) on |z|<=1 by a real-coefficient cubic\n"
+        << "using boundary sampling and coordinate pattern search.\n"
+        << "\n"
+        << "Options:\n"
+        << "  --help          Show this help and exit.\n"
+        << "  --digits N      Decimal digits to print/use (default: 50).\n"
+        << "  --guard-bits N  Extra precision bits (default: 160).\n"
+        << "  --samples N     Boundary sample count on |z|=1 "
+           "(default: 1440).\n"
+        << "  --step X        Initial coordinate-search step "
+           "(default: 0.02).\n"
+        << "  --stop X        Stop when step <= X (default: 1e-16).\n"
+        << "  --max-sweeps N  Maximum coordinate-search sweeps; 0 means "
+           "unlimited (default: 0).\n"
+        << "  --c0 X          Initial constant coefficient.\n"
+        << "  --c1 X          Initial z coefficient.\n"
+        << "  --c2 X          Initial z^2 coefficient.\n"
+        << "  --c3 X          Initial z^3 coefficient.\n"
+        << "\n"
+        << "Examples:\n"
+        << "  " << program << "\n"
+        << "  " << program << " --digits 60 --samples 2880\n"
+        << "  " << program
+        << " --samples 720 --step 0.01 --stop 1e-12 --max-sweeps 200\n";
+}
+
+int parse_nonnegative_int(char const* option, char const* text) {
+    try {
+        std::string value(text);
+        std::size_t parsed = 0;
+        int result = std::stoi(value, &parsed);
+        if (parsed != value.size() || result < 0) {
+            throw std::invalid_argument("not a non-negative integer");
+        }
+        return result;
+    } catch (std::exception const&) {
+        throw std::invalid_argument(std::string(option) +
+                                    " expects a non-negative integer");
+    }
+}
+
+int parse_positive_int(char const* option, char const* text) {
+    int result = parse_nonnegative_int(option, text);
+    if (result == 0) {
+        throw std::invalid_argument(std::string(option) +
+                                    " expects a positive integer");
+    }
+    return result;
+}
+
+std::size_t parse_positive_size(char const* option, char const* text) {
+    try {
+        std::string value(text);
+        std::size_t parsed = 0;
+        unsigned long result = std::stoul(value, &parsed);
+        if (parsed != value.size() || result == 0) {
+            throw std::invalid_argument("not a positive integer");
+        }
+        return static_cast<std::size_t>(result);
+    } catch (std::exception const&) {
+        throw std::invalid_argument(std::string(option) +
+                                    " expects a positive integer");
+    }
+}
+
+char const* require_value(int argc, char** argv, int& index) {
+    if (index + 1 >= argc) {
+        throw std::invalid_argument(std::string(argv[index]) +
+                                    " requires a value");
+    }
+    ++index;
+    return argv[index];
+}
+
+options parse_options(int argc, char** argv) {
+    options result;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg(argv[i]);
+        if (arg == "--help" || arg == "-h") {
+            print_usage(argv[0]);
+            std::exit(0);
+        } else if (arg == "--digits") {
+            result.decimal_digits =
+                parse_positive_int(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--guard-bits") {
+            result.guard_bits =
+                parse_nonnegative_int(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--samples") {
+            result.sample_count =
+                parse_positive_size(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--step") {
+            result.initial_step = require_value(argc, argv, i);
+        } else if (arg == "--stop") {
+            result.stop_step = require_value(argc, argv, i);
+        } else if (arg == "--max-sweeps") {
+            result.max_sweeps =
+                parse_nonnegative_int(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--c0") {
+            result.initial_coeffs[0] = require_value(argc, argv, i);
+        } else if (arg == "--c1") {
+            result.initial_coeffs[1] = require_value(argc, argv, i);
+        } else if (arg == "--c2") {
+            result.initial_coeffs[2] = require_value(argc, argv, i);
+        } else if (arg == "--c3") {
+            result.initial_coeffs[3] = require_value(argc, argv, i);
+        } else {
+            throw std::invalid_argument("unknown option: " + arg);
+        }
+    }
+
+    return result;
+}
 
 mp_bitcnt_t bits_for_decimal_digits(int digits, int guard_bits) {
     double raw_bits = std::ceil(static_cast<double>(digits) * std::log2(10.0));
@@ -151,12 +284,17 @@ max_error_result sampled_sup_norm(std::array<mpf_class, 4> const& coeffs,
 
 std::array<mpf_class, 4> improve_coefficients(
     std::array<mpf_class, 4> coeffs,
-    std::vector<boundary_sample> const& samples, mp_bitcnt_t precision) {
-    mpf_class step("0.02", precision);
-    mpf_class stop("1e-16", precision);
+    std::vector<boundary_sample> const& samples, options const& opts,
+    mp_bitcnt_t precision, int& sweeps_used, mpf_class& final_step) {
+    mpf_class step(opts.initial_step, precision);
+    mpf_class stop(opts.stop_step, precision);
     max_error_result current = sampled_sup_norm(coeffs, samples, precision);
+    sweeps_used = 0;
 
     while (step > stop) {
+        if (opts.max_sweeps > 0 && sweeps_used >= opts.max_sweeps) {
+            break;
+        }
         bool improved = false;
 
         for (std::size_t k = 0; k < coeffs.size(); ++k) {
@@ -176,8 +314,10 @@ std::array<mpf_class, 4> improve_coefficients(
         if (!improved) {
             step /= mpf_class(2, precision);
         }
+        ++sweeps_used;
     }
 
+    final_step = step;
     return coeffs;
 }
 
@@ -187,52 +327,73 @@ void print_coefficients(std::array<mpf_class, 4> const& coeffs) {
     }
 }
 
-void run_case() {
-    constexpr int decimal_digits = 50;
-    constexpr std::size_t sample_count = 1440;
-    mp_bitcnt_t precision = bits_for_decimal_digits(decimal_digits, 160);
+void run_case(options const& opts) {
+    mp_bitcnt_t precision =
+        bits_for_decimal_digits(opts.decimal_digits, opts.guard_bits);
     gmpxx::gmpxx_defaults::set_initial_default_prec(precision);
 
     std::vector<boundary_sample> samples =
-        make_boundary_samples(sample_count, precision);
+        make_boundary_samples(opts.sample_count, precision);
 
     std::array<mpf_class, 4> initial = {
-        mpf_class("0.0055", precision),
-        mpf_class("1.102", precision),
-        mpf_class("0.625", precision),
-        mpf_class("-0.603", precision)};
-    std::array<mpf_class, 4> coeffs =
-        improve_coefficients(initial, samples, precision);
+        mpf_class(opts.initial_coeffs[0], precision),
+        mpf_class(opts.initial_coeffs[1], precision),
+        mpf_class(opts.initial_coeffs[2], precision),
+        mpf_class(opts.initial_coeffs[3], precision)};
+    int sweeps_used = 0;
+    mpf_class final_step(0, precision);
+    std::array<mpf_class, 4> coeffs = improve_coefficients(
+        initial, samples, opts, precision, sweeps_used, final_step);
 
     max_error_result initial_error =
         sampled_sup_norm(initial, samples, precision);
     max_error_result final_error =
         sampled_sup_norm(coeffs, samples, precision);
 
-    std::cout << "sample count on |z|=1 = " << sample_count << '\n';
-    std::cout << "initial sampled norm   = " << initial_error.value << '\n';
-    std::cout << "improved sampled norm  = " << final_error.value << '\n';
-    std::cout << "published norm         = "
-              << "0.2143352345904596394615264001847493961134072877895\n";
+    std::cout << "decimal digits          = " << opts.decimal_digits << '\n';
+    std::cout << "working precision       = " << precision << " bits\n";
+    std::cout << "sample count on |z|=1   = " << opts.sample_count << '\n';
+    std::cout << "initial step            = "
+              << mpf_class(opts.initial_step, precision) << '\n';
+    std::cout << "stop step               = "
+              << mpf_class(opts.stop_step, precision) << '\n';
+    std::cout << "sweeps used             = " << sweeps_used << '\n';
+    std::cout << "final step              = " << final_step << '\n';
+    std::cout << "initial sampled norm    = " << initial_error.value << '\n';
+    std::cout << "improved sampled norm   = " << final_error.value << '\n';
+    std::cout << "published norm          = "
+              << mpf_class(
+                     "0.2143352345904596394615264001847493961134072877895",
+                     precision)
+              << '\n';
     std::cout << "\nreal cubic coefficients p(z)=c0+c1*z+c2*z^2+c3*z^3\n";
     print_coefficients(coeffs);
 
     mpf_class theta =
         gmpxx::two_pi(precision) *
         mpf_class(static_cast<unsigned long>(final_error.index), precision) /
-        mpf_class(static_cast<unsigned long>(sample_count), precision);
+        mpf_class(static_cast<unsigned long>(opts.sample_count), precision);
     std::cout << "\nlargest sampled error at theta = " << theta << '\n';
 }
 
 }  // namespace
 
-int main() {
-    std::cout << std::scientific << std::setprecision(40);
+int main(int argc, char** argv) {
+    options opts;
+    try {
+        opts = parse_options(argc, argv);
+    } catch (std::exception const& error) {
+        std::cerr << "error: " << error.what() << "\n\n";
+        print_usage(argv[0]);
+        return 1;
+    }
+
+    std::cout << std::scientific << std::setprecision(opts.decimal_digits);
     std::cout << "SIAM 100-Digit Challenge Problem 5 example\n";
     std::cout << "Cubic uniform approximation of 1/Gamma(z) on |z| <= 1\n";
     std::cout << "The maximum is sampled on the boundary |z| = 1.\n\n";
 
-    run_case();
+    run_case(opts);
 
     return 0;
 }
