@@ -471,7 +471,9 @@ root sensitivity in an ill-conditioned polynomial. `example09` solves
 `(x - 1)^20 + 1e-40` at several precisions to show when the `1e-2` root
 circle becomes visible. `example10` uses a Mignotte integer-coefficient
 polynomial to show two real roots with extremely small separation near
-`x = 1/a`.
+`x = 1/a`. `example11` demonstrates Muller's recurrence, where exact
+arithmetic converges to 6 but finite-precision evaluation can drift toward the
+spurious attracting value 100.
 
 ## License
 
