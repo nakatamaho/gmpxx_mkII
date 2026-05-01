@@ -28,15 +28,16 @@
  */
 
 /*
- * Example 16: hexadecimal digits of log(2).
+ * Example 16: hexadecimal digits of log(2) and pi.
  *
- * This example computes log(2) with gmpxx_mkII's GMP-only transcendental
- * function and then extracts base-16 fractional digits.  The point is simple
- * but useful: hexadecimal digits map directly to binary precision, so asking
- * for n hex digits means asking for about 4n reliable bits after the binary
- * point.
+ * This example computes log(2) or pi with gmpxx_mkII's GMP-only
+ * transcendental functions and then extracts base-16 digits.  The point is
+ * simple but useful: hexadecimal digits map directly to binary precision, so
+ * asking for n hex digits means asking for about 4n reliable bits after the
+ * binary point.
  *
- * The extraction loop keeps the fractional part r of log(2), repeatedly forms
+ * The extraction loop keeps the fractional part r of the selected constant,
+ * repeatedly forms
  *
  *     16 r = d + r_next,    d in {0, ..., 15},
  *
@@ -66,6 +67,9 @@ using gmpxx::mpf_class;
 using gmpxx::mpz_class;
 
 struct options {
+    std::string constant = "log2";
+    std::string method = "auto";
+    int start = 0;
     int hex_digits = 80;
     int group = 16;
     int guard_bits = 128;
@@ -75,10 +79,16 @@ void print_usage(char const* program) {
     std::cout
         << "Usage: " << program << " [options]\n"
         << "\n"
-        << "Compute hexadecimal fractional digits of log(2).\n"
+        << "Compute hexadecimal digits of log(2) or pi.\n"
         << "\n"
         << "Options:\n"
         << "  --help          Show this help and exit.\n"
+        << "  --constant NAME Constant to compute: log2 or pi "
+           "(default: log2).\n"
+        << "  --start N       Start at hexadecimal fractional digit N; "
+           "this is binary bit 4*N (default: 0).\n"
+        << "  --method NAME   Digit method: auto, full, or bbp "
+           "(default: auto).\n"
         << "  --digits N      Number of hexadecimal digits after the point "
            "(default: 80).\n"
         << "  --group N       Group output every N hex digits; 0 disables "
@@ -88,8 +98,10 @@ void print_usage(char const* program) {
         << "\n"
         << "Examples:\n"
         << "  " << program << "\n"
-        << "  " << program << " --digits 256\n"
-        << "  " << program << " --digits 1024 --group 32\n";
+        << "  " << program << " --constant pi --digits 64\n"
+        << "  " << program << " --constant pi --start 1000 --digits 64\n"
+        << "  " << program
+        << " --constant log2 --start 10000 --digits 128 --method bbp\n";
 }
 
 int parse_nonnegative_int(char const* option, char const* text) {
@@ -133,6 +145,22 @@ options parse_options(int argc, char** argv) {
         if (arg == "--help" || arg == "-h") {
             print_usage(argv[0]);
             std::exit(0);
+        } else if (arg == "--constant") {
+            result.constant = require_value(argc, argv, i);
+            if (result.constant != "log2" && result.constant != "pi") {
+                throw std::invalid_argument(
+                    "--constant expects log2 or pi");
+            }
+        } else if (arg == "--start") {
+            result.start =
+                parse_nonnegative_int(argv[i], require_value(argc, argv, i));
+        } else if (arg == "--method") {
+            result.method = require_value(argc, argv, i);
+            if (result.method != "auto" && result.method != "full" &&
+                result.method != "bbp") {
+                throw std::invalid_argument(
+                    "--method expects auto, full, or bbp");
+            }
         } else if (arg == "--digits") {
             result.hex_digits =
                 parse_positive_int(argv[i], require_value(argc, argv, i));
@@ -150,8 +178,40 @@ options parse_options(int argc, char** argv) {
     return result;
 }
 
+std::string resolved_method(options const& opts) {
+    if (opts.method != "auto") {
+        return opts.method;
+    }
+    return opts.start == 0 ? "full" : "bbp";
+}
+
+mpf_class selected_constant(options const& opts, mp_bitcnt_t precision) {
+    if (opts.constant == "pi") {
+        return gmpxx::const_pi(precision);
+    }
+    return gmpxx::log_two(precision);
+}
+
+std::string constant_label(options const& opts) {
+    if (opts.constant == "pi") {
+        return "pi";
+    }
+    return "log(2)";
+}
+
+std::string hexadecimal_prefix(mpf_class const& value) {
+    mpz_class integer_part(value);
+    return integer_part.get_str(16);
+}
+
 mp_bitcnt_t precision_for_hex_digits(int hex_digits, int guard_bits) {
     return static_cast<mp_bitcnt_t>(hex_digits) * 4U +
+           static_cast<mp_bitcnt_t>(guard_bits);
+}
+
+mp_bitcnt_t precision_for_full_digits(int start, int hex_digits,
+                                      int guard_bits) {
+    return static_cast<mp_bitcnt_t>(start + hex_digits) * 4U +
            static_cast<mp_bitcnt_t>(guard_bits);
 }
 
@@ -183,20 +243,165 @@ std::string hexadecimal_fraction(mpf_class const& value, int digits,
     return result;
 }
 
+std::string hexadecimal_digits_from_fraction(mpf_class fraction, int digits,
+                                             int group,
+                                             mp_bitcnt_t precision) {
+    fraction -= gmpxx::floor(fraction);
+    mpf_class sixteen(16, precision);
+    std::string result;
+    result.reserve(static_cast<std::size_t>(digits) +
+                   static_cast<std::size_t>(digits / 16 + 4));
+
+    for (int i = 0; i < digits; ++i) {
+        fraction *= sixteen;
+        mpz_class integer_digit(fraction);
+        unsigned digit = integer_digit.get_ui();
+        result.push_back(hex_digit(digit));
+        fraction -= mpf_class(integer_digit, precision);
+
+        if (group > 0 && i + 1 < digits && ((i + 1) % group) == 0) {
+            result.push_back(' ');
+        }
+    }
+
+    return result;
+}
+
+void skip_hex_digits(mpf_class& fraction, int start, mp_bitcnt_t precision) {
+    mpf_class sixteen(16, precision);
+    for (int i = 0; i < start; ++i) {
+        fraction *= sixteen;
+        fraction -= gmpxx::floor(fraction);
+    }
+}
+
+mpf_class fractional_part(mpf_class value) {
+    return value - gmpxx::floor(value);
+}
+
+mpf_class pi_bbp_fraction(int start, mp_bitcnt_t precision) {
+    auto series = [&](unsigned coefficient, unsigned offset) {
+        mpf_class sum(0, precision);
+        for (int k = 0; k <= start; ++k) {
+            unsigned long modulus = static_cast<unsigned long>(8 * k + offset);
+            mpz_class residue;
+            mpz_class base(16);
+            mpz_class mod(modulus);
+            mpz_powm_ui(residue.get_mpz_t(), base.get_mpz_t(),
+                        static_cast<unsigned long>(start - k),
+                        mod.get_mpz_t());
+            sum += mpf_class(coefficient, precision) *
+                   mpf_class(residue, precision) /
+                   mpf_class(modulus, precision);
+            sum = fractional_part(sum);
+        }
+
+        mpf_class scale("0.0625", precision);
+        mpf_class tolerance =
+            gmpxx::pow(mpf_class(16, precision),
+                       -mpf_class(precision / 4 + 4, precision));
+        for (int k = start + 1; k < start + 100000; ++k) {
+            unsigned long denominator =
+                static_cast<unsigned long>(8 * k + offset);
+            mpf_class term = mpf_class(coefficient, precision) * scale /
+                             mpf_class(denominator, precision);
+            sum += term;
+            if (term < tolerance) {
+                break;
+            }
+            scale /= mpf_class(16, precision);
+        }
+
+        return sum;
+    };
+
+    mpf_class result = series(4, 1) - series(2, 4) - series(1, 5) -
+                       series(1, 6);
+    return fractional_part(result);
+}
+
+mpf_class log2_bbp_fraction(int start, mp_bitcnt_t precision) {
+    int bit_start = start * 4;
+    mpf_class sum(0, precision);
+
+    for (int k = 1; k <= bit_start; ++k) {
+        mpz_class residue;
+        mpz_class base(2);
+        mpz_class mod(k);
+        mpz_powm_ui(residue.get_mpz_t(), base.get_mpz_t(),
+                    static_cast<unsigned long>(bit_start - k),
+                    mod.get_mpz_t());
+        sum += mpf_class(residue, precision) / mpf_class(k, precision);
+        sum = fractional_part(sum);
+    }
+
+    mpf_class scale("0.5", precision);
+    mpf_class tolerance =
+        gmpxx::pow(mpf_class(16, precision),
+                   -mpf_class(precision / 4 + 4, precision));
+    for (int k = bit_start + 1; k < bit_start + 100000; ++k) {
+        mpf_class term = scale / mpf_class(k, precision);
+        sum += term;
+        if (term < tolerance) {
+            break;
+        }
+        scale /= mpf_class(2, precision);
+    }
+
+    return fractional_part(sum);
+}
+
+std::string full_method_digits(options const& opts, mp_bitcnt_t precision,
+                               std::string& integer_hex) {
+    mpf_class value = selected_constant(opts, precision);
+    integer_hex = hexadecimal_prefix(value);
+    mpf_class fraction = value - gmpxx::floor(value);
+    skip_hex_digits(fraction, opts.start, precision);
+    return hexadecimal_digits_from_fraction(fraction, opts.hex_digits,
+                                            opts.group, precision);
+}
+
+std::string bbp_method_digits(options const& opts, mp_bitcnt_t precision) {
+    mpf_class fraction =
+        opts.constant == "pi" ? pi_bbp_fraction(opts.start, precision)
+                              : log2_bbp_fraction(opts.start, precision);
+    return hexadecimal_digits_from_fraction(fraction, opts.hex_digits,
+                                            opts.group, precision);
+}
+
 void run(options const& opts) {
-    mp_bitcnt_t precision =
-        precision_for_hex_digits(opts.hex_digits, opts.guard_bits);
+    std::string method = resolved_method(opts);
+    mp_bitcnt_t precision = method == "full"
+        ? precision_for_full_digits(opts.start, opts.hex_digits,
+                                    opts.guard_bits)
+        : precision_for_hex_digits(opts.hex_digits, opts.guard_bits);
     gmpxx::gmpxx_defaults::set_initial_default_prec(precision);
 
-    mpf_class log_two = gmpxx::log_two(precision);
-    std::string fraction =
-        hexadecimal_fraction(log_two, opts.hex_digits, opts.group, precision);
+    std::string label = constant_label(opts);
+    std::string integer_hex;
+    std::string fraction = method == "full"
+        ? full_method_digits(opts, precision, integer_hex)
+        : bbp_method_digits(opts, precision);
 
-    std::cout << "log(2) hexadecimal expansion\n";
+    std::cout << label << " hexadecimal expansion\n";
+    std::cout << "method               = " << method << '\n';
+    std::cout << "hex start digit      = " << opts.start << '\n';
+    std::cout << "binary start bit     = " << opts.start * 4 << '\n';
     std::cout << "hex digits requested = " << opts.hex_digits << '\n';
     std::cout << "working precision    = " << precision << " bits\n";
     std::cout << "guard bits           = " << opts.guard_bits << "\n\n";
-    std::cout << "log(2) = 0x0." << fraction << "p+0\n";
+
+    if (opts.start == 0) {
+        if (integer_hex.empty()) {
+            integer_hex = opts.constant == "pi" ? "3" : "0";
+        }
+        std::cout << label << " = 0x" << integer_hex << "." << fraction
+                  << "p+0\n";
+    } else {
+        std::cout << label << " hex digits [" << opts.start << ", "
+                  << opts.start + opts.hex_digits - 1 << "] = "
+                  << fraction << '\n';
+    }
 }
 
 }  // namespace
