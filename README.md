@@ -475,7 +475,9 @@ polynomial to show two real roots with extremely small separation near
 arithmetic converges to 6 but finite-precision evaluation can drift toward the
 spurious attracting value 100. `example12` demonstrates small-dimensional
 integer-relation detection, the experimental-mathematics setting where
-high-precision constants are the input rather than a luxury.
+high-precision constants are the input rather than a luxury. `example13`
+evaluates the first SIAM 100-Digit Challenge integral by removing a singular,
+infinitely oscillatory endpoint through contour deformation.
 
 ## License
 
