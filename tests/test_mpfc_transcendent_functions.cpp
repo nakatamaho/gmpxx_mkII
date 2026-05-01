@@ -159,12 +159,24 @@ void test_pow_against_std_complex() {
     check_close("pow complex exponent", std::pow(ref, exponent_ref),
                 pow(z, exponent));
 
+    mpf_class real_base("1.5", 256);
+    check_close("pow mpf base complex exponent",
+                std::pow(complex_ref(1.5, 0.0), exponent_ref),
+                pow(real_base, exponent));
+    check_close("pow scalar base complex exponent",
+                std::pow(complex_ref(1.5, 0.0), exponent_ref),
+                pow(1.5, exponent));
+
     mpfc_class w = make_mpfc(0.125, 0.25);
     check_close("pow expression base", std::pow(ref + complex_ref(0.125, 0.25), 3),
                 pow(z + w, 3));
     check_close("pow expression exponent",
                 std::pow(ref, exponent_ref + complex_ref(0.125, 0.25)),
                 pow(z, exponent + w));
+    check_close("pow real base expression exponent",
+                std::pow(complex_ref(1.5, 0.0),
+                         exponent_ref + complex_ref(0.125, 0.25)),
+                pow(real_base, exponent + w));
 }
 
 void test_branch_cuts_against_std_complex() {

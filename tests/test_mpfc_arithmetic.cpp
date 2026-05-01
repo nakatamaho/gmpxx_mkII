@@ -4,6 +4,7 @@
 #include <cmath>
 #include <complex>
 #include <random>
+#include <utility>
 
 #include <gmpxx_mkII.h>
 
@@ -101,6 +102,39 @@ void test_construction_and_accessors() {
     z.imag(mpf_class(6, 160));
     assert(z.real() == 5);
     assert(z.imag() == 6);
+}
+
+void test_swap() {
+    using namespace gmpxx;
+
+    mpfc_class lhs(mpf_class(1, 128), mpf_class(2, 160));
+    mpfc_class rhs(mpf_class(3, 192), mpf_class(4, 224));
+
+    mp_bitcnt_t lhs_real_prec = lhs.real().get_prec();
+    mp_bitcnt_t lhs_imag_prec = lhs.imag().get_prec();
+    mp_bitcnt_t rhs_real_prec = rhs.real().get_prec();
+    mp_bitcnt_t rhs_imag_prec = rhs.imag().get_prec();
+
+    lhs.swap(rhs);
+    assert(lhs.real() == 3);
+    assert(lhs.imag() == 4);
+    assert(rhs.real() == 1);
+    assert(rhs.imag() == 2);
+    assert(lhs.real().get_prec() == rhs_real_prec);
+    assert(lhs.imag().get_prec() == rhs_imag_prec);
+    assert(rhs.real().get_prec() == lhs_real_prec);
+    assert(rhs.imag().get_prec() == lhs_imag_prec);
+
+    using std::swap;
+    swap(lhs, rhs);
+    assert(lhs.real() == 1);
+    assert(lhs.imag() == 2);
+    assert(rhs.real() == 3);
+    assert(rhs.imag() == 4);
+    assert(lhs.real().get_prec() == lhs_real_prec);
+    assert(lhs.imag().get_prec() == lhs_imag_prec);
+    assert(rhs.real().get_prec() == rhs_real_prec);
+    assert(rhs.imag().get_prec() == rhs_imag_prec);
 }
 
 void test_lazy_arithmetic() {
@@ -245,6 +279,7 @@ void test_arithmetic_smoke_against_std_complex() {
 
 int main() {
     test_construction_and_accessors();
+    test_swap();
     test_lazy_arithmetic();
     test_real_operands_and_division();
     test_assignment_preserves_destination_precision();

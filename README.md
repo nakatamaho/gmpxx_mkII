@@ -278,6 +278,10 @@ mpf_class angle = arg(r);
 mpfc_class rebuilt = polar(magnitude, angle);
 ```
 
+`mpfc_class` precision is carried by its `mpf_class` components.  Adjust
+component precision through `real().set_prec()` / `imag().set_prec()` or by
+constructing from precision-bearing `mpf_class` values.
+
 `mpfc_class` stream I/O uses the `std::complex` pair format:
 
 ```cpp
