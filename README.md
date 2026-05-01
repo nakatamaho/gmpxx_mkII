@@ -486,7 +486,9 @@ Madelung constant through a theta-function lattice-sum transform; run it with
 `--help` to select decimal digits, reported Simpson panel counts, reference
 panel count, and transformed-integral extent. `example15` samples the SIAM
 100-Digit Challenge cubic approximation problem for `1/Gamma(z)` on the
-complex unit disk using `mpfc_class`.
+complex unit disk using `mpfc_class`. `example16` computes hexadecimal
+fractional digits of `log(2)` with configurable digit count and guard
+precision.
 
 ## License
 
