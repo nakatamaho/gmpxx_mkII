@@ -26,6 +26,20 @@
  *
  */
 
+/*
+ * Example 02: direct square-root evaluation.
+ *
+ * This is a small API example for gmpxx::sqrt(mpf_class).  It uses the
+ * library overload so that overload resolution cannot fall back to
+ * std::sqrt(double), which would silently truncate the computation to
+ * IEEE-754 double precision.  The example is meant to show the direct
+ * high-precision call pattern, not to present a new square-root algorithm.
+ *
+ * No DOI-bearing first publication is cited for this file because the
+ * demonstrated operation is a wrapper API call around GMP floating-point
+ * arithmetic.
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <iomanip>

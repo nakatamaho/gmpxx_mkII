@@ -26,6 +26,34 @@
  *
  */
 
+/*
+ * Example 05: Aberth-Ehrlich root finding with a local real-only complex
+ * type.
+ *
+ * This example solves a degree-10 polynomial with real coefficients and
+ * complex roots.  It deliberately implements the complex arithmetic from
+ * pairs of mpf_class values so that the real operations are visible.  The
+ * update is the Aberth-Ehrlich simultaneous root iteration:
+ *
+ *     z_i <- z_i - (p(z_i) / p'(z_i)) /
+ *                  (1 - (p(z_i) / p'(z_i))
+ *                       * sum_{j != i} 1 / (z_i - z_j)).
+ *
+ * The summation term acts as an implicit deflation/repulsion term, reducing
+ * the tendency for two approximations to converge to the same simple root.
+ * The starting points are placed on a Cauchy root-bound circle.  Horner
+ * evaluation is used for both p and p'.
+ *
+ * First publications for the iteration:
+ *
+ * - Louis W. Ehrlich, "A modified Newton method for polynomials",
+ *   Communications of the ACM 10(2), 107-108, 1967.
+ *   DOI: 10.1145/363067.363115
+ * - Oliver Aberth, "Iteration methods for finding all zeros of a polynomial
+ *   simultaneously", Mathematics of Computation 27(122), 339-344, 1973.
+ *   DOI: 10.1090/S0025-5718-1973-0329236-7
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <cmath>

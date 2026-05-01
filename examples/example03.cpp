@@ -26,6 +26,24 @@
  *
  */
 
+/*
+ * Example 03: Newton iteration for sqrt(2).
+ *
+ * The iteration
+ *
+ *     x_{k+1} = (x_k + 2 / x_k) / 2
+ *
+ * is the classical Newton/Heron iteration applied to f(x) = x^2 - 2.
+ * In this example it is useful because it exercises repeated expression
+ * evaluation, division, assignment into an existing mpf_class, and a
+ * precision-dependent stopping test.  The final value is compared with the
+ * library sqrt() overload, which must remain GMP-backed rather than falling
+ * through to a double overload.
+ *
+ * This method predates the DOI system by centuries, so there is no honest
+ * DOI-bearing first-publication reference for the historical algorithm.
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <cmath>

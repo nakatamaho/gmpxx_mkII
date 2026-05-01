@@ -26,6 +26,32 @@
  *
  */
 
+/*
+ * Example 06: Aberth-Ehrlich root finding with gmpxx::mpfc_class.
+ *
+ * This is the mpfc_class version of example05.  It keeps the same
+ * mathematical method and polynomial, but the complex arithmetic is now
+ * expressed through the library's complex GMP type.  The example therefore
+ * demonstrates the intended high-level API: real coefficients are stored as
+ * mpf_class, complex iterates as mpfc_class, and stream output follows the
+ * std::complex-compatible style implemented by gmpxx_mkII.
+ *
+ * The Aberth-Ehrlich correction combines a Newton step with a sum over the
+ * other current approximations.  That sum is the practical reason this method
+ * is attractive for examples: all roots are advanced simultaneously, and the
+ * code naturally exercises complex division, absolute value, expression
+ * templates, and formatted I/O.
+ *
+ * First publications for the iteration:
+ *
+ * - Louis W. Ehrlich, "A modified Newton method for polynomials",
+ *   Communications of the ACM 10(2), 107-108, 1967.
+ *   DOI: 10.1145/363067.363115
+ * - Oliver Aberth, "Iteration methods for finding all zeros of a polynomial
+ *   simultaneously", Mathematics of Computation 27(122), 339-344, 1973.
+ *   DOI: 10.1090/S0025-5718-1973-0329236-7
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <cmath>

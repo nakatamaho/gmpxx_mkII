@@ -26,6 +26,40 @@
  *
  */
 
+/*
+ * Example 08: Wilkinson polynomial sensitivity.
+ *
+ * Wilkinson's degree-20 polynomial
+ *
+ *     W_20(x) = product_{k=1}^{20} (x - k)
+ *
+ * has exactly known integer roots, but its roots are highly sensitive to
+ * small coefficient perturbations.  This example solves the exact polynomial
+ * and then repeats the solve after perturbing only the x^19 coefficient by
+ * 1e-10.  The printed root shifts make coefficient/root conditioning visible
+ * without relying on a double-precision reference calculation.
+ *
+ * Aberth-Ehrlich is used as the simultaneous solver, so the root-finding
+ * update has the same references as examples 05 and 06.  Wilkinson's original
+ * discussion appeared in a 1963 book before DOI assignment was normal; the
+ * DOI below is for the modern SIAM Classics reissue.
+ *
+ * Wilkinson reference:
+ *
+ * - James H. Wilkinson, "Rounding Errors in Algebraic Processes", originally
+ *   published by HMSO/Prentice-Hall, 1963; SIAM Classics reissue, 2023.
+ *   DOI: 10.1137/1.9781611977523
+ *
+ * Aberth-Ehrlich references:
+ *
+ * - Louis W. Ehrlich, "A modified Newton method for polynomials",
+ *   Communications of the ACM 10(2), 107-108, 1967.
+ *   DOI: 10.1145/363067.363115
+ * - Oliver Aberth, "Iteration methods for finding all zeros of a polynomial
+ *   simultaneously", Mathematics of Computation 27(122), 339-344, 1973.
+ *   DOI: 10.1090/S0025-5718-1973-0329236-7
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <algorithm>

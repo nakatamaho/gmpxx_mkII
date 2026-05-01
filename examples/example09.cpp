@@ -26,6 +26,50 @@
  *
  */
 
+/*
+ * Example 09: near-multiple-root perturbation.
+ *
+ * The polynomial
+ *
+ *     p(x) = (x - 1)^20 + 1e-40
+ *
+ * is a compact conditioning example.  In exact arithmetic, the perturbation
+ * changes the 20-fold root at x = 1 into roots satisfying
+ *
+ *     (x - 1)^20 = -1e-40,
+ *
+ * so the roots lie on a circle of radius 1e-2 around x = 1.  The coefficient
+ * perturbation is 1e-40, but the root displacement is about 1e-2.  This
+ * exposes the same core issue as Wilkinson's polynomial: root location can be
+ * dramatically more sensitive than coefficient size suggests.
+ *
+ * The example runs the same stored polynomial construction at 53, 100, 200,
+ * and 500 bits.  At low precision the 1e-40 addition to the constant
+ * coefficient can be rounded away, so the visible root circle is not a
+ * property of the stored coefficients.  At higher precision the perturbation
+ * survives and the Aberth-Ehrlich iteration recovers the expected geometry.
+ *
+ * This particular polynomial is an elementary didactic variant rather than a
+ * separate named historical test.  The sensitivity context follows
+ * Wilkinson's root-conditioning example; the simultaneous solver follows
+ * Ehrlich and Aberth.
+ *
+ * Wilkinson reference:
+ *
+ * - James H. Wilkinson, "Rounding Errors in Algebraic Processes", originally
+ *   published by HMSO/Prentice-Hall, 1963; SIAM Classics reissue, 2023.
+ *   DOI: 10.1137/1.9781611977523
+ *
+ * Aberth-Ehrlich references:
+ *
+ * - Louis W. Ehrlich, "A modified Newton method for polynomials",
+ *   Communications of the ACM 10(2), 107-108, 1967.
+ *   DOI: 10.1145/363067.363115
+ * - Oliver Aberth, "Iteration methods for finding all zeros of a polynomial
+ *   simultaneously", Mathematics of Computation 27(122), 339-344, 1973.
+ *   DOI: 10.1090/S0025-5718-1973-0329236-7
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <algorithm>

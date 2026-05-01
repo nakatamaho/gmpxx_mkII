@@ -26,6 +26,39 @@
  *
  */
 
+/*
+ * Example 07: Mandelbrot escape-time rendering.
+ *
+ * The Mandelbrot set is the parameter set of c values for which the orbit
+ *
+ *     z_0 = 0,  z_{k+1} = z_k^2 + c
+ *
+ * remains bounded.  This renderer evaluates that recurrence with
+ * gmpxx::mpfc_class.  ASCII output is the default so the example has no image
+ * dependency; --ppm writes a plain PPM image when a raster file is wanted.
+ * The ASCII path uses y_pixel_aspect = 2 because terminal cells are typically
+ * taller than they are wide.  The PPM path uses square pixels.
+ *
+ * Multiple precision is most visible near thin boundary structures and deep
+ * zooms.  Even when this default view is centered at the ordinary full set,
+ * all coordinate arithmetic is GMP-backed, so the same code can be retargeted
+ * to small scales without changing the numerical type.
+ *
+ * Early reference for the quadratic-iteration fractal:
+ *
+ * - Benoit B. Mandelbrot, "Fractal aspects of the iteration of z -> lambda
+ *   z(1-z) for complex lambda and z", Annals of the New York Academy of
+ *   Sciences 357, 249-259, 1980.
+ *   DOI: 10.1111/j.1749-6632.1980.tb29690.x
+ *
+ * A later paper using the z^2 - mu convention and discussing the M set:
+ *
+ * - Benoit B. Mandelbrot, "On the quadratic mapping z -> z^2 - mu for
+ *   complex mu and z: the fractal structure of its M set, and scaling",
+ *   Physica D 7(1-3), 224-239, 1983.
+ *   DOI: 10.1016/0167-2789(83)90128-8
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <cstddef>

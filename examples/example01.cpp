@@ -26,6 +26,18 @@
  *
  */
 
+/*
+ * Example 01: minimal mpf_class arithmetic.
+ *
+ * This file is intentionally not an algorithmic example.  It demonstrates
+ * the smallest source-compatible shape expected from gmpxx_mkII: construct
+ * two GMP-backed floating-point values at an explicit precision, build an
+ * expression-template addition, and materialize the result as mpf_class.
+ *
+ * There is therefore no DOI-bearing first publication to cite here.  The
+ * point of the example is library usage rather than a numerical method.
+ */
+
 #include "gmpxx_mkII.h"
 
 #include <iostream>
