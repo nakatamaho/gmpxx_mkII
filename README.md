@@ -473,7 +473,9 @@ circle becomes visible. `example10` uses a Mignotte integer-coefficient
 polynomial to show two real roots with extremely small separation near
 `x = 1/a`. `example11` demonstrates Muller's recurrence, where exact
 arithmetic converges to 6 but finite-precision evaluation can drift toward the
-spurious attracting value 100.
+spurious attracting value 100. `example12` demonstrates small-dimensional
+integer-relation detection, the experimental-mathematics setting where
+high-precision constants are the input rather than a luxury.
 
 ## License
 
