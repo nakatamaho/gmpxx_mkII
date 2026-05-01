@@ -29,7 +29,7 @@
 #include "gmpxx_mkII.h"
 
 #include <algorithm>
-#include <cmath>
+#include <array>
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
@@ -41,12 +41,6 @@ namespace {
 using gmpxx::mpf_class;
 using gmpxx::mpfc_class;
 
-mp_bitcnt_t bits_for_decimal_digits(int digits, int guard_bits) {
-    double raw_bits = std::ceil(static_cast<double>(digits) * std::log2(10.0));
-    return static_cast<mp_bitcnt_t>(raw_bits) +
-           static_cast<mp_bitcnt_t>(guard_bits);
-}
-
 mpfc_class make_complex(mpf_class const& real_value,
                         mpf_class const& imag_value) {
     return mpfc_class(real_value, imag_value);
@@ -56,21 +50,23 @@ mpfc_class make_real(mpf_class const& real_value, mp_bitcnt_t precision) {
     return make_complex(real_value, mpf_class(0, precision));
 }
 
-std::vector<mpf_class> wilkinson_coefficients(std::size_t degree,
-                                              mp_bitcnt_t precision) {
+std::vector<mpf_class> shifted_power_coefficients(std::size_t degree,
+                                                  mpf_class const& epsilon,
+                                                  mp_bitcnt_t precision) {
     std::vector<mpf_class> coefficients(1, mpf_class(1, precision));
 
-    for (std::size_t root = 1; root <= degree; ++root) {
+    for (std::size_t factor = 0; factor < degree; ++factor) {
+        (void)factor;
         std::vector<mpf_class> next(coefficients.size() + 1,
                                     mpf_class(0, precision));
-        mpf_class root_value(static_cast<unsigned long>(root), precision);
         for (std::size_t i = 0; i < coefficients.size(); ++i) {
-            next[i] -= coefficients[i] * root_value;
+            next[i] -= coefficients[i];
             next[i + 1] += coefficients[i];
         }
         coefficients = next;
     }
 
+    coefficients[0] += epsilon;
     return coefficients;
 }
 
@@ -110,19 +106,27 @@ mpfc_class evaluate_derivative(std::vector<mpf_class> const& coefficients,
     return value;
 }
 
-std::vector<mpfc_class> initial_wilkinson_guesses(std::size_t degree,
-                                                  mp_bitcnt_t precision) {
-    std::vector<mpfc_class> guesses;
-    guesses.reserve(degree);
+std::vector<mpfc_class> initial_circle(std::size_t degree,
+                                       mpf_class const& center,
+                                       mpf_class const& radius,
+                                       mp_bitcnt_t precision) {
+    std::vector<mpfc_class> roots;
+    roots.reserve(degree);
 
-    mpf_class imag_scale("0.01", precision);
-    for (std::size_t i = 1; i <= degree; ++i) {
-        mpf_class real(static_cast<unsigned long>(i), precision);
-        mpf_class imag =
-            imag_scale / mpf_class(static_cast<unsigned long>(i), precision);
-        guesses.push_back(make_complex(real, imag));
+    mpf_class two_pi = gmpxx::two_pi(precision);
+    mpf_class pi = gmpxx::const_pi(precision);
+    mpf_class degree_value(static_cast<unsigned long>(degree), precision);
+    mpf_class angle_offset("0.07", precision);
+
+    for (std::size_t i = 0; i < degree; ++i) {
+        mpf_class index(static_cast<unsigned long>(i), precision);
+        mpf_class angle = (pi + two_pi * index) / degree_value +
+                          angle_offset;
+        roots.push_back(make_complex(center + radius * gmpxx::cos(angle),
+                                     radius * gmpxx::sin(angle)));
     }
-    return guesses;
+
+    return roots;
 }
 
 std::vector<mpfc_class> solve_with_aberth(
@@ -154,8 +158,7 @@ std::vector<mpfc_class> solve_with_aberth(
                 make_real(mpf_class(0, precision), precision);
             for (std::size_t j = 0; j < degree; ++j) {
                 if (i != j) {
-                    mpfc_class separation = roots[i] - roots[j];
-                    repulsion += one / separation;
+                    repulsion += one / (roots[i] - roots[j]);
                 }
             }
 
@@ -169,8 +172,8 @@ std::vector<mpfc_class> solve_with_aberth(
         }
 
         roots = next_roots;
-        if (iteration <= 6 || iteration % 5 == 0) {
-            std::cout << "iteration " << std::setw(2) << iteration
+        if (iteration <= 4 || iteration % 5 == 0) {
+            std::cout << "  iteration " << std::setw(2) << iteration
                       << ", max correction = " << max_update << '\n';
         }
         if (max_update < tolerance) {
@@ -181,77 +184,108 @@ std::vector<mpfc_class> solve_with_aberth(
     return roots;
 }
 
-void sort_by_real_part(std::vector<mpfc_class>& roots) {
+void sort_by_angle_around_one(std::vector<mpfc_class>& roots,
+                              mp_bitcnt_t precision) {
+    mpfc_class one(mpf_class(1, precision), mpf_class(0, precision));
     std::sort(roots.begin(), roots.end(),
-              [](mpfc_class const& a, mpfc_class const& b) {
-                  return a.real() < b.real();
+              [&](mpfc_class const& a, mpfc_class const& b) {
+                  return gmpxx::arg(a - one) < gmpxx::arg(b - one);
               });
 }
 
-void print_roots(char const* title, std::vector<mpfc_class> roots,
-                 std::vector<mpf_class> const& coefficients,
-                 mp_bitcnt_t precision) {
-    sort_by_real_part(roots);
-    std::cout << '\n' << title << '\n';
-    std::cout << " index                 root"
-                 "                         |f(root)|\n";
+void print_radius_summary(std::vector<mpfc_class> roots,
+                          std::vector<mpf_class> const& coefficients,
+                          mp_bitcnt_t precision) {
+    mpfc_class one(mpf_class(1, precision), mpf_class(0, precision));
+    sort_by_angle_around_one(roots, precision);
 
-    for (std::size_t i = 0; i < roots.size(); ++i) {
-        mpfc_class residual =
-            evaluate_polynomial(coefficients, roots[i], precision);
-        std::cout << std::setw(5) << (i + 1) << "  " << roots[i]
-                  << "  " << gmpxx::abs(residual) << '\n';
+    mpf_class min_radius("1e100", precision);
+    mpf_class max_radius(0, precision);
+    mpf_class sum_radius(0, precision);
+    mpf_class max_residual(0, precision);
+
+    for (mpfc_class const& root : roots) {
+        mpf_class radius = gmpxx::abs(root - one);
+        min_radius = radius < min_radius ? radius : min_radius;
+        max_radius = radius > max_radius ? radius : max_radius;
+        sum_radius += radius;
+
+        mpf_class residual =
+            gmpxx::abs(evaluate_polynomial(coefficients, root, precision));
+        max_residual = residual > max_residual ? residual : max_residual;
+    }
+
+    mpf_class mean_radius =
+        sum_radius / mpf_class(static_cast<unsigned long>(roots.size()),
+                               precision);
+
+    std::cout << "  radius min/mean/max = " << min_radius << "  "
+              << mean_radius << "  " << max_radius << '\n';
+    std::cout << "  max |p(root)|       = " << max_residual << '\n';
+    std::cout << "  first roots by angle around x=1:\n";
+    std::cout << "    angle                  |root-1|"
+                 "                 root\n";
+
+    std::size_t shown = std::min<std::size_t>(roots.size(), 8);
+    for (std::size_t i = 0; i < shown; ++i) {
+        mpfc_class shifted = roots[i] - one;
+        std::cout << "    " << std::setw(22) << gmpxx::arg(shifted)
+                  << "  " << std::setw(22) << gmpxx::abs(shifted)
+                  << "  " << roots[i] << '\n';
     }
 }
 
-void print_root_shift(std::vector<mpfc_class> exact_roots,
-                      std::vector<mpfc_class> perturbed_roots) {
-    sort_by_real_part(exact_roots);
-    sort_by_real_part(perturbed_roots);
+void run_precision(mp_bitcnt_t precision) {
+    constexpr std::size_t degree = 20;
 
-    std::cout << "\nRoot movement after perturbing the x^19 coefficient\n";
-    std::cout << " index            |delta root|\n";
-    for (std::size_t i = 0; i < exact_roots.size(); ++i) {
-        mpf_class shift = gmpxx::abs(perturbed_roots[i] - exact_roots[i]);
-        std::cout << std::setw(5) << (i + 1) << "  " << shift << '\n';
+    gmpxx::gmpxx_defaults::set_initial_default_prec(precision);
+
+    mpf_class epsilon("1e-40", precision);
+    mpf_class expected_radius("1e-2", precision);
+    mpf_class center(1, precision);
+    std::vector<mpf_class> coefficients =
+        shifted_power_coefficients(degree, epsilon, precision);
+    mpf_class retained_epsilon = coefficients[0] - mpf_class(1, precision);
+
+    std::cout << "\nprecision = " << precision << " bits\n";
+    std::cout << "  retained constant perturbation = "
+              << retained_epsilon << '\n';
+
+    if (retained_epsilon == 0) {
+        std::cout << "  perturbation is rounded away at this precision;"
+                     " the 1e-2 root circle is not present in the stored"
+                     " coefficients.\n";
+        return;
     }
+
+    std::cout << "  expected |root-1| = " << expected_radius << '\n';
+    mpf_class initial_radius = expected_radius * mpf_class("1.2", precision);
+    mpf_class tolerance("1e-35", precision);
+    if (precision >= 256) {
+        tolerance = mpf_class("1e-70", precision);
+    }
+
+    std::vector<mpfc_class> roots = solve_with_aberth(
+        coefficients,
+        initial_circle(degree, center, initial_radius, precision),
+        tolerance, 40, precision);
+
+    print_radius_summary(roots, coefficients, precision);
 }
 
 }  // namespace
 
 int main() {
-    constexpr std::size_t degree = 20;
-    constexpr int decimal_digits = 60;
-    const mp_bitcnt_t precision = bits_for_decimal_digits(decimal_digits, 192);
+    constexpr std::array<mp_bitcnt_t, 4> precisions = {53, 100, 200, 500};
 
-    gmpxx::gmpxx_defaults::set_initial_default_prec(precision);
+    std::cout << std::scientific << std::setprecision(18);
+    std::cout << "Near-multiple-root perturbation example\n";
+    std::cout << "p(x) = (x - 1)^20 + 1e-40\n";
+    std::cout << "The exact roots satisfy |x - 1| = 1e-2.\n";
 
-    std::vector<mpf_class> exact = wilkinson_coefficients(degree, precision);
-    std::vector<mpf_class> perturbed = exact;
-    perturbed[degree - 1] += mpf_class("1e-10", precision);
-
-    mpf_class tolerance("1e-45", precision);
-
-    std::cout << std::scientific << std::setprecision(decimal_digits);
-    std::cout << "Wilkinson polynomial example using gmpxx::mpfc_class\n";
-    std::cout << "W_20(x) = product_{k=1}^{20} (x-k)\n";
-    std::cout << "The second solve perturbs only the x^19 coefficient by"
-                 " 1e-10.\n\n";
-
-    std::cout << "Solving exact W_20\n";
-    std::vector<mpfc_class> exact_roots = solve_with_aberth(
-        exact, initial_wilkinson_guesses(degree, precision), tolerance, 40,
-        precision);
-
-    std::cout << "\nSolving perturbed W_20\n";
-    std::vector<mpfc_class> perturbed_roots = solve_with_aberth(
-        perturbed, initial_wilkinson_guesses(degree, precision), tolerance, 40,
-        precision);
-
-    print_roots("Exact polynomial roots", exact_roots, exact, precision);
-    print_roots("Perturbed polynomial roots", perturbed_roots, perturbed,
-                precision);
-    print_root_shift(exact_roots, perturbed_roots);
+    for (mp_bitcnt_t precision : precisions) {
+        run_precision(precision);
+    }
 
     return 0;
 }
