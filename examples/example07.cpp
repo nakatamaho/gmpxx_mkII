@@ -3,6 +3,7 @@
 #include "gmpxx_mkII.h"
 
 #include <cstddef>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <ostream>
@@ -55,12 +56,42 @@ rgb color_for(int iterations, int max_iterations) {
         return {0, 0, 0};
     }
 
-    int t = (255 * iterations) / max_iterations;
-    int inv = 255 - t;
+    double hue = 360.0 * static_cast<double>(iterations) /
+                 static_cast<double>(max_iterations);
+    double saturation = 0.92;
+    double value = 1.0;
+    double chroma = value * saturation;
+    double hue_sector = hue / 60.0;
+    double x = chroma * (1.0 - std::fabs(std::fmod(hue_sector, 2.0) - 1.0));
+    double m = value - chroma;
+
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
+    if (hue_sector < 1.0) {
+        r = chroma;
+        g = x;
+    } else if (hue_sector < 2.0) {
+        r = x;
+        g = chroma;
+    } else if (hue_sector < 3.0) {
+        g = chroma;
+        b = x;
+    } else if (hue_sector < 4.0) {
+        g = x;
+        b = chroma;
+    } else if (hue_sector < 5.0) {
+        r = x;
+        b = chroma;
+    } else {
+        r = chroma;
+        b = x;
+    }
+
     return {
-        (9 * t * inv) / 1024,
-        (7 * t * t) / 2048,
-        inv,
+        static_cast<int>((r + m) * 255.0 + 0.5),
+        static_cast<int>((g + m) * 255.0 + 0.5),
+        static_cast<int>((b + m) * 255.0 + 0.5),
     };
 }
 
