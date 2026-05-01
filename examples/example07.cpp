@@ -91,6 +91,40 @@ struct render_config {
     char const* y_pixel_aspect = "2";
 };
 
+void print_usage(char const* program) {
+    std::cout
+        << "Usage: " << program << " [options]\n"
+        << "\n"
+        << "Render the Mandelbrot set using gmpxx::mpfc_class arithmetic.\n"
+        << "ASCII is the default output; --ppm writes a plain PPM image.\n"
+        << "\n"
+        << "Options:\n"
+        << "  --help              Show this help and exit.\n"
+        << "  --width N           Output width in pixels/characters "
+           "(default: 96 ASCII, 320 PPM).\n"
+        << "  --height N          Output height. If omitted, a default aspect "
+           "height is used.\n"
+        << "  --center-re X       Real part of viewport center (default: 0).\n"
+        << "  --center-im Y       Imaginary part of viewport center "
+           "(default: 0).\n"
+        << "  --center X Y        Set real and imaginary center together.\n"
+        << "  --scale S           Real-axis viewport span (default: 3.5).\n"
+        << "  --aspect A          Pixel-height correction for ASCII "
+           "(default: 2; PPM default: 1).\n"
+        << "  --precision BITS    GMP precision in bits (default: 192).\n"
+        << "  --iterations N      Maximum escape iterations (default: 160).\n"
+        << "  --ppm [FILE]        Write PPM image to FILE, or stdout if omitted.\n"
+        << "\n"
+        << "Examples:\n"
+        << "  " << program << "\n"
+        << "  " << program << " --center -0.75 0 --scale 2.5 --width 120\n"
+        << "  " << program
+        << " --center-re -0.743643887037151 --center-im 0.13182590420533 "
+           "--scale 1e-12 --precision 512 --iterations 2000 --width 160\n"
+        << "  " << program
+        << " --ppm zoom.ppm --width 800 --center -0.75 0 --scale 2.5\n";
+}
+
 mpfc_class make_complex(mpf_class const& real_value,
                         mpf_class const& imag_value) {
     return mpfc_class(real_value, imag_value);
@@ -176,6 +210,22 @@ int parse_positive_int(char const* text, char const* option_name) {
                                     " requires a positive integer");
     }
     return result;
+}
+
+char const* require_value(int argc, char** argv, int& index,
+                          char const* option_name) {
+    if (index + 1 >= argc) {
+        throw std::invalid_argument(std::string(option_name) +
+                                    " requires a value");
+    }
+    ++index;
+    return argv[index];
+}
+
+mp_bitcnt_t parse_positive_precision(char const* text,
+                                     char const* option_name) {
+    return static_cast<mp_bitcnt_t>(
+        parse_positive_int(text, option_name));
 }
 
 struct render_state {
@@ -275,17 +325,47 @@ int main(int argc, char** argv) {
     render_config config;
     bool ppm_output = false;
     bool width_set = false;
+    bool height_set = false;
+    bool aspect_set = false;
     char const* output_path = nullptr;
 
     try {
         for (int i = 1; i < argc; ++i) {
             std::string arg(argv[i]);
-            if (arg == "--width") {
-                if (i + 1 >= argc) {
-                    throw std::invalid_argument("--width requires a value");
-                }
-                config.width = parse_positive_int(argv[++i], "--width");
+            if (arg == "--help" || arg == "-h") {
+                print_usage(argv[0]);
+                return 0;
+            } else if (arg == "--width") {
+                config.width = parse_positive_int(
+                    require_value(argc, argv, i, "--width"), "--width");
                 width_set = true;
+            } else if (arg == "--height") {
+                config.height = parse_positive_int(
+                    require_value(argc, argv, i, "--height"), "--height");
+                height_set = true;
+            } else if (arg == "--center-re") {
+                config.center_real =
+                    require_value(argc, argv, i, "--center-re");
+            } else if (arg == "--center-im") {
+                config.center_imag =
+                    require_value(argc, argv, i, "--center-im");
+            } else if (arg == "--center") {
+                config.center_real = require_value(argc, argv, i, "--center");
+                config.center_imag = require_value(argc, argv, i, "--center");
+            } else if (arg == "--scale") {
+                config.scale = require_value(argc, argv, i, "--scale");
+            } else if (arg == "--aspect") {
+                config.y_pixel_aspect =
+                    require_value(argc, argv, i, "--aspect");
+                aspect_set = true;
+            } else if (arg == "--precision") {
+                config.precision = parse_positive_precision(
+                    require_value(argc, argv, i, "--precision"),
+                    "--precision");
+            } else if (arg == "--iterations") {
+                config.max_iterations = parse_positive_int(
+                    require_value(argc, argv, i, "--iterations"),
+                    "--iterations");
             } else if (arg == "--ppm") {
                 ppm_output = true;
                 if (i + 1 < argc && std::string(argv[i + 1]).rfind("--", 0) != 0) {
@@ -293,8 +373,8 @@ int main(int argc, char** argv) {
                 }
             } else {
                 throw std::invalid_argument(
-                    "usage: " + std::string(argv[0]) +
-                    " [--width N] [--ppm [output.ppm]]");
+                    "unknown option: " + arg +
+                    "\nuse --help to see available options");
             }
         }
 
@@ -302,11 +382,15 @@ int main(int argc, char** argv) {
             if (!width_set) {
                 config.width = 320;
             }
-            config.height = (config.width * 3) / 4;
-            if (config.height < 1) {
-                config.height = 1;
+            if (!height_set) {
+                config.height = (config.width * 3) / 4;
+                if (config.height < 1) {
+                    config.height = 1;
+                }
             }
-            config.y_pixel_aspect = "1";
+            if (!aspect_set) {
+                config.y_pixel_aspect = "1";
+            }
             if (output_path != nullptr) {
                 std::ofstream file(output_path);
                 if (!file) {
@@ -319,9 +403,11 @@ int main(int argc, char** argv) {
                 write_ppm(std::cout, config);
             }
         } else {
-            config.height = (config.width * 40) / 96;
-            if (config.height < 1) {
-                config.height = 1;
+            if (!height_set) {
+                config.height = (config.width * 40) / 96;
+                if (config.height < 1) {
+                    config.height = 1;
+                }
             }
             write_ascii(std::cout, config);
         }

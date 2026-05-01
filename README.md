@@ -467,9 +467,10 @@ including two DKA/Aberth root finder examples: `example05` keeps the
 pre-`mpfc_class` real-pair implementation, while `example06` uses
 `gmpxx::mpfc_class`. `example07` renders a dependency-free Mandelbrot set
 view as terminal ASCII by default, and writes a PPM image with
-`--ppm [output.ppm]`; `--width N` controls the render width. `example08`
-solves the Wilkinson polynomial and a slightly perturbed variant to show
-root sensitivity in an ill-conditioned polynomial. `example09` solves
+`--ppm [output.ppm]`; run it with `--help` to select center, scale, precision,
+iterations, image dimensions, and pixel aspect. `example08` solves the
+Wilkinson polynomial and a slightly perturbed variant to show root sensitivity
+in an ill-conditioned polynomial. `example09` solves
 `(x - 1)^20 + 1e-40` at several precisions to show when the `1e-2` root
 circle becomes visible. `example10` uses a Mignotte integer-coefficient
 polynomial to show two real roots with extremely small separation near
