@@ -479,7 +479,9 @@ spurious attracting value 100. `example12` demonstrates small-dimensional
 integer-relation detection, the experimental-mathematics setting where
 high-precision constants are the input rather than a luxury. `example13`
 evaluates the first SIAM 100-Digit Challenge integral by removing a singular,
-infinitely oscillatory endpoint through contour deformation.
+infinitely oscillatory endpoint through contour deformation. `example14`
+computes the NaCl Madelung constant through a theta-function lattice-sum
+transform, illustrating conditional convergence in Coulomb sums.
 
 ## License
 
