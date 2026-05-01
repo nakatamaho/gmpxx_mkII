@@ -469,7 +469,9 @@ view as terminal ASCII by default, and writes a PPM image with
 solves the Wilkinson polynomial and a slightly perturbed variant to show
 root sensitivity in an ill-conditioned polynomial. `example09` solves
 `(x - 1)^20 + 1e-40` at several precisions to show when the `1e-2` root
-circle becomes visible.
+circle becomes visible. `example10` uses a Mignotte integer-coefficient
+polynomial to show two real roots with extremely small separation near
+`x = 1/a`.
 
 ## License
 
