@@ -71,6 +71,23 @@ void validate_config(render_config const& config) {
     }
 }
 
+int parse_positive_int(char const* text, char const* option_name) {
+    std::string value(text);
+    std::size_t consumed = 0;
+    int result = 0;
+    try {
+        result = std::stoi(value, &consumed, 10);
+    } catch (std::exception const&) {
+        throw std::invalid_argument(std::string(option_name) +
+                                    " requires a positive integer");
+    }
+    if (consumed != value.size() || result <= 0) {
+        throw std::invalid_argument(std::string(option_name) +
+                                    " requires a positive integer");
+    }
+    return result;
+}
+
 struct render_state {
     mpf_class center_real;
     mpf_class center_imag;
@@ -166,21 +183,44 @@ void write_ppm(std::ostream& out, render_config const& config) {
 
 int main(int argc, char** argv) {
     render_config config;
-
-    if (argc > 3 || (argc >= 2 && std::string(argv[1]) != "--ppm")) {
-        std::cerr << "usage: " << argv[0] << " [--ppm [output.ppm]]\n";
-        return 2;
-    }
+    bool ppm_output = false;
+    bool width_set = false;
+    char const* output_path = nullptr;
 
     try {
-        if (argc >= 2) {
-            config.width = 320;
-            config.height = 240;
+        for (int i = 1; i < argc; ++i) {
+            std::string arg(argv[i]);
+            if (arg == "--width") {
+                if (i + 1 >= argc) {
+                    throw std::invalid_argument("--width requires a value");
+                }
+                config.width = parse_positive_int(argv[++i], "--width");
+                width_set = true;
+            } else if (arg == "--ppm") {
+                ppm_output = true;
+                if (i + 1 < argc && std::string(argv[i + 1]).rfind("--", 0) != 0) {
+                    output_path = argv[++i];
+                }
+            } else {
+                throw std::invalid_argument(
+                    "usage: " + std::string(argv[0]) +
+                    " [--width N] [--ppm [output.ppm]]");
+            }
+        }
+
+        if (ppm_output) {
+            if (!width_set) {
+                config.width = 320;
+            }
+            config.height = (config.width * 3) / 4;
+            if (config.height < 1) {
+                config.height = 1;
+            }
             config.y_pixel_aspect = "1";
-            if (argc == 3) {
-                std::ofstream file(argv[2]);
+            if (output_path != nullptr) {
+                std::ofstream file(output_path);
                 if (!file) {
-                    std::cerr << "failed to open output file: " << argv[2]
+                    std::cerr << "failed to open output file: " << output_path
                               << '\n';
                     return 1;
                 }
@@ -189,6 +229,10 @@ int main(int argc, char** argv) {
                 write_ppm(std::cout, config);
             }
         } else {
+            config.height = (config.width * 40) / 96;
+            if (config.height < 1) {
+                config.height = 1;
+            }
             write_ascii(std::cout, config);
         }
     } catch (std::exception const& ex) {
